@@ -1,0 +1,5 @@
+.DS_Store
+node_modules
+dist/plugins/_virtual
+.history
+.vscode

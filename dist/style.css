@@ -1,0 +1,258 @@
+.gantt-shedule-timeline-calendar {
+  display: flex;
+  overflow: hidden;
+  color: #606060;
+}
+.gantt-shedule-timeline-calendar * {
+  font-size: 14px;
+  box-sizing: border-box;
+}
+.gantt-shedule-timeline-calendar__helper-center {
+  text-align: center;
+}
+.gantt-shedule-timeline-calendar__helper-dark {
+  background: #f9fafb;
+}
+.gantt-shedule-timeline-calendar__list-column-header-resizer--active {
+  cursor: ew-resize;
+}
+.gantt-shedule-timeline-calendar__list-column-header-resizer--active * {
+  -webkit-user-select: none; /* Safari 3.1+ */
+  -moz-user-select: none; /* Firefox 2+ */
+  -ms-user-select: none; /* IE 10+ */
+  user-select: none; /* Standard syntax */
+}
+.gantt-shedule-timeline-calendar__vertical-scroll {
+  overflow: hidden;
+  overflow-y: visible;
+  flex-shrink: 0;
+  position: absolute;
+  right: 0px;
+}
+.gantt-shedule-timeline-calendar__horizontal-scroll {
+  overflow: hidden;
+  overflow-x: scroll;
+}
+.gantt-shedule-timeline-calendar__list {
+  border-collapse: collapse;
+  display: flex;
+  overflow: hidden;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+.gantt-shedule-timeline-calendar__list-expander {
+  display: inline-flex;
+  height: var(--height);
+}
+.gantt-shedule-timeline-calendar__list-expander-padding {
+  width: var(--width);
+  height: var(--height);
+  display: inline-block;
+}
+.gantt-shedule-timeline-calendar__list-expander-toggle {
+  cursor: pointer;
+  display: inline-block;
+  margin-right: 5px;
+}
+.gantt-shedule-timeline-calendar__list-expander-toggle svg {
+  vertical-align: middle;
+  width: 16px;
+  height: 16px;
+  margin-left: 10px;
+}
+.gantt-shedule-timeline-calendar__list-column {
+  width: var(--width);
+  position: relative;
+}
+.gantt-shedule-timeline-calendar__list-column-rows {
+  height: var(--height);
+  overflow: hidden;
+}
+.gantt-shedule-timeline-calendar__list-column-row,
+.gantt-shedule-timeline-calendar__list-column-header {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: var(--height);
+  line-height: var(--height);
+  vertical-align: middle;
+  font-size: 14px;
+}
+.gantt-shedule-timeline-calendar__list-column-row * {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  line-height: var(--height);
+}
+.gantt-shedule-timeline-calendar__list-column-row {
+  border-bottom: 1px solid #f9fafb;
+  border-right: 1px solid #f9fafb;
+}
+.gantt-shedule-timeline-calendar__list-column-header {
+  background: #f9fafb;
+  font-weight: 500;
+  color: #707070;
+  height: var(--height);
+  line-height: var(--height);
+  display: flex;
+}
+.gantt-shedule-timeline-calendar__list-column-header-content {
+  vertical-align: middle;
+  line-height: calc((--height - 2px));
+  margin-left: 4px;
+}
+.gantt-shedule-timeline-calendar__list-column-header-resizer {
+  display: flex;
+  flex-grow: 1;
+  background: transparent;
+  vertical-align: middle;
+  height: var(--height);
+}
+.gantt-shedule-timeline-calendar__list-column-header-resizer-container,
+.gantt-shedule-timeline-calendar__list-column-header-resizer-dots {
+  display: block;
+}
+.gantt-shedule-timeline-calendar__list-column-header-resizer-container {
+  flex-grow: 1;
+}
+.gantt-shedule-timeline-calendar__list-column-header-resizer-line {
+  position: absolute;
+  top: 0;
+  width: 0px;
+  height: 100%;
+  border-right: 2px dashed #000;
+  display: var(--display);
+  left: var(--left);
+  z-index: 1000;
+}
+.gantt-shedule-timeline-calendar__list-column-header-resizer-dots {
+  cursor: ew-resize;
+  background: transparent;
+  padding-top: 20px;
+  padding-left: 6px;
+  padding-right: 2px;
+}
+.gantt-shedule-timeline-calendar__list-column-header-resizer-dots-dot {
+  background: #e0eff2;
+  width: 3px;
+  height: 3px;
+  border-radius: 100%;
+  margin-bottom: 6px;
+  box-shadow: inset 1px 1px 0px rgba(0,0,0,0.05);
+}
+.gantt-shedule-timeline-calendar__chart {
+  flex-grow: 1;
+  flex-shrink: 1;
+}
+.gantt-shedule-timeline-calendar__chart-calendar {
+  background: #f9fafb;
+  margin-right: -17px;
+  display: flex;
+}
+.gantt-shedule-timeline-calendar__chart-calendar-date {
+  text-align: center;
+  overflow: hidden;
+  color: #747a81;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+.gantt-shedule-timeline-calendar__chart-calendar-date-formatted {
+  margin-top: 4px;
+  white-space: nowrap;
+}
+.gantt-shedule-timeline-calendar__chart-calendar-date-formatted-year {
+  font-size: 10px;
+  letter-spacing: 6px;
+}
+.gantt-shedule-timeline-calendar__chart-calendar-date-formatted-month {
+  font-size: 12px;
+  border-right: 1px solid rgba(177,184,189,0.5);
+}
+.gantt-shedule-timeline-calendar__chart-calendar-date-formatted-day {
+  font-size: var(--day-size);
+  font-weight: 500;
+  line-height: 30px;
+  color: rgba(92,97,102,0.7);
+  border-right: 1px solid rgba(177,184,189,0.5);
+  text-shadow: 0px 5px 3px rgba(0,0,0,0.08);
+}
+.gantt-shedule-timeline-calendar__chart-gantt {
+  overflow: hidden;
+  position: relative;
+}
+.gantt-shedule-timeline-calendar__chart-gantt-inner {
+  overflow: hidden;
+}
+.gantt-shedule-timeline-calendar__chart-gantt-grid {
+  position: relative;
+}
+.gantt-shedule-timeline-calendar__chart-gantt-grid-row {
+  display: flex;
+  text-align: center;
+  user-select: none;
+}
+.gantt-shedule-timeline-calendar__chart-gantt-grid-column {
+  overflow: hidden;
+  position: absolute;
+  height: 100%;
+  top: 0px;
+  border-right: 1px solid #f9fafb;
+  pointer-events: none;
+}
+.gantt-shedule-timeline-calendar__chart-gantt-grid-block {
+  flex-grow: 0;
+  flex-shrink: 0;
+  margin: auto 0;
+  vertical-align: middle;
+  overflow: hidden;
+  border-right: 1px solid #f9fafb;
+  border-bottom: 1px solid #f9fafb;
+}
+.gantt-shedule-timeline-calendar__chart-gantt-items {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.gantt-shedule-timeline-calendar__chart-gantt-items-row {
+  overflow: hidden;
+  pointer-events: none;
+}
+.gantt-shedule-timeline-calendar__chart-gantt-items-row-inner {
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+}
+.gantt-shedule-timeline-calendar__chart-gantt-items-row-item {
+  position: absolute;
+  pointer-events: all;
+  padding: 4px 0px;
+  height: 100%;
+}
+.gantt-shedule-timeline-calendar__chart-gantt-items-row-item--moving {
+  opacity: 0.5;
+}
+.gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content {
+  user-select: none;
+  background: #e74c3c;
+  color: #fff;
+  vertical-align: middle;
+  padding: 0px 4px;
+  border: 1px solid #d73c2c;
+  display: flex;
+  height: 100%;
+  line-height: calc(var(--row-height) - 10px);
+}
+.gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content-label {
+  flex-grow: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content-resizer {
+  width: 8px;
+  background: rgba(255,255,255,0.1);
+  cursor: ew-resize;
+  flex-shrink: 0;
+}
