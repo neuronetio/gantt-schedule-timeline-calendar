@@ -1,29 +1,66 @@
-import { html, render } from 'lit-html';
-import { Options } from './types';
 import State from 'deep-state-observer';
+import publicApi, { getInternalApi } from './api/Api';
+import Core from './Core';
+import Main from './components/Main';
 
-export default function GSTC(options: Options) {
-  const state = {
-    one: { two: { three: { four: { five: 'Rafał' } } } }
-  };
+const _internal = {
+  components: {
+    Main
+  },
+  scrollBarHeight: 17,
+  height: 0,
+  treeMap: {},
+  flatTreeMap: [],
+  flatTreeMapById: {},
+  list: {
+    expandedHeight: 0,
+    visibleRows: [],
+    rows: {},
+    width: 0
+  },
+  dimensions: {
+    width: 0,
+    height: 0
+  },
+  chart: {
+    dimensions: {
+      width: 0,
+      innerWidth: 0
+    },
+    visibleItems: [],
+    time: {
+      dates: [],
+      timePerPixel: 0,
+      firstTaskTime: 0,
+      lastTaskTime: 0,
+      totalViewDurationMs: 0,
+      totalViewDurationPx: 0,
+      leftGlobal: 0,
+      rightGlobal: 0,
+      leftPx: 0,
+      rightPx: 0,
+      leftInner: 0,
+      rightInner: 0
+    }
+  },
+  elements: {}
+};
 
-  const comp = (name) => html`
-    <div class="lit">Hello ${name}!</div>
-  `;
+const GSTC = options => {
+  const state = options.state;
+  const api = getInternalApi(state);
+  window.state = state;
 
-  const comp1 = (one) =>
-    html`
-      <div class="one">${comp(one.two.three.four.five)}</div>
-    `;
+  state.update('', oldValue => {
+    return {
+      config: oldValue.config,
+      _internal
+    };
+  });
+  const core = Core(state, api);
+  const app = core.createApp(Main(), options.element);
+  return { state };
+};
 
-  const app = (state) => html`
-    <div class="app">${comp1(state.one)}</div>
-  `;
-
-  render(app(state), options.element);
-  setTimeout(() => {
-    state.one.two.three.four.five = 'Yeeeaaahh';
-    console.log('should rerender');
-    render(app(state), options.element);
-  }, 1000);
-}
+GSTC.api = publicApi;
+export default GSTC;

@@ -3,13 +3,18 @@ import commonjs from 'rollup-plugin-commonjs';
 import typescript from 'rollup-plugin-typescript';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
+import cjs from 'rollup-plugin-cjs-es';
 
 import stylusLib from 'stylus';
 import { readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
-function stylus(filename) {
+function stylus() {
+  let result = '';
+  let output = '';
   return {
     name: 'stylus',
+    outputOptions(options) {
+      output = options.file;
+    },
     resolveId(source) {
       if (source.endsWith('.styl')) {
         return source;
@@ -21,11 +26,14 @@ function stylus(filename) {
         const style = readFileSync(id, { encoding: 'utf8' });
         stylusLib.render(style, function(err, css) {
           if (err) throw err;
-          writeFileSync(join(__dirname, filename), css, { encoding: 'utf8' });
+          result = css;
         });
-        return '';
+        return 'var stylus=1;';
       }
       return null; // other ids should be handled as usually
+    },
+    writeBundle(bundle) {
+      writeFileSync(output, result, { encoding: 'utf8' });
     }
   };
 }
@@ -41,14 +49,17 @@ export default [
       format: 'umd',
       name: 'GSTC'
     },
+    //context: 'null',
+    //moduleContext: 'null',
     plugins: [
-      typescript({ target: 'es6', locale: 'pl' }),
+      typescript({ target: 'es6' }),
       resolve({
         browser: true
+        //module: true
       }),
-      commonjs(),
+      commonjs({ extensions: ['.js', '.ts'] }),
       !production && livereload('dist'),
-      !production && terser()
+      production && terser()
     ]
   },
   {
@@ -58,18 +69,21 @@ export default [
       file: 'dist/index.esm.js',
       format: 'esm'
     },
+    //context: 'null',
+    //moduleContext: 'null',
     plugins: [
-      typescript({ target: 'es6', locale: 'pl' }),
+      typescript({ target: 'es6' }),
       resolve({
         browser: true
+        //module: true
       }),
-      commonjs(),
-      !production && terser()
+      commonjs({ extensions: ['.js', '.ts'] }),
+      production && terser()
     ]
   },
   {
     input: 'src/style.styl',
-    output: { format: 'esm' },
-    plugins: [stylus('dist/style.css')]
+    output: { format: 'esm', file: 'dist/style.css' },
+    plugins: [stylus()]
   }
 ];

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>GSTC shedule example</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900&display=swap&subset=latin-ext');
+      body {
+        font-family: Roboto, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+    </style>
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons"
+      rel="stylesheet"
+      type="text/css"
+    />
+
+    <link href="https://cdn.jsdelivr.net/npm/animate.css@^3.5.2/animate.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/quasar@^1.0.3/dist/quasar.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="../style.css" />
+    <style>
+      .gantt-shedule-timeline-calendar__chart-gantt-items-row-item {
+        line-height: calc(var(--row-height) - 10px);
+      }
+      .gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content {
+        border-radius: 10px;
+        border: none;
+        background: #f75c4c;
+        /*box-shadow: 0px 10px 10px #f75c4c20;*/
+        /*border: 1px solid #e74c3c;*/
+      }
+      .gantt-shedule-timeline-calendar__chart-gantt-items-row-item--row_2-item_2
+        .gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content {
+        background: #f39c12;
+        border: 1px solid #f1892d;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app"></div>
+
+    <script src="../index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quasar@^1.1.6/dist/quasar.umd.min.js"></script>
+    <script type="module">
+      import itemMovement from '../ItemMovement.plugin.js';
+      const iterations = 100;
+      const rows = {};
+      for (let i = 0; i < iterations; i++) {
+        const withParent = i > 0 && i % 2 === 0;
+        const id = i.toString();
+        rows[id] = {
+          id,
+          label: 'Room ' + i,
+          parentId: withParent ? (i - 1).toString() : undefined,
+          expanded: false
+        };
+      }
+
+      rows['1'].height = 80;
+      rows['1'].moveable = false;
+      rows['1'].label = 'Apartaments';
+      rows['2'].label = 'Level 0';
+      rows['3'].label = 'Level 1';
+      rows['3'].parentId = '1';
+
+      let startDayjs = GSTC.API.date().startOf('month');
+      let items = {};
+      for (let i = 0; i < iterations; i++) {
+        const id = i.toString();
+        items[id] = {
+          id,
+          label: 'User id ' + i,
+          time: {
+            start: startDayjs
+              .clone()
+              .add(i, 'day')
+              .valueOf(),
+            end: startDayjs
+              .clone()
+              .add(i, 'day')
+              .add(Math.round(Math.random() * 4) + 1, 'day')
+              .endOf('day')
+              .valueOf()
+          },
+          rowId: id
+        };
+      }
+
+      items['0'].moveable = ['0', '1', '2', '3'];
+      items['0'].label = 'moveable inside rooms  0, 2, 3';
+
+      items['1'].rowId = '12';
+
+      items['2'].moveable = 'x';
+      items['2'].label = 'moveable x';
+
+      items['3'].moveable = 'y';
+      items['3'].label = 'moveable y';
+
+      items['4'].moveable = false;
+      items['4'].label = 'not moveable';
+
+      items['5'].resizeable = false;
+      items['5'].label = 'not resizeable';
+
+      items['6'].moveable = ['1', '2', '3', '6'];
+      items['6'].label = 'moveable inside rooms  1, 2, 3, 6';
+
+      const columns = {
+        percent: 100,
+        resizer: {
+          inRealTime: true
+        },
+        data: {
+          label: {
+            id: 'label',
+            data: 'label',
+            expander: true,
+            isHtml: true,
+            width: 230,
+            header: {
+              content: 'Room'
+            }
+          }
+        }
+      };
+
+      let config = {
+        plugins: [
+          itemMovement({
+            moveable: true,
+            resizeable: true,
+            collisionDetection: true
+          })
+        ],
+        height: 40 * 12 + 94,
+        list: {
+          rows,
+          columns,
+          expander: {
+            padding: 31
+          }
+        },
+        chart: {
+          items,
+          time: {
+            period: 'day',
+            from: GSTC.API.date()
+              .startOf('month')
+              .valueOf(),
+            to: GSTC.API.date()
+              .endOf('month')
+              .valueOf()
+          }
+        },
+        classNames: {},
+        actions: {},
+        locale: {
+          name: 'pl',
+          weekdays: 'Niedziela_Poniedziałek_Wtorek_Środa_Czwartek_Piątek_Sobota'.split('_'),
+          weekdaysShort: 'Ndz_Pon_Wt_Śr_Czw_Pt_Sob'.split('_'),
+          weekdaysMin: 'Nd_Pn_Wt_Śr_Cz_Pt_So'.split('_'),
+          months: 'Styczeń_Luty_Marzec_Kwiecień_Maj_Czerwiec_Lipiec_Sierpień_Wrzesień_Październik_Listopad_Grudzień'.split(
+            '_'
+          ),
+          monthsShort: 'sty_lut_mar_kwi_maj_cze_lip_sie_wrz_paź_lis_gru'.split('_'),
+          weekStart: 1
+        }
+      };
+      let state;
+      let GSTCInstance;
+      Vue.component('shedule', {
+        template: `<div><div id="GSTC-vue-example" class="q-pa-md"></div><input type="range" min="17" max="21" v-model="zoom" /></div>`,
+        data() {
+          return {
+            zoom: 21
+          };
+        },
+        watch: {
+          zoom(newValue, oldValue) {
+            state.update('config.chart.time.zoom', newValue);
+          }
+        },
+        methods: {
+          gridBlockAction(node, data) {
+            const selfVueComponent = this;
+            if (data.row.id === '1') {
+              node.innerHTML = `<div style="line-height: ${data.row.height}px; text-align:center;opacity:0.25;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0z"/><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg></div>`;
+            } else {
+              node.innerHTML = '';
+            }
+
+            const click = node.addEventListener('click', ev => {
+              const formatted = data.api.time.date(data.time.left).format('YYYY-MM-DD HH:mm');
+              selfVueComponent.$root.newDate = formatted;
+              selfVueComponent.$root.dialog = true;
+              console.log('click', formatted);
+            });
+            return {
+              update(data) {
+                if (data.content === 'free') {
+                  node.classList.add(data.api.name + '__helper-dark');
+                } else {
+                  node.classList.remove(data.api.name + '__helper-dark');
+                }
+                if (data.row.id === '1') {
+                  node.innerHTML = `<div style="line-height: ${data.row.height}px; text-align:center;opacity:0.25;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0z"/><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg></div>`;
+                } else {
+                  node.innerHTML = '';
+                }
+              },
+              destroy() {
+                node.removeEventListener('click', click);
+              }
+            };
+          }
+        },
+        mounted() {
+          //stateData.actions['chart-gantt-grid-block'] = [this.gridBlockAction];
+          window.state = state = GSTC.API.stateFromConfig(config);
+          GSTCInstance = new GSTC({
+            target: this.$el,
+            props: {
+              state
+            }
+          });
+        },
+        destroyed: function() {
+          this.GSTCInstance.destroy();
+        }
+      });
+
+      new Vue({
+        el: '#app',
+        data: function() {
+          return {
+            dialog: false,
+            newDate: GSTC.API.date().format('YYYY-MM-DD HH:mm'),
+            newLabel: '',
+            currentRoom: {
+              id: '1',
+              label: 'Room 1'
+            },
+            lastId: 41
+          };
+        },
+        template: `<div class="main">
+          <q-dialog v-model="dialog">
+            <q-card>
+              <q-card-section>
+                <div class="text-h6">Add event</div>
+              </q-card-section>
+
+              <q-separator />
+
+              <q-card-section style="max-height: 50vh" class="scroll">
+
+                <div class="q-pa-md" style="max-width: 300px">
+                  <q-input v-model="newDate">
+                    <template v-slot:prepend>
+                      <q-icon name="event" class="cursor-pointer">
+                        <q-popup-proxy transition-show="scale" transition-hide="scale">
+                          <q-date v-model="newDate" mask="YYYY-MM-DD HH:mm" />
+                        </q-popup-proxy>
+                      </q-icon>
+                    </template>
+
+                    <template v-slot:append>
+                      <q-icon name="access_time" class="cursor-pointer">
+                        <q-popup-proxy transition-show="scale" transition-hide="scale">
+                          <q-time v-model="newDate" mask="YYYY-MM-DD HH:mm" format24h />
+                        </q-popup-proxy>
+                      </q-icon>
+                    </template>
+                  </q-input>
+                </div>
+
+                <div class="q-pa-md">
+                  <q-input v-model="newLabel" label="Label" />
+                </div>
+
+              </q-card-section>
+
+              <q-separator />
+
+              <q-card-actions align="right">
+                <q-btn flat label="Cancel" color="primary" v-close-popup />
+                <q-btn flat label="Add" color="primary" v-close-popup @click="addEvent" />
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
+
+          <div class="q-pa-md">
+            <q-btn color="primary" icon="add_circle" label="Add event" @click="showAddEventDialog" />
+          </div>
+          <shedule/>
+
+        </div>`,
+
+        methods: {
+          showAddEventDialog() {
+            this.dialog = true;
+          },
+          addEvent() {
+            this.state.update(`config.list.rows.${this.lastId}`, {
+              id: this.lastId,
+              label: this.newLabel,
+              time: {
+                start: GSTC.API.date(this.newDate).valueOf(),
+                end: GSCT.API.date(this.newDate)
+                  .add(1, 'day')
+                  .valueOf()
+              }
+            });
+            this.lastId++;
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

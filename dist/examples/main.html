@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>GSTC main example</title>
+    <style>
+      body {
+        font-family: Roboto, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+      .gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content {
+        padding: 0px 5px !important;
+        border-radius: 14px;
+      }
+    </style>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <div>
+      <input type="range" min="0" max="100" value="100" id="percent" />
+      <input type="range" min="17" max="22" value="20" id="zoom" />
+      <button id="change-something">Change something</button>
+    </div>
+    <div id="app"></div>
+    <script src="../index.umd.js"></script>
+    <script>
+      const iterations = 1000;
+
+      const rows = {};
+      for (let i = 0; i < iterations; i++) {
+        const withParent = i > 0 && i % 2 === 0;
+        const id = i.toString();
+        let startDayjs = GSTC.api
+          .date()
+          .startOf('day')
+          .add(i - iterations / 2, 'days');
+        rows[id] = {
+          id,
+          label: 'row id ' + i,
+          progress: 50,
+          time: {
+            start: startDayjs.valueOf(),
+            end: startDayjs
+              .clone()
+              .add(4, 'days')
+              .valueOf()
+          },
+          parentId: withParent ? (i - 1).toString() : undefined,
+          expanded: false
+        };
+      }
+
+      const items = {};
+      for (let i = 0; i < iterations; i++) {
+        const id = i.toString();
+        let startDayjs = GSTC.api
+          .date()
+          .startOf('day')
+          .add(i - iterations / 2, 'days');
+        items[id] = {
+          id,
+          label: 'item id ' + i,
+          time: {
+            start: startDayjs.valueOf(),
+            end: startDayjs
+              .clone()
+              .add(4, 'days')
+              .valueOf()
+          },
+          progress: 50,
+          rowId: id
+        };
+      }
+
+      const columns = {
+        percent: 100,
+        resizer: {
+          inRealTime: true
+        },
+        data: {
+          id: {
+            id: 'id',
+            data: 'id',
+            width: 50,
+            header: {
+              content: 'ID',
+              isHtml: false
+            }
+          },
+          label: {
+            id: 'label',
+            data: 'label',
+            expander: true,
+            isHtml: true,
+            width: 230,
+            header: {
+              content: 'Label'
+            }
+          },
+          start: {
+            id: 'start',
+            data(row) {
+              return GSTC.api.date(row.time.start).format('YYYY-MM-DD');
+            },
+            width: 100,
+            header: {
+              content: 'Start'
+            }
+          },
+          due: {
+            id: 'due',
+            data(row) {
+              return GSTC.api.date(row.time.end).format('YYYY-MM-DD');
+            },
+            width: 100,
+            header: {
+              content: 'Due'
+            }
+          },
+          progress: {
+            id: 'progress',
+            data: 'progress',
+            width: 30,
+            header: {
+              content: '%'
+            }
+          }
+        }
+      };
+
+      const config = {
+        height: 40 * 12 + 94,
+        list: {
+          rows,
+          columns,
+          expander: {
+            padding: 31
+          }
+        },
+        chart: {
+          items,
+          time: {
+            period: 'day'
+          }
+        },
+        classNames: {},
+        actions: {},
+        locale: {
+          name: 'pl',
+          weekdays: 'Niedziela_Poniedziałek_Wtorek_Środa_Czwartek_Piątek_Sobota'.split('_'),
+          weekdaysShort: 'Ndz_Pon_Wt_Śr_Czw_Pt_Sob'.split('_'),
+          weekdaysMin: 'Nd_Pn_Wt_Śr_Cz_Pt_So'.split('_'),
+          months: 'Styczeń_Luty_Marzec_Kwiecień_Maj_Czerwiec_Lipiec_Sierpień_Wrzesień_Październik_Listopad_Grudzień'.split(
+            '_'
+          ),
+          monthsShort: 'sty_lut_mar_kwi_maj_cze_lip_sie_wrz_paź_lis_gru'.split('_'),
+          weekStart: 1
+        }
+      };
+
+      let GSTCState = (window.state = GSTC.api.stateFromConfig(config));
+
+      const app = GSTC({
+        element: document.getElementById('app'),
+        state: GSTCState
+      });
+
+      document.getElementById('percent').addEventListener('input', ev => {
+        app.state.update('config.list.columns.percent', ev.target.value);
+      });
+      document.getElementById('zoom').addEventListener('input', ev => {
+        app.state.update('config.chart.time.zoom', ev.target.value);
+      });
+      document.getElementById('change-something').addEventListener('click', () => {
+        app.state.update('config.list.rows', rows => {
+          for (const rowId in rows) {
+            rows[rowId].label += ' !';
+          }
+          rows['3'].parentId = '1';
+          rows['5'].parentId = '3';
+          rows['9'].parentId = '3';
+          rows['7'].parentId = '5';
+          rows['11'].parentId = '10';
+          rows['13'].parentId = '12';
+          for (let i = 20; i < 50; i++) {
+            rows[i.toString()].parentId = '15';
+          }
+          return rows;
+        });
+      });
+    </script>
+  </body>
+</html>
