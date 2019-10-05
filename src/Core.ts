@@ -9,7 +9,9 @@ export default function Core(state, api) {
 
   function getAction(instance) {
     return directive(fn => part => {
-      fn(part.committer.element);
+      if (typeof fn === 'function') {
+        fn(part.committer.element);
+      }
     });
   }
 

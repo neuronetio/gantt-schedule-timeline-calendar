@@ -1,4 +1,3 @@
-import Example from './Example';
 export default function Main(input = {}) {
   return core => {
     const componentName = core.api.name;
@@ -10,124 +9,127 @@ export default function Main(input = {}) {
         core.render();
       })
     );
-    const example = core.createComponent(Example());
-    core.onDestroy(example.destroy);
 
-    return props => core.html`<div class="${className}">Main ${example.html()}</div>`;
+    let plugins,
+      pluginsPath = 'config.plugins';
+    core.onDestroy(
+      core.state.subscribe(pluginsPath, plugins => {
+        if (typeof plugins !== 'undefined' && Array.isArray(plugins)) {
+          for (const plugin of plugins) {
+            plugin(core.state, core.api);
+          }
+        }
+      })
+    );
+
+    const action = core.api.getAction('');
+    let classNameVerticalScroll, style, styleVerticalScroll, styleVerticalScrollArea;
+    let verticalScrollBarElement;
+    let expandedHeight = 0;
+    let resizerActive = false;
+
+    return props => core.html`<div class="${className}" data-action="${core.action(action)}">Main</div>`;
   };
 }
 
-//import List from './List/List.svelte';
-//import Chart from './Chart/Chart.svelte';
 /*
-  let plugins,
-    pluginsPath = 'config.plugins';
-  onDestroy(
-    state.subscribe(pluginsPath, plugins => {
-      if (typeof plugins !== 'undefined' && Array.isArray(plugins)) {
-        for (const plugin of plugins) {
-          plugin(state, api);
-        }
-      }
-    })
-  );
 
-  const action = api.getAction('');
+  const action = core.api.getAction('');
   let className, classNameVerticalScroll, style, styleVerticalScroll, styleVerticalScrollArea;
   let verticalScrollBarElement;
   let expandedHeight = 0;
   let resizerActive = false;
 
   onDestroy(
-    state.subscribe('config.classNames', classNames => {
-      const config = state.get('config');
-      className = api.getClass(api.name, { config });
+    core.state.subscribe('config.classNames', classNames => {
+      const config = core.state.get('config');
+      className = core.api.getClass(core.api.name, { config });
       if (resizerActive) {
-        className += ` ${api.name}__list-column-header-resizer--active`;
+        className += ` ${core.api.name}__list-column-header-resizer--active`;
       }
-      classNameVerticalScroll = api.getClass('vertical-scroll', { config });
+      classNameVerticalScroll = core.api.getClass('vertical-scroll', { config });
     })
   );
 
   onDestroy(
-    state.subscribeAll(['config.height', 'config.headerHeight', '_internal.scrollBarHeight'], () => {
-      const config = state.get('config');
-      const scrollBarHeight = state.get('_internal.scrollBarHeight');
+    core.state.subscribeAll(['config.height', 'config.headerHeight', '_internal.scrollBarHeight'], () => {
+      const config = core.state.get('config');
+      const scrollBarHeight = core.state.get('_internal.scrollBarHeight');
       const height = config.height - config.headerHeight - scrollBarHeight;
-      state.update('_internal.height', height);
+      core.state.update('_internal.height', height);
       style = `--height: ${config.height}px`;
       styleVerticalScroll = `height: ${height}px; width: ${scrollBarHeight}px; margin-top: ${config.headerHeight}px;`;
     })
   );
 
   onDestroy(
-    state.subscribe('_internal.list.columns.resizer.active', active => {
+    core.state.subscribe('_internal.list.columns.resizer.active', active => {
       resizerActive = active;
-      className = api.getClass(api.name);
+      className = core.api.getClass(core.api.name);
       if (resizerActive) {
-        className += ` ${api.name}__list-column-header-resizer--active`;
+        className += ` ${core.api.name}__list-column-header-resizer--active`;
       }
     })
   );
 
   onDestroy(
-    state.subscribeAll(
+    core.state.subscribeAll(
       ['config.list.rows;', 'config.chart.items;', 'config.list.rows.*.parentId', 'config.chart.items.*.rowId'],
       (bulk, eventInfo) => {
-        if (state.get('_internal.flatTreeMap').length && eventInfo.type === 'subscribe') {
+        if (core.state.get('_internal.flatTreeMap').length && eventInfo.type === 'subscribe') {
           return;
         }
-        const configRows = state.get('config.list.rows');
+        const configRows = core.state.get('config.list.rows');
         const rows = [];
         for (const rowId in configRows) {
           rows.push(configRows[rowId]);
         }
-        api.fillEmptyRowValues(rows);
-        const configItems = state.get('config.chart.items');
+        core.api.fillEmptyRowValues(rows);
+        const configItems = core.state.get('config.chart.items');
         const items = [];
         for (const itemId in configItems) {
           items.push(configItems[itemId]);
         }
-        const treeMap = api.makeTreeMap(rows, items);
-        state.update('_internal.treeMap', treeMap);
-        state.update('_internal.flatTreeMapById', api.getFlatTreeMapById(treeMap));
-        state.update('_internal.flatTreeMap', api.flattenTreeMap(treeMap));
+        const treeMap = core.api.makeTreeMap(rows, items);
+        core.state.update('_internal.treeMap', treeMap);
+        core.state.update('_internal.flatTreeMapById', core.api.getFlatTreeMapById(treeMap));
+        core.state.update('_internal.flatTreeMap', core.api.flattenTreeMap(treeMap));
       },
       { bulk: true }
     )
   );
 
   onDestroy(
-    state.subscribeAll(
+    core.state.subscribeAll(
       ['config.list.rows.*.expanded', '_internal.treeMap;'],
       bulk => {
-        const configRows = state.get('config.list.rows');
-        const rowsWithParentsExpanded = api.getRowsFromIds(
-          api.getRowsWithParentsExpanded(
-            state.get('_internal.flatTreeMap'),
-            state.get('_internal.flatTreeMapById'),
+        const configRows = core.state.get('config.list.rows');
+        const rowsWithParentsExpanded = core.api.getRowsFromIds(
+          core.api.getRowsWithParentsExpanded(
+            core.state.get('_internal.flatTreeMap'),
+            core.state.get('_internal.flatTreeMapById'),
             configRows
           ),
           configRows
         );
-        expandedHeight = api.getRowsHeight(rowsWithParentsExpanded);
-        state.update('_internal.list.expandedHeight', expandedHeight);
-        state.update('_internal.list.rowsWithParentsExpanded', rowsWithParentsExpanded);
+        expandedHeight = core.api.getRowsHeight(rowsWithParentsExpanded);
+        core.state.update('_internal.list.expandedHeight', expandedHeight);
+        core.state.update('_internal.list.rowsWithParentsExpanded', rowsWithParentsExpanded);
       },
       { bulk: true }
     )
   );
 
   onDestroy(
-    state.subscribeAll(['_internal.list.rowsWithParentsExpanded', 'config.scroll.top'], () => {
-      const visibleRows = api.getVisibleRows(state.get('_internal.list.rowsWithParentsExpanded'));
-      state.update('_internal.list.visibleRows', visibleRows);
+    core.state.subscribeAll(['_internal.list.rowsWithParentsExpanded', 'config.scroll.top'], () => {
+      const visibleRows = core.api.getVisibleRows(core.state.get('_internal.list.rowsWithParentsExpanded'));
+      core.state.update('_internal.list.visibleRows', visibleRows);
     })
   );
 
   onDestroy(
-    state.subscribeAll(['config.scroll.top', '_internal.list.visibleRows'], () => {
-      const top = state.get('config.scroll.top');
+    core.state.subscribeAll(['config.scroll.top', '_internal.list.visibleRows'], () => {
+      const top = core.state.get('config.scroll.top');
       styleVerticalScrollArea = `height: ${expandedHeight}px; width: 1px`;
       if (verticalScrollBarElement && verticalScrollBarElement.scrollTop !== top) {
         verticalScrollBarElement.scrollTop = top;
@@ -141,7 +143,7 @@ export default function Main(input = {}) {
     const rightGlobal = internalTime.rightGlobal;
     const timePerPixel = internalTime.timePerPixel;
     const period = internalTime.period;
-    let sub = leftGlobal - api.time.date(leftGlobal).startOf(period);
+    let sub = leftGlobal - core.api.time.date(leftGlobal).startOf(period);
     let subPx = sub / timePerPixel;
     let leftPx = 0;
     let maxWidth = 0;
@@ -152,7 +154,7 @@ export default function Main(input = {}) {
         sub,
         subPx,
         leftGlobal,
-        rightGlobal: api.time
+        rightGlobal: core.api.time
           .date(leftGlobal)
           .endOf(period)
           .valueOf()
@@ -175,7 +177,7 @@ export default function Main(input = {}) {
   }
 
   onDestroy(
-    state.subscribeAll(
+    core.state.subscribeAll(
       [
         'config.chart.time',
         '_internal.dimensions.width',
@@ -184,16 +186,16 @@ export default function Main(input = {}) {
         '_internal.list.width'
       ],
       function recalculateTimesAction() {
-        const chartWidth = state.get('_internal.dimensions.width') - state.get('_internal.list.width');
-        const chartInnerWidth = chartWidth - state.get('_internal.scrollBarHeight');
-        state.update('_internal.chart.dimensions', { width: chartWidth, innerWidth: chartInnerWidth });
-        let time = api.mergeDeep({}, state.get('config.chart.time'));
-        time = api.time.recalculateFromTo(time);
+        const chartWidth = core.state.get('_internal.dimensions.width') - core.state.get('_internal.list.width');
+        const chartInnerWidth = chartWidth - core.state.get('_internal.scrollBarHeight');
+        core.state.update('_internal.chart.dimensions', { width: chartWidth, innerWidth: chartInnerWidth });
+        let time = core.api.mergeDeep({}, core.state.get('config.chart.time'));
+        time = core.api.time.recalculateFromTo(time);
         const zoomPercent = time.zoom * 0.01;
-        let scrollLeft = state.get('config.scroll.left');
+        let scrollLeft = core.state.get('config.scroll.left');
         let oldScrollPercentage = 0;
         time.timePerPixel = zoomPercent + Math.pow(2, time.zoom);
-        time.totalViewDurationMs = api.time.date(time.to).diff(time.from, 'milliseconds');
+        time.totalViewDurationMs = core.api.time.date(time.to).diff(time.from, 'milliseconds');
         time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
         if (scrollLeft > time.totalViewDurationPx) {
           scrollLeft = time.totalViewDurationPx - chartWidth;
@@ -207,8 +209,8 @@ export default function Main(input = {}) {
         if (Math.round(time.rightGlobal / time.timePerPixel) > Math.round(time.to / time.timePerPixel)) {
           console.log(
             'right global > time.to',
-            api.time.date(time.rightGlobal).format('YYYY-MM-DD'),
-            api.time.date(time.to).format('YYYY-MM-DD'),
+            core.api.time.date(time.rightGlobal).format('YYYY-MM-DD'),
+            core.api.time.date(time.to).format('YYYY-MM-DD'),
             (time.rightGlobal - time.to) / time.timePerPixel,
             time.totalViewDurationPx
           );
@@ -219,39 +221,39 @@ export default function Main(input = {}) {
           time.timePerPixel = time.totalViewDurationMs / time.totalViewDurationPx;
           console.log(
             'after recalculation',
-            api.time.date(time.rightGlobal).format('YYYY-MM-DD'),
-            api.time.date(time.to).format('YYYY-MM-DD'),
+            core.api.time.date(time.rightGlobal).format('YYYY-MM-DD'),
+            core.api.time.date(time.to).format('YYYY-MM-DD'),
             (time.rightGlobal - time.to) / time.timePerPixel,
             time.totalViewDurationPx
           );
         }
         generateAndAddDates(time, chartWidth);
-        state.update(`_internal.chart.time`, time);
+        core.state.update(`_internal.chart.time`, time);
       }
     )
   );
 
   onMount(() => {
-    state.update('_internal.scrollBarHeight', api.getScrollBarHeight());
+    core.state.update('_internal.scrollBarHeight', core.api.getScrollBarHeight());
   });
 
   let dimensions = { width: 0, height: 0 };
   let dims = { width: 0, height: 0 };
   $: if (dims.width !== dimensions.width || dims.height !== dimensions.height) {
     dims = { ...dimensions };
-    state.update('_internal.dimensions', () => dims);
-    state.update('_internal.scrollBarHeight', api.getScrollBarHeight());
+    core.state.update('_internal.dimensions', () => dims);
+    core.state.update('_internal.scrollBarHeight', core.api.getScrollBarHeight());
   }
 
   function onScroll(event) {
-    state.update('config.scroll.top', event.target.scrollTop);
+    core.state.update('config.scroll.top', event.target.scrollTop);
   }
 </script>
 
 <svelte:options accessors={true} tag="gantt-shedule-timeline-calendar" />
 <div
   class={className}
-  use:action={{ state, api }}
+  use:action={{ core.state, core.api }}
   {style}
   bind:clientWidth={dimensions.width}
   bind:clientHeight={dimensions.height}>
