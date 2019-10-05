@@ -227,7 +227,7 @@ export default function Main(input = {}) {
     };
 
     return props =>
-      core.html`<div class="${className}" @scroll=${onScroll} data-action="${core.action(mainAction)}" >Main</div>`;
+      core.html`<div class="${className}" @scroll=${onScroll} data-action="${core.action(mainAction)}">Main</div>`;
   };
 }
 
