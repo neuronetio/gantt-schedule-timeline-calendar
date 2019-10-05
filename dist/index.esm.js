@@ -2500,7 +2500,6 @@ const html = (strings, ...values) => new TemplateResult(strings, values, 'html',
 function Core(state, api) {
     const components = new WeakMap();
     const templates = new WeakMap();
-    let elements = {};
     let app, element;
     function getAction(instance) {
         return directive(fn => part => {
@@ -2534,7 +2533,6 @@ function Core(state, api) {
             const instanceCore = Object.assign(Object.assign({}, core), { render, onDestroy, instance });
             instanceCore.action = getAction();
             let methods = instance(instanceCore);
-            console.log(methods);
             if (typeof methods === 'function') {
                 const destroy = () => {
                     destroyable.forEach(d => d());
@@ -2549,7 +2547,6 @@ function Core(state, api) {
                 };
                 methods = Object.assign(Object.assign({}, methods), { destroy });
             }
-            console.log(methods.update({}));
             components.set(instance, methods);
             oneTimeUpdate();
             instanceCore.render = (props = {}) => this.updateTemplate(instance, props, true, instance);
@@ -2580,37 +2577,15 @@ function Core(state, api) {
             this.flush();
             return App;
         },
-        beforeUpdate(name, element) { },
-        afterUpdate(name, element) { },
-        _beforeUpdate() {
-            for (const name in elements) {
-                const namedElements = elements[name];
-                for (const element of namedElements) {
-                    this.beforeUpdate(name, element);
-                }
-            }
-        },
-        _afterUpdate() {
-            for (const name in elements) {
-                const namedElements = elements[name];
-                for (const element of namedElements) {
-                    this.afterUpdate(name, element);
-                }
-            }
-            elements = {};
-        },
-        flush(instance) {
+        flush() {
             if (app) {
-                this._beforeUpdate();
                 this.updateTemplate(app, {}, false);
                 render(this.componentTemplate(app), element);
-                this._afterUpdate();
             }
         }
     };
     return core;
 }
-//# sourceMappingURL=Core.js.map
 
 function Example(input = {}) {
     return core => {
@@ -2624,6 +2599,7 @@ function Example(input = {}) {
         return props => core.html `<div class="${className}" data-action="${core.action(action)}">Example</div>`;
     };
 }
+//# sourceMappingURL=Example.js.map
 
 function Main(input = {}) {
     return core => {

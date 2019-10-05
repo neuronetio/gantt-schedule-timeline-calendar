@@ -41,7 +41,6 @@ export default function Core(state, api) {
       const instanceCore = { ...core, render, onDestroy, instance };
       instanceCore.action = getAction(instance);
       let methods = instance(instanceCore);
-      console.log(methods);
       if (typeof methods === 'function') {
         const destroy = () => {
           destroyable.forEach(d => d());
@@ -55,7 +54,6 @@ export default function Core(state, api) {
         };
         methods = { ...methods, destroy };
       }
-      console.log(methods.update({}));
       components.set(instance, methods);
       oneTimeUpdate();
       instanceCore.render = (props = {}) => this.updateTemplate(instance, props, true, instance);
