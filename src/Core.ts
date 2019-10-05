@@ -86,31 +86,11 @@ export default function Core(state, api) {
       this.flush();
       return App;
     },
-    beforeUpdate(name, element) {},
-    afterUpdate(name, element) {},
-    _beforeUpdate() {
-      for (const name in elements) {
-        const namedElements = elements[name];
-        for (const element of namedElements) {
-          this.beforeUpdate(name, element);
-        }
-      }
-    },
-    _afterUpdate() {
-      for (const name in elements) {
-        const namedElements = elements[name];
-        for (const element of namedElements) {
-          this.afterUpdate(name, element);
-        }
-      }
-      elements = {};
-    },
-    flush(instance) {
+
+    flush() {
       if (app) {
-        this._beforeUpdate();
         this.updateTemplate(app, {}, false);
         render(this.componentTemplate(app), element);
-        this._afterUpdate();
       }
     }
   };
