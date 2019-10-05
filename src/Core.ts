@@ -3,14 +3,14 @@ import { render, html, directive } from 'lit-html';
 export default function Core(state, api) {
   const components = new WeakMap();
   const templates = new WeakMap();
-  let elements = {};
+  let actions = [];
 
   let app, element;
 
   function getAction(instance) {
     return directive(fn => part => {
       if (typeof fn === 'function') {
-        fn(part.committer.element);
+        actions.push({ fn, element: part.committer.element });
       }
     });
   }
@@ -91,6 +91,10 @@ export default function Core(state, api) {
       if (app) {
         this.updateTemplate(app, {}, false);
         render(this.componentTemplate(app), element);
+        for (const action of actions) {
+          action.fn(action.element);
+        }
+        actions = [];
       }
     }
   };
