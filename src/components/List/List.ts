@@ -87,7 +87,7 @@ export default function List(core) {
             @scroll=${onScroll}
             @wheel=${onScroll}
           >
-            ${repeat(listColumns, listColumn => listColumn.id, c => c.component.html())}
+            ${listColumns.map(c => c.component.html())}
           </div>
         `
       : null;

@@ -11,18 +11,11 @@ import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import { until } from 'lit-html/directives/until';
 
 export default function Core(state, api) {
-  const components = new WeakMap();
+  let componentId = 0;
+  const components = {};
   let actions = [];
 
   let app, element;
-
-  function getAction(instance, props = {}) {
-    return directive(fn => part => {
-      if (typeof fn === 'function') {
-        actions.push({ fn, element: part.committer.element, props });
-      }
-    });
-  }
 
   let shouldUpdateCount = 0;
   const resolved = Promise.resolve();
@@ -32,7 +25,6 @@ export default function Core(state, api) {
     api,
     html,
     svg,
-    render,
     directive,
     //asyncAppend,
     //asyncReplace,
@@ -44,102 +36,102 @@ export default function Core(state, api) {
     styleMap,
     unsafeHTML,
     until,
-    action: element => {},
+    action: directive(function action(fn, props) {
+      return function partial(part) {
+        if (typeof fn === 'function') {
+          actions.push({ fn, element: part.committer.element, props });
+        }
+      };
+    }),
 
     createComponent(component, props) {
-      const instance = {};
+      const instance = componentId++;
       const componentInstance = getComponentInstance(instance);
       let oneTimeUpdate;
       function update(props) {
         if (!oneTimeUpdate) {
           return (oneTimeUpdate = function() {
-            core.updateTemplate(instance, props);
+            core.updateTemplate();
           });
         }
-        core.updateTemplate(instance, props);
+        core.updateTemplate();
       }
       const destroyable = [];
       function onDestroy(fn) {
         destroyable.push(fn);
       }
-      const instanceCore = { ...core, update, onDestroy, instance, action: getAction(instance) };
-      let methods;
+      const instanceCore = { ...core, update, onDestroy, instance };
+      let firstMethods, methods;
       if (props) {
-        methods = component(props, instanceCore);
+        firstMethods = component(props, instanceCore);
       } else {
-        methods = component(instanceCore);
+        firstMethods = component(instanceCore);
       }
-      if (typeof methods === 'function') {
+      if (typeof firstMethods === 'function') {
         const destroy = () => {
           destroyable.forEach(d => d());
         };
-        methods = { update: methods, destroy };
+        methods = { update: firstMethods, destroy };
       } else {
         const originalDestroy = methods.destroy;
         const destroy = () => {
           destroyable.forEach(d => d());
           originalDestroy();
         };
-        methods = { ...methods, destroy };
+        methods = { ...firstMethods, destroy };
       }
-      components.set(instance, methods);
+      components[instance] = methods;
       oneTimeUpdate();
       return componentInstance;
     },
 
     destroyComponent(instance) {
-      const methods = components.get(instance);
-      if (typeof methods.destroy === 'function') {
-        methods.destroy();
+      if (typeof components[instance].destroy === 'function') {
+        components[instance].destroy();
       }
-      components.delete(instance);
+      delete components[instance];
     },
-    updateTemplate(instance, props, flush = true) {
-      if (flush) {
-        shouldUpdateCount++;
-        const currentShouldUpdateCount = shouldUpdateCount;
-        resolved.then(() => {
-          if (currentShouldUpdateCount === shouldUpdateCount) {
-            this.flush(instance);
-            shouldUpdateCount = 0;
-          }
-        });
-      }
+
+    updateTemplate() {
+      shouldUpdateCount++;
+      const currentShouldUpdateCount = shouldUpdateCount;
+      resolved.then(() => {
+        if (currentShouldUpdateCount === shouldUpdateCount) {
+          this.render();
+          shouldUpdateCount = 0;
+        }
+      });
     },
-    componentTemplate(instance) {
-      return components.get(instance).update();
-    },
+
     createApp(instance, el) {
       element = el;
       const App = this.createComponent(instance);
       app = App.instance;
-      this.flush();
+      this.render();
       return App;
     },
 
-    flush(instance) {
-      if (app) {
-        render(components.get(app).update(), element);
-        for (const action of actions) {
-          action.fn(action.element, action.props);
-        }
-        actions = [];
+    render() {
+      render(components[app].update(), element);
+      for (const action of actions) {
+        action.fn(action.element, action.props);
       }
+      actions = [];
     }
   };
+
   function getComponentInstance(instance) {
     return {
       instance,
       destroy() {
         return core.destroyComponent(instance);
       },
-      update(props) {
-        return core.updateTemplate(instance, props);
+      update() {
+        return core.updateTemplate();
       },
 
-      html(props) {
-        core.updateTemplate(instance, props, false);
-        return core.componentTemplate(instance);
+      html(props = {}) {
+        return components[instance].update(props);
       }
     };
   }
