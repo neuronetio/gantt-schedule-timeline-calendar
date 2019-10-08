@@ -58,7 +58,6 @@ const GSTC = options => {
     };
   });
   const core = Core(state, api);
-  window._core = core;
   const app = core.createApp(Main, options.element);
   return { state };
 };

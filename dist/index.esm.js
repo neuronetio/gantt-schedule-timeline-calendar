@@ -3428,7 +3428,7 @@ function Core(state, api) {
         until,
         action: element => { },
         createComponent(component, props) {
-            const instance = { name: component.name, props };
+            const instance = {};
             const componentInstance = getComponentInstance(instance);
             let oneTimeUpdate;
             function render(props) {
@@ -3440,7 +3440,9 @@ function Core(state, api) {
                 core.updateTemplate(instance, props);
             }
             const destroyable = [];
-            const onDestroy = fn => destroyable.push(fn);
+            function onDestroy(fn) {
+                destroyable.push(fn);
+            }
             const instanceCore = Object.assign(Object.assign({}, core), { render, onDestroy, instance, action: getAction() });
             let methods;
             if (props) {
@@ -3890,7 +3892,7 @@ function ListColumnComponent({ columnId }, core) {
     <div class=${className} data-action=${action(componentAction, { column, state: state, api: api })} style=${width}>
       ${ListColumnHeader$1.html()}
       <div class=${classNameContainer} style=${styleContainer} data-action=${action(rowsAction, { api, state })}>
-        ${repeat(visibleRows, r => r.id, row => row.component.html())}
+        ${visibleRows.map(row => row.component.html())}
       </div>
     </div>
   `;
@@ -3972,6 +3974,7 @@ function List(core) {
         `
         : null;
 }
+//# sourceMappingURL=List.js.map
 
 function CalendarDate({ date }, core) {
     const { api, state, onDestroy, action, render, createComponent, html, repeat } = core;
@@ -4112,7 +4115,7 @@ function GanttGridRow({ row }, core) {
     let style = `height: ${row.rowData.height}px;`;
     return props => html `
     <div class=${className} data-action=${action(componentAction, { row, api, state })} style=${style}>
-      ${repeat(rowsBlocksComponents, r => r.id, r => r.component.html())}
+      ${rowsBlocksComponents.map(r => r.component.html())}
     </div>
   `;
 }
@@ -4161,14 +4164,14 @@ function GanttGrid(core) {
     });
     return props => html `
     <div class=${className} data-action=${action(componentAction, { api, state })} style=${style}>
-      ${repeat(rowsComponents, r => r.id, r => r.component.html())}
+      ${rowsComponents.map(r => r.component.html())}
     </div>
   `;
 }
 //# sourceMappingURL=GanttGrid.js.map
 
 function GanttItemsRowItem({ rowId, itemId }, core) {
-    const { api, state, onDestroy, action, render, html, createComponent, repeat } = core;
+    const { api, state, onDestroy, action, render, html } = core;
     let row, rowPath = `config.list.rows.${rowId}`;
     onDestroy(state.subscribe(rowPath, value => {
         row = value;
@@ -4189,7 +4192,7 @@ function GanttItemsRowItem({ rowId, itemId }, core) {
         render();
     }));
     let style, itemLeftPx = 0, itemWidthPx = 0;
-    onDestroy(state.subscribe('_internal.chart.time', bulk => {
+    onDestroy(state.subscribeAll(['_internal.chart.time', 'config.scroll'], bulk => {
         let time = state.get('_internal.chart.time');
         itemLeftPx = (item.time.start - time.from) / time.timePerPixel;
         itemWidthPx = (item.time.end - item.time.start) / time.timePerPixel;
@@ -4212,7 +4215,7 @@ function GanttItemsRowItem({ rowId, itemId }, core) {
 
 function GanttItemsRow({ rowId }, core) {
     const { api, state, onDestroy, action, render, html, createComponent, repeat } = core;
-    let rowPath = `_internal.flatTreeMapById.${rowId}`, itemsPath = `_internal.flatTreeMapById.${rowId}._internal.items`;
+    let rowPath = `_internal.flatTreeMapById.${rowId}`;
     let row, element, style, styleInner;
     onDestroy(state.subscribeAll([rowPath, '_internal.chart'], bulk => {
         row = state.get(rowPath);
@@ -4225,7 +4228,7 @@ function GanttItemsRow({ rowId }, core) {
         render();
     }));
     let items, itemComponents = [];
-    onDestroy(state.subscribe(itemsPath, value => {
+    onDestroy(state.subscribe(`_internal.flatTreeMapById.${rowId}._internal.items;`, value => {
         items = value;
         itemComponents.forEach(item => item.component.destroy());
         itemComponents = [];
@@ -4286,7 +4289,7 @@ function GnattItems(core) {
     });
     return props => html `
     <div class=${className} data-action=${action(componentAction, { api, state })}>
-      ${repeat(rowsComponents, r => r.id, r => r.component.html())}
+      ${rowsComponents.map(r => r.component.html())}
     </div>
   `;
 }
@@ -4353,31 +4356,34 @@ function Chart(core) {
         styleScrollInner = `width: ${state.get('_internal.chart.time.totalViewDurationPx')}px; height:1px`;
         render();
     }));
-    function onScroll(event) {
-        if (event.type === 'scroll') {
-            state.update('config.scroll.left', event.target.scrollLeft);
-        }
-        else {
-            const wheel = api.normalizeMouseWheelEvent(event);
-            const xMultiplier = state.get('config.scroll.xMultiplier');
-            const yMultiplier = state.get('config.scroll.yMultiplier');
-            if (event.shiftKey && wheel.y) {
-                state.update('config.scroll.left', left => {
-                    return api.limitScroll('left', (left += wheel.y * xMultiplier));
-                });
-            }
-            else if (wheel.x) {
-                state.update('config.scroll.left', left => {
-                    return api.limitScroll('left', (left += wheel.x * xMultiplier));
-                });
+    const onScroll = {
+        handleEvent(event) {
+            if (event.type === 'scroll') {
+                state.update('config.scroll.left', event.target.scrollLeft);
             }
             else {
-                state.update('config.scroll.top', top => {
-                    return api.limitScroll('top', (top += wheel.y * yMultiplier));
-                });
+                const wheel = api.normalizeMouseWheelEvent(event);
+                const xMultiplier = state.get('config.scroll.xMultiplier');
+                const yMultiplier = state.get('config.scroll.yMultiplier');
+                if (event.shiftKey && wheel.y) {
+                    state.update('config.scroll.left', left => {
+                        return api.limitScroll('left', (left += wheel.y * xMultiplier));
+                    });
+                }
+                else if (wheel.x) {
+                    state.update('config.scroll.left', left => {
+                        return api.limitScroll('left', (left += wheel.x * xMultiplier));
+                    });
+                }
+                else {
+                    state.update('config.scroll.top', top => {
+                        return api.limitScroll('top', (top += wheel.y * yMultiplier));
+                    });
+                }
             }
-        }
-    }
+        },
+        passive: true
+    };
     function bindElement(element) {
         scrollElement = element;
     }
@@ -4390,7 +4396,6 @@ function Chart(core) {
     </div>
   `;
 }
-//# sourceMappingURL=Chart.js.map
 
 function Main(core) {
     const { api, state, onDestroy, action, render, createComponent, html } = core;
@@ -4559,11 +4564,14 @@ function Main(core) {
         render();
     }));
     state.update('_internal.scrollBarHeight', api.getScrollBarHeight());
-    function onScroll(event) {
-        state.update('config.scroll.top', event.target.scrollTop);
-    }
+    const onScroll = {
+        handleEvent(event) {
+            state.update('config.scroll.top', event.target.scrollTop);
+        },
+        passive: true
+    };
     const dimensions = { width: 0, height: 0 };
-    const mainAction = element => {
+    function mainAction(element) {
         if (dimensions.width === 0) {
             const width = element.clientWidth;
             const height = element.clientHeight;
@@ -4576,7 +4584,7 @@ function Main(core) {
         if (typeof action === 'function') {
             componentAction(element, { state, api });
         }
-    };
+    }
     function bindElement(element) {
         verticalScrollBarElement = element;
     }
@@ -4650,7 +4658,6 @@ const GSTC = options => {
         };
     });
     const core = Core(state, api);
-    window._core = core;
     const app = core.createApp(Main, options.element);
     return { state };
 };

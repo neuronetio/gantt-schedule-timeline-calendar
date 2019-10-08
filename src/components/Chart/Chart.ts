@@ -46,28 +46,31 @@ export default function Chart(core) {
     )
   );
 
-  function onScroll(event) {
-    if (event.type === 'scroll') {
-      state.update('config.scroll.left', event.target.scrollLeft);
-    } else {
-      const wheel = api.normalizeMouseWheelEvent(event);
-      const xMultiplier = state.get('config.scroll.xMultiplier');
-      const yMultiplier = state.get('config.scroll.yMultiplier');
-      if (event.shiftKey && wheel.y) {
-        state.update('config.scroll.left', left => {
-          return api.limitScroll('left', (left += wheel.y * xMultiplier));
-        });
-      } else if (wheel.x) {
-        state.update('config.scroll.left', left => {
-          return api.limitScroll('left', (left += wheel.x * xMultiplier));
-        });
+  const onScroll = {
+    handleEvent(event) {
+      if (event.type === 'scroll') {
+        state.update('config.scroll.left', event.target.scrollLeft);
       } else {
-        state.update('config.scroll.top', top => {
-          return api.limitScroll('top', (top += wheel.y * yMultiplier));
-        });
+        const wheel = api.normalizeMouseWheelEvent(event);
+        const xMultiplier = state.get('config.scroll.xMultiplier');
+        const yMultiplier = state.get('config.scroll.yMultiplier');
+        if (event.shiftKey && wheel.y) {
+          state.update('config.scroll.left', left => {
+            return api.limitScroll('left', (left += wheel.y * xMultiplier));
+          });
+        } else if (wheel.x) {
+          state.update('config.scroll.left', left => {
+            return api.limitScroll('left', (left += wheel.x * xMultiplier));
+          });
+        } else {
+          state.update('config.scroll.top', top => {
+            return api.limitScroll('top', (top += wheel.y * yMultiplier));
+          });
+        }
       }
-    }
-  }
+    },
+    passive: true
+  };
 
   function bindElement(element) {
     scrollElement = element;

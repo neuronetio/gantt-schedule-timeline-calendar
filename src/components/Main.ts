@@ -218,12 +218,15 @@ export default function Main(core) {
 
   state.update('_internal.scrollBarHeight', api.getScrollBarHeight());
 
-  function onScroll(event) {
-    state.update('config.scroll.top', event.target.scrollTop);
-  }
+  const onScroll = {
+    handleEvent(event) {
+      state.update('config.scroll.top', event.target.scrollTop);
+    },
+    passive: true
+  };
 
   const dimensions = { width: 0, height: 0 };
-  const mainAction = element => {
+  function mainAction(element) {
     if (dimensions.width === 0) {
       const width = element.clientWidth;
       const height = element.clientHeight;
@@ -236,7 +239,7 @@ export default function Main(core) {
     if (typeof action === 'function') {
       componentAction(element, { state, api });
     }
-  };
+  }
 
   function bindElement(element) {
     verticalScrollBarElement = element;

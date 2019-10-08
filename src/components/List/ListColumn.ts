@@ -69,7 +69,7 @@ export default function ListColumnComponent({ columnId }, core) {
     <div class=${className} data-action=${action(componentAction, { column, state: state, api: api })} style=${width}>
       ${ListColumnHeader.html()}
       <div class=${classNameContainer} style=${styleContainer} data-action=${action(rowsAction, { api, state })}>
-        ${repeat(visibleRows, r => r.id, row => row.component.html())}
+        ${visibleRows.map(row => row.component.html())}
       </div>
     </div>
   `;

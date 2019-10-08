@@ -48,7 +48,7 @@ export default function Core(state, api) {
     action: element => {},
 
     createComponent(component, props) {
-      const instance = { name: component.name, props };
+      const instance = {};
       const componentInstance = getComponentInstance(instance);
       let oneTimeUpdate;
       function render(props) {
@@ -60,7 +60,9 @@ export default function Core(state, api) {
         core.updateTemplate(instance, props);
       }
       const destroyable = [];
-      const onDestroy = fn => destroyable.push(fn);
+      function onDestroy(fn) {
+        destroyable.push(fn);
+      }
       const instanceCore = { ...core, render, onDestroy, instance, action: getAction(instance) };
       let methods;
       if (props) {

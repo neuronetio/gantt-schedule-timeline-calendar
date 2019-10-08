@@ -1,9 +1,7 @@
 import RowItemComponent from './GanttItemsRowItem';
 export default function GanttItemsRow({ rowId }, core) {
   const { api, state, onDestroy, action, render, html, createComponent, repeat } = core;
-  let rowPath = `_internal.flatTreeMapById.${rowId}`,
-    itemsPath = `_internal.flatTreeMapById.${rowId}._internal.items`;
-
+  let rowPath = `_internal.flatTreeMapById.${rowId}`;
   let row, element, style, styleInner;
   onDestroy(
     state.subscribeAll([rowPath, '_internal.chart'], bulk => {
@@ -21,7 +19,7 @@ export default function GanttItemsRow({ rowId }, core) {
   let items,
     itemComponents = [];
   onDestroy(
-    state.subscribe(itemsPath, value => {
+    state.subscribe(`_internal.flatTreeMapById.${rowId}._internal.items;`, value => {
       items = value;
       itemComponents.forEach(item => item.component.destroy());
       itemComponents = [];

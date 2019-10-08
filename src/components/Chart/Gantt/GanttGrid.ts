@@ -57,7 +57,7 @@ export default function GanttGrid(core) {
 
   return props => html`
     <div class=${className} data-action=${action(componentAction, { api, state })} style=${style}>
-      ${repeat(rowsComponents, r => r.id, r => r.component.html())}
+      ${rowsComponents.map(r => r.component.html())}
     </div>
   `;
 }

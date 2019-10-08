@@ -28,7 +28,7 @@ export default function GanttGridRow({ row }, core) {
 
   return props => html`
     <div class=${className} data-action=${action(componentAction, { row, api, state })} style=${style}>
-      ${repeat(rowsBlocksComponents, r => r.id, r => r.component.html())}
+      ${rowsBlocksComponents.map(r => r.component.html())}
     </div>
   `;
 }

@@ -1,5 +1,5 @@
 export default function GanttItemsRowItem({ rowId, itemId }, core) {
-  const { api, state, onDestroy, action, render, html, createComponent, repeat } = core;
+  const { api, state, onDestroy, action, render, html } = core;
 
   let row,
     rowPath = `config.list.rows.${rowId}`;
@@ -34,8 +34,8 @@ export default function GanttItemsRowItem({ rowId, itemId }, core) {
     itemLeftPx = 0,
     itemWidthPx = 0;
   onDestroy(
-    state.subscribe(
-      '_internal.chart.time',
+    state.subscribeAll(
+      ['_internal.chart.time', 'config.scroll'],
       bulk => {
         let time = state.get('_internal.chart.time');
         itemLeftPx = (item.time.start - time.from) / time.timePerPixel;
