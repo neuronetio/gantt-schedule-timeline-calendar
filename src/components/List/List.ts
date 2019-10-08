@@ -25,16 +25,15 @@ export default function List(core) {
   let columns,
     listColumns = [];
   onDestroy(
-    state.subscribe('config.list.columns.data', data => {
+    state.subscribe('config.list.columns.data;', data => {
       // only 'config.list.columns.data;' because listcolumn component will watch nested values
       listColumns.forEach(ls => ls.component.destroy());
-      listColumns = [];
       columns = Object.keys(data);
-      columns.forEach(columnId => {
+      listColumns = columns.map(columnId => {
         const component = createComponent(ListColumnComponent, {
           columnId
         });
-        listColumns.push({ id: columnId, component });
+        return { id: columnId, component };
       });
       render();
     })

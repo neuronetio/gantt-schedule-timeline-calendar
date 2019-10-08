@@ -15,7 +15,7 @@
   "dependencies": {
     "@henrikjoreteg/rollup-plugin-css": "^2.0.0",
     "dayjs": "^1.8.16",
-    "deep-state-observer": "^3.0.26",
+    "deep-state-observer": "^3.0.28",
     "hyperhtml": "^2.31.0",
     "hypersimple": "^0.4.0",
     "lit-element": "^2.2.1",

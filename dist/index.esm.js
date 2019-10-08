@@ -515,6 +515,7 @@ class DeepState {
         };
     }
     getListenerCollectionMatch(listenerPath, isRecursive, isWildcard) {
+        listenerPath = this.cleanNotRecursivePath(listenerPath);
         return (path) => {
             if (isRecursive)
                 path = this.cutPath(path, listenerPath);
@@ -545,7 +546,6 @@ class DeepState {
         }
         collCfg.isWildcard = this.isWildcard(collCfg.path);
         if (this.isNotRecursive(collCfg.path)) {
-            collCfg.path = this.cleanNotRecursivePath(collCfg.path);
             collCfg.isRecursive = false;
         }
         let listenersCollection = (this.listeners[collCfg.path] = this.getCleanListenersCollection(Object.assign(Object.assign({}, collCfg), { match: this.getListenerCollectionMatch(collCfg.path, collCfg.isRecursive, collCfg.isWildcard) })));
@@ -559,19 +559,21 @@ class DeepState {
         listenersCollection.count++;
         listenerPath = listenersCollection.path;
         if (!listenersCollection.isWildcard) {
-            fn(this.pathGet(this.split(listenerPath), this.data), {
+            fn(this.pathGet(this.split(this.cleanNotRecursivePath(listenerPath)), this.data), {
                 type,
+                listener,
+                listenersCollection,
                 path: {
                     listener: listenerPath,
                     update: undefined,
-                    resolved: listenerPath
+                    resolved: this.cleanNotRecursivePath(listenerPath)
                 },
                 params: this.getParams(listenersCollection.paramsInfo, listenerPath),
                 options
             });
         }
         else {
-            const paths = this.scan.get(listenerPath);
+            const paths = this.scan.get(this.cleanNotRecursivePath(listenerPath));
             if (options.bulk) {
                 const bulkValue = [];
                 for (const path in paths) {
@@ -583,6 +585,8 @@ class DeepState {
                 }
                 fn(bulkValue, {
                     type,
+                    listener,
+                    listenersCollection,
                     path: {
                         listener: listenerPath,
                         update: undefined,
@@ -596,10 +600,12 @@ class DeepState {
                 for (const path in paths) {
                     fn(paths[path], {
                         type,
+                        listener,
+                        listenersCollection,
                         path: {
                             listener: listenerPath,
                             update: undefined,
-                            resolved: path
+                            resolved: this.cleanNotRecursivePath(path)
                         },
                         params: this.getParams(listenersCollection.paramsInfo, path),
                         options
@@ -609,12 +615,6 @@ class DeepState {
         }
         this.debugSubscribe(listener, listenersCollection, listenerPath);
         return this.unsubscribe(listenerPath, this.id);
-    }
-    empty(obj) {
-        for (const key in obj) {
-            return false;
-        }
-        return true;
     }
     unsubscribe(path, id) {
         const listeners = this.listeners;
@@ -679,6 +679,7 @@ class DeepState {
                             listenersCollection,
                             eventInfo: {
                                 type,
+                                listener,
                                 path: {
                                     listener: listenerPath,
                                     update: originalPath ? originalPath : updatePath,
@@ -696,10 +697,11 @@ class DeepState {
                             listenersCollection,
                             eventInfo: {
                                 type,
+                                listener,
                                 path: {
                                     listener: listenerPath,
                                     update: originalPath ? originalPath : updatePath,
-                                    resolved: updatePath
+                                    resolved: this.cleanNotRecursivePath(updatePath)
                                 },
                                 params,
                                 options
@@ -736,10 +738,12 @@ class DeepState {
                         const listener = listenersCollection.listeners[listenerId];
                         const eventInfo = {
                             type,
+                            listener,
+                            listenersCollection,
                             path: {
                                 listener: listenerPath,
                                 update: originalPath ? originalPath : updatePath,
-                                resolved: fullPath
+                                resolved: this.cleanNotRecursivePath(fullPath)
                             },
                             params,
                             options
@@ -757,6 +761,8 @@ class DeepState {
                     const listener = bulkListeners[listenerId];
                     const eventInfo = {
                         type,
+                        listener,
+                        listenersCollection,
                         path: {
                             listener: listenerPath,
                             update: updatePath,
@@ -799,10 +805,12 @@ class DeepState {
                             const listener = listenersCollection.listeners[listenerId];
                             const eventInfo = {
                                 type,
+                                listener,
+                                listenersCollection,
                                 path: {
                                     listener: listenerPath,
                                     update: originalPath ? originalPath : updatePath,
-                                    resolved: fullPath
+                                    resolved: this.cleanNotRecursivePath(fullPath)
                                 },
                                 params,
                                 options
@@ -3684,7 +3692,6 @@ function ListColumnRow({ rowId, columnId }, core) {
     }
     const listExpander = createComponent(ListExpander, { row });
     onDestroy(listExpander.destroy);
-    render();
     return props => html `
     <div
       class=${className}
@@ -3854,7 +3861,7 @@ function ListColumnComponent({ columnId }, core) {
         render();
     }));
     let visibleRows = [];
-    onDestroy(state.subscribe('_internal.list.visibleRows', val => {
+    onDestroy(state.subscribe('_internal.list.visibleRows;', val => {
         visibleRows.forEach(row => row.component.destroy());
         visibleRows = val.map(row => ({
             id: row.id,
@@ -3862,27 +3869,25 @@ function ListColumnComponent({ columnId }, core) {
         }));
         render();
     }));
+    onDestroy(() => {
+        visibleRows.forEach(row => row.component.destroy());
+    });
     onDestroy(state.subscribeAll([
         'config.list.columns.percent',
         'config.list.columns.resizer.width',
         `config.list.columns.data.${column.id}.width`,
         'config.height',
         'config.headerHeight'
-    ], (value, path) => {
+    ], bulk => {
         const list = state.get('config.list');
         calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
         width = `width: ${calculatedWidth + list.columns.resizer.width}px`;
         styleContainer = `height: ${state.get('config.height')}px`;
     }, { bulk: true }));
-    function mainAction(element) {
-        if (typeof componentAction === 'function') {
-            componentAction(element, { column, state: state, api: api });
-        }
-    }
     const ListColumnHeader$1 = createComponent(ListColumnHeader, { columnId });
     onDestroy(ListColumnHeader$1.destroy);
     return props => html `
-    <div class=${className} data-action=${action(mainAction)} style=${width}>
+    <div class=${className} data-action=${action(componentAction, { column, state: state, api: api })} style=${width}>
       ${ListColumnHeader$1.html()}
       <div class=${classNameContainer} style=${styleContainer} data-action=${action(rowsAction, { api, state })}>
         ${repeat(visibleRows, r => r.id, row => row.component.html())}
@@ -3908,16 +3913,15 @@ function List(core) {
         render();
     }));
     let columns, listColumns = [];
-    onDestroy(state.subscribe('config.list.columns.data', data => {
+    onDestroy(state.subscribe('config.list.columns.data;', data => {
         // only 'config.list.columns.data;' because listcolumn component will watch nested values
         listColumns.forEach(ls => ls.component.destroy());
-        listColumns = [];
         columns = Object.keys(data);
-        columns.forEach(columnId => {
+        listColumns = columns.map(columnId => {
             const component = createComponent(ListColumnComponent, {
                 columnId
             });
-            listColumns.push({ id: columnId, component });
+            return { id: columnId, component };
         });
         render();
     }));
@@ -3968,7 +3972,6 @@ function List(core) {
         `
         : null;
 }
-//# sourceMappingURL=List.js.map
 
 function CalendarDate({ date }, core) {
     const { api, state, onDestroy, action, render, createComponent, html, repeat } = core;
@@ -4591,6 +4594,7 @@ function Main(core) {
       </div>
     `;
 }
+//# sourceMappingURL=Main.js.map
 
 const _internal = {
     components: {

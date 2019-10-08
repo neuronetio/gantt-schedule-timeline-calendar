@@ -29,7 +29,7 @@ export default function ListColumnComponent({ columnId }, core) {
 
   let visibleRows = [];
   onDestroy(
-    state.subscribe('_internal.list.visibleRows', val => {
+    state.subscribe('_internal.list.visibleRows;', val => {
       visibleRows.forEach(row => row.component.destroy());
       visibleRows = val.map(row => ({
         id: row.id,
@@ -38,6 +38,10 @@ export default function ListColumnComponent({ columnId }, core) {
       render();
     })
   );
+
+  onDestroy(() => {
+    visibleRows.forEach(row => row.component.destroy());
+  });
 
   onDestroy(
     state.subscribeAll(
@@ -48,7 +52,7 @@ export default function ListColumnComponent({ columnId }, core) {
         'config.height',
         'config.headerHeight'
       ],
-      (value, path) => {
+      bulk => {
         const list = state.get('config.list');
         calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
         width = `width: ${calculatedWidth + list.columns.resizer.width}px`;
@@ -58,17 +62,11 @@ export default function ListColumnComponent({ columnId }, core) {
     )
   );
 
-  function mainAction(element) {
-    if (typeof componentAction === 'function') {
-      componentAction(element, { column, state: state, api: api });
-    }
-  }
-
   const ListColumnHeader = createComponent(ListColumnHeaderComponent, { columnId });
   onDestroy(ListColumnHeader.destroy);
 
   return props => html`
-    <div class=${className} data-action=${action(mainAction)} style=${width}>
+    <div class=${className} data-action=${action(componentAction, { column, state: state, api: api })} style=${width}>
       ${ListColumnHeader.html()}
       <div class=${classNameContainer} style=${styleContainer} data-action=${action(rowsAction, { api, state })}>
         ${repeat(visibleRows, r => r.id, row => row.component.html())}

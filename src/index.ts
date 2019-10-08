@@ -1,4 +1,3 @@
-import State from 'deep-state-observer';
 import publicApi, { getInternalApi } from './api/Api';
 import Core from './Core';
 import Main from './components/Main';

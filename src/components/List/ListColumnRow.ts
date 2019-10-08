@@ -1,6 +1,7 @@
 import ListExpander from './ListExpander';
 export default function ListColumnRow({ rowId, columnId }, core) {
   const { api, state, onDestroy, action, render, html, createComponent } = core;
+
   let row,
     rowPath = `config.list.rows.${rowId}`;
   let style;
@@ -48,8 +49,6 @@ export default function ListColumnRow({ rowId, columnId }, core) {
 
   const listExpander = createComponent(ListExpander, { row });
   onDestroy(listExpander.destroy);
-
-  render();
 
   return props => html`
     <div
