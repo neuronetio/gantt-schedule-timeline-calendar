@@ -1,13 +1,17 @@
-<script>
-  export let column;
-
-  import { getContext, onDestroy } from 'svelte';
-
-  const api = getContext('api');
-  const state = getContext('state');
+export default function ListColumnHeaderResizer({ columnId }, core) {
+  const { api, state, onDestroy, render, html, action } = core;
 
   const componentName = 'list-column-header-resizer';
-  const action = api.getAction(componentName);
+  const componentAction = api.getAction(componentName);
+
+  let column;
+  onDestroy(
+    state.subscribe(`config.list.columns.data.${columnId}`, val => {
+      column = val;
+      render();
+    })
+  );
+
   let className, containerClass, dotsClass, dotClass, lineClass, calculatedWidth, width, dotsWidth;
   let inRealTime = false;
   onDestroy(
@@ -17,6 +21,7 @@
       dotsClass = api.getClass(componentName + '-dots', { column });
       dotClass = api.getClass(componentName + '-dots-dot', { column });
       lineClass = api.getClass(componentName + '-line', { column });
+      render();
     })
   );
   onDestroy(
@@ -33,6 +38,7 @@
         width = 'width:' + calculatedWidth + 'px';
         dotsWidth = `width: ${list.columns.resizer.width}px`;
         inRealTime = list.columns.resizer.inRealTime;
+        render();
       }
     )
   );
@@ -40,7 +46,11 @@
   let dots = [1, 2, 3, 4, 5, 6, 7, 8];
   onDestroy(
     state.subscribe('config.list.columns.resizer.dots', value => {
-      dots = new Array(value);
+      dots = [];
+      for (let i = 0; i < value; i++) {
+        dots.push(i);
+      }
+      render();
     })
   );
 
@@ -49,17 +59,14 @@
   let lineStyle = `--display: none; --left: ${left}px;`;
   const columnWidthPath = `config.list.columns.data.${column.id}.width`;
 
-  $: {
+  function onMouseDown(event) {
+    isMoving = true;
+    state.update('_internal.list.columns.resizer.active', true);
     if (isMoving) {
       lineStyle = `--display:block; --left: ${left}px;`;
     } else {
       lineStyle = `--display:none; --left: 0px;`;
     }
-  }
-
-  function onMouseDown(event) {
-    isMoving = true;
-    state.update('_internal.list.columns.resizer.active', true);
   }
 
   function onMouseMove(event) {
@@ -81,19 +88,29 @@
       isMoving = false;
     }
   }
-</script>
 
-<div class={className} use:action={{ column, api, state }}>
-  <div class={containerClass}>
-    <slot />
-  </div>
-  <div class={dotsClass} style="--{dotsWidth}" on:mousedown={onMouseDown}>
-    {#each dots as dot}
-      <div class={dotClass} />
-    {/each}
-  </div>
-</div>
-{#if !inRealTime}
-  <div class={lineClass} style={lineStyle} />
-{/if}
-<svelte:body on:mousemove={onMouseMove} on:mouseup={onMouseUp} on:mouseleave={onMouseUp} />
+  document.body.addEventListener('mousemove', onMouseMove);
+  onDestroy(() => document.body.removeEventListener('mousemove', onMouseMove));
+  document.body.addEventListener('mouseup', onMouseUp);
+  onDestroy(() => document.body.removeEventListener('mouseup', onMouseUp));
+
+  return props => html`
+    <div class=${className} data-action=${action(componentAction, { column, api, state })}>
+      <div class=${containerClass}>
+        ${column.header.html
+          ? html`
+              ${column.header.html}
+            `
+          : column.header.content}
+      </div>
+      <div class=${dotsClass} style=${'--' + dotsWidth} @mousedown=${onMouseDown}>
+        ${dots.map(
+          dot =>
+            html`
+              <div class=${dotClass} />
+            `
+        )}
+      </div>
+    </div>
+  `;
+}

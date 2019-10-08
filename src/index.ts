@@ -49,6 +49,7 @@ const _internal = {
 const GSTC = options => {
   const state = options.state;
   const api = getInternalApi(state);
+  // @ts-ignore
   window.state = state;
 
   state.update('', oldValue => {
@@ -58,7 +59,8 @@ const GSTC = options => {
     };
   });
   const core = Core(state, api);
-  const app = core.createApp(Main(), options.element);
+  window._core = core;
+  const app = core.createApp(Main, options.element);
   return { state };
 };
 

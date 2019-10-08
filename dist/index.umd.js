@@ -929,6 +929,7 @@
   }
   //# sourceMappingURL=index.js.map
 
+  // @ts-nocheck
   const lib = 'gantt-shedule-timeline-calendar';
   /**
    * Helper function to determine if specified variable is an object
@@ -1052,7 +1053,8 @@
         if (typeof attrs !== 'undefined') {
           for (const key in attrs) {
             if (attrs[key].constructor.name === 'Object' && typeof attrs[key].id !== 'undefined') {
-              return (postfix += `-${key}_${attrs[key].id}`);
+              postfix += `-${key}_${attrs[key].id}`;
+              return className + className.trim() + postfix;
             }
             if (typeof attrs[key] === 'string' || typeof attrs[key] === 'number') {
               postfix += `-${key}_${attrs[key]}`;
@@ -1063,10 +1065,10 @@
           className += simple + postfix + ' ';
         }
         if (typeof $state.config.classNames[name] !== 'undefined') {
-          $state.config.classNames[name].forEach(customClass => (className += customClass + ' '));
+          state.get(`config.classNames.${name}`).forEach(customClass => (className += customClass + ' '));
         }
         if (typeof $state.config.classNames[name + postfix] !== 'undefined') {
-          $state.config.classNames[name + postfix].forEach(customClass => (className += customClass + ' '));
+          state.get(`config.classNames.${name + postfix}`).forEach(customClass => (className += customClass + ' '));
         }
         return className.trim();
       },
@@ -1335,11 +1337,6 @@
       window.state = state;
       window.api = api;
     }
-    unsubscribers.push(
-      state.subscribe('', () => {
-        $state = state.get();
-      })
-    );
 
     return api;
   }
@@ -1427,6 +1424,18 @@
   const isCEPolyfill = window.customElements !== undefined &&
       window.customElements.polyfillWrapFlushCallback !==
           undefined;
+  /**
+   * Reparents nodes, starting from `start` (inclusive) to `end` (exclusive),
+   * into another container (could be the same container), before `before`. If
+   * `before` is null, it appends the nodes to the container.
+   */
+  const reparentNodes = (container, start, end = null, before = null) => {
+      while (start !== end) {
+          const n = start.nextSibling;
+          container.insertBefore(start, before);
+          start = n;
+      }
+  };
   /**
    * Removes nodes, starting from `start` (inclusive) to `end` (exclusive), from
    * `container`.
@@ -1895,6 +1904,26 @@
       getTemplateElement() {
           const template = document.createElement('template');
           template.innerHTML = this.getHTML();
+          return template;
+      }
+  }
+  /**
+   * A TemplateResult for SVG fragments.
+   *
+   * This class wraps HTML in an `<svg>` tag in order to parse its contents in the
+   * SVG namespace, then modifies the template to remove the `<svg>` tag so that
+   * clones only container the original fragment.
+   */
+  class SVGTemplateResult extends TemplateResult {
+      getHTML() {
+          return `<svg>${super.getHTML()}</svg>`;
+      }
+      getTemplateElement() {
+          const template = super.getTemplateElement();
+          const content = template.content;
+          const svgElement = content.firstChild;
+          content.removeChild(svgElement);
+          reparentNodes(content, svgElement.firstChild);
           return template;
       }
   }
@@ -2503,47 +2532,923 @@
    * render to and update a container.
    */
   const html = (strings, ...values) => new TemplateResult(strings, values, 'html', defaultTemplateProcessor);
+  /**
+   * Interprets a template literal as an SVG template that can efficiently
+   * render to and update a container.
+   */
+  const svg = (strings, ...values) => new SVGTemplateResult(strings, values, 'svg', defaultTemplateProcessor);
   //# sourceMappingURL=lit-html.js.map
+
+  /**
+   * @license
+   * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  const templateCaches$1 = new WeakMap();
+  /**
+   * Enables fast switching between multiple templates by caching the DOM nodes
+   * and TemplateInstances produced by the templates.
+   *
+   * Example:
+   *
+   * ```
+   * let checked = false;
+   *
+   * html`
+   *   ${cache(checked ? html`input is checked` : html`input is not checked`)}
+   * `
+   * ```
+   */
+  const cache = directive((value) => (part) => {
+      if (!(part instanceof NodePart)) {
+          throw new Error('cache can only be used in text bindings');
+      }
+      let templateCache = templateCaches$1.get(part);
+      if (templateCache === undefined) {
+          templateCache = new WeakMap();
+          templateCaches$1.set(part, templateCache);
+      }
+      const previousValue = part.value;
+      // First, can we update the current TemplateInstance, or do we need to move
+      // the current nodes into the cache?
+      if (previousValue instanceof TemplateInstance) {
+          if (value instanceof TemplateResult &&
+              previousValue.template === part.options.templateFactory(value)) {
+              // Same Template, just trigger an update of the TemplateInstance
+              part.setValue(value);
+              return;
+          }
+          else {
+              // Not the same Template, move the nodes from the DOM into the cache.
+              let cachedTemplate = templateCache.get(previousValue.template);
+              if (cachedTemplate === undefined) {
+                  cachedTemplate = {
+                      instance: previousValue,
+                      nodes: document.createDocumentFragment(),
+                  };
+                  templateCache.set(previousValue.template, cachedTemplate);
+              }
+              reparentNodes(cachedTemplate.nodes, part.startNode.nextSibling, part.endNode);
+          }
+      }
+      // Next, can we reuse nodes from the cache?
+      if (value instanceof TemplateResult) {
+          const template = part.options.templateFactory(value);
+          const cachedTemplate = templateCache.get(template);
+          if (cachedTemplate !== undefined) {
+              // Move nodes out of cache
+              part.setValue(cachedTemplate.nodes);
+              part.commit();
+              // Set the Part value to the TemplateInstance so it'll update it.
+              part.value = cachedTemplate.instance;
+          }
+      }
+      part.setValue(value);
+  });
+  //# sourceMappingURL=cache.js.map
+
+  /**
+   * @license
+   * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  /**
+   * Stores the ClassInfo object applied to a given AttributePart.
+   * Used to unset existing values when a new ClassInfo object is applied.
+   */
+  const classMapCache = new WeakMap();
+  /**
+   * A directive that applies CSS classes. This must be used in the `class`
+   * attribute and must be the only part used in the attribute. It takes each
+   * property in the `classInfo` argument and adds the property name to the
+   * element's `classList` if the property value is truthy; if the property value
+   * is falsey, the property name is removed from the element's `classList`. For
+   * example
+   * `{foo: bar}` applies the class `foo` if the value of `bar` is truthy.
+   * @param classInfo {ClassInfo}
+   */
+  const classMap = directive((classInfo) => (part) => {
+      if (!(part instanceof AttributePart) || (part instanceof PropertyPart) ||
+          part.committer.name !== 'class' || part.committer.parts.length > 1) {
+          throw new Error('The `classMap` directive must be used in the `class` attribute ' +
+              'and must be the only part in the attribute.');
+      }
+      const { committer } = part;
+      const { element } = committer;
+      // handle static classes
+      if (!classMapCache.has(part)) {
+          element.className = committer.strings.join(' ');
+      }
+      const { classList } = element;
+      // remove old classes that no longer apply
+      const oldInfo = classMapCache.get(part);
+      for (const name in oldInfo) {
+          if (!(name in classInfo)) {
+              classList.remove(name);
+          }
+      }
+      // add new classes
+      for (const name in classInfo) {
+          const value = classInfo[name];
+          if (!oldInfo || value !== oldInfo[name]) {
+              // We explicitly want a loose truthy check here because
+              // it seems more convenient that '' and 0 are skipped.
+              const method = value ? 'add' : 'remove';
+              classList[method](name);
+          }
+      }
+      classMapCache.set(part, classInfo);
+  });
+  //# sourceMappingURL=class-map.js.map
+
+  /**
+   * @license
+   * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  const previousValues = new WeakMap();
+  /**
+   * Prevents re-render of a template function until a single value or an array of
+   * values changes.
+   *
+   * Example:
+   *
+   * ```js
+   * html`
+   *   <div>
+   *     ${guard([user.id, company.id], () => html`...`)}
+   *   </div>
+   * ```
+   *
+   * In this case, the template only renders if either `user.id` or `company.id`
+   * changes.
+   *
+   * guard() is useful with immutable data patterns, by preventing expensive work
+   * until data updates.
+   *
+   * Example:
+   *
+   * ```js
+   * html`
+   *   <div>
+   *     ${guard([immutableItems], () => immutableItems.map(i => html`${i}`))}
+   *   </div>
+   * ```
+   *
+   * In this case, items are mapped over only when the array reference changes.
+   *
+   * @param value the value to check before re-rendering
+   * @param f the template function
+   */
+  const guard = directive((value, f) => (part) => {
+      const previousValue = previousValues.get(part);
+      if (Array.isArray(value)) {
+          // Dirty-check arrays by item
+          if (Array.isArray(previousValue) &&
+              previousValue.length === value.length &&
+              value.every((v, i) => v === previousValue[i])) {
+              return;
+          }
+      }
+      else if (previousValue === value &&
+          (value !== undefined || previousValues.has(part))) {
+          // Dirty-check non-arrays by identity
+          return;
+      }
+      part.setValue(f());
+      // Copy the value if it's an array so that if it's mutated we don't forget
+      // what the previous values were.
+      previousValues.set(part, Array.isArray(value) ? Array.from(value) : value);
+  });
+  //# sourceMappingURL=guard.js.map
+
+  /**
+   * @license
+   * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  /**
+   * For AttributeParts, sets the attribute if the value is defined and removes
+   * the attribute if the value is undefined.
+   *
+   * For other part types, this directive is a no-op.
+   */
+  const ifDefined = directive((value) => (part) => {
+      if (value === undefined && part instanceof AttributePart) {
+          if (value !== part.value) {
+              const name = part.committer.name;
+              part.committer.element.removeAttribute(name);
+          }
+      }
+      else {
+          part.setValue(value);
+      }
+  });
+  //# sourceMappingURL=if-defined.js.map
+
+  /**
+   * @license
+   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  // Helper functions for manipulating parts
+  // TODO(kschaaf): Refactor into Part API?
+  const createAndInsertPart = (containerPart, beforePart) => {
+      const container = containerPart.startNode.parentNode;
+      const beforeNode = beforePart === undefined ? containerPart.endNode :
+          beforePart.startNode;
+      const startNode = container.insertBefore(createMarker(), beforeNode);
+      container.insertBefore(createMarker(), beforeNode);
+      const newPart = new NodePart(containerPart.options);
+      newPart.insertAfterNode(startNode);
+      return newPart;
+  };
+  const updatePart = (part, value) => {
+      part.setValue(value);
+      part.commit();
+      return part;
+  };
+  const insertPartBefore = (containerPart, part, ref) => {
+      const container = containerPart.startNode.parentNode;
+      const beforeNode = ref ? ref.startNode : containerPart.endNode;
+      const endNode = part.endNode.nextSibling;
+      if (endNode !== beforeNode) {
+          reparentNodes(container, part.startNode, endNode, beforeNode);
+      }
+  };
+  const removePart = (part) => {
+      removeNodes(part.startNode.parentNode, part.startNode, part.endNode.nextSibling);
+  };
+  // Helper for generating a map of array item to its index over a subset
+  // of an array (used to lazily generate `newKeyToIndexMap` and
+  // `oldKeyToIndexMap`)
+  const generateMap = (list, start, end) => {
+      const map = new Map();
+      for (let i = start; i <= end; i++) {
+          map.set(list[i], i);
+      }
+      return map;
+  };
+  // Stores previous ordered list of parts and map of key to index
+  const partListCache = new WeakMap();
+  const keyListCache = new WeakMap();
+  /**
+   * A directive that repeats a series of values (usually `TemplateResults`)
+   * generated from an iterable, and updates those items efficiently when the
+   * iterable changes based on user-provided `keys` associated with each item.
+   *
+   * Note that if a `keyFn` is provided, strict key-to-DOM mapping is maintained,
+   * meaning previous DOM for a given key is moved into the new position if
+   * needed, and DOM will never be reused with values for different keys (new DOM
+   * will always be created for new keys). This is generally the most efficient
+   * way to use `repeat` since it performs minimum unnecessary work for insertions
+   * amd removals.
+   *
+   * IMPORTANT: If providing a `keyFn`, keys *must* be unique for all items in a
+   * given call to `repeat`. The behavior when two or more items have the same key
+   * is undefined.
+   *
+   * If no `keyFn` is provided, this directive will perform similar to mapping
+   * items to values, and DOM will be reused against potentially different items.
+   */
+  const repeat = directive((items, keyFnOrTemplate, template) => {
+      let keyFn;
+      if (template === undefined) {
+          template = keyFnOrTemplate;
+      }
+      else if (keyFnOrTemplate !== undefined) {
+          keyFn = keyFnOrTemplate;
+      }
+      return (containerPart) => {
+          if (!(containerPart instanceof NodePart)) {
+              throw new Error('repeat can only be used in text bindings');
+          }
+          // Old part & key lists are retrieved from the last update
+          // (associated with the part for this instance of the directive)
+          const oldParts = partListCache.get(containerPart) || [];
+          const oldKeys = keyListCache.get(containerPart) || [];
+          // New part list will be built up as we go (either reused from
+          // old parts or created for new keys in this update). This is
+          // saved in the above cache at the end of the update.
+          const newParts = [];
+          // New value list is eagerly generated from items along with a
+          // parallel array indicating its key.
+          const newValues = [];
+          const newKeys = [];
+          let index = 0;
+          for (const item of items) {
+              newKeys[index] = keyFn ? keyFn(item, index) : index;
+              newValues[index] = template(item, index);
+              index++;
+          }
+          // Maps from key to index for current and previous update; these
+          // are generated lazily only when needed as a performance
+          // optimization, since they are only required for multiple
+          // non-contiguous changes in the list, which are less common.
+          let newKeyToIndexMap;
+          let oldKeyToIndexMap;
+          // Head and tail pointers to old parts and new values
+          let oldHead = 0;
+          let oldTail = oldParts.length - 1;
+          let newHead = 0;
+          let newTail = newValues.length - 1;
+          // Overview of O(n) reconciliation algorithm (general approach
+          // based on ideas found in ivi, vue, snabbdom, etc.):
+          //
+          // * We start with the list of old parts and new values (and
+          //   arrays of their respective keys), head/tail pointers into
+          //   each, and we build up the new list of parts by updating
+          //   (and when needed, moving) old parts or creating new ones.
+          //   The initial scenario might look like this (for brevity of
+          //   the diagrams, the numbers in the array reflect keys
+          //   associated with the old parts or new values, although keys
+          //   and parts/values are actually stored in parallel arrays
+          //   indexed using the same head/tail pointers):
+          //
+          //      oldHead v                 v oldTail
+          //   oldKeys:  [0, 1, 2, 3, 4, 5, 6]
+          //   newParts: [ ,  ,  ,  ,  ,  ,  ]
+          //   newKeys:  [0, 2, 1, 4, 3, 7, 6] <- reflects the user's new
+          //                                      item order
+          //      newHead ^                 ^ newTail
+          //
+          // * Iterate old & new lists from both sides, updating,
+          //   swapping, or removing parts at the head/tail locations
+          //   until neither head nor tail can move.
+          //
+          // * Example below: keys at head pointers match, so update old
+          //   part 0 in-place (no need to move it) and record part 0 in
+          //   the `newParts` list. The last thing we do is advance the
+          //   `oldHead` and `newHead` pointers (will be reflected in the
+          //   next diagram).
+          //
+          //      oldHead v                 v oldTail
+          //   oldKeys:  [0, 1, 2, 3, 4, 5, 6]
+          //   newParts: [0,  ,  ,  ,  ,  ,  ] <- heads matched: update 0
+          //   newKeys:  [0, 2, 1, 4, 3, 7, 6]    and advance both oldHead
+          //                                      & newHead
+          //      newHead ^                 ^ newTail
+          //
+          // * Example below: head pointers don't match, but tail
+          //   pointers do, so update part 6 in place (no need to move
+          //   it), and record part 6 in the `newParts` list. Last,
+          //   advance the `oldTail` and `oldHead` pointers.
+          //
+          //         oldHead v              v oldTail
+          //   oldKeys:  [0, 1, 2, 3, 4, 5, 6]
+          //   newParts: [0,  ,  ,  ,  ,  , 6] <- tails matched: update 6
+          //   newKeys:  [0, 2, 1, 4, 3, 7, 6]    and advance both oldTail
+          //                                      & newTail
+          //         newHead ^              ^ newTail
+          //
+          // * If neither head nor tail match; next check if one of the
+          //   old head/tail items was removed. We first need to generate
+          //   the reverse map of new keys to index (`newKeyToIndexMap`),
+          //   which is done once lazily as a performance optimization,
+          //   since we only hit this case if multiple non-contiguous
+          //   changes were made. Note that for contiguous removal
+          //   anywhere in the list, the head and tails would advance
+          //   from either end and pass each other before we get to this
+          //   case and removals would be handled in the final while loop
+          //   without needing to generate the map.
+          //
+          // * Example below: The key at `oldTail` was removed (no longer
+          //   in the `newKeyToIndexMap`), so remove that part from the
+          //   DOM and advance just the `oldTail` pointer.
+          //
+          //         oldHead v           v oldTail
+          //   oldKeys:  [0, 1, 2, 3, 4, 5, 6]
+          //   newParts: [0,  ,  ,  ,  ,  , 6] <- 5 not in new map: remove
+          //   newKeys:  [0, 2, 1, 4, 3, 7, 6]    5 and advance oldTail
+          //         newHead ^           ^ newTail
+          //
+          // * Once head and tail cannot move, any mismatches are due to
+          //   either new or moved items; if a new key is in the previous
+          //   "old key to old index" map, move the old part to the new
+          //   location, otherwise create and insert a new part. Note
+          //   that when moving an old part we null its position in the
+          //   oldParts array if it lies between the head and tail so we
+          //   know to skip it when the pointers get there.
+          //
+          // * Example below: neither head nor tail match, and neither
+          //   were removed; so find the `newHead` key in the
+          //   `oldKeyToIndexMap`, and move that old part's DOM into the
+          //   next head position (before `oldParts[oldHead]`). Last,
+          //   null the part in the `oldPart` array since it was
+          //   somewhere in the remaining oldParts still to be scanned
+          //   (between the head and tail pointers) so that we know to
+          //   skip that old part on future iterations.
+          //
+          //         oldHead v        v oldTail
+          //   oldKeys:  [0, 1, -, 3, 4, 5, 6]
+          //   newParts: [0, 2,  ,  ,  ,  , 6] <- stuck: update & move 2
+          //   newKeys:  [0, 2, 1, 4, 3, 7, 6]    into place and advance
+          //                                      newHead
+          //         newHead ^           ^ newTail
+          //
+          // * Note that for moves/insertions like the one above, a part
+          //   inserted at the head pointer is inserted before the
+          //   current `oldParts[oldHead]`, and a part inserted at the
+          //   tail pointer is inserted before `newParts[newTail+1]`. The
+          //   seeming asymmetry lies in the fact that new parts are
+          //   moved into place outside in, so to the right of the head
+          //   pointer are old parts, and to the right of the tail
+          //   pointer are new parts.
+          //
+          // * We always restart back from the top of the algorithm,
+          //   allowing matching and simple updates in place to
+          //   continue...
+          //
+          // * Example below: the head pointers once again match, so
+          //   simply update part 1 and record it in the `newParts`
+          //   array.  Last, advance both head pointers.
+          //
+          //         oldHead v        v oldTail
+          //   oldKeys:  [0, 1, -, 3, 4, 5, 6]
+          //   newParts: [0, 2, 1,  ,  ,  , 6] <- heads matched: update 1
+          //   newKeys:  [0, 2, 1, 4, 3, 7, 6]    and advance both oldHead
+          //                                      & newHead
+          //            newHead ^        ^ newTail
+          //
+          // * As mentioned above, items that were moved as a result of
+          //   being stuck (the final else clause in the code below) are
+          //   marked with null, so we always advance old pointers over
+          //   these so we're comparing the next actual old value on
+          //   either end.
+          //
+          // * Example below: `oldHead` is null (already placed in
+          //   newParts), so advance `oldHead`.
+          //
+          //            oldHead v     v oldTail
+          //   oldKeys:  [0, 1, -, 3, 4, 5, 6] <- old head already used:
+          //   newParts: [0, 2, 1,  ,  ,  , 6]    advance oldHead
+          //   newKeys:  [0, 2, 1, 4, 3, 7, 6]
+          //               newHead ^     ^ newTail
+          //
+          // * Note it's not critical to mark old parts as null when they
+          //   are moved from head to tail or tail to head, since they
+          //   will be outside the pointer range and never visited again.
+          //
+          // * Example below: Here the old tail key matches the new head
+          //   key, so the part at the `oldTail` position and move its
+          //   DOM to the new head position (before `oldParts[oldHead]`).
+          //   Last, advance `oldTail` and `newHead` pointers.
+          //
+          //               oldHead v  v oldTail
+          //   oldKeys:  [0, 1, -, 3, 4, 5, 6]
+          //   newParts: [0, 2, 1, 4,  ,  , 6] <- old tail matches new
+          //   newKeys:  [0, 2, 1, 4, 3, 7, 6]   head: update & move 4,
+          //                                     advance oldTail & newHead
+          //               newHead ^     ^ newTail
+          //
+          // * Example below: Old and new head keys match, so update the
+          //   old head part in place, and advance the `oldHead` and
+          //   `newHead` pointers.
+          //
+          //               oldHead v oldTail
+          //   oldKeys:  [0, 1, -, 3, 4, 5, 6]
+          //   newParts: [0, 2, 1, 4, 3,   ,6] <- heads match: update 3
+          //   newKeys:  [0, 2, 1, 4, 3, 7, 6]    and advance oldHead &
+          //                                      newHead
+          //                  newHead ^  ^ newTail
+          //
+          // * Once the new or old pointers move past each other then all
+          //   we have left is additions (if old list exhausted) or
+          //   removals (if new list exhausted). Those are handled in the
+          //   final while loops at the end.
+          //
+          // * Example below: `oldHead` exceeded `oldTail`, so we're done
+          //   with the main loop.  Create the remaining part and insert
+          //   it at the new head position, and the update is complete.
+          //
+          //                   (oldHead > oldTail)
+          //   oldKeys:  [0, 1, -, 3, 4, 5, 6]
+          //   newParts: [0, 2, 1, 4, 3, 7 ,6] <- create and insert 7
+          //   newKeys:  [0, 2, 1, 4, 3, 7, 6]
+          //                     newHead ^ newTail
+          //
+          // * Note that the order of the if/else clauses is not
+          //   important to the algorithm, as long as the null checks
+          //   come first (to ensure we're always working on valid old
+          //   parts) and that the final else clause comes last (since
+          //   that's where the expensive moves occur). The order of
+          //   remaining clauses is is just a simple guess at which cases
+          //   will be most common.
+          //
+          // * TODO(kschaaf) Note, we could calculate the longest
+          //   increasing subsequence (LIS) of old items in new position,
+          //   and only move those not in the LIS set. However that costs
+          //   O(nlogn) time and adds a bit more code, and only helps
+          //   make rare types of mutations require fewer moves. The
+          //   above handles removes, adds, reversal, swaps, and single
+          //   moves of contiguous items in linear time, in the minimum
+          //   number of moves. As the number of multiple moves where LIS
+          //   might help approaches a random shuffle, the LIS
+          //   optimization becomes less helpful, so it seems not worth
+          //   the code at this point. Could reconsider if a compelling
+          //   case arises.
+          while (oldHead <= oldTail && newHead <= newTail) {
+              if (oldParts[oldHead] === null) {
+                  // `null` means old part at head has already been used
+                  // below; skip
+                  oldHead++;
+              }
+              else if (oldParts[oldTail] === null) {
+                  // `null` means old part at tail has already been used
+                  // below; skip
+                  oldTail--;
+              }
+              else if (oldKeys[oldHead] === newKeys[newHead]) {
+                  // Old head matches new head; update in place
+                  newParts[newHead] =
+                      updatePart(oldParts[oldHead], newValues[newHead]);
+                  oldHead++;
+                  newHead++;
+              }
+              else if (oldKeys[oldTail] === newKeys[newTail]) {
+                  // Old tail matches new tail; update in place
+                  newParts[newTail] =
+                      updatePart(oldParts[oldTail], newValues[newTail]);
+                  oldTail--;
+                  newTail--;
+              }
+              else if (oldKeys[oldHead] === newKeys[newTail]) {
+                  // Old head matches new tail; update and move to new tail
+                  newParts[newTail] =
+                      updatePart(oldParts[oldHead], newValues[newTail]);
+                  insertPartBefore(containerPart, oldParts[oldHead], newParts[newTail + 1]);
+                  oldHead++;
+                  newTail--;
+              }
+              else if (oldKeys[oldTail] === newKeys[newHead]) {
+                  // Old tail matches new head; update and move to new head
+                  newParts[newHead] =
+                      updatePart(oldParts[oldTail], newValues[newHead]);
+                  insertPartBefore(containerPart, oldParts[oldTail], oldParts[oldHead]);
+                  oldTail--;
+                  newHead++;
+              }
+              else {
+                  if (newKeyToIndexMap === undefined) {
+                      // Lazily generate key-to-index maps, used for removals &
+                      // moves below
+                      newKeyToIndexMap = generateMap(newKeys, newHead, newTail);
+                      oldKeyToIndexMap = generateMap(oldKeys, oldHead, oldTail);
+                  }
+                  if (!newKeyToIndexMap.has(oldKeys[oldHead])) {
+                      // Old head is no longer in new list; remove
+                      removePart(oldParts[oldHead]);
+                      oldHead++;
+                  }
+                  else if (!newKeyToIndexMap.has(oldKeys[oldTail])) {
+                      // Old tail is no longer in new list; remove
+                      removePart(oldParts[oldTail]);
+                      oldTail--;
+                  }
+                  else {
+                      // Any mismatches at this point are due to additions or
+                      // moves; see if we have an old part we can reuse and move
+                      // into place
+                      const oldIndex = oldKeyToIndexMap.get(newKeys[newHead]);
+                      const oldPart = oldIndex !== undefined ? oldParts[oldIndex] : null;
+                      if (oldPart === null) {
+                          // No old part for this value; create a new one and
+                          // insert it
+                          const newPart = createAndInsertPart(containerPart, oldParts[oldHead]);
+                          updatePart(newPart, newValues[newHead]);
+                          newParts[newHead] = newPart;
+                      }
+                      else {
+                          // Reuse old part
+                          newParts[newHead] =
+                              updatePart(oldPart, newValues[newHead]);
+                          insertPartBefore(containerPart, oldPart, oldParts[oldHead]);
+                          // This marks the old part as having been used, so that
+                          // it will be skipped in the first two checks above
+                          oldParts[oldIndex] = null;
+                      }
+                      newHead++;
+                  }
+              }
+          }
+          // Add parts for any remaining new values
+          while (newHead <= newTail) {
+              // For all remaining additions, we insert before last new
+              // tail, since old pointers are no longer valid
+              const newPart = createAndInsertPart(containerPart, newParts[newTail + 1]);
+              updatePart(newPart, newValues[newHead]);
+              newParts[newHead++] = newPart;
+          }
+          // Remove any remaining unused old parts
+          while (oldHead <= oldTail) {
+              const oldPart = oldParts[oldHead++];
+              if (oldPart !== null) {
+                  removePart(oldPart);
+              }
+          }
+          // Save order of new parts for next round
+          partListCache.set(containerPart, newParts);
+          keyListCache.set(containerPart, newKeys);
+      };
+  });
+  //# sourceMappingURL=repeat.js.map
+
+  /**
+   * @license
+   * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  /**
+   * Stores the StyleInfo object applied to a given AttributePart.
+   * Used to unset existing values when a new StyleInfo object is applied.
+   */
+  const styleMapCache = new WeakMap();
+  /**
+   * A directive that applies CSS properties to an element.
+   *
+   * `styleMap` can only be used in the `style` attribute and must be the only
+   * expression in the attribute. It takes the property names in the `styleInfo`
+   * object and adds the property values as CSS propertes. Property names with
+   * dashes (`-`) are assumed to be valid CSS property names and set on the
+   * element's style object using `setProperty()`. Names without dashes are
+   * assumed to be camelCased JavaScript property names and set on the element's
+   * style object using property assignment, allowing the style object to
+   * translate JavaScript-style names to CSS property names.
+   *
+   * For example `styleMap({backgroundColor: 'red', 'border-top': '5px', '--size':
+   * '0'})` sets the `background-color`, `border-top` and `--size` properties.
+   *
+   * @param styleInfo {StyleInfo}
+   */
+  const styleMap = directive((styleInfo) => (part) => {
+      if (!(part instanceof AttributePart) || (part instanceof PropertyPart) ||
+          part.committer.name !== 'style' || part.committer.parts.length > 1) {
+          throw new Error('The `styleMap` directive must be used in the style attribute ' +
+              'and must be the only part in the attribute.');
+      }
+      const { committer } = part;
+      const { style } = committer.element;
+      // Handle static styles the first time we see a Part
+      if (!styleMapCache.has(part)) {
+          style.cssText = committer.strings.join(' ');
+      }
+      // Remove old properties that no longer exist in styleInfo
+      const oldInfo = styleMapCache.get(part);
+      for (const name in oldInfo) {
+          if (!(name in styleInfo)) {
+              if (name.indexOf('-') === -1) {
+                  // tslint:disable-next-line:no-any
+                  style[name] = null;
+              }
+              else {
+                  style.removeProperty(name);
+              }
+          }
+      }
+      // Add or update properties
+      for (const name in styleInfo) {
+          if (name.indexOf('-') === -1) {
+              // tslint:disable-next-line:no-any
+              style[name] = styleInfo[name];
+          }
+          else {
+              style.setProperty(name, styleInfo[name]);
+          }
+      }
+      styleMapCache.set(part, styleInfo);
+  });
+  //# sourceMappingURL=style-map.js.map
+
+  /**
+   * @license
+   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  // For each part, remember the value that was last rendered to the part by the
+  // unsafeHTML directive, and the DocumentFragment that was last set as a value.
+  // The DocumentFragment is used as a unique key to check if the last value
+  // rendered to the part was with unsafeHTML. If not, we'll always re-render the
+  // value passed to unsafeHTML.
+  const previousValues$1 = new WeakMap();
+  /**
+   * Renders the result as HTML, rather than text.
+   *
+   * Note, this is unsafe to use with any user-provided input that hasn't been
+   * sanitized or escaped, as it may lead to cross-site-scripting
+   * vulnerabilities.
+   */
+  const unsafeHTML = directive((value) => (part) => {
+      if (!(part instanceof NodePart)) {
+          throw new Error('unsafeHTML can only be used in text bindings');
+      }
+      const previousValue = previousValues$1.get(part);
+      if (previousValue !== undefined && isPrimitive(value) &&
+          value === previousValue.value && part.value === previousValue.fragment) {
+          return;
+      }
+      const template = document.createElement('template');
+      template.innerHTML = value; // innerHTML casts to string internally
+      const fragment = document.importNode(template.content, true);
+      part.setValue(fragment);
+      previousValues$1.set(part, { value, fragment });
+  });
+  //# sourceMappingURL=unsafe-html.js.map
+
+  /**
+   * @license
+   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  const _state = new WeakMap();
+  // Effectively infinity, but a SMI.
+  const _infinity = 0x7fffffff;
+  /**
+   * Renders one of a series of values, including Promises, to a Part.
+   *
+   * Values are rendered in priority order, with the first argument having the
+   * highest priority and the last argument having the lowest priority. If a
+   * value is a Promise, low-priority values will be rendered until it resolves.
+   *
+   * The priority of values can be used to create placeholder content for async
+   * data. For example, a Promise with pending content can be the first,
+   * highest-priority, argument, and a non_promise loading indicator template can
+   * be used as the second, lower-priority, argument. The loading indicator will
+   * render immediately, and the primary content will render when the Promise
+   * resolves.
+   *
+   * Example:
+   *
+   *     const content = fetch('./content.txt').then(r => r.text());
+   *     html`${until(content, html`<span>Loading...</span>`)}`
+   */
+  const until = directive((...args) => (part) => {
+      let state = _state.get(part);
+      if (state === undefined) {
+          state = {
+              lastRenderedIndex: _infinity,
+              values: [],
+          };
+          _state.set(part, state);
+      }
+      const previousValues = state.values;
+      let previousLength = previousValues.length;
+      state.values = args;
+      for (let i = 0; i < args.length; i++) {
+          // If we've rendered a higher-priority value already, stop.
+          if (i > state.lastRenderedIndex) {
+              break;
+          }
+          const value = args[i];
+          // Render non-Promise values immediately
+          if (isPrimitive(value) ||
+              typeof value.then !== 'function') {
+              part.setValue(value);
+              state.lastRenderedIndex = i;
+              // Since a lower-priority value will never overwrite a higher-priority
+              // synchronous value, we can stop processsing now.
+              break;
+          }
+          // If this is a Promise we've already handled, skip it.
+          if (i < previousLength && value === previousValues[i]) {
+              continue;
+          }
+          // We have a Promise that we haven't seen before, so priorities may have
+          // changed. Forget what we rendered before.
+          state.lastRenderedIndex = _infinity;
+          previousLength = 0;
+          Promise.resolve(value).then((resolvedValue) => {
+              const index = state.values.indexOf(value);
+              // If state.values doesn't contain the value, we've re-rendered without
+              // the value, so don't render it. Then, only render if the value is
+              // higher-priority than what's already been rendered.
+              if (index > -1 && index < state.lastRenderedIndex) {
+                  state.lastRenderedIndex = index;
+                  part.setValue(resolvedValue);
+                  part.commit();
+              }
+          });
+      }
+  });
+  //# sourceMappingURL=until.js.map
 
   function Core(state, api) {
       const components = new WeakMap();
       const templates = new WeakMap();
       let actions = [];
       let app, element;
-      function getAction(instance) {
+      function getAction(instance, props = {}) {
           return directive(fn => part => {
               if (typeof fn === 'function') {
-                  actions.push({ fn, element: part.committer.element });
+                  actions.push({ fn, element: part.committer.element, props });
               }
           });
       }
+      let shouldUpdateCount = 0;
+      const resolved = Promise.resolve();
       const core = {
           state,
           api,
           html,
+          svg,
           render,
           directive,
+          //asyncAppend,
+          //asyncReplace,
+          cache,
+          classMap,
+          guard,
+          ifDefined,
+          repeat,
+          styleMap,
+          unsafeHTML,
+          until,
           action: element => { },
-          createComponent(instance) {
-              const componentInstance = {
-                  instance,
-                  destroy() {
-                      return self.destroyComponent(instance);
-                  },
-                  update(props) {
-                      return self.updateTemplate(instance, props);
-                  },
-                  html() {
-                      return self.componentTemplate(instance);
-                  }
-              };
+          createComponent(component, props) {
+              const instance = { name: component.name, props };
+              const componentInstance = getComponentInstance(instance);
               let oneTimeUpdate;
-              let render = (props = {}) => (oneTimeUpdate = () => this.updateTemplate(instance, props));
+              function render(props) {
+                  if (!oneTimeUpdate) {
+                      return (oneTimeUpdate = function () {
+                          core.updateTemplate(instance, props);
+                      });
+                  }
+                  core.updateTemplate(instance, props);
+              }
               const destroyable = [];
               const onDestroy = fn => destroyable.push(fn);
-              const instanceCore = Object.assign(Object.assign({}, core), { render, onDestroy, instance });
-              instanceCore.action = getAction();
-              let methods = instance(instanceCore);
+              const instanceCore = Object.assign(Object.assign({}, core), { render, onDestroy, instance, action: getAction() });
+              let methods;
+              if (props) {
+                  methods = component(props, instanceCore);
+              }
+              else {
+                  methods = component(instanceCore);
+              }
               if (typeof methods === 'function') {
                   const destroy = () => {
                       destroyable.forEach(d => d());
@@ -2560,8 +3465,6 @@
               }
               components.set(instance, methods);
               oneTimeUpdate();
-              instanceCore.render = (props = {}) => this.updateTemplate(instance, props, true, instance);
-              const self = this;
               return componentInstance;
           },
           destroyComponent(instance) {
@@ -2574,9 +3477,20 @@
           },
           updateTemplate(instance, props, flush = true) {
               const methods = components.get(instance);
-              templates.set(instance, methods.update(props));
-              if (flush)
-                  this.flush(instance);
+              if (methods) {
+                  const result = methods.update(props);
+                  templates.set(instance, result);
+                  if (flush) {
+                      shouldUpdateCount++;
+                      const currentShouldUpdateCount = shouldUpdateCount;
+                      resolved.then(() => {
+                          if (currentShouldUpdateCount === shouldUpdateCount) {
+                              this.flush(instance);
+                              shouldUpdateCount = 0;
+                          }
+                      });
+                  }
+              }
           },
           componentTemplate(instance) {
               return templates.get(instance);
@@ -2588,215 +3502,1103 @@
               this.flush();
               return App;
           },
-          flush() {
+          flush(instance) {
               if (app) {
                   this.updateTemplate(app, {}, false);
                   render(this.componentTemplate(app), element);
                   for (const action of actions) {
-                      action.fn(action.element);
+                      action.fn(action.element, action.props);
                   }
                   actions = [];
               }
           }
       };
+      function getComponentInstance(instance) {
+          return {
+              instance,
+              destroy() {
+                  return core.destroyComponent(instance);
+              },
+              update(props) {
+                  return core.updateTemplate(instance, props);
+              },
+              html(props) {
+                  core.updateTemplate(instance, props, false);
+                  return core.componentTemplate(instance);
+              }
+          };
+      }
       return core;
   }
   //# sourceMappingURL=Core.js.map
 
-  function Main(input = {}) {
-      return core => {
-          const componentName = core.api.name;
-          let pluginsPath = 'config.plugins';
-          core.onDestroy(core.state.subscribe(pluginsPath, plugins => {
-              if (typeof plugins !== 'undefined' && Array.isArray(plugins)) {
-                  for (const plugin of plugins) {
-                      plugin(core.state, core.api);
-                  }
-              }
-          }));
-          const action = core.api.getAction('');
-          let className, classNameVerticalScroll, style, styleVerticalScroll;
-          let expandedHeight = 0;
-          let resizerActive = false;
-          core.onDestroy(core.state.subscribe('config.classNames', classNames => {
-              const config = core.state.get('config');
-              className = core.api.getClass(core.api.name, { config });
-              if (resizerActive) {
-                  className += ` ${core.api.name}__list-column-header-resizer--active`;
-              }
-              classNameVerticalScroll = core.api.getClass('vertical-scroll', { config });
-              core.render();
-          }));
-          core.onDestroy(core.state.subscribeAll(['config.height', 'config.headerHeight', '_internal.scrollBarHeight'], () => {
-              const config = core.state.get('config');
-              const scrollBarHeight = core.state.get('_internal.scrollBarHeight');
-              const height = config.height - config.headerHeight - scrollBarHeight;
-              core.state.update('_internal.height', height);
-              style = `--height: ${config.height}px`;
-              styleVerticalScroll = `height: ${height}px; width: ${scrollBarHeight}px; margin-top: ${config.headerHeight}px;`;
-              core.render();
-          }));
-          core.onDestroy(core.state.subscribe('_internal.list.columns.resizer.active', active => {
-              resizerActive = active;
-              className = core.api.getClass(core.api.name);
-              if (resizerActive) {
-                  className += ` ${core.api.name}__list-column-header-resizer--active`;
-              }
-              core.render();
-          }));
-          core.onDestroy(core.state.subscribeAll(['config.list.rows;', 'config.chart.items;', 'config.list.rows.*.parentId', 'config.chart.items.*.rowId'], (bulk, eventInfo) => {
-              if (core.state.get('_internal.flatTreeMap').length && eventInfo.type === 'subscribe') {
-                  return;
-              }
-              const configRows = core.state.get('config.list.rows');
-              const rows = [];
-              for (const rowId in configRows) {
-                  rows.push(configRows[rowId]);
-              }
-              core.api.fillEmptyRowValues(rows);
-              const configItems = core.state.get('config.chart.items');
-              const items = [];
-              for (const itemId in configItems) {
-                  items.push(configItems[itemId]);
-              }
-              const treeMap = core.api.makeTreeMap(rows, items);
-              core.state.update('_internal.treeMap', treeMap);
-              core.state.update('_internal.flatTreeMapById', core.api.getFlatTreeMapById(treeMap));
-              core.state.update('_internal.flatTreeMap', core.api.flattenTreeMap(treeMap));
-              core.render();
-          }, { bulk: true }));
-          core.onDestroy(core.state.subscribeAll(['config.list.rows.*.expanded', '_internal.treeMap;'], bulk => {
-              const configRows = core.state.get('config.list.rows');
-              const rowsWithParentsExpanded = core.api.getRowsFromIds(core.api.getRowsWithParentsExpanded(core.state.get('_internal.flatTreeMap'), core.state.get('_internal.flatTreeMapById'), configRows), configRows);
-              expandedHeight = core.api.getRowsHeight(rowsWithParentsExpanded);
-              core.state.update('_internal.list.expandedHeight', expandedHeight);
-              core.state.update('_internal.list.rowsWithParentsExpanded', rowsWithParentsExpanded);
-              core.render();
-          }, { bulk: true }));
-          core.onDestroy(core.state.subscribeAll(['_internal.list.rowsWithParentsExpanded', 'config.scroll.top'], () => {
-              const visibleRows = core.api.getVisibleRows(core.state.get('_internal.list.rowsWithParentsExpanded'));
-              core.state.update('_internal.list.visibleRows', visibleRows);
-              core.render();
-          }));
-          core.onDestroy(core.state.subscribeAll(['config.scroll.top', '_internal.list.visibleRows'], () => {
-              const top = core.state.get('config.scroll.top');
-              core.render();
-          }));
-          function generateAndAddDates(internalTime, chartWidth) {
-              const dates = [];
-              let leftGlobal = internalTime.leftGlobal;
-              const rightGlobal = internalTime.rightGlobal;
-              const timePerPixel = internalTime.timePerPixel;
-              const period = internalTime.period;
-              let sub = leftGlobal - core.api.time.date(leftGlobal).startOf(period);
-              let subPx = sub / timePerPixel;
-              let leftPx = 0;
-              let maxWidth = 0;
-              let id = 0;
-              while (leftGlobal < rightGlobal) {
-                  const date = {
-                      id: id++,
-                      sub,
-                      subPx,
-                      leftGlobal,
-                      rightGlobal: core.api.time
-                          .date(leftGlobal)
-                          .endOf(period)
-                          .valueOf()
-                  };
-                  date.width = (date.rightGlobal - date.leftGlobal + sub) / timePerPixel;
-                  if (date.width > chartWidth) {
-                      date.width = chartWidth;
-                  }
-                  maxWidth = date.width > maxWidth ? date.width : maxWidth;
-                  date.leftPx = leftPx;
-                  leftPx += date.width;
-                  date.rightPx = leftPx;
-                  dates.push(date);
-                  leftGlobal = date.rightGlobal + 1;
-                  sub = 0;
-                  subPx = 0;
-              }
-              internalTime.maxWidth = maxWidth;
-              internalTime.dates = dates;
+  function ListToggle(props, { api, state, onDestroy, action, render, html, unsafeHTML }) {
+      const componentName = 'list-expander-toggle';
+      let className, componentAction, style;
+      let classNameOpen, classNameClosed;
+      let expanded = false;
+      let iconOpen, iconClosed;
+      onDestroy(state.subscribe('config.classNames', value => {
+          if (props.row) {
+              className = api.getClass(componentName, { row: props.row });
+              classNameOpen = api.getClass(componentName + '-open', { row: props.row });
+              classNameClosed = api.getClass(componentName + '-closed', { row: props.row });
           }
-          core.onDestroy(core.state.subscribeAll([
-              'config.chart.time',
-              '_internal.dimensions.width',
-              'config.scroll.left',
-              '_internal.scrollBarHeight',
-              '_internal.list.width'
-          ], function recalculateTimesAction() {
-              const chartWidth = core.state.get('_internal.dimensions.width') - core.state.get('_internal.list.width');
-              const chartInnerWidth = chartWidth - core.state.get('_internal.scrollBarHeight');
-              core.state.update('_internal.chart.dimensions', { width: chartWidth, innerWidth: chartInnerWidth });
-              let time = core.api.mergeDeep({}, core.state.get('config.chart.time'));
-              time = core.api.time.recalculateFromTo(time);
-              const zoomPercent = time.zoom * 0.01;
-              let scrollLeft = core.state.get('config.scroll.left');
-              time.timePerPixel = zoomPercent + Math.pow(2, time.zoom);
-              time.totalViewDurationMs = core.api.time.date(time.to).diff(time.from, 'milliseconds');
-              time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
-              if (scrollLeft > time.totalViewDurationPx) {
-                  scrollLeft = time.totalViewDurationPx - chartWidth;
+          else {
+              className = api.getClass(componentName);
+              classNameOpen = api.getClass(componentName + '-open');
+              classNameClosed = api.getClass(componentName + '-closed');
+          }
+          componentAction = api.getAction(componentName);
+          render();
+      }));
+      onDestroy(state.subscribeAll(['config.list.expander.size', 'config.list.expander.icons'], () => {
+          const expander = state.get('config.list.expander');
+          style = `--size: ${expander.size}px`;
+          iconOpen = expander.icons.open;
+          iconClosed = expander.icons.closed;
+          render();
+      }));
+      if (props.row) {
+          onDestroy(state.subscribe(`config.list.rows.${props.row.id}.expanded`, isExpanded => {
+              expanded = isExpanded;
+              render();
+          }));
+      }
+      else {
+          onDestroy(state.subscribe('config.list.rows.*.expanded', bulk => {
+              for (const rowExpanded of bulk) {
+                  if (rowExpanded.value) {
+                      expanded = true;
+                      break;
+                  }
               }
-              time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
-              time.rightGlobal = time.leftGlobal + chartWidth * time.timePerPixel;
-              time.leftInner = time.leftGlobal - time.from;
+              render();
+          }, { bulk: true }));
+      }
+      function toggle() {
+          expanded = !expanded;
+          if (props.row) {
+              state.update(`config.list.rows.${props.row.id}.expanded`, expanded);
+          }
+          else {
+              state.update(`config.list.rows`, rows => {
+                  for (const rowId in rows) {
+                      rows[rowId].expanded = expanded;
+                  }
+                  return rows;
+              }, { only: ['*.expanded'] });
+          }
+      }
+      return () => html `
+    <div
+      class=${className}
+      data-action=${action(componentAction, { row: props.row, api, state })}
+      style=${style}
+      @click=${toggle}
+    >
+      ${expanded
+        ? html `
+            <div class=${classNameOpen}>
+              ${unsafeHTML(iconOpen)}
+            </div>
+          `
+        : html `
+            <div class=${classNameClosed}>
+              ${unsafeHTML(iconClosed)}
+            </div>
+          `}
+    </div>
+  `;
+  }
+  //# sourceMappingURL=ListToggle.js.map
+
+  function ListExpander(props, { api, state, onDestroy, action, render, html, createComponent }) {
+      const componentName = 'list-expander';
+      const componentAction = api.getAction(componentName);
+      let className, padding, width, paddingClass, children = [];
+      onDestroy(state.subscribe('config.classNames', value => {
+          if (props.row) {
+              className = api.getClass(componentName, { row: props.row });
+              paddingClass = api.getClass(componentName + '-padding', { row: props.row });
+          }
+          else {
+              className = api.getClass(componentName);
+              paddingClass = api.getClass(componentName + '-padding');
+          }
+          render();
+      }));
+      onDestroy(state.subscribeAll(['config.list.expander.padding'], value => {
+          padding = value;
+          render();
+      }));
+      if (props.row) {
+          onDestroy(state.subscribe(`_internal.list.rows.${props.row.id}.parentId`, parentId => {
+              width = 'width:' + props.row._internal.parents.length * padding + 'px';
+              children = props.row._internal.children;
+              render();
+          }));
+      }
+      else {
+          width = 'width:0px';
+          children = [];
+      }
+      // @ts-ignore
+      const listToggle = createComponent(ListToggle, props.row ? { row: props.row } : {});
+      onDestroy(listToggle.destroy);
+      return () => html `
+    <div class=${className} data-action=${action(componentAction, { row: props.row, api, state })}>
+      <div class=${paddingClass} style=${width}></div>
+      ${children.length || !props.row ? listToggle.html() : ''}
+    </div>
+  `;
+  }
+  //# sourceMappingURL=ListExpander.js.map
+
+  function ListColumnRow({ rowId, columnId }, core) {
+      const { api, state, onDestroy, action, render, html, createComponent } = core;
+      let row, rowPath = `config.list.rows.${rowId}`;
+      let style;
+      onDestroy(state.subscribe(rowPath, value => {
+          row = value;
+          style = `--height: ${row.height}px`;
+          render();
+      }));
+      let column, columnPath = `config.list.columns.data.${columnId}`;
+      onDestroy(state.subscribe(columnPath, val => {
+          column = val;
+          render();
+      }));
+      const componentName = 'list-column-row';
+      const componentAction = api.getAction(componentName);
+      let className;
+      onDestroy(state.subscribe('config.classNames', value => {
+          className = api.getClass(componentName, { row, column });
+          render();
+      }));
+      function getHtml() {
+          if (typeof column.data === 'function')
+              return html `
+        ${column.data(row)}
+      `;
+          return html `
+      ${row[column.data]}
+    `;
+      }
+      function getText() {
+          if (typeof column.data === 'function')
+              return column.data(row);
+          return row[column.data];
+      }
+      const listExpander = createComponent(ListExpander, { row });
+      onDestroy(listExpander.destroy);
+      render();
+      return props => html `
+    <div
+      class=${className}
+      style=${style}
+      data-action=${action(componentAction, {
+        column,
+        row,
+        api,
+        state
+    })}
+    >
+      ${typeof column.expander === 'boolean' && column.expander ? listExpander.html() : ''}
+      ${typeof column.html === 'string' ? getHtml() : getText()}
+    </div>
+  `;
+  }
+  //# sourceMappingURL=ListColumnRow.js.map
+
+  function ListColumnHeaderResizer({ columnId }, core) {
+      const { api, state, onDestroy, render, html, action } = core;
+      const componentName = 'list-column-header-resizer';
+      const componentAction = api.getAction(componentName);
+      let column;
+      onDestroy(state.subscribe(`config.list.columns.data.${columnId}`, val => {
+          column = val;
+          render();
+      }));
+      let className, containerClass, dotsClass, dotClass, lineClass, calculatedWidth, dotsWidth;
+      let inRealTime = false;
+      onDestroy(state.subscribe('config.classNames', value => {
+          className = api.getClass(componentName, { column });
+          containerClass = api.getClass(componentName + '-container', { column });
+          dotsClass = api.getClass(componentName + '-dots', { column });
+          dotClass = api.getClass(componentName + '-dots-dot', { column });
+          lineClass = api.getClass(componentName + '-line', { column });
+          render();
+      }));
+      onDestroy(state.subscribeAll([
+          `config.list.columns.data.${column.id}.width`,
+          'config.list.columns.percent',
+          'config.list.columns.resizer.width',
+          'config.list.columns.resizer.inRealTime'
+      ], (value, path) => {
+          const list = state.get('config.list');
+          calculatedWidth = column.width * list.columns.percent * 0.01;
+          dotsWidth = `width: ${list.columns.resizer.width}px`;
+          inRealTime = list.columns.resizer.inRealTime;
+          render();
+      }));
+      let dots = [1, 2, 3, 4, 5, 6, 7, 8];
+      onDestroy(state.subscribe('config.list.columns.resizer.dots', value => {
+          dots = [];
+          for (let i = 0; i < value; i++) {
+              dots.push(i);
+          }
+          render();
+      }));
+      let isMoving = false;
+      let left = calculatedWidth;
+      const columnWidthPath = `config.list.columns.data.${column.id}.width`;
+      function onMouseDown(event) {
+          isMoving = true;
+          state.update('_internal.list.columns.resizer.active', true);
+      }
+      function onMouseMove(event) {
+          if (isMoving) {
+              left += event.movementX;
+              if (left < 0) {
+                  left = 0;
+              }
+              if (inRealTime) {
+                  state.update(columnWidthPath, left);
+              }
+          }
+      }
+      function onMouseUp(event) {
+          if (isMoving) {
+              state.update('_internal.list.columns.resizer.active', false);
+              state.update(columnWidthPath, left);
+              isMoving = false;
+          }
+      }
+      document.body.addEventListener('mousemove', onMouseMove);
+      onDestroy(() => document.body.removeEventListener('mousemove', onMouseMove));
+      document.body.addEventListener('mouseup', onMouseUp);
+      onDestroy(() => document.body.removeEventListener('mouseup', onMouseUp));
+      return props => html `
+    <div class=${className} data-action=${action(componentAction, { column, api, state })}>
+      <div class=${containerClass}>
+        ${column.header.html
+        ? html `
+              ${column.header.html}
+            `
+        : column.header.content}
+      </div>
+      <div class=${dotsClass} style=${'--' + dotsWidth} @mousedown=${onMouseDown}>
+        ${dots.map(dot => html `
+              <div class=${dotClass} />
+            `)}
+      </div>
+    </div>
+  `;
+  }
+  //# sourceMappingURL=ListColumnHeaderResizer.js.map
+
+  function ListColumnHeader({ columnId }, core) {
+      const { api, state, onDestroy, action, render, createComponent, html } = core;
+      const componentName = 'list-column-header';
+      const componentAction = api.getAction(componentName);
+      let column;
+      onDestroy(state.subscribe(`config.list.columns.data.${columnId}`, val => {
+          column = val;
+          render();
+      }));
+      let className, contentClass, style;
+      onDestroy(state.subscribeAll(['config.classNames', 'config.headerHeight'], () => {
+          const value = state.get('config');
+          className = api.getClass(componentName, { column });
+          contentClass = api.getClass(componentName + '-content', { column });
+          style = `--height: ${value.headerHeight}px;`;
+          render();
+      }));
+      const ListColumnHeaderResizer$1 = createComponent(ListColumnHeaderResizer, { columnId });
+      onDestroy(ListColumnHeaderResizer$1.destroy);
+      // @ts-ignore
+      const listExpander = createComponent(ListExpander, {});
+      onDestroy(listExpander.destroy);
+      function withExpander() {
+          return html `
+      <div class=${contentClass}>
+        ${listExpander.html()}${ListColumnHeaderResizer$1.html(column)}
+      </div>
+    `;
+      }
+      function withoutExpander() {
+          return html `
+      <div class=${contentClass}>
+        ${ListColumnHeaderResizer$1.html(column)}
+      </div>
+    `;
+      }
+      return function () {
+          return html `
+      <div class=${className} style=${style} data-action=${action(componentAction, { column, api, state })}>
+        ${typeof column.expander === 'boolean' && column.expander ? withExpander() : withoutExpander()}
+      </div>
+    `;
+      };
+  }
+  //# sourceMappingURL=ListColumnHeader.js.map
+
+  function ListColumnComponent({ columnId }, core) {
+      const { api, state, onDestroy, action, render, createComponent, html, repeat } = core;
+      let column, columnPath = `config.list.columns.data.${columnId}`;
+      onDestroy(state.subscribe(columnPath, val => {
+          column = val;
+          render();
+      }));
+      const componentName = 'list-column';
+      const rowsComponentName = componentName + '-rows';
+      const componentAction = api.getAction(componentName);
+      const rowsAction = api.getAction(rowsComponentName);
+      let className, classNameContainer, calculatedWidth, width, styleContainer;
+      onDestroy(state.subscribe('config.classNames', value => {
+          className = api.getClass(componentName, { column });
+          classNameContainer = api.getClass(rowsComponentName, { column });
+          render();
+      }));
+      let visibleRows = [];
+      onDestroy(state.subscribe('_internal.list.visibleRows', val => {
+          visibleRows.forEach(row => row.component.destroy());
+          visibleRows = val.map(row => ({
+              id: row.id,
+              component: createComponent(ListColumnRow, { columnId, rowId: row.id })
+          }));
+          render();
+      }));
+      onDestroy(state.subscribeAll([
+          'config.list.columns.percent',
+          'config.list.columns.resizer.width',
+          `config.list.columns.data.${column.id}.width`,
+          'config.height',
+          'config.headerHeight'
+      ], (value, path) => {
+          const list = state.get('config.list');
+          calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
+          width = `width: ${calculatedWidth + list.columns.resizer.width}px`;
+          styleContainer = `height: ${state.get('config.height')}px`;
+      }, { bulk: true }));
+      function mainAction(element) {
+          if (typeof componentAction === 'function') {
+              componentAction(element, { column, state: state, api: api });
+          }
+      }
+      const ListColumnHeader$1 = createComponent(ListColumnHeader, { columnId });
+      onDestroy(ListColumnHeader$1.destroy);
+      return props => html `
+    <div class=${className} data-action=${action(mainAction)} style=${width}>
+      ${ListColumnHeader$1.html()}
+      <div class=${classNameContainer} style=${styleContainer} data-action=${action(rowsAction, { api, state })}>
+        ${repeat(visibleRows, r => r.id, row => row.component.html())}
+      </div>
+    </div>
+  `;
+  }
+  //# sourceMappingURL=ListColumn.js.map
+
+  function List(core) {
+      const { api, state, onDestroy, action, render, createComponent, html, repeat } = core;
+      const componentName = 'list';
+      const componentAction = api.getAction(componentName);
+      let className;
+      let list, percent;
+      onDestroy(state.subscribe('config.list', () => {
+          list = state.get('config.list');
+          percent = list.columns.percent;
+          render();
+      }));
+      onDestroy(state.subscribe('config.classNames', () => {
+          className = api.getClass(componentName, { list });
+          render();
+      }));
+      let columns, listColumns = [];
+      onDestroy(state.subscribe('config.list.columns.data', data => {
+          // only 'config.list.columns.data;' because listcolumn component will watch nested values
+          listColumns.forEach(ls => ls.component.destroy());
+          listColumns = [];
+          columns = Object.keys(data);
+          columns.forEach(columnId => {
+              const component = createComponent(ListColumnComponent, {
+                  columnId
+              });
+              listColumns.push({ id: columnId, component });
+          });
+          render();
+      }));
+      onDestroy(() => {
+          listColumns.forEach(c => c.component.destroy());
+      });
+      let style;
+      onDestroy(state.subscribe('config.height', height => {
+          style = `height: ${height}px`;
+          render();
+      }));
+      function onScroll(event) {
+          if (event.type === 'scroll') {
+              state.update('config.scroll.top', event.target.scrollTop);
+          }
+          else {
+              const wheel = api.normalizeMouseWheelEvent(event);
+              state.update('config.scroll.top', top => {
+                  return api.limitScroll('top', (top += wheel.y * state.get('config.scroll.yMultiplier')));
+              });
+          }
+      }
+      let width;
+      function mainAction(element) {
+          if (!width) {
+              width = element.clientWidth;
+              if (percent === 0) {
+                  width = 0;
+              }
+              state.update('_internal.list.width', width);
+              state.update('_internal.elements.List', element);
+          }
+          if (typeof action === 'function') {
+              componentAction(element, { list, columns, state, api });
+          }
+      }
+      return props => list.columns.percent > 0
+          ? html `
+          <div
+            class=${className}
+            data-action=${action(mainAction)}
+            style=${style}
+            @scroll=${onScroll}
+            @wheel=${onScroll}
+          >
+            ${repeat(listColumns, listColumn => listColumn.id, c => c.component.html())}
+          </div>
+        `
+          : null;
+  }
+  //# sourceMappingURL=List.js.map
+
+  function CalendarDate({ date }, core) {
+      const { api, state, onDestroy, action, render, createComponent, html, repeat } = core;
+      const componentName = 'chart-calendar-date';
+      const componentAction = api.getAction(componentName);
+      let className, formattedClassName, formattedYearClassName, formattedMonthClassName, formattedDayClassName, formattedDayWordClassName;
+      onDestroy(state.subscribe('config.classNames', () => {
+          className = api.getClass(componentName, { date });
+          formattedClassName = api.getClass(`${componentName}-formatted`, { date });
+          formattedYearClassName = api.getClass(`${componentName}-formatted-year`, { date });
+          formattedMonthClassName = api.getClass(`${componentName}-formatted-month`, { date });
+          formattedDayClassName = api.getClass(`${componentName}-formatted-day`, { date });
+          formattedDayWordClassName = api.getClass(`${componentName}-formatted-day-word`, { date });
+          render();
+      }));
+      let time, period, small, smallFormatted, year, month, day, dayWord, style, daySize;
+      onDestroy(state.subscribeAll(['_internal.chart.time', 'config.chart.calendar.vertical.smallFormat'], function renderDate() {
+          time = state.get('_internal.chart.time');
+          daySize = time.zoom <= 22 ? 18 : 13;
+          period = time.period;
+          const dateMod = api.time.date(date.leftGlobal);
+          const maxWidth = time.maxWidth;
+          small = maxWidth <= 40;
+          const smallFormat = state.get('config.chart.calendar.vertical.smallFormat');
+          smallFormatted = dateMod.format(smallFormat);
+          year = dateMod.format('YYYY');
+          month = dateMod.format('MMMM');
+          day = dateMod.format('DD');
+          dayWord = dateMod.format('dddd');
+          if (maxWidth <= 70) {
+              year = dateMod.format('YY');
+              month = dateMod.format('MMM');
+              day = dateMod.format('DD');
+              dayWord = dateMod.format('ddd');
+          }
+          else if (maxWidth <= 150) {
+              dayWord = dateMod.format('ddd');
+          }
+          style = `width: ${date.width}px; margin-left:-${date.subPx}px; --day-size: ${daySize}px`;
+          render();
+      }, { bulk: true }));
+      return props => html `
+    <div class=${className} style=${style} data-action=${action(componentAction, { date, api, state })}>
+      ${small
+        ? html `
+            <div class=${formattedClassName} style="transform: rotate(90deg);">${smallFormatted}</div>
+          `
+        : html `
+            <div class=${formattedClassName}>
+              <div class=${formattedYearClassName}>${year}</div>
+              <div class=${formattedMonthClassName}>${month}</div>
+              <div class=${formattedDayClassName}>${day}</div>
+              <div class=${formattedDayWordClassName}>${dayWord}</div>
+            </div>
+          `}
+    </div>
+  `;
+  }
+  //# sourceMappingURL=CalendarDate.js.map
+
+  function Calendar(core) {
+      const { api, state, onDestroy, action, render, createComponent, html, repeat } = core;
+      const componentName = 'chart-calendar';
+      const componentAction = api.getAction(componentName);
+      let className;
+      onDestroy(state.subscribe('config.classNames', value => {
+          className = api.getClass(componentName);
+          render();
+      }));
+      let headerHeight, style = '';
+      onDestroy(state.subscribe('config.headerHeight', value => {
+          headerHeight = value;
+          style = `height: ${headerHeight}px;`;
+          render();
+      }));
+      let dates, datesComponents = [];
+      onDestroy(state.subscribe('_internal.chart.time.dates', value => {
+          dates = value;
+          datesComponents.forEach(date => date.component.destroy());
+          datesComponents = [];
+          for (const date of dates) {
+              datesComponents.push({ id: date.id, component: createComponent(CalendarDate, { date }) });
+          }
+          render();
+      }));
+      onDestroy(() => {
+          datesComponents.forEach(date => date.component.destroy());
+      });
+      function mainAction(element) {
+          state.update('_internal.elements.Calendar', element);
+          if (typeof componentAction === 'function') {
+              componentAction({ api, state });
+          }
+      }
+      return props => html `
+    <div class=${className} data-action=${action(mainAction)} style=${style}>
+      ${repeat(datesComponents, d => d.id, d => d.component.html())}
+    </div>
+  `;
+  }
+  //# sourceMappingURL=Calendar.js.map
+
+  function GanttGridBlock({ row, time, top }, core) {
+      const { api, state, onDestroy, action, render, html } = core;
+      const componentName = 'chart-gantt-grid-block';
+      const componentAction = api.getAction(componentName, { row, time, top });
+      let className = api.getClass(componentName, { row });
+      onDestroy(state.subscribe('config.classNames', () => {
+          className = api.getClass(componentName);
+          render();
+      }));
+      let style = `width: ${time.width}px;height: 100%;margin-left:-${time.subPx}px`;
+      return props => html `
+      <div class=${className} data-action=${action(componentAction, { row, time, top, api, state })} style=${style} />
+    `;
+  }
+  //# sourceMappingURL=GanttGridBlock.js.map
+
+  function GanttGridRow({ row }, core) {
+      const { api, state, onDestroy, action, render, html, createComponent, repeat } = core;
+      const componentName = 'chart-gantt-grid-row';
+      const componentAction = api.getAction(componentName, { row });
+      let className;
+      onDestroy(state.subscribe('config.classNames', value => {
+          className = api.getClass(componentName, { row });
+          render();
+      }));
+      let rowsBlocksComponents = [];
+      for (const block of row.blocks) {
+          rowsBlocksComponents.push({
+              id: block.id,
+              component: createComponent(GanttGridBlock, { row, time: block.date, top: block.top })
+          });
+      }
+      onDestroy(() => {
+          rowsBlocksComponents.forEach(row => row.component.destroy());
+      });
+      let style = `height: ${row.rowData.height}px;`;
+      return props => html `
+    <div class=${className} data-action=${action(componentAction, { row, api, state })} style=${style}>
+      ${repeat(rowsBlocksComponents, r => r.id, r => r.component.html())}
+    </div>
+  `;
+  }
+  //# sourceMappingURL=GanttGridRow.js.map
+
+  //import GridBlock from './GanttGridBlock.svelte';
+  function GanttGrid(core) {
+      const { api, state, onDestroy, action, render, html, createComponent, repeat } = core;
+      const componentName = 'chart-gantt-grid';
+      const componentAction = api.getAction(componentName);
+      let className;
+      onDestroy(state.subscribe('config.classNames', () => {
+          className = api.getClass(componentName);
+          render();
+      }));
+      let height, style;
+      onDestroy(state.subscribe('_internal.height', h => {
+          height = h;
+          style = `height: ${height}px`;
+          render();
+      }));
+      let rows, rowsComponents = [];
+      onDestroy(state.subscribeAll(['_internal.chart.time.dates', '_internal.list.visibleRows', 'config.chart.grid.block'], function generateBlocks() {
+          const rowsData = state.get('_internal.list.visibleRows');
+          const dates = state.get('_internal.chart.time.dates');
+          rowsComponents.forEach(row => row.component.destroy());
+          rowsComponents = [];
+          let top = 0;
+          rows = [];
+          for (const rowId in rowsData) {
+              const rowData = rowsData[rowId];
+              const blocks = [];
+              let index = 0;
+              for (const date of dates) {
+                  blocks.push({ id: index++, date, row: rowData, top });
+              }
+              const row = { id: rowData.id, blocks, rowData, top };
+              rows.push(row);
+              rowsComponents.push({ id: rowData.id, component: createComponent(GanttGridRow, { row }) });
+              top += rowData.height;
+              render();
+          }
+      }, { bulk: true }));
+      onDestroy(() => {
+          rowsComponents.forEach(row => row.component.destroy());
+      });
+      return props => html `
+    <div class=${className} data-action=${action(componentAction, { api, state })} style=${style}>
+      ${repeat(rowsComponents, r => r.id, r => r.component.html())}
+    </div>
+  `;
+  }
+  //# sourceMappingURL=GanttGrid.js.map
+
+  function GanttItemsRowItem({ rowId, itemId }, core) {
+      const { api, state, onDestroy, action, render, html, createComponent, repeat } = core;
+      let row, rowPath = `config.list.rows.${rowId}`;
+      onDestroy(state.subscribe(rowPath, value => {
+          row = value;
+          render();
+      }));
+      let item, itemPath = `config.chart.items.${itemId}`;
+      onDestroy(state.subscribe(itemPath, value => {
+          item = value;
+          render();
+      }));
+      const componentName = 'chart-gantt-items-row-item';
+      const componentAction = api.getAction(componentName, { row, item });
+      let className, contentClassName, labelClassName;
+      onDestroy(state.subscribe('config.classNames', () => {
+          className = api.getClass(componentName, { row, item });
+          contentClassName = api.getClass(componentName + '-content', { row, item });
+          labelClassName = api.getClass(componentName + '-content-label', { row, item });
+          render();
+      }));
+      let style, itemLeftPx = 0, itemWidthPx = 0;
+      onDestroy(state.subscribe('_internal.chart.time', bulk => {
+          let time = state.get('_internal.chart.time');
+          itemLeftPx = (item.time.start - time.from) / time.timePerPixel;
+          itemWidthPx = (item.time.end - item.time.start) / time.timePerPixel;
+          style = `left:${itemLeftPx}px;width:${itemWidthPx}px;`;
+          render();
+      }, { bulk: true }));
+      return props => html `
+    <div
+      class=${className}
+      data-action=${action(componentAction, { item, row, left: itemLeftPx, width: itemWidthPx, api, state })}
+      style=${style}
+    >
+      <div class=${contentClassName}>
+        <div class=${labelClassName}">${item.label}</div>
+      </div>
+    </div>
+  `;
+  }
+  //# sourceMappingURL=GanttItemsRowItem.js.map
+
+  function GanttItemsRow({ rowId }, core) {
+      const { api, state, onDestroy, action, render, html, createComponent, repeat } = core;
+      let rowPath = `_internal.flatTreeMapById.${rowId}`, itemsPath = `_internal.flatTreeMapById.${rowId}._internal.items`;
+      let row, element, style, styleInner;
+      onDestroy(state.subscribeAll([rowPath, '_internal.chart'], bulk => {
+          row = state.get(rowPath);
+          const chart = state.get('_internal.chart');
+          style = `width:${chart.dimensions.width}px;height:${row.height}px;--row-height:${row.height}px;`;
+          styleInner = `width: ${chart.time.totalViewDurationPx}px;height: 100%;`;
+          if (element) {
+              element.scrollLeft = chart.time.leftPx;
+          }
+          render();
+      }));
+      let items, itemComponents = [];
+      onDestroy(state.subscribe(itemsPath, value => {
+          items = value;
+          itemComponents.forEach(item => item.component.destroy());
+          itemComponents = [];
+          for (const item of items) {
+              itemComponents.push({ id: item.id, component: createComponent(GanttItemsRowItem, { rowId, itemId: item.id }) });
+          }
+          render();
+      }));
+      onDestroy(() => {
+          itemComponents.forEach(item => item.component.destroy());
+      });
+      const componentName = 'chart-gantt-items-row';
+      const componentNameInner = componentName + '-inner';
+      const componentAction = api.getAction(componentName, { row });
+      let className, classNameInner;
+      onDestroy(state.subscribe('config.classNames', () => {
+          className = api.getClass(componentName, { row });
+          classNameInner = api.getClass(componentNameInner, { row });
+          render();
+      }));
+      function mainAction(el) {
+          element = el;
+          if (typeof componentAction === 'function') {
+              componentAction({ row, api, state });
+          }
+      }
+      return props => html `
+    <div class=${className} data-action=${action(mainAction)} style=${style}>
+      <div class=${classNameInner} style=${styleInner}>
+        ${repeat(itemComponents, i => i.id, i => i.component.html())}
+      </div>
+    </div>
+  `;
+  }
+  //# sourceMappingURL=GanttItemsRow.js.map
+
+  function GnattItems(core) {
+      const { api, state, onDestroy, action, render, html, createComponent, repeat } = core;
+      const componentName = 'chart-gantt-items';
+      const componentAction = api.getAction(componentName);
+      let className;
+      onDestroy(state.subscribe('config.classNames', () => {
+          className = api.getClass(componentName);
+          render();
+      }));
+      let rows = [], rowsComponents = [];
+      onDestroy(state.subscribe('_internal.list.visibleRows;', visibleRows => {
+          rows = visibleRows;
+          rowsComponents.forEach(row => row.component.destroy());
+          rowsComponents = [];
+          for (const row of rows) {
+              rowsComponents.push({ id: row.id, component: createComponent(GanttItemsRow, { rowId: row.id }) });
+          }
+          render();
+      }));
+      onDestroy(() => {
+          rowsComponents.forEach(row => row.component.destroy());
+      });
+      return props => html `
+    <div class=${className} data-action=${action(componentAction, { api, state })}>
+      ${repeat(rowsComponents, r => r.id, r => r.component.html())}
+    </div>
+  `;
+  }
+  //# sourceMappingURL=GanttItems.js.map
+
+  function Gantt(core) {
+      const { api, state, onDestroy, action, render, html, createComponent } = core;
+      const componentName = 'chart-gantt';
+      const componentAction = api.getAction(componentName);
+      const Grid = createComponent(GanttGrid);
+      onDestroy(Grid.destroy);
+      const Items = createComponent(GnattItems);
+      onDestroy(Items.destroy);
+      let className, classNameInner;
+      onDestroy(state.subscribe('config.classNames', value => {
+          className = api.getClass(componentName);
+          classNameInner = api.getClass(componentName + '-inner');
+          render();
+      }));
+      let style = '', styleInner = '';
+      onDestroy(state.subscribeAll(['_internal.height', '_internal.list.expandedHeight'], () => {
+          style = `height: ${state.get('_internal.height')}px`;
+          styleInner = `height: ${state.get('_internal.list.expandedHeight')}px;`;
+          render();
+      }));
+      function mainAction(element) {
+          state.update('_internal.elements.Gantt', element);
+          if (typeof componentAction === 'function') {
+              componentAction({ api, state });
+          }
+      }
+      return props => html `
+    <div class=${className} style=${style} data-action=${action(mainAction)} @wheel=${api.onScroll}>
+      <div class=${classNameInner} style=${styleInner}>
+        ${Grid.html()}${Items.html()}
+      </div>
+    </div>
+  `;
+  }
+  //# sourceMappingURL=Gantt.js.map
+
+  function Chart(core) {
+      const { api, state, onDestroy, action, render, html, createComponent } = core;
+      const componentName = 'chart';
+      const Calendar$1 = createComponent(Calendar);
+      onDestroy(Calendar$1.destroy);
+      const Gantt$1 = createComponent(Gantt);
+      onDestroy(Gantt$1.destroy);
+      let className, classNameScroll, classNameScrollInner, scrollElement, styleScroll = '', styleScrollInner = '', componentAction = api.getAction(componentName);
+      onDestroy(state.subscribe('config.classNames', value => {
+          className = api.getClass(componentName);
+          classNameScroll = api.getClass('horizontal-scroll');
+          classNameScrollInner = api.getClass('horizontal-scroll-inner');
+          render();
+      }));
+      onDestroy(state.subscribe('config.scroll.left', left => {
+          if (scrollElement && scrollElement.scrollLeft !== left) {
+              scrollElement.scrollLeft = left;
+          }
+          render();
+      }));
+      onDestroy(state.subscribeAll(['_internal.chart.dimensions.width', '_internal.chart.time.totalViewDurationPx'], function horizontalScroll(value, eventInfo) {
+          styleScroll = `width: ${state.get('_internal.chart.dimensions.width')}px`;
+          styleScrollInner = `width: ${state.get('_internal.chart.time.totalViewDurationPx')}px; height:1px`;
+          render();
+      }));
+      function onScroll(event) {
+          if (event.type === 'scroll') {
+              state.update('config.scroll.left', event.target.scrollLeft);
+          }
+          else {
+              const wheel = api.normalizeMouseWheelEvent(event);
+              const xMultiplier = state.get('config.scroll.xMultiplier');
+              const yMultiplier = state.get('config.scroll.yMultiplier');
+              if (event.shiftKey && wheel.y) {
+                  state.update('config.scroll.left', left => {
+                      return api.limitScroll('left', (left += wheel.y * xMultiplier));
+                  });
+              }
+              else if (wheel.x) {
+                  state.update('config.scroll.left', left => {
+                      return api.limitScroll('left', (left += wheel.x * xMultiplier));
+                  });
+              }
+              else {
+                  state.update('config.scroll.top', top => {
+                      return api.limitScroll('top', (top += wheel.y * yMultiplier));
+                  });
+              }
+          }
+      }
+      function bindElement(element) {
+          scrollElement = element;
+      }
+      return props => html `
+    <div class=${className} data-action=${action(componentAction, { api, state })} @wheel=${onScroll}>
+      ${Calendar$1.html()}${Gantt$1.html()}
+      <div class=${classNameScroll} style=${styleScroll} data-action=${action(bindElement)} @scroll=${onScroll}>
+        <div class=${classNameScrollInner} style=${styleScrollInner} />
+      </div>
+    </div>
+  `;
+  }
+  //# sourceMappingURL=Chart.js.map
+
+  function Main(core) {
+      const { api, state, onDestroy, action, render, createComponent, html } = core;
+      const componentName = api.name;
+      const List$1 = createComponent(List);
+      onDestroy(List$1.destroy);
+      const Chart$1 = createComponent(Chart);
+      onDestroy(Chart$1.destroy);
+      let pluginsPath = 'config.plugins';
+      onDestroy(state.subscribe(pluginsPath, plugins => {
+          if (typeof plugins !== 'undefined' && Array.isArray(plugins)) {
+              for (const plugin of plugins) {
+                  plugin(state, api);
+              }
+          }
+      }));
+      const componentAction = api.getAction('');
+      let className, classNameVerticalScroll, style, styleVerticalScroll, styleVerticalScrollArea;
+      let verticalScrollBarElement;
+      let expandedHeight = 0;
+      let resizerActive = false;
+      onDestroy(state.subscribe('config.classNames', classNames => {
+          const config = state.get('config');
+          className = api.getClass(componentName, { config });
+          if (resizerActive) {
+              className += ` ${componentName}__list-column-header-resizer--active`;
+          }
+          classNameVerticalScroll = api.getClass('vertical-scroll', { config });
+          render();
+      }));
+      onDestroy(state.subscribeAll(['config.height', 'config.headerHeight', '_internal.scrollBarHeight'], () => {
+          const config = state.get('config');
+          const scrollBarHeight = state.get('_internal.scrollBarHeight');
+          const height = config.height - config.headerHeight - scrollBarHeight;
+          state.update('_internal.height', height);
+          style = `--height: ${config.height}px`;
+          styleVerticalScroll = `height: ${height}px; width: ${scrollBarHeight}px; margin-top: ${config.headerHeight}px;`;
+          render();
+      }));
+      onDestroy(state.subscribe('_internal.list.columns.resizer.active', active => {
+          resizerActive = active;
+          className = api.getClass(api.name);
+          if (resizerActive) {
+              className += ` ${api.name}__list-column-header-resizer--active`;
+          }
+          render();
+      }));
+      onDestroy(state.subscribeAll(['config.list.rows;', 'config.chart.items;', 'config.list.rows.*.parentId', 'config.chart.items.*.rowId'], (bulk, eventInfo) => {
+          if (state.get('_internal.flatTreeMap').length && eventInfo.type === 'subscribe') {
+              return;
+          }
+          const configRows = state.get('config.list.rows');
+          const rows = [];
+          for (const rowId in configRows) {
+              rows.push(configRows[rowId]);
+          }
+          api.fillEmptyRowValues(rows);
+          const configItems = state.get('config.chart.items');
+          const items = [];
+          for (const itemId in configItems) {
+              items.push(configItems[itemId]);
+          }
+          const treeMap = api.makeTreeMap(rows, items);
+          state.update('_internal.treeMap', treeMap);
+          state.update('_internal.flatTreeMapById', api.getFlatTreeMapById(treeMap));
+          state.update('_internal.flatTreeMap', api.flattenTreeMap(treeMap));
+          render();
+      }, { bulk: true }));
+      onDestroy(state.subscribeAll(['config.list.rows.*.expanded', '_internal.treeMap;'], bulk => {
+          const configRows = state.get('config.list.rows');
+          const rowsWithParentsExpanded = api.getRowsFromIds(api.getRowsWithParentsExpanded(state.get('_internal.flatTreeMap'), state.get('_internal.flatTreeMapById'), configRows), configRows);
+          expandedHeight = api.getRowsHeight(rowsWithParentsExpanded);
+          state.update('_internal.list.expandedHeight', expandedHeight);
+          state.update('_internal.list.rowsWithParentsExpanded', rowsWithParentsExpanded);
+          render();
+      }, { bulk: true }));
+      onDestroy(state.subscribeAll(['_internal.list.rowsWithParentsExpanded', 'config.scroll.top'], () => {
+          const visibleRows = api.getVisibleRows(state.get('_internal.list.rowsWithParentsExpanded'));
+          state.update('_internal.list.visibleRows', visibleRows);
+          render();
+      }));
+      onDestroy(state.subscribeAll(['config.scroll.top', '_internal.list.visibleRows'], () => {
+          const top = state.get('config.scroll.top');
+          styleVerticalScrollArea = `height: ${expandedHeight}px; width: 1px`;
+          if (verticalScrollBarElement && verticalScrollBarElement.scrollTop !== top) {
+              verticalScrollBarElement.scrollTop = top;
+          }
+          render();
+      }));
+      function generateAndAddDates(internalTime, chartWidth) {
+          const dates = [];
+          let leftGlobal = internalTime.leftGlobal;
+          const rightGlobal = internalTime.rightGlobal;
+          const timePerPixel = internalTime.timePerPixel;
+          const period = internalTime.period;
+          let sub = leftGlobal - api.time.date(leftGlobal).startOf(period);
+          let subPx = sub / timePerPixel;
+          let leftPx = 0;
+          let maxWidth = 0;
+          let id = 0;
+          while (leftGlobal < rightGlobal) {
+              const date = {
+                  id: id++,
+                  sub,
+                  subPx,
+                  leftGlobal,
+                  rightGlobal: api.time
+                      .date(leftGlobal)
+                      .endOf(period)
+                      .valueOf(),
+                  width: 0,
+                  leftPx: 0,
+                  rightPx: 0
+              };
+              date.width = (date.rightGlobal - date.leftGlobal + sub) / timePerPixel;
+              if (date.width > chartWidth) {
+                  date.width = chartWidth;
+              }
+              maxWidth = date.width > maxWidth ? date.width : maxWidth;
+              date.leftPx = leftPx;
+              leftPx += date.width;
+              date.rightPx = leftPx;
+              dates.push(date);
+              leftGlobal = date.rightGlobal + 1;
+              sub = 0;
+              subPx = 0;
+          }
+          internalTime.maxWidth = maxWidth;
+          internalTime.dates = dates;
+      }
+      onDestroy(state.subscribeAll([
+          'config.chart.time',
+          '_internal.dimensions.width',
+          'config.scroll.left',
+          '_internal.scrollBarHeight',
+          '_internal.list.width'
+      ], function recalculateTimesAction() {
+          const chartWidth = state.get('_internal.dimensions.width') - state.get('_internal.list.width');
+          const chartInnerWidth = chartWidth - state.get('_internal.scrollBarHeight');
+          state.update('_internal.chart.dimensions', { width: chartWidth, innerWidth: chartInnerWidth });
+          let time = api.mergeDeep({}, state.get('config.chart.time'));
+          time = api.time.recalculateFromTo(time);
+          const zoomPercent = time.zoom * 0.01;
+          let scrollLeft = state.get('config.scroll.left');
+          time.timePerPixel = zoomPercent + Math.pow(2, time.zoom);
+          time.totalViewDurationMs = api.time.date(time.to).diff(time.from, 'milliseconds');
+          time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
+          if (scrollLeft > time.totalViewDurationPx) {
+              scrollLeft = time.totalViewDurationPx - chartWidth;
+          }
+          time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
+          time.rightGlobal = time.leftGlobal + chartWidth * time.timePerPixel;
+          time.leftInner = time.leftGlobal - time.from;
+          time.rightInner = time.rightGlobal - time.from;
+          time.leftPx = time.leftInner / time.timePerPixel;
+          time.rightPx = time.rightInner / time.timePerPixel;
+          if (Math.round(time.rightGlobal / time.timePerPixel) > Math.round(time.to / time.timePerPixel)) {
+              time.rightGlobal = time.to;
               time.rightInner = time.rightGlobal - time.from;
-              time.leftPx = time.leftInner / time.timePerPixel;
-              time.rightPx = time.rightInner / time.timePerPixel;
-              if (Math.round(time.rightGlobal / time.timePerPixel) > Math.round(time.to / time.timePerPixel)) {
-                  time.rightGlobal = time.to;
-                  time.rightInner = time.rightGlobal - time.from;
-                  time.totalViewDurationMs = time.to - time.from;
-                  time.totalViewDurationPx = time.rightPx;
-                  time.timePerPixel = time.totalViewDurationMs / time.totalViewDurationPx;
-              }
-              generateAndAddDates(time, chartWidth);
-              core.state.update(`_internal.chart.time`, time);
-              core.render();
-          }));
-          core.state.update('_internal.scrollBarHeight', core.api.getScrollBarHeight());
-          function onScroll(event) {
-              core.state.update('config.scroll.top', event.target.scrollTop);
+              time.totalViewDurationMs = time.to - time.from;
+              time.totalViewDurationPx = time.rightPx;
+              time.timePerPixel = time.totalViewDurationMs / time.totalViewDurationPx;
           }
-          const dimensions = { width: 0, height: 0 };
-          const mainAction = element => {
+          generateAndAddDates(time, chartWidth);
+          state.update(`_internal.chart.time`, time);
+          render();
+      }));
+      state.update('_internal.scrollBarHeight', api.getScrollBarHeight());
+      function onScroll(event) {
+          state.update('config.scroll.top', event.target.scrollTop);
+      }
+      const dimensions = { width: 0, height: 0 };
+      const mainAction = element => {
+          if (dimensions.width === 0) {
               const width = element.clientWidth;
               const height = element.clientHeight;
               if (dimensions.width !== width || dimensions.height !== height) {
-                  console.log(element, dimensions);
                   dimensions.width = width;
                   dimensions.height = height;
-                  core.state.update('_internal.dimensions', dimensions);
+                  state.update('_internal.dimensions', dimensions);
               }
-              if (typeof action === 'function') {
-                  action(element);
-              }
-          };
-          return props => core.html `<div class="${className}" @scroll=${onScroll} data-action="${core.action(mainAction)}" >Main</div>`;
+          }
+          if (typeof action === 'function') {
+              componentAction(element, { state, api });
+          }
       };
+      function bindElement(element) {
+          verticalScrollBarElement = element;
+      }
+      return props => html `
+      <div class=${className} @scroll=${onScroll} data-action=${action(mainAction)}>
+        ${List$1.html()} ${Chart$1.html()}
+        <div
+          class=${classNameVerticalScroll}
+          style=${styleVerticalScroll}
+          @scroll=${onScroll}
+          data-action=${action(bindElement)}
+        >
+          <div style=${styleVerticalScrollArea} />
+        </div>
+      </div>
+    `;
   }
-  /*
-
-
-  <div
-
-    {style}
-    bind:clientWidth={dimensions.width}
-    bind:clientHeight={dimensions.height}>
-    <List />
-    <Chart />
-    <div
-      class={classNameVerticalScroll}
-      style={styleVerticalScroll}
-      on:scroll={onScroll}
-      bind:this={verticalScrollBarElement}>
-      <div style={styleVerticalScrollArea} />
-    </div>
-  </div>
-  */
 
   const _internal = {
       components: {
@@ -2843,6 +4645,7 @@
   const GSTC = options => {
       const state = options.state;
       const api = getInternalApi(state);
+      // @ts-ignore
       window.state = state;
       state.update('', oldValue => {
           return {
@@ -2851,7 +4654,8 @@
           };
       });
       const core = Core(state, api);
-      const app = core.createApp(Main(), options.element);
+      window._core = core;
+      const app = core.createApp(Main, options.element);
       return { state };
   };
   GSTC.api = publicApi;

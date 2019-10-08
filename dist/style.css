@@ -97,11 +97,13 @@
 }
 .gantt-shedule-timeline-calendar__list-column-header-content {
   vertical-align: middle;
-  line-height: calc((--height - 2px));
+  line-height: calc(var(--height) - 2px);
   margin-left: 4px;
+  width: 100%;
+  display: flex;
 }
 .gantt-shedule-timeline-calendar__list-column-header-resizer {
-  display: flex;
+  display: inline-flex;
   flex-grow: 1;
   background: transparent;
   vertical-align: middle;
@@ -239,7 +241,6 @@
   color: #fff;
   vertical-align: middle;
   padding: 0px 4px;
-  border: 1px solid #d73c2c;
   display: flex;
   height: 100%;
   line-height: calc(var(--row-height) - 10px);

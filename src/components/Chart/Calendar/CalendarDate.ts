@@ -1,13 +1,9 @@
-<script>
-  export let date;
-
-  import { getContext, onDestroy } from 'svelte';
-
-  const state = getContext('state');
-  const api = getContext('api');
+export default function CalendarDate({ date }, core) {
+  const { api, state, onDestroy, action, render, createComponent, html, repeat } = core;
 
   const componentName = 'chart-calendar-date';
-  const action = api.getAction(componentName);
+  const componentAction = api.getAction(componentName);
+
   let className,
     formattedClassName,
     formattedYearClassName,
@@ -22,15 +18,17 @@
       formattedMonthClassName = api.getClass(`${componentName}-formatted-month`, { date });
       formattedDayClassName = api.getClass(`${componentName}-formatted-day`, { date });
       formattedDayWordClassName = api.getClass(`${componentName}-formatted-day-word`, { date });
+      render();
     })
   );
 
-  let time, period, small, smallFormatted, year, month, day, dayWord, style;
+  let time, period, small, smallFormatted, year, month, day, dayWord, style, daySize;
   onDestroy(
     state.subscribeAll(
       ['_internal.chart.time', 'config.chart.calendar.vertical.smallFormat'],
       function renderDate() {
         time = state.get('_internal.chart.time');
+        daySize = time.zoom <= 22 ? 18 : 13;
         period = time.period;
         const dateMod = api.time.date(date.leftGlobal);
         const maxWidth = time.maxWidth;
@@ -49,23 +47,27 @@
         } else if (maxWidth <= 150) {
           dayWord = dateMod.format('ddd');
         }
+        style = `width: ${date.width}px; margin-left:-${date.subPx}px; --day-size: ${daySize}px`;
+        render();
       },
       { bulk: true }
     )
   );
-  $: daySize = time.zoom <= 22 ? 18 : 13;
-  $: style = `width: ${date.width}px; margin-left:-${date.subPx}px; --day-size: ${daySize}px`;
-</script>
 
-<div class={className} {style} use:action={{ date, api, state }}>
-  {#if small}
-    <div class={formattedClassName} style="transform: rotate(90deg);">{smallFormatted}</div>
-  {:else}
-    <div class={formattedClassName}>
-      <div class={formattedYearClassName}>{year}</div>
-      <div class={formattedMonthClassName}>{month}</div>
-      <div class={formattedDayClassName}>{day}</div>
-      <div class={formattedDayWordClassName}>{dayWord}</div>
+  return props => html`
+    <div class=${className} style=${style} data-action=${action(componentAction, { date, api, state })}>
+      ${small
+        ? html`
+            <div class=${formattedClassName} style="transform: rotate(90deg);">${smallFormatted}</div>
+          `
+        : html`
+            <div class=${formattedClassName}>
+              <div class=${formattedYearClassName}>${year}</div>
+              <div class=${formattedMonthClassName}>${month}</div>
+              <div class=${formattedDayClassName}>${day}</div>
+              <div class=${formattedDayWordClassName}>${dayWord}</div>
+            </div>
+          `}
     </div>
-  {/if}
-</div>
+  `;
+}

@@ -100,10 +100,12 @@ $item-content-padding = 5px
       display: flex
       &-content
         vertical-align: middle
-        line-height: calc(--height - 2px)
+        line-height: calc(var(--height) - 2px)
         margin-left: 4px
-      &-resizer
+        width: 100%
         display: flex
+      &-resizer
+        display: inline-flex
         flex-grow: 1
         background:transparent
         vertical-align: middle
@@ -220,7 +222,7 @@ $item-content-padding = 5px
               color: white
               vertical-align: middle
               padding: 0px 4px
-              border: 1px solid #D73C2C
+              //border: 1px solid #D73C2C
               display: flex
               height: 100%
               line-height: calc(var(--row-height) - 10px)

@@ -1,27 +1,29 @@
-<script>
-  import { getContext, onDestroy, onMount } from 'svelte';
-  import Calendar from './Calendar/Calendar.svelte';
-  import Gantt from './Gantt/Gantt.svelte';
+import CalendarComponent from './Calendar/Calendar';
+import GanttComponent from './Gantt/Gantt';
 
-  const api = getContext('api');
-  const state = getContext('state');
+export default function Chart(core) {
+  const { api, state, onDestroy, action, render, html, createComponent } = core;
   const componentName = 'chart';
+
+  const Calendar = createComponent(CalendarComponent);
+  onDestroy(Calendar.destroy);
+  const Gantt = createComponent(GanttComponent);
+  onDestroy(Gantt.destroy);
 
   let className,
     classNameScroll,
     classNameScrollInner,
-    config,
     scrollElement,
     styleScroll = '',
     styleScrollInner = '',
-    action = api.getAction(componentName);
+    componentAction = api.getAction(componentName);
 
   onDestroy(
     state.subscribe('config.classNames', value => {
-      config = value;
       className = api.getClass(componentName);
       classNameScroll = api.getClass('horizontal-scroll');
       classNameScrollInner = api.getClass('horizontal-scroll-inner');
+      render();
     })
   );
   onDestroy(
@@ -29,22 +31,20 @@
       if (scrollElement && scrollElement.scrollLeft !== left) {
         scrollElement.scrollLeft = left;
       }
+      render();
     })
   );
 
   onDestroy(
-    state.subscribeAll(['_internal.chart.dimensions.width', '_internal.chart.time.totalViewDurationPx'], function horizontalScroll(
-      value,
-      eventInfo
-    ) {
-      styleScroll = `width: ${state.get('_internal.chart.dimensions.width')}px`;
-      styleScrollInner = `width: ${state.get('_internal.chart.time.totalViewDurationPx')}px; height:1px`;
-    })
+    state.subscribeAll(
+      ['_internal.chart.dimensions.width', '_internal.chart.time.totalViewDurationPx'],
+      function horizontalScroll(value, eventInfo) {
+        styleScroll = `width: ${state.get('_internal.chart.dimensions.width')}px`;
+        styleScrollInner = `width: ${state.get('_internal.chart.time.totalViewDurationPx')}px; height:1px`;
+        render();
+      }
+    )
   );
-
-  onMount(() => {
-    //state.update('config.scroll.left', scrollElement.scrollLeft);
-  });
 
   function onScroll(event) {
     if (event.type === 'scroll') {
@@ -68,12 +68,17 @@
       }
     }
   }
-</script>
 
-<div class={className} use:action={{ api, state }} on:wheel={onScroll}>
-  <Calendar />
-  <Gantt />
-  <div class={classNameScroll} style={styleScroll} bind:this={scrollElement} on:scroll={onScroll}>
-    <div class={classNameScrollInner} style={styleScrollInner} />
-  </div>
-</div>
+  function bindElement(element) {
+    scrollElement = element;
+  }
+
+  return props => html`
+    <div class=${className} data-action=${action(componentAction, { api, state })} @wheel=${onScroll}>
+      ${Calendar.html()}${Gantt.html()}
+      <div class=${classNameScroll} style=${styleScroll} data-action=${action(bindElement)} @scroll=${onScroll}>
+        <div class=${classNameScrollInner} style=${styleScrollInner} />
+      </div>
+    </div>
+  `;
+}

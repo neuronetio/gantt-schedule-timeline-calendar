@@ -1,3 +1,4 @@
+// @ts-nocheck
 import defaultConfig from '../default-config.ts';
 import timeApi from './Time';
 import State from 'deep-state-observer';
@@ -126,7 +127,8 @@ export function getInternalApi(state) {
       if (typeof attrs !== 'undefined') {
         for (const key in attrs) {
           if (attrs[key].constructor.name === 'Object' && typeof attrs[key].id !== 'undefined') {
-            return (postfix += `-${key}_${attrs[key].id}`);
+            postfix += `-${key}_${attrs[key].id}`;
+            return className + className.trim() + postfix;
           }
           if (typeof attrs[key] === 'string' || typeof attrs[key] === 'number') {
             postfix += `-${key}_${attrs[key]}`;
@@ -137,10 +139,10 @@ export function getInternalApi(state) {
         className += simple + postfix + ' ';
       }
       if (typeof $state.config.classNames[name] !== 'undefined') {
-        $state.config.classNames[name].forEach(customClass => (className += customClass + ' '));
+        state.get(`config.classNames.${name}`).forEach(customClass => (className += customClass + ' '));
       }
       if (typeof $state.config.classNames[name + postfix] !== 'undefined') {
-        $state.config.classNames[name + postfix].forEach(customClass => (className += customClass + ' '));
+        state.get(`config.classNames.${name + postfix}`).forEach(customClass => (className += customClass + ' '));
       }
       return className.trim();
     },
@@ -409,11 +411,6 @@ export function getInternalApi(state) {
     window.state = state;
     window.api = api;
   }
-  unsubscribers.push(
-    state.subscribe('', () => {
-      $state = state.get();
-    })
-  );
 
   return api;
 }
