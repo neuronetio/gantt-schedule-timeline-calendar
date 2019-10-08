@@ -1,6 +1,6 @@
 import RowItemComponent from './GanttItemsRowItem';
 export default function GanttItemsRow({ rowId }, core) {
-  const { api, state, onDestroy, action, render, html, createComponent, repeat } = core;
+  const { api, state, onDestroy, action, update, html, createComponent, repeat } = core;
   let rowPath = `_internal.flatTreeMapById.${rowId}`;
   let row, element, style, styleInner;
   onDestroy(
@@ -12,7 +12,7 @@ export default function GanttItemsRow({ rowId }, core) {
       if (element) {
         element.scrollLeft = chart.time.leftPx;
       }
-      render();
+      update();
     })
   );
 
@@ -26,7 +26,7 @@ export default function GanttItemsRow({ rowId }, core) {
       for (const item of items) {
         itemComponents.push({ id: item.id, component: createComponent(RowItemComponent, { rowId, itemId: item.id }) });
       }
-      render();
+      update();
     })
   );
 
@@ -42,7 +42,7 @@ export default function GanttItemsRow({ rowId }, core) {
     state.subscribe('config.classNames', () => {
       className = api.getClass(componentName, { row });
       classNameInner = api.getClass(componentNameInner, { row });
-      render();
+      update();
     })
   );
 

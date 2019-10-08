@@ -2,7 +2,7 @@ import ListComponent from './List/List';
 import ChartComponent from './Chart/Chart';
 
 export default function Main(core) {
-  const { api, state, onDestroy, action, render, createComponent, html } = core;
+  const { api, state, onDestroy, action, update, createComponent, html } = core;
   const componentName = api.name;
 
   const List = createComponent(ListComponent);
@@ -35,7 +35,7 @@ export default function Main(core) {
         className += ` ${componentName}__list-column-header-resizer--active`;
       }
       classNameVerticalScroll = api.getClass('vertical-scroll', { config });
-      render();
+      update();
     })
   );
 
@@ -47,7 +47,7 @@ export default function Main(core) {
       state.update('_internal.height', height);
       style = `--height: ${config.height}px`;
       styleVerticalScroll = `height: ${height}px; width: ${scrollBarHeight}px; margin-top: ${config.headerHeight}px;`;
-      render();
+      update();
     })
   );
 
@@ -58,7 +58,7 @@ export default function Main(core) {
       if (resizerActive) {
         className += ` ${api.name}__list-column-header-resizer--active`;
       }
-      render();
+      update();
     })
   );
 
@@ -84,7 +84,7 @@ export default function Main(core) {
         state.update('_internal.treeMap', treeMap);
         state.update('_internal.flatTreeMapById', api.getFlatTreeMapById(treeMap));
         state.update('_internal.flatTreeMap', api.flattenTreeMap(treeMap));
-        render();
+        update();
       },
       { bulk: true }
     )
@@ -106,7 +106,7 @@ export default function Main(core) {
         expandedHeight = api.getRowsHeight(rowsWithParentsExpanded);
         state.update('_internal.list.expandedHeight', expandedHeight);
         state.update('_internal.list.rowsWithParentsExpanded', rowsWithParentsExpanded);
-        render();
+        update();
       },
       { bulk: true }
     )
@@ -116,7 +116,7 @@ export default function Main(core) {
     state.subscribeAll(['_internal.list.rowsWithParentsExpanded', 'config.scroll.top'], () => {
       const visibleRows = api.getVisibleRows(state.get('_internal.list.rowsWithParentsExpanded'));
       state.update('_internal.list.visibleRows', visibleRows);
-      render();
+      update();
     })
   );
 
@@ -127,7 +127,7 @@ export default function Main(core) {
       if (verticalScrollBarElement && verticalScrollBarElement.scrollTop !== top) {
         verticalScrollBarElement.scrollTop = top;
       }
-      render();
+      update();
     })
   );
 
@@ -211,7 +211,7 @@ export default function Main(core) {
         }
         generateAndAddDates(time, chartWidth);
         state.update(`_internal.chart.time`, time);
-        render();
+        update();
       }
     )
   );
@@ -222,7 +222,7 @@ export default function Main(core) {
     handleEvent(event) {
       state.update('config.scroll.top', event.target.scrollTop);
     },
-    passive: true
+    passive: false
   };
 
   const dimensions = { width: 0, height: 0 };

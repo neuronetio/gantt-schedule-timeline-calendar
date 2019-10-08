@@ -2,7 +2,7 @@ import ListColumnHeaderResizerComponent from './ListColumnHeaderResizer';
 import ListExpander from './ListExpander';
 
 export default function ListColumnHeader({ columnId }, core) {
-  const { api, state, onDestroy, action, render, createComponent, html } = core;
+  const { api, state, onDestroy, action, update, createComponent, html } = core;
 
   const componentName = 'list-column-header';
   const componentAction = api.getAction(componentName);
@@ -11,7 +11,7 @@ export default function ListColumnHeader({ columnId }, core) {
   onDestroy(
     state.subscribe(`config.list.columns.data.${columnId}`, val => {
       column = val;
-      render();
+      update();
     })
   );
 
@@ -22,7 +22,7 @@ export default function ListColumnHeader({ columnId }, core) {
       className = api.getClass(componentName, { column });
       contentClass = api.getClass(componentName + '-content', { column });
       style = `--height: ${value.headerHeight}px;`;
-      render();
+      update();
     })
   );
 

@@ -1,5 +1,5 @@
 export default function CalendarDate({ date }, core) {
-  const { api, state, onDestroy, action, render, createComponent, html, repeat } = core;
+  const { api, state, onDestroy, action, update, createComponent, html, repeat } = core;
 
   const componentName = 'chart-calendar-date';
   const componentAction = api.getAction(componentName);
@@ -18,7 +18,7 @@ export default function CalendarDate({ date }, core) {
       formattedMonthClassName = api.getClass(`${componentName}-formatted-month`, { date });
       formattedDayClassName = api.getClass(`${componentName}-formatted-day`, { date });
       formattedDayWordClassName = api.getClass(`${componentName}-formatted-day-word`, { date });
-      render();
+      update();
     })
   );
 
@@ -26,7 +26,7 @@ export default function CalendarDate({ date }, core) {
   onDestroy(
     state.subscribeAll(
       ['_internal.chart.time', 'config.chart.calendar.vertical.smallFormat'],
-      function renderDate() {
+      function updateDate() {
         time = state.get('_internal.chart.time');
         daySize = time.zoom <= 22 ? 18 : 13;
         period = time.period;
@@ -48,7 +48,7 @@ export default function CalendarDate({ date }, core) {
           dayWord = dateMod.format('ddd');
         }
         style = `width: ${date.width}px; margin-left:-${date.subPx}px; --day-size: ${daySize}px`;
-        render();
+        update();
       },
       { bulk: true }
     )

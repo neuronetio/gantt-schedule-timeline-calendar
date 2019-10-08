@@ -1,6 +1,6 @@
 import ListExpander from './ListExpander';
 export default function ListColumnRow({ rowId, columnId }, core) {
-  const { api, state, onDestroy, action, render, html, createComponent } = core;
+  const { api, state, onDestroy, action, update, html, createComponent } = core;
 
   let row,
     rowPath = `config.list.rows.${rowId}`;
@@ -9,7 +9,7 @@ export default function ListColumnRow({ rowId, columnId }, core) {
     state.subscribe(rowPath, value => {
       row = value;
       style = `--height: ${row.height}px`;
-      render();
+      update();
     })
   );
 
@@ -18,7 +18,7 @@ export default function ListColumnRow({ rowId, columnId }, core) {
   onDestroy(
     state.subscribe(columnPath, val => {
       column = val;
-      render();
+      update();
     })
   );
 
@@ -28,7 +28,7 @@ export default function ListColumnRow({ rowId, columnId }, core) {
   onDestroy(
     state.subscribe('config.classNames', value => {
       className = api.getClass(componentName, { row, column });
-      render();
+      update();
     })
   );
 

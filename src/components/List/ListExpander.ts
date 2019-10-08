@@ -1,5 +1,5 @@
 import ListToggle from './ListToggle';
-export default function ListExpander(props, { api, state, onDestroy, action, render, html, createComponent }) {
+export default function ListExpander(props, { api, state, onDestroy, action, update, html, createComponent }) {
   const componentName = 'list-expander';
   const componentAction = api.getAction(componentName);
   let className,
@@ -18,14 +18,14 @@ export default function ListExpander(props, { api, state, onDestroy, action, ren
         className = api.getClass(componentName);
         paddingClass = api.getClass(componentName + '-padding');
       }
-      render();
+      update();
     })
   );
 
   onDestroy(
     state.subscribeAll(['config.list.expander.padding'], value => {
       padding = value;
-      render();
+      update();
     })
   );
   if (props.row) {
@@ -33,7 +33,7 @@ export default function ListExpander(props, { api, state, onDestroy, action, ren
       state.subscribe(`_internal.list.rows.${props.row.id}.parentId`, parentId => {
         width = 'width:' + props.row._internal.parents.length * padding + 'px';
         children = props.row._internal.children;
-        render();
+        update();
       })
     );
   } else {

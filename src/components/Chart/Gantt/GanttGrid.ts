@@ -1,14 +1,14 @@
 import GridRowComponent from './GanttGridRow';
 //import GridBlock from './GanttGridBlock.svelte';
 export default function GanttGrid(core) {
-  const { api, state, onDestroy, action, render, html, createComponent, repeat } = core;
+  const { api, state, onDestroy, action, update, html, createComponent, repeat } = core;
   const componentName = 'chart-gantt-grid';
   const componentAction = api.getAction(componentName);
   let className;
   onDestroy(
     state.subscribe('config.classNames', () => {
       className = api.getClass(componentName);
-      render();
+      update();
     })
   );
 
@@ -17,7 +17,7 @@ export default function GanttGrid(core) {
     state.subscribe('_internal.height', h => {
       height = h;
       style = `height: ${height}px`;
-      render();
+      update();
     })
   );
 
@@ -44,7 +44,7 @@ export default function GanttGrid(core) {
           rows.push(row);
           rowsComponents.push({ id: rowData.id, component: createComponent(GridRowComponent, { row }) });
           top += rowData.height;
-          render();
+          update();
         }
       },
       { bulk: true }

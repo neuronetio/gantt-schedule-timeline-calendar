@@ -2,14 +2,14 @@ import ListColumnRow from './ListColumnRow';
 import ListColumnHeaderComponent from './ListColumnHeader';
 
 export default function ListColumnComponent({ columnId }, core) {
-  const { api, state, onDestroy, action, render, createComponent, html, repeat } = core;
+  const { api, state, onDestroy, action, update, createComponent, html, repeat } = core;
 
   let column,
     columnPath = `config.list.columns.data.${columnId}`;
   onDestroy(
     state.subscribe(columnPath, val => {
       column = val;
-      render();
+      update();
     })
   );
 
@@ -23,7 +23,7 @@ export default function ListColumnComponent({ columnId }, core) {
     state.subscribe('config.classNames', value => {
       className = api.getClass(componentName, { column });
       classNameContainer = api.getClass(rowsComponentName, { column });
-      render();
+      update();
     })
   );
 
@@ -35,7 +35,7 @@ export default function ListColumnComponent({ columnId }, core) {
         id: row.id,
         component: createComponent(ListColumnRow, { columnId, rowId: row.id })
       }));
-      render();
+      update();
     })
   );
 

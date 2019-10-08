@@ -1,12 +1,12 @@
 export default function GanttItemsRowItem({ rowId, itemId }, core) {
-  const { api, state, onDestroy, action, render, html } = core;
+  const { api, state, onDestroy, action, update, html } = core;
 
   let row,
     rowPath = `config.list.rows.${rowId}`;
   onDestroy(
     state.subscribe(rowPath, value => {
       row = value;
-      render();
+      update();
     })
   );
   let item,
@@ -14,7 +14,7 @@ export default function GanttItemsRowItem({ rowId, itemId }, core) {
   onDestroy(
     state.subscribe(itemPath, value => {
       item = value;
-      render();
+      update();
     })
   );
 
@@ -26,7 +26,7 @@ export default function GanttItemsRowItem({ rowId, itemId }, core) {
       className = api.getClass(componentName, { row, item });
       contentClassName = api.getClass(componentName + '-content', { row, item });
       labelClassName = api.getClass(componentName + '-content-label', { row, item });
-      render();
+      update();
     })
   );
 
@@ -41,7 +41,7 @@ export default function GanttItemsRowItem({ rowId, itemId }, core) {
         itemLeftPx = (item.time.start - time.from) / time.timePerPixel;
         itemWidthPx = (item.time.end - item.time.start) / time.timePerPixel;
         style = `left:${itemLeftPx}px;width:${itemWidthPx}px;`;
-        render();
+        update();
       },
       { bulk: true }
     )

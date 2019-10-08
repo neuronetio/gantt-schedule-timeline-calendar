@@ -1,6 +1,6 @@
 import ListColumnComponent from './ListColumn';
 export default function List(core) {
-  const { api, state, onDestroy, action, render, createComponent, html, repeat } = core;
+  const { api, state, onDestroy, action, update, createComponent, html, repeat } = core;
 
   const componentName = 'list';
   const componentAction = api.getAction(componentName);
@@ -11,14 +11,14 @@ export default function List(core) {
     state.subscribe('config.list', () => {
       list = state.get('config.list');
       percent = list.columns.percent;
-      render();
+      update();
     })
   );
 
   onDestroy(
     state.subscribe('config.classNames', () => {
       className = api.getClass(componentName, { list });
-      render();
+      update();
     })
   );
 
@@ -35,7 +35,7 @@ export default function List(core) {
         });
         return { id: columnId, component };
       });
-      render();
+      update();
     })
   );
 
@@ -47,7 +47,7 @@ export default function List(core) {
   onDestroy(
     state.subscribe('config.height', height => {
       style = `height: ${height}px`;
-      render();
+      update();
     })
   );
 

@@ -1,6 +1,6 @@
 import GridBlock from './GanttGridBlock';
 export default function GanttGridRow({ row }, core) {
-  const { api, state, onDestroy, action, render, html, createComponent, repeat } = core;
+  const { api, state, onDestroy, action, update, html, createComponent, repeat } = core;
   const componentName = 'chart-gantt-grid-row';
 
   const componentAction = api.getAction(componentName, { row });
@@ -8,7 +8,7 @@ export default function GanttGridRow({ row }, core) {
   onDestroy(
     state.subscribe('config.classNames', value => {
       className = api.getClass(componentName, { row });
-      render();
+      update();
     })
   );
 

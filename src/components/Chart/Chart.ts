@@ -2,7 +2,7 @@ import CalendarComponent from './Calendar/Calendar';
 import GanttComponent from './Gantt/Gantt';
 
 export default function Chart(core) {
-  const { api, state, onDestroy, action, render, html, createComponent } = core;
+  const { api, state, onDestroy, action, update, html, createComponent } = core;
   const componentName = 'chart';
 
   const Calendar = createComponent(CalendarComponent);
@@ -23,7 +23,7 @@ export default function Chart(core) {
       className = api.getClass(componentName);
       classNameScroll = api.getClass('horizontal-scroll');
       classNameScrollInner = api.getClass('horizontal-scroll-inner');
-      render();
+      update();
     })
   );
   onDestroy(
@@ -31,7 +31,7 @@ export default function Chart(core) {
       if (scrollElement && scrollElement.scrollLeft !== left) {
         scrollElement.scrollLeft = left;
       }
-      render();
+      update();
     })
   );
 
@@ -41,7 +41,7 @@ export default function Chart(core) {
       function horizontalScroll(value, eventInfo) {
         styleScroll = `width: ${state.get('_internal.chart.dimensions.width')}px`;
         styleScrollInner = `width: ${state.get('_internal.chart.time.totalViewDurationPx')}px; height:1px`;
-        render();
+        update();
       }
     )
   );

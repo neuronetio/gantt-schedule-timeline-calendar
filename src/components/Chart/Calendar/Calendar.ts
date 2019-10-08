@@ -1,7 +1,7 @@
 import DateComponent from './CalendarDate';
 
 export default function Calendar(core) {
-  const { api, state, onDestroy, action, render, createComponent, html, repeat } = core;
+  const { api, state, onDestroy, action, update, createComponent, html, repeat } = core;
   const componentName = 'chart-calendar';
   const componentAction = api.getAction(componentName);
 
@@ -9,7 +9,7 @@ export default function Calendar(core) {
   onDestroy(
     state.subscribe('config.classNames', value => {
       className = api.getClass(componentName);
-      render();
+      update();
     })
   );
 
@@ -19,7 +19,7 @@ export default function Calendar(core) {
     state.subscribe('config.headerHeight', value => {
       headerHeight = value;
       style = `height: ${headerHeight}px;`;
-      render();
+      update();
     })
   );
 
@@ -33,7 +33,7 @@ export default function Calendar(core) {
       for (const date of dates) {
         datesComponents.push({ id: date.id, component: createComponent(DateComponent, { date }) });
       }
-      render();
+      update();
     })
   );
   onDestroy(() => {

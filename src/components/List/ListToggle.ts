@@ -1,4 +1,4 @@
-export default function ListToggle(props, { api, state, onDestroy, action, render, html, unsafeHTML }) {
+export default function ListToggle(props, { api, state, onDestroy, action, update, html, unsafeHTML }) {
   const componentName = 'list-expander-toggle';
   let className, componentAction, style;
   let classNameOpen, classNameClosed;
@@ -16,7 +16,7 @@ export default function ListToggle(props, { api, state, onDestroy, action, rende
         classNameClosed = api.getClass(componentName + '-closed');
       }
       componentAction = api.getAction(componentName);
-      render();
+      update();
     })
   );
   onDestroy(
@@ -25,7 +25,7 @@ export default function ListToggle(props, { api, state, onDestroy, action, rende
       style = `--size: ${expander.size}px`;
       iconOpen = expander.icons.open;
       iconClosed = expander.icons.closed;
-      render();
+      update();
     })
   );
 
@@ -33,7 +33,7 @@ export default function ListToggle(props, { api, state, onDestroy, action, rende
     onDestroy(
       state.subscribe(`config.list.rows.${props.row.id}.expanded`, isExpanded => {
         expanded = isExpanded;
-        render();
+        update();
       })
     );
   } else {
@@ -47,7 +47,7 @@ export default function ListToggle(props, { api, state, onDestroy, action, rende
               break;
             }
           }
-          render();
+          update();
         },
         { bulk: true }
       )

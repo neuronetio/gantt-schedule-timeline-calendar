@@ -12,7 +12,6 @@ import { until } from 'lit-html/directives/until';
 
 export default function Core(state, api) {
   const components = new WeakMap();
-  const templates = new WeakMap();
   let actions = [];
 
   let app, element;
@@ -51,7 +50,7 @@ export default function Core(state, api) {
       const instance = {};
       const componentInstance = getComponentInstance(instance);
       let oneTimeUpdate;
-      function render(props) {
+      function update(props) {
         if (!oneTimeUpdate) {
           return (oneTimeUpdate = function() {
             core.updateTemplate(instance, props);
@@ -63,7 +62,7 @@ export default function Core(state, api) {
       function onDestroy(fn) {
         destroyable.push(fn);
       }
-      const instanceCore = { ...core, render, onDestroy, instance, action: getAction(instance) };
+      const instanceCore = { ...core, update, onDestroy, instance, action: getAction(instance) };
       let methods;
       if (props) {
         methods = component(props, instanceCore);
@@ -94,27 +93,21 @@ export default function Core(state, api) {
         methods.destroy();
       }
       components.delete(instance);
-      templates.delete(instance);
     },
     updateTemplate(instance, props, flush = true) {
-      const methods = components.get(instance);
-      if (methods) {
-        const result = methods.update(props);
-        templates.set(instance, result);
-        if (flush) {
-          shouldUpdateCount++;
-          const currentShouldUpdateCount = shouldUpdateCount;
-          resolved.then(() => {
-            if (currentShouldUpdateCount === shouldUpdateCount) {
-              this.flush(instance);
-              shouldUpdateCount = 0;
-            }
-          });
-        }
+      if (flush) {
+        shouldUpdateCount++;
+        const currentShouldUpdateCount = shouldUpdateCount;
+        resolved.then(() => {
+          if (currentShouldUpdateCount === shouldUpdateCount) {
+            this.flush(instance);
+            shouldUpdateCount = 0;
+          }
+        });
       }
     },
     componentTemplate(instance) {
-      return templates.get(instance);
+      return components.get(instance).update();
     },
     createApp(instance, el) {
       element = el;
@@ -126,8 +119,7 @@ export default function Core(state, api) {
 
     flush(instance) {
       if (app) {
-        this.updateTemplate(app, {}, false);
-        render(this.componentTemplate(app), element);
+        render(components.get(app).update(), element);
         for (const action of actions) {
           action.fn(action.element, action.props);
         }

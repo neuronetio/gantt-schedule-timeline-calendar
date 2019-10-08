@@ -3397,7 +3397,6 @@ const until = directive((...args) => (part) => {
 
 function Core(state, api) {
     const components = new WeakMap();
-    const templates = new WeakMap();
     let actions = [];
     let app, element;
     function getAction(instance, props = {}) {
@@ -3431,7 +3430,7 @@ function Core(state, api) {
             const instance = {};
             const componentInstance = getComponentInstance(instance);
             let oneTimeUpdate;
-            function render(props) {
+            function update(props) {
                 if (!oneTimeUpdate) {
                     return (oneTimeUpdate = function () {
                         core.updateTemplate(instance, props);
@@ -3443,7 +3442,7 @@ function Core(state, api) {
             function onDestroy(fn) {
                 destroyable.push(fn);
             }
-            const instanceCore = Object.assign(Object.assign({}, core), { render, onDestroy, instance, action: getAction() });
+            const instanceCore = Object.assign(Object.assign({}, core), { update, onDestroy, instance, action: getAction() });
             let methods;
             if (props) {
                 methods = component(props, instanceCore);
@@ -3475,27 +3474,21 @@ function Core(state, api) {
                 methods.destroy();
             }
             components.delete(instance);
-            templates.delete(instance);
         },
         updateTemplate(instance, props, flush = true) {
-            const methods = components.get(instance);
-            if (methods) {
-                const result = methods.update(props);
-                templates.set(instance, result);
-                if (flush) {
-                    shouldUpdateCount++;
-                    const currentShouldUpdateCount = shouldUpdateCount;
-                    resolved.then(() => {
-                        if (currentShouldUpdateCount === shouldUpdateCount) {
-                            this.flush(instance);
-                            shouldUpdateCount = 0;
-                        }
-                    });
-                }
+            if (flush) {
+                shouldUpdateCount++;
+                const currentShouldUpdateCount = shouldUpdateCount;
+                resolved.then(() => {
+                    if (currentShouldUpdateCount === shouldUpdateCount) {
+                        this.flush(instance);
+                        shouldUpdateCount = 0;
+                    }
+                });
             }
         },
         componentTemplate(instance) {
-            return templates.get(instance);
+            return components.get(instance).update();
         },
         createApp(instance, el) {
             element = el;
@@ -3506,8 +3499,7 @@ function Core(state, api) {
         },
         flush(instance) {
             if (app) {
-                this.updateTemplate(app, {}, false);
-                render(this.componentTemplate(app), element);
+                render(components.get(app).update(), element);
                 for (const action of actions) {
                     action.fn(action.element, action.props);
                 }
@@ -3532,9 +3524,8 @@ function Core(state, api) {
     }
     return core;
 }
-//# sourceMappingURL=Core.js.map
 
-function ListToggle(props, { api, state, onDestroy, action, render, html, unsafeHTML }) {
+function ListToggle(props, { api, state, onDestroy, action, update, html, unsafeHTML }) {
     const componentName = 'list-expander-toggle';
     let className, componentAction, style;
     let classNameOpen, classNameClosed;
@@ -3552,19 +3543,19 @@ function ListToggle(props, { api, state, onDestroy, action, render, html, unsafe
             classNameClosed = api.getClass(componentName + '-closed');
         }
         componentAction = api.getAction(componentName);
-        render();
+        update();
     }));
     onDestroy(state.subscribeAll(['config.list.expander.size', 'config.list.expander.icons'], () => {
         const expander = state.get('config.list.expander');
         style = `--size: ${expander.size}px`;
         iconOpen = expander.icons.open;
         iconClosed = expander.icons.closed;
-        render();
+        update();
     }));
     if (props.row) {
         onDestroy(state.subscribe(`config.list.rows.${props.row.id}.expanded`, isExpanded => {
             expanded = isExpanded;
-            render();
+            update();
         }));
     }
     else {
@@ -3575,7 +3566,7 @@ function ListToggle(props, { api, state, onDestroy, action, render, html, unsafe
                     break;
                 }
             }
-            render();
+            update();
         }, { bulk: true }));
     }
     function toggle() {
@@ -3615,7 +3606,7 @@ function ListToggle(props, { api, state, onDestroy, action, render, html, unsafe
 }
 //# sourceMappingURL=ListToggle.js.map
 
-function ListExpander(props, { api, state, onDestroy, action, render, html, createComponent }) {
+function ListExpander(props, { api, state, onDestroy, action, update, html, createComponent }) {
     const componentName = 'list-expander';
     const componentAction = api.getAction(componentName);
     let className, padding, width, paddingClass, children = [];
@@ -3628,17 +3619,17 @@ function ListExpander(props, { api, state, onDestroy, action, render, html, crea
             className = api.getClass(componentName);
             paddingClass = api.getClass(componentName + '-padding');
         }
-        render();
+        update();
     }));
     onDestroy(state.subscribeAll(['config.list.expander.padding'], value => {
         padding = value;
-        render();
+        update();
     }));
     if (props.row) {
         onDestroy(state.subscribe(`_internal.list.rows.${props.row.id}.parentId`, parentId => {
             width = 'width:' + props.row._internal.parents.length * padding + 'px';
             children = props.row._internal.children;
-            render();
+            update();
         }));
     }
     else {
@@ -3658,25 +3649,25 @@ function ListExpander(props, { api, state, onDestroy, action, render, html, crea
 //# sourceMappingURL=ListExpander.js.map
 
 function ListColumnRow({ rowId, columnId }, core) {
-    const { api, state, onDestroy, action, render, html, createComponent } = core;
+    const { api, state, onDestroy, action, update, html, createComponent } = core;
     let row, rowPath = `config.list.rows.${rowId}`;
     let style;
     onDestroy(state.subscribe(rowPath, value => {
         row = value;
         style = `--height: ${row.height}px`;
-        render();
+        update();
     }));
     let column, columnPath = `config.list.columns.data.${columnId}`;
     onDestroy(state.subscribe(columnPath, val => {
         column = val;
-        render();
+        update();
     }));
     const componentName = 'list-column-row';
     const componentAction = api.getAction(componentName);
     let className;
     onDestroy(state.subscribe('config.classNames', value => {
         className = api.getClass(componentName, { row, column });
-        render();
+        update();
     }));
     function getHtml() {
         if (typeof column.data === 'function')
@@ -3713,13 +3704,13 @@ function ListColumnRow({ rowId, columnId }, core) {
 //# sourceMappingURL=ListColumnRow.js.map
 
 function ListColumnHeaderResizer({ columnId }, core) {
-    const { api, state, onDestroy, render, html, action } = core;
+    const { api, state, onDestroy, update, html, action } = core;
     const componentName = 'list-column-header-resizer';
     const componentAction = api.getAction(componentName);
     let column;
     onDestroy(state.subscribe(`config.list.columns.data.${columnId}`, val => {
         column = val;
-        render();
+        update();
     }));
     let className, containerClass, dotsClass, dotClass, lineClass, calculatedWidth, dotsWidth;
     let inRealTime = false;
@@ -3729,7 +3720,7 @@ function ListColumnHeaderResizer({ columnId }, core) {
         dotsClass = api.getClass(componentName + '-dots', { column });
         dotClass = api.getClass(componentName + '-dots-dot', { column });
         lineClass = api.getClass(componentName + '-line', { column });
-        render();
+        update();
     }));
     onDestroy(state.subscribeAll([
         `config.list.columns.data.${column.id}.width`,
@@ -3741,7 +3732,7 @@ function ListColumnHeaderResizer({ columnId }, core) {
         calculatedWidth = column.width * list.columns.percent * 0.01;
         dotsWidth = `width: ${list.columns.resizer.width}px`;
         inRealTime = list.columns.resizer.inRealTime;
-        render();
+        update();
     }));
     let dots = [1, 2, 3, 4, 5, 6, 7, 8];
     onDestroy(state.subscribe('config.list.columns.resizer.dots', value => {
@@ -3749,7 +3740,7 @@ function ListColumnHeaderResizer({ columnId }, core) {
         for (let i = 0; i < value; i++) {
             dots.push(i);
         }
-        render();
+        update();
     }));
     let isMoving = false;
     let left = calculatedWidth;
@@ -3800,13 +3791,13 @@ function ListColumnHeaderResizer({ columnId }, core) {
 //# sourceMappingURL=ListColumnHeaderResizer.js.map
 
 function ListColumnHeader({ columnId }, core) {
-    const { api, state, onDestroy, action, render, createComponent, html } = core;
+    const { api, state, onDestroy, action, update, createComponent, html } = core;
     const componentName = 'list-column-header';
     const componentAction = api.getAction(componentName);
     let column;
     onDestroy(state.subscribe(`config.list.columns.data.${columnId}`, val => {
         column = val;
-        render();
+        update();
     }));
     let className, contentClass, style;
     onDestroy(state.subscribeAll(['config.classNames', 'config.headerHeight'], () => {
@@ -3814,7 +3805,7 @@ function ListColumnHeader({ columnId }, core) {
         className = api.getClass(componentName, { column });
         contentClass = api.getClass(componentName + '-content', { column });
         style = `--height: ${value.headerHeight}px;`;
-        render();
+        update();
     }));
     const ListColumnHeaderResizer$1 = createComponent(ListColumnHeaderResizer, { columnId });
     onDestroy(ListColumnHeaderResizer$1.destroy);
@@ -3846,11 +3837,11 @@ function ListColumnHeader({ columnId }, core) {
 //# sourceMappingURL=ListColumnHeader.js.map
 
 function ListColumnComponent({ columnId }, core) {
-    const { api, state, onDestroy, action, render, createComponent, html, repeat } = core;
+    const { api, state, onDestroy, action, update, createComponent, html, repeat } = core;
     let column, columnPath = `config.list.columns.data.${columnId}`;
     onDestroy(state.subscribe(columnPath, val => {
         column = val;
-        render();
+        update();
     }));
     const componentName = 'list-column';
     const rowsComponentName = componentName + '-rows';
@@ -3860,7 +3851,7 @@ function ListColumnComponent({ columnId }, core) {
     onDestroy(state.subscribe('config.classNames', value => {
         className = api.getClass(componentName, { column });
         classNameContainer = api.getClass(rowsComponentName, { column });
-        render();
+        update();
     }));
     let visibleRows = [];
     onDestroy(state.subscribe('_internal.list.visibleRows;', val => {
@@ -3869,7 +3860,7 @@ function ListColumnComponent({ columnId }, core) {
             id: row.id,
             component: createComponent(ListColumnRow, { columnId, rowId: row.id })
         }));
-        render();
+        update();
     }));
     onDestroy(() => {
         visibleRows.forEach(row => row.component.destroy());
@@ -3900,7 +3891,7 @@ function ListColumnComponent({ columnId }, core) {
 //# sourceMappingURL=ListColumn.js.map
 
 function List(core) {
-    const { api, state, onDestroy, action, render, createComponent, html, repeat } = core;
+    const { api, state, onDestroy, action, update, createComponent, html, repeat } = core;
     const componentName = 'list';
     const componentAction = api.getAction(componentName);
     let className;
@@ -3908,11 +3899,11 @@ function List(core) {
     onDestroy(state.subscribe('config.list', () => {
         list = state.get('config.list');
         percent = list.columns.percent;
-        render();
+        update();
     }));
     onDestroy(state.subscribe('config.classNames', () => {
         className = api.getClass(componentName, { list });
-        render();
+        update();
     }));
     let columns, listColumns = [];
     onDestroy(state.subscribe('config.list.columns.data;', data => {
@@ -3925,7 +3916,7 @@ function List(core) {
             });
             return { id: columnId, component };
         });
-        render();
+        update();
     }));
     onDestroy(() => {
         listColumns.forEach(c => c.component.destroy());
@@ -3933,7 +3924,7 @@ function List(core) {
     let style;
     onDestroy(state.subscribe('config.height', height => {
         style = `height: ${height}px`;
-        render();
+        update();
     }));
     function onScroll(event) {
         if (event.type === 'scroll') {
@@ -3977,7 +3968,7 @@ function List(core) {
 //# sourceMappingURL=List.js.map
 
 function CalendarDate({ date }, core) {
-    const { api, state, onDestroy, action, render, createComponent, html, repeat } = core;
+    const { api, state, onDestroy, action, update, createComponent, html, repeat } = core;
     const componentName = 'chart-calendar-date';
     const componentAction = api.getAction(componentName);
     let className, formattedClassName, formattedYearClassName, formattedMonthClassName, formattedDayClassName, formattedDayWordClassName;
@@ -3988,10 +3979,10 @@ function CalendarDate({ date }, core) {
         formattedMonthClassName = api.getClass(`${componentName}-formatted-month`, { date });
         formattedDayClassName = api.getClass(`${componentName}-formatted-day`, { date });
         formattedDayWordClassName = api.getClass(`${componentName}-formatted-day-word`, { date });
-        render();
+        update();
     }));
     let time, period, small, smallFormatted, year, month, day, dayWord, style, daySize;
-    onDestroy(state.subscribeAll(['_internal.chart.time', 'config.chart.calendar.vertical.smallFormat'], function renderDate() {
+    onDestroy(state.subscribeAll(['_internal.chart.time', 'config.chart.calendar.vertical.smallFormat'], function updateDate() {
         time = state.get('_internal.chart.time');
         daySize = time.zoom <= 22 ? 18 : 13;
         period = time.period;
@@ -4014,7 +4005,7 @@ function CalendarDate({ date }, core) {
             dayWord = dateMod.format('ddd');
         }
         style = `width: ${date.width}px; margin-left:-${date.subPx}px; --day-size: ${daySize}px`;
-        render();
+        update();
     }, { bulk: true }));
     return props => html `
     <div class=${className} style=${style} data-action=${action(componentAction, { date, api, state })}>
@@ -4036,19 +4027,19 @@ function CalendarDate({ date }, core) {
 //# sourceMappingURL=CalendarDate.js.map
 
 function Calendar(core) {
-    const { api, state, onDestroy, action, render, createComponent, html, repeat } = core;
+    const { api, state, onDestroy, action, update, createComponent, html, repeat } = core;
     const componentName = 'chart-calendar';
     const componentAction = api.getAction(componentName);
     let className;
     onDestroy(state.subscribe('config.classNames', value => {
         className = api.getClass(componentName);
-        render();
+        update();
     }));
     let headerHeight, style = '';
     onDestroy(state.subscribe('config.headerHeight', value => {
         headerHeight = value;
         style = `height: ${headerHeight}px;`;
-        render();
+        update();
     }));
     let dates, datesComponents = [];
     onDestroy(state.subscribe('_internal.chart.time.dates', value => {
@@ -4058,7 +4049,7 @@ function Calendar(core) {
         for (const date of dates) {
             datesComponents.push({ id: date.id, component: createComponent(CalendarDate, { date }) });
         }
-        render();
+        update();
     }));
     onDestroy(() => {
         datesComponents.forEach(date => date.component.destroy());
@@ -4078,13 +4069,13 @@ function Calendar(core) {
 //# sourceMappingURL=Calendar.js.map
 
 function GanttGridBlock({ row, time, top }, core) {
-    const { api, state, onDestroy, action, render, html } = core;
+    const { api, state, onDestroy, action, update, html } = core;
     const componentName = 'chart-gantt-grid-block';
     const componentAction = api.getAction(componentName, { row, time, top });
     let className = api.getClass(componentName, { row });
     onDestroy(state.subscribe('config.classNames', () => {
         className = api.getClass(componentName);
-        render();
+        update();
     }));
     let style = `width: ${time.width}px;height: 100%;margin-left:-${time.subPx}px`;
     return props => html `
@@ -4094,13 +4085,13 @@ function GanttGridBlock({ row, time, top }, core) {
 //# sourceMappingURL=GanttGridBlock.js.map
 
 function GanttGridRow({ row }, core) {
-    const { api, state, onDestroy, action, render, html, createComponent, repeat } = core;
+    const { api, state, onDestroy, action, update, html, createComponent, repeat } = core;
     const componentName = 'chart-gantt-grid-row';
     const componentAction = api.getAction(componentName, { row });
     let className;
     onDestroy(state.subscribe('config.classNames', value => {
         className = api.getClass(componentName, { row });
-        render();
+        update();
     }));
     let rowsBlocksComponents = [];
     for (const block of row.blocks) {
@@ -4123,19 +4114,19 @@ function GanttGridRow({ row }, core) {
 
 //import GridBlock from './GanttGridBlock.svelte';
 function GanttGrid(core) {
-    const { api, state, onDestroy, action, render, html, createComponent, repeat } = core;
+    const { api, state, onDestroy, action, update, html, createComponent, repeat } = core;
     const componentName = 'chart-gantt-grid';
     const componentAction = api.getAction(componentName);
     let className;
     onDestroy(state.subscribe('config.classNames', () => {
         className = api.getClass(componentName);
-        render();
+        update();
     }));
     let height, style;
     onDestroy(state.subscribe('_internal.height', h => {
         height = h;
         style = `height: ${height}px`;
-        render();
+        update();
     }));
     let rows, rowsComponents = [];
     onDestroy(state.subscribeAll(['_internal.chart.time.dates', '_internal.list.visibleRows', 'config.chart.grid.block'], function generateBlocks() {
@@ -4156,7 +4147,7 @@ function GanttGrid(core) {
             rows.push(row);
             rowsComponents.push({ id: rowData.id, component: createComponent(GanttGridRow, { row }) });
             top += rowData.height;
-            render();
+            update();
         }
     }, { bulk: true }));
     onDestroy(() => {
@@ -4171,16 +4162,16 @@ function GanttGrid(core) {
 //# sourceMappingURL=GanttGrid.js.map
 
 function GanttItemsRowItem({ rowId, itemId }, core) {
-    const { api, state, onDestroy, action, render, html } = core;
+    const { api, state, onDestroy, action, update, html } = core;
     let row, rowPath = `config.list.rows.${rowId}`;
     onDestroy(state.subscribe(rowPath, value => {
         row = value;
-        render();
+        update();
     }));
     let item, itemPath = `config.chart.items.${itemId}`;
     onDestroy(state.subscribe(itemPath, value => {
         item = value;
-        render();
+        update();
     }));
     const componentName = 'chart-gantt-items-row-item';
     const componentAction = api.getAction(componentName, { row, item });
@@ -4189,7 +4180,7 @@ function GanttItemsRowItem({ rowId, itemId }, core) {
         className = api.getClass(componentName, { row, item });
         contentClassName = api.getClass(componentName + '-content', { row, item });
         labelClassName = api.getClass(componentName + '-content-label', { row, item });
-        render();
+        update();
     }));
     let style, itemLeftPx = 0, itemWidthPx = 0;
     onDestroy(state.subscribeAll(['_internal.chart.time', 'config.scroll'], bulk => {
@@ -4197,7 +4188,7 @@ function GanttItemsRowItem({ rowId, itemId }, core) {
         itemLeftPx = (item.time.start - time.from) / time.timePerPixel;
         itemWidthPx = (item.time.end - item.time.start) / time.timePerPixel;
         style = `left:${itemLeftPx}px;width:${itemWidthPx}px;`;
-        render();
+        update();
     }, { bulk: true }));
     return props => html `
     <div
@@ -4214,7 +4205,7 @@ function GanttItemsRowItem({ rowId, itemId }, core) {
 //# sourceMappingURL=GanttItemsRowItem.js.map
 
 function GanttItemsRow({ rowId }, core) {
-    const { api, state, onDestroy, action, render, html, createComponent, repeat } = core;
+    const { api, state, onDestroy, action, update, html, createComponent, repeat } = core;
     let rowPath = `_internal.flatTreeMapById.${rowId}`;
     let row, element, style, styleInner;
     onDestroy(state.subscribeAll([rowPath, '_internal.chart'], bulk => {
@@ -4225,7 +4216,7 @@ function GanttItemsRow({ rowId }, core) {
         if (element) {
             element.scrollLeft = chart.time.leftPx;
         }
-        render();
+        update();
     }));
     let items, itemComponents = [];
     onDestroy(state.subscribe(`_internal.flatTreeMapById.${rowId}._internal.items;`, value => {
@@ -4235,7 +4226,7 @@ function GanttItemsRow({ rowId }, core) {
         for (const item of items) {
             itemComponents.push({ id: item.id, component: createComponent(GanttItemsRowItem, { rowId, itemId: item.id }) });
         }
-        render();
+        update();
     }));
     onDestroy(() => {
         itemComponents.forEach(item => item.component.destroy());
@@ -4247,7 +4238,7 @@ function GanttItemsRow({ rowId }, core) {
     onDestroy(state.subscribe('config.classNames', () => {
         className = api.getClass(componentName, { row });
         classNameInner = api.getClass(componentNameInner, { row });
-        render();
+        update();
     }));
     function mainAction(el) {
         element = el;
@@ -4266,13 +4257,13 @@ function GanttItemsRow({ rowId }, core) {
 //# sourceMappingURL=GanttItemsRow.js.map
 
 function GnattItems(core) {
-    const { api, state, onDestroy, action, render, html, createComponent, repeat } = core;
+    const { api, state, onDestroy, action, update, html, createComponent, repeat } = core;
     const componentName = 'chart-gantt-items';
     const componentAction = api.getAction(componentName);
     let className;
     onDestroy(state.subscribe('config.classNames', () => {
         className = api.getClass(componentName);
-        render();
+        update();
     }));
     let rows = [], rowsComponents = [];
     onDestroy(state.subscribe('_internal.list.visibleRows;', visibleRows => {
@@ -4282,7 +4273,7 @@ function GnattItems(core) {
         for (const row of rows) {
             rowsComponents.push({ id: row.id, component: createComponent(GanttItemsRow, { rowId: row.id }) });
         }
-        render();
+        update();
     }));
     onDestroy(() => {
         rowsComponents.forEach(row => row.component.destroy());
@@ -4296,7 +4287,7 @@ function GnattItems(core) {
 //# sourceMappingURL=GanttItems.js.map
 
 function Gantt(core) {
-    const { api, state, onDestroy, action, render, html, createComponent } = core;
+    const { api, state, onDestroy, action, update, html, createComponent } = core;
     const componentName = 'chart-gantt';
     const componentAction = api.getAction(componentName);
     const Grid = createComponent(GanttGrid);
@@ -4307,13 +4298,13 @@ function Gantt(core) {
     onDestroy(state.subscribe('config.classNames', value => {
         className = api.getClass(componentName);
         classNameInner = api.getClass(componentName + '-inner');
-        render();
+        update();
     }));
     let style = '', styleInner = '';
     onDestroy(state.subscribeAll(['_internal.height', '_internal.list.expandedHeight'], () => {
         style = `height: ${state.get('_internal.height')}px`;
         styleInner = `height: ${state.get('_internal.list.expandedHeight')}px;`;
-        render();
+        update();
     }));
     function mainAction(element) {
         state.update('_internal.elements.Gantt', element);
@@ -4332,7 +4323,7 @@ function Gantt(core) {
 //# sourceMappingURL=Gantt.js.map
 
 function Chart(core) {
-    const { api, state, onDestroy, action, render, html, createComponent } = core;
+    const { api, state, onDestroy, action, update, html, createComponent } = core;
     const componentName = 'chart';
     const Calendar$1 = createComponent(Calendar);
     onDestroy(Calendar$1.destroy);
@@ -4343,18 +4334,18 @@ function Chart(core) {
         className = api.getClass(componentName);
         classNameScroll = api.getClass('horizontal-scroll');
         classNameScrollInner = api.getClass('horizontal-scroll-inner');
-        render();
+        update();
     }));
     onDestroy(state.subscribe('config.scroll.left', left => {
         if (scrollElement && scrollElement.scrollLeft !== left) {
             scrollElement.scrollLeft = left;
         }
-        render();
+        update();
     }));
     onDestroy(state.subscribeAll(['_internal.chart.dimensions.width', '_internal.chart.time.totalViewDurationPx'], function horizontalScroll(value, eventInfo) {
         styleScroll = `width: ${state.get('_internal.chart.dimensions.width')}px`;
         styleScrollInner = `width: ${state.get('_internal.chart.time.totalViewDurationPx')}px; height:1px`;
-        render();
+        update();
     }));
     const onScroll = {
         handleEvent(event) {
@@ -4396,9 +4387,10 @@ function Chart(core) {
     </div>
   `;
 }
+//# sourceMappingURL=Chart.js.map
 
 function Main(core) {
-    const { api, state, onDestroy, action, render, createComponent, html } = core;
+    const { api, state, onDestroy, action, update, createComponent, html } = core;
     const componentName = api.name;
     const List$1 = createComponent(List);
     onDestroy(List$1.destroy);
@@ -4424,7 +4416,7 @@ function Main(core) {
             className += ` ${componentName}__list-column-header-resizer--active`;
         }
         classNameVerticalScroll = api.getClass('vertical-scroll', { config });
-        render();
+        update();
     }));
     onDestroy(state.subscribeAll(['config.height', 'config.headerHeight', '_internal.scrollBarHeight'], () => {
         const config = state.get('config');
@@ -4433,7 +4425,7 @@ function Main(core) {
         state.update('_internal.height', height);
         style = `--height: ${config.height}px`;
         styleVerticalScroll = `height: ${height}px; width: ${scrollBarHeight}px; margin-top: ${config.headerHeight}px;`;
-        render();
+        update();
     }));
     onDestroy(state.subscribe('_internal.list.columns.resizer.active', active => {
         resizerActive = active;
@@ -4441,7 +4433,7 @@ function Main(core) {
         if (resizerActive) {
             className += ` ${api.name}__list-column-header-resizer--active`;
         }
-        render();
+        update();
     }));
     onDestroy(state.subscribeAll(['config.list.rows;', 'config.chart.items;', 'config.list.rows.*.parentId', 'config.chart.items.*.rowId'], (bulk, eventInfo) => {
         if (state.get('_internal.flatTreeMap').length && eventInfo.type === 'subscribe') {
@@ -4462,7 +4454,7 @@ function Main(core) {
         state.update('_internal.treeMap', treeMap);
         state.update('_internal.flatTreeMapById', api.getFlatTreeMapById(treeMap));
         state.update('_internal.flatTreeMap', api.flattenTreeMap(treeMap));
-        render();
+        update();
     }, { bulk: true }));
     onDestroy(state.subscribeAll(['config.list.rows.*.expanded', '_internal.treeMap;'], bulk => {
         const configRows = state.get('config.list.rows');
@@ -4470,12 +4462,12 @@ function Main(core) {
         expandedHeight = api.getRowsHeight(rowsWithParentsExpanded);
         state.update('_internal.list.expandedHeight', expandedHeight);
         state.update('_internal.list.rowsWithParentsExpanded', rowsWithParentsExpanded);
-        render();
+        update();
     }, { bulk: true }));
     onDestroy(state.subscribeAll(['_internal.list.rowsWithParentsExpanded', 'config.scroll.top'], () => {
         const visibleRows = api.getVisibleRows(state.get('_internal.list.rowsWithParentsExpanded'));
         state.update('_internal.list.visibleRows', visibleRows);
-        render();
+        update();
     }));
     onDestroy(state.subscribeAll(['config.scroll.top', '_internal.list.visibleRows'], () => {
         const top = state.get('config.scroll.top');
@@ -4483,7 +4475,7 @@ function Main(core) {
         if (verticalScrollBarElement && verticalScrollBarElement.scrollTop !== top) {
             verticalScrollBarElement.scrollTop = top;
         }
-        render();
+        update();
     }));
     function generateAndAddDates(internalTime, chartWidth) {
         const dates = [];
@@ -4561,14 +4553,14 @@ function Main(core) {
         }
         generateAndAddDates(time, chartWidth);
         state.update(`_internal.chart.time`, time);
-        render();
+        update();
     }));
     state.update('_internal.scrollBarHeight', api.getScrollBarHeight());
     const onScroll = {
         handleEvent(event) {
             state.update('config.scroll.top', event.target.scrollTop);
         },
-        passive: true
+        passive: false
     };
     const dimensions = { width: 0, height: 0 };
     function mainAction(element) {

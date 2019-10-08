@@ -1,13 +1,13 @@
 import ItemsRowComponent from './GanttItemsRow';
 export default function GnattItems(core) {
-  const { api, state, onDestroy, action, render, html, createComponent, repeat } = core;
+  const { api, state, onDestroy, action, update, html, createComponent, repeat } = core;
   const componentName = 'chart-gantt-items';
   const componentAction = api.getAction(componentName);
   let className;
   onDestroy(
     state.subscribe('config.classNames', () => {
       className = api.getClass(componentName);
-      render();
+      update();
     })
   );
 
@@ -21,7 +21,7 @@ export default function GnattItems(core) {
       for (const row of rows) {
         rowsComponents.push({ id: row.id, component: createComponent(ItemsRowComponent, { rowId: row.id }) });
       }
-      render();
+      update();
     })
   );
 

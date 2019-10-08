@@ -1,5 +1,5 @@
 export default function ListColumnHeaderResizer({ columnId }, core) {
-  const { api, state, onDestroy, render, html, action } = core;
+  const { api, state, onDestroy, update, html, action } = core;
 
   const componentName = 'list-column-header-resizer';
   const componentAction = api.getAction(componentName);
@@ -8,7 +8,7 @@ export default function ListColumnHeaderResizer({ columnId }, core) {
   onDestroy(
     state.subscribe(`config.list.columns.data.${columnId}`, val => {
       column = val;
-      render();
+      update();
     })
   );
 
@@ -21,7 +21,7 @@ export default function ListColumnHeaderResizer({ columnId }, core) {
       dotsClass = api.getClass(componentName + '-dots', { column });
       dotClass = api.getClass(componentName + '-dots-dot', { column });
       lineClass = api.getClass(componentName + '-line', { column });
-      render();
+      update();
     })
   );
   onDestroy(
@@ -38,7 +38,7 @@ export default function ListColumnHeaderResizer({ columnId }, core) {
         width = 'width:' + calculatedWidth + 'px';
         dotsWidth = `width: ${list.columns.resizer.width}px`;
         inRealTime = list.columns.resizer.inRealTime;
-        render();
+        update();
       }
     )
   );
@@ -50,7 +50,7 @@ export default function ListColumnHeaderResizer({ columnId }, core) {
       for (let i = 0; i < value; i++) {
         dots.push(i);
       }
-      render();
+      update();
     })
   );
 

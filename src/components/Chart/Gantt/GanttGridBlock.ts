@@ -1,12 +1,12 @@
 export default function GanttGridBlock({ row, time, top }, core) {
-  const { api, state, onDestroy, action, render, html } = core;
+  const { api, state, onDestroy, action, update, html } = core;
   const componentName = 'chart-gantt-grid-block';
   const componentAction = api.getAction(componentName, { row, time, top });
   let className = api.getClass(componentName, { row });
   onDestroy(
     state.subscribe('config.classNames', () => {
       className = api.getClass(componentName);
-      render();
+      update();
     })
   );
 

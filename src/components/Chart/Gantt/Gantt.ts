@@ -1,7 +1,7 @@
 import GridComponent from './GanttGrid';
 import ItemsComponent from './GanttItems';
 export default function Gantt(core) {
-  const { api, state, onDestroy, action, render, html, createComponent } = core;
+  const { api, state, onDestroy, action, update, html, createComponent } = core;
   const componentName = 'chart-gantt';
   const componentAction = api.getAction(componentName);
 
@@ -15,7 +15,7 @@ export default function Gantt(core) {
     state.subscribe('config.classNames', value => {
       className = api.getClass(componentName);
       classNameInner = api.getClass(componentName + '-inner');
-      render();
+      update();
     })
   );
 
@@ -25,7 +25,7 @@ export default function Gantt(core) {
     state.subscribeAll(['_internal.height', '_internal.list.expandedHeight'], () => {
       style = `height: ${state.get('_internal.height')}px`;
       styleInner = `height: ${state.get('_internal.list.expandedHeight')}px;`;
-      render();
+      update();
     })
   );
 
