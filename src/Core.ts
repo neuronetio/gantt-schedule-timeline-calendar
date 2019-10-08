@@ -48,12 +48,7 @@ export default function Core(state, api) {
       const instance = componentId++;
       const componentInstance = getComponentInstance(instance);
       let oneTimeUpdate;
-      function update(props) {
-        if (!oneTimeUpdate) {
-          return (oneTimeUpdate = function() {
-            core.updateTemplate();
-          });
-        }
+      function update() {
         core.updateTemplate();
       }
       const destroyable = [];
@@ -81,7 +76,6 @@ export default function Core(state, api) {
         methods = { ...firstMethods, destroy };
       }
       components[instance] = methods;
-      oneTimeUpdate();
       return componentInstance;
     },
 
@@ -95,9 +89,10 @@ export default function Core(state, api) {
     updateTemplate() {
       shouldUpdateCount++;
       const currentShouldUpdateCount = shouldUpdateCount;
-      resolved.then(() => {
+      const self = this;
+      resolved.then(function flush() {
         if (currentShouldUpdateCount === shouldUpdateCount) {
-          this.render();
+          self.render();
           shouldUpdateCount = 0;
         }
       });
