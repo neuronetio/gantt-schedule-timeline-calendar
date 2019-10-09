@@ -40,7 +40,8 @@ export default function GanttItemsRowItem({ rowId, itemId }, core) {
         let time = state.get('_internal.chart.time');
         itemLeftPx = (item.time.start - time.from) / time.timePerPixel;
         itemWidthPx = (item.time.end - item.time.start) / time.timePerPixel;
-        style = `left:${itemLeftPx}px;width:${itemWidthPx}px;`;
+        const inViewPort = api.isItemInViewport(item, time.leftGlobal, time.rightGlobal);
+        style = `left:${itemLeftPx}px;width:${itemWidthPx}px;${inViewPort ? 'display:block;' : 'visibility:hidden;'}`;
         update();
       },
       { bulk: true }

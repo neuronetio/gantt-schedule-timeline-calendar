@@ -40,12 +40,12 @@
 
   <body>
     <div id="app"></div>
-
-    <script src="../index.js"></script>
+    <script src="../vido.umd.js"></script>
+    <script src="../index.umd.js"></script>
+    <script src="../ItemMovement.plugin.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="https://cdn.jsdelivr.net/npm/quasar@^1.1.6/dist/quasar.umd.min.js"></script>
-    <script type="module">
-      import itemMovement from '../ItemMovement.plugin.js';
+    <script>
       const iterations = 100;
       const rows = {};
       for (let i = 0; i < iterations; i++) {
@@ -66,7 +66,7 @@
       rows['3'].label = 'Level 1';
       rows['3'].parentId = '1';
 
-      let startDayjs = GSTC.API.date().startOf('month');
+      let startDayjs = GSTC.api.date().startOf('month');
       let items = {};
       for (let i = 0; i < iterations; i++) {
         const id = i.toString();
@@ -130,7 +130,7 @@
 
       let config = {
         plugins: [
-          itemMovement({
+          ItemMovement({
             moveable: true,
             resizeable: true,
             collisionDetection: true
@@ -148,10 +148,12 @@
           items,
           time: {
             period: 'day',
-            from: GSTC.API.date()
+            from: GSTC.api
+              .date()
               .startOf('month')
               .valueOf(),
-            to: GSTC.API.date()
+            to: GSTC.api
+              .date()
               .endOf('month')
               .valueOf()
           }
@@ -220,12 +222,10 @@
         },
         mounted() {
           //stateData.actions['chart-gantt-grid-block'] = [this.gridBlockAction];
-          window.state = state = GSTC.API.stateFromConfig(config);
-          GSTCInstance = new GSTC({
-            target: this.$el,
-            props: {
-              state
-            }
+          window.state = state = GSTC.api.stateFromConfig(config);
+          GSTCInstance = GSTC({
+            element: this.$el,
+            state
           });
         },
         destroyed: function() {
@@ -238,7 +238,7 @@
         data: function() {
           return {
             dialog: false,
-            newDate: GSTC.API.date().format('YYYY-MM-DD HH:mm'),
+            newDate: GSTC.api.date().format('YYYY-MM-DD HH:mm'),
             newLabel: '',
             currentRoom: {
               id: '1',
@@ -309,7 +309,7 @@
               id: this.lastId,
               label: this.newLabel,
               time: {
-                start: GSTC.API.date(this.newDate).valueOf(),
+                start: GSTC.api.date(this.newDate).valueOf(),
                 end: GSCT.API.date(this.newDate)
                   .add(1, 'day')
                   .valueOf()

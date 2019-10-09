@@ -208,6 +208,7 @@
   overflow: hidden;
   border-right: 1px solid #f9fafb;
   border-bottom: 1px solid #f9fafb;
+  will-change: margin-left;
 }
 .gantt-shedule-timeline-calendar__chart-gantt-items {
   position: absolute;

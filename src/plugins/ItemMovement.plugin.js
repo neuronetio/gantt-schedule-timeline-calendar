@@ -1,4 +1,5 @@
-export const itemMovement = function itemMovementPlugin(options = {}) {
+// @ts-nocheck
+export default function ItemMovementPlugin(options = {}) {
   const defaultOptions = {
     moveable: true,
     resizeable: true,
@@ -15,6 +16,7 @@ export const itemMovement = function itemMovementPlugin(options = {}) {
    * @param {Object} data
    */
   function itemAction(node, data) {
+    const content = node.querySelector('.gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content');
     if (!options.moveable && !options.resizeable) {
       return;
     }
@@ -36,10 +38,10 @@ export const itemMovement = function itemMovementPlugin(options = {}) {
         options.resizerContent
       }</div>`;
       // @ts-ignore
-      node.firstChild.insertAdjacentHTML('beforeend', resizerHTML);
+      content.insertAdjacentHTML('beforeend', resizerHTML);
     }
 
-    const el = node.firstChild;
+    const el = content;
     const labelEl = el.firstChild;
     const resizerEl = el.childNodes[1];
 
@@ -230,6 +232,4 @@ export const itemMovement = function itemMovementPlugin(options = {}) {
       return actions;
     });
   };
-};
-
-export default itemMovement;
+}

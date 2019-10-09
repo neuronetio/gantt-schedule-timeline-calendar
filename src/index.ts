@@ -1,5 +1,4 @@
 import publicApi, { getInternalApi } from './api/Api';
-import Core from './Core';
 import Main from './components/Main';
 
 const _internal = {
@@ -57,8 +56,9 @@ const GSTC = options => {
       _internal
     };
   });
-  const core = Core(state, api);
-  const app = core.createApp(Main, options.element);
+  // @ts-ignore
+  const vido = Vido(state, api);
+  const app = vido.createApp(Main, options.element);
   return { state };
 };
 

@@ -3,7 +3,6 @@ import commonjs from 'rollup-plugin-commonjs';
 import typescript from 'rollup-plugin-typescript';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
-import cjs from 'rollup-plugin-cjs-es';
 
 import stylusLib from 'stylus';
 import { readFileSync, writeFileSync } from 'fs';
@@ -42,6 +41,42 @@ const production = !process.env.ROLLUP_WATCH;
 
 export default [
   {
+    input: 'src/vido.ts',
+    output: {
+      sourcemap: true,
+      file: 'dist/vido.umd.js',
+      format: 'umd',
+      name: 'Vido'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+        //module: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] }),
+      production && terser()
+    ]
+  },
+  {
+    input: 'src/vido.ts',
+    output: {
+      sourcemap: true,
+      file: 'dist/vido.esm.js',
+      format: 'esm',
+      name: 'Vido'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+        //module: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] }),
+      production && terser()
+    ]
+  },
+  {
     input: 'src/index.ts',
     output: {
       sourcemap: true,
@@ -69,8 +104,6 @@ export default [
       file: 'dist/index.esm.js',
       format: 'esm'
     },
-    //context: 'null',
-    //moduleContext: 'null',
     plugins: [
       typescript({ target: 'es6' }),
       resolve({
@@ -78,6 +111,23 @@ export default [
         //module: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
+      production && terser()
+    ]
+  },
+  {
+    input: 'src/plugins/ItemMovement.plugin.js',
+    output: {
+      sourcemap: true,
+      file: 'dist/ItemMovement.plugin.js',
+      format: 'umd',
+      name: 'ItemMovement'
+    },
+    plugins: [
+      resolve({
+        browser: true
+        //module: true
+      }),
+      commonjs({ extensions: ['.js'] }),
       production && terser()
     ]
   },
