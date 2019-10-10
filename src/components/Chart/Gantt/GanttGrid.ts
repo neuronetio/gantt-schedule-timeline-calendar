@@ -1,9 +1,9 @@
 import GridRowComponent from './GanttGridRow';
 //import GridBlock from './GanttGridBlock.svelte';
-export default function GanttGrid(core) {
-  const { api, state, onDestroy, action, update, html, createComponent, repeat } = core;
+export default function GanttGrid(vido) {
+  const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
   const componentName = 'chart-gantt-grid';
-  const componentAction = api.getAction(componentName);
+  const componentActions = api.getActions(componentName);
   let className;
   onDestroy(
     state.subscribe('config.classNames', () => {
@@ -56,7 +56,7 @@ export default function GanttGrid(core) {
   });
 
   return props => html`
-    <div class=${className} data-action=${action(componentAction, { api, state })} style=${style}>
+    <div class=${className} data-actions=${actions(componentActions, { api, state })} style=${style}>
       ${rowsComponents.map(r => r.component.html())}
     </div>
   `;

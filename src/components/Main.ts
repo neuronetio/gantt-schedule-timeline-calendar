@@ -1,8 +1,8 @@
 import ListComponent from './List/List';
 import ChartComponent from './Chart/Chart';
 
-export default function Main(core) {
-  const { api, state, onDestroy, action, update, createComponent, html } = core;
+export default function Main(vido) {
+  const { api, state, onDestroy, actions, update, createComponent, html } = vido;
   const componentName = api.name;
 
   const List = createComponent(ListComponent);
@@ -10,9 +10,8 @@ export default function Main(core) {
   const Chart = createComponent(ChartComponent);
   onDestroy(Chart.destroy);
 
-  let pluginsPath = 'config.plugins';
   onDestroy(
-    state.subscribe(pluginsPath, plugins => {
+    state.subscribe('config.plugins', plugins => {
       if (typeof plugins !== 'undefined' && Array.isArray(plugins)) {
         for (const plugin of plugins) {
           plugin(state, api);
@@ -21,7 +20,7 @@ export default function Main(core) {
     })
   );
 
-  const componentAction = api.getAction('');
+  const componentActions = api.getActions('');
   let className, classNameVerticalScroll, style, styleVerticalScroll, styleVerticalScrollArea;
   let verticalScrollBarElement;
   let expandedHeight = 0;
@@ -226,34 +225,40 @@ export default function Main(core) {
   };
 
   const dimensions = { width: 0, height: 0 };
-  function mainAction(element) {
-    if (dimensions.width === 0) {
-      const width = element.clientWidth;
-      const height = element.clientHeight;
-      if (dimensions.width !== width || dimensions.height !== height) {
-        dimensions.width = width;
-        dimensions.height = height;
-        state.update('_internal.dimensions', dimensions);
+
+  componentActions.push({
+    create(element) {
+      state.update('_internal.elements.Main', element);
+      if (dimensions.width === 0) {
+        const width = element.clientWidth;
+        const height = element.clientHeight;
+        if (dimensions.width !== width || dimensions.height !== height) {
+          dimensions.width = width;
+          dimensions.height = height;
+          state.update('_internal.dimensions', dimensions);
+        }
       }
     }
-    if (typeof action === 'function') {
-      componentAction(element, { state, api });
-    }
-  }
+  });
 
-  function bindElement(element) {
-    verticalScrollBarElement = element;
-  }
+  const bindScrollElement = [
+    {
+      create(element) {
+        verticalScrollBarElement = element;
+        state.update('_internal.elements.verticalScroll', element);
+      }
+    }
+  ];
 
   return props =>
     html`
-      <div class=${className} @scroll=${onScroll} data-action=${action(mainAction)}>
+      <div class=${className} style=${style} @scroll=${onScroll} data-actions=${actions(componentActions)}>
         ${List.html()} ${Chart.html()}
         <div
           class=${classNameVerticalScroll}
           style=${styleVerticalScroll}
           @scroll=${onScroll}
-          data-action=${action(bindElement)}
+          data-action=${actions(bindScrollElement)}
         >
           <div style=${styleVerticalScrollArea} />
         </div>

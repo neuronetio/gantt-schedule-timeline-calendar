@@ -1,6 +1,6 @@
 import RowItemComponent from './GanttItemsRowItem';
-export default function GanttItemsRow({ rowId }, core) {
-  const { api, state, onDestroy, action, update, html, createComponent, repeat } = core;
+export default function GanttItemsRow({ rowId }, vido) {
+  const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
   let rowPath = `_internal.flatTreeMapById.${rowId}`;
   let row, element, style, styleInner;
   onDestroy(
@@ -36,7 +36,7 @@ export default function GanttItemsRow({ rowId }, core) {
 
   const componentName = 'chart-gantt-items-row';
   const componentNameInner = componentName + '-inner';
-  const componentAction = api.getAction(componentName, { row });
+  const componentActions = api.getActions(componentName);
   let className, classNameInner;
   onDestroy(
     state.subscribe('config.classNames', () => {
@@ -46,15 +46,8 @@ export default function GanttItemsRow({ rowId }, core) {
     })
   );
 
-  function mainAction(el) {
-    element = el;
-    if (typeof componentAction === 'function') {
-      componentAction({ row, api, state });
-    }
-  }
-
   return props => html`
-    <div class=${className} data-action=${action(mainAction)} style=${style}>
+    <div class=${className} data-actions=${actions(componentActions)} style=${style}>
       <div class=${classNameInner} style=${styleInner}>
         ${repeat(itemComponents, i => i.id, i => i.component.html())}
       </div>

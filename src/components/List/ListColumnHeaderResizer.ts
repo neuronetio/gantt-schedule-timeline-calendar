@@ -1,8 +1,8 @@
-export default function ListColumnHeaderResizer({ columnId }, core) {
-  const { api, state, onDestroy, update, html, action } = core;
+export default function ListColumnHeaderResizer({ columnId }, vido) {
+  const { api, state, onDestroy, update, html, actions } = vido;
 
   const componentName = 'list-column-header-resizer';
-  const componentAction = api.getAction(componentName);
+  const componentActions = api.getActions(componentName);
 
   let column;
   onDestroy(
@@ -95,7 +95,7 @@ export default function ListColumnHeaderResizer({ columnId }, core) {
   onDestroy(() => document.body.removeEventListener('mouseup', onMouseUp));
 
   return props => html`
-    <div class=${className} data-action=${action(componentAction, { column, api, state })}>
+    <div class=${className} data-actions=${actions(componentActions, { column, api, state })}>
       <div class=${containerClass}>
         ${column.header.html
           ? html`

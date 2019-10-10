@@ -10,7 +10,7 @@ import { styleMap } from 'lit-html/directives/style-map';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import { until } from 'lit-html/directives/until';
 
-export default function Core(state, api) {
+export default function Vido(state, api) {
   let componentId = 0;
   const components = {};
   let actions = [];
@@ -20,7 +20,7 @@ export default function Core(state, api) {
   let shouldUpdateCount = 0;
   const resolved = Promise.resolve();
 
-  const core = {
+  const vido = {
     state,
     api,
     html,
@@ -36,10 +36,12 @@ export default function Core(state, api) {
     styleMap,
     unsafeHTML,
     until,
-    action: directive(function action(fn, props) {
+    actions: directive(function actionsDirective(componentActions, props) {
       return function partial(part) {
-        if (typeof fn === 'function') {
-          actions.push({ fn, element: part.committer.element, props });
+        if (typeof componentActions !== 'undefined') {
+          for (const componentAction of componentActions) {
+            actions.push({ componentAction, element: part.committer.element, props });
+          }
         }
       };
     }),
@@ -47,20 +49,19 @@ export default function Core(state, api) {
     createComponent(component, props) {
       const instance = componentId++;
       const componentInstance = getComponentInstance(instance);
-      let oneTimeUpdate;
       function update() {
-        core.updateTemplate();
+        vido.updateTemplate();
       }
       const destroyable = [];
       function onDestroy(fn) {
         destroyable.push(fn);
       }
-      const instanceCore = { ...core, update, onDestroy, instance };
+      const instancevido = { ...vido, update, onDestroy, instance };
       let firstMethods, methods;
       if (props) {
-        firstMethods = component(props, instanceCore);
+        firstMethods = component(props, instancevido);
       } else {
-        firstMethods = component(instanceCore);
+        firstMethods = component(instancevido);
       }
       if (typeof firstMethods === 'function') {
         const destroy = () => {
@@ -109,7 +110,16 @@ export default function Core(state, api) {
     render() {
       render(components[app].update(), element);
       for (const action of actions) {
-        action.fn(action.element, action.props);
+        if (typeof action.element._vido === 'undefined') {
+          if (typeof action.componentAction.create === 'function') {
+            action.componentAction.create(action.element, action.props);
+          }
+          action.element._vido = true;
+        } else {
+          if (typeof action.componentAction.update === 'function') {
+            action.componentAction.update(action.element, action.props);
+          }
+        }
       }
       actions = [];
     }
@@ -119,10 +129,10 @@ export default function Core(state, api) {
     return {
       instance,
       destroy() {
-        return core.destroyComponent(instance);
+        return vido.destroyComponent(instance);
       },
       update() {
-        return core.updateTemplate();
+        return vido.updateTemplate();
       },
 
       html(props = {}) {
@@ -131,5 +141,5 @@ export default function Core(state, api) {
     };
   }
 
-  return core;
+  return vido;
 }

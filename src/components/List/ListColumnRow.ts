@@ -1,6 +1,6 @@
 import ListExpander from './ListExpander';
-export default function ListColumnRow({ rowId, columnId }, core) {
-  const { api, state, onDestroy, action, update, html, createComponent } = core;
+export default function ListColumnRow({ rowId, columnId }, vido) {
+  const { api, state, onDestroy, actions, update, html, createComponent } = vido;
 
   let row,
     rowPath = `config.list.rows.${rowId}`;
@@ -23,7 +23,7 @@ export default function ListColumnRow({ rowId, columnId }, core) {
   );
 
   const componentName = 'list-column-row';
-  const componentAction = api.getAction(componentName);
+  const componentActions = api.getActions(componentName);
   let className;
   onDestroy(
     state.subscribe('config.classNames', value => {
@@ -54,7 +54,7 @@ export default function ListColumnRow({ rowId, columnId }, core) {
     <div
       class=${className}
       style=${style}
-      data-action=${action(componentAction, {
+      data-actions=${actions(componentActions, {
         column,
         row,
         api,

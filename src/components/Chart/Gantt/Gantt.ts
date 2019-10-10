@@ -1,9 +1,9 @@
 import GridComponent from './GanttGrid';
 import ItemsComponent from './GanttItems';
-export default function Gantt(core) {
-  const { api, state, onDestroy, action, update, html, createComponent } = core;
+export default function Gantt(vido) {
+  const { api, state, onDestroy, actions, update, html, createComponent } = vido;
   const componentName = 'chart-gantt';
-  const componentAction = api.getAction(componentName);
+  const componentActions = api.getActions(componentName);
 
   const Grid = createComponent(GridComponent);
   onDestroy(Grid.destroy);
@@ -29,15 +29,14 @@ export default function Gantt(core) {
     })
   );
 
-  function mainAction(element) {
-    state.update('_internal.elements.Gantt', element);
-    if (typeof componentAction === 'function') {
-      componentAction({ api, state });
+  componentActions.push({
+    create(element) {
+      state.update('_internal.elements.Gantt', element);
     }
-  }
+  });
 
   return props => html`
-    <div class=${className} style=${style} data-action=${action(mainAction)} @wheel=${api.onScroll}>
+    <div class=${className} style=${style} data-actions=${actions(componentActions)} @wheel=${api.onScroll}>
       <div class=${classNameInner} style=${styleInner}>
         ${Grid.html()}${Items.html()}
       </div>

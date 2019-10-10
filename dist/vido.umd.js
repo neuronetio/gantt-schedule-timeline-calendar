@@ -66,6 +66,7 @@
     const isDirective = (o) => {
         return typeof o === 'function' && directives.has(o);
     };
+    //# sourceMappingURL=directive.js.map
 
     /**
      * @license
@@ -109,6 +110,7 @@
             start = n;
         }
     };
+    //# sourceMappingURL=dom.js.map
 
     /**
      * @license
@@ -132,6 +134,7 @@
      * A sentinel value that signals a NodePart to fully clear its content.
      */
     const nothing = {};
+    //# sourceMappingURL=part.js.map
 
     /**
      * @license
@@ -345,6 +348,7 @@
      *    * (') then any non-(')
      */
     const lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
+    //# sourceMappingURL=template.js.map
 
     /**
      * @license
@@ -477,6 +481,7 @@
             return fragment;
         }
     }
+    //# sourceMappingURL=template-instance.js.map
 
     /**
      * @license
@@ -585,6 +590,7 @@
             return template;
         }
     }
+    //# sourceMappingURL=template-result.js.map
 
     /**
      * @license
@@ -1024,6 +1030,7 @@
         (eventOptionsSupported ?
             { capture: o.capture, passive: o.passive, once: o.once } :
             o.capture);
+    //# sourceMappingURL=parts.js.map
 
     /**
      * @license
@@ -1075,6 +1082,7 @@
         }
     }
     const defaultTemplateProcessor = new DefaultTemplateProcessor();
+    //# sourceMappingURL=default-template-processor.js.map
 
     /**
      * @license
@@ -1122,6 +1130,7 @@
         return template;
     }
     const templateCaches = new Map();
+    //# sourceMappingURL=template-factory.js.map
 
     /**
      * @license
@@ -1162,6 +1171,7 @@
         part.setValue(result);
         part.commit();
     };
+    //# sourceMappingURL=render.js.map
 
     /**
      * @license
@@ -1190,6 +1200,7 @@
      * render to and update a container.
      */
     const svg = (strings, ...values) => new SVGTemplateResult(strings, values, 'svg', defaultTemplateProcessor);
+    //# sourceMappingURL=lit-html.js.map
 
     /**
      * @license
@@ -1265,6 +1276,7 @@
         }
         part.setValue(value);
     });
+    //# sourceMappingURL=cache.js.map
 
     /**
      * @license
@@ -1326,6 +1338,7 @@
         }
         classMapCache.set(part, classInfo);
     });
+    //# sourceMappingURL=class-map.js.map
 
     /**
      * @license
@@ -1394,6 +1407,7 @@
         // what the previous values were.
         previousValues.set(part, Array.isArray(value) ? Array.from(value) : value);
     });
+    //# sourceMappingURL=guard.js.map
 
     /**
      * @license
@@ -1425,6 +1439,7 @@
             part.setValue(value);
         }
     });
+    //# sourceMappingURL=if-defined.js.map
 
     /**
      * @license
@@ -1839,6 +1854,7 @@
             keyListCache.set(containerPart, newKeys);
         };
     });
+    //# sourceMappingURL=repeat.js.map
 
     /**
      * @license
@@ -1912,6 +1928,7 @@
         }
         styleMapCache.set(part, styleInfo);
     });
+    //# sourceMappingURL=style-map.js.map
 
     /**
      * @license
@@ -1954,6 +1971,7 @@
         part.setValue(fragment);
         previousValues$1.set(part, { value, fragment });
     });
+    //# sourceMappingURL=unsafe-html.js.map
 
     /**
      * @license
@@ -2038,15 +2056,16 @@
             });
         }
     });
+    //# sourceMappingURL=until.js.map
 
-    function Core(state, api) {
+    function Vido(state, api) {
         let componentId = 0;
         const components = {};
         let actions = [];
         let app, element;
         let shouldUpdateCount = 0;
         const resolved = Promise.resolve();
-        const core = {
+        const vido = {
             state,
             api,
             html,
@@ -2062,10 +2081,12 @@
             styleMap,
             unsafeHTML,
             until,
-            action: directive(function action(fn, props) {
+            actions: directive(function actionsDirective(componentActions, props) {
                 return function partial(part) {
-                    if (typeof fn === 'function') {
-                        actions.push({ fn, element: part.committer.element, props });
+                    if (typeof componentActions !== 'undefined') {
+                        for (const componentAction of componentActions) {
+                            actions.push({ componentAction, element: part.committer.element, props });
+                        }
                     }
                 };
             }),
@@ -2073,19 +2094,19 @@
                 const instance = componentId++;
                 const componentInstance = getComponentInstance(instance);
                 function update() {
-                    core.updateTemplate();
+                    vido.updateTemplate();
                 }
                 const destroyable = [];
                 function onDestroy(fn) {
                     destroyable.push(fn);
                 }
-                const instanceCore = Object.assign(Object.assign({}, core), { update, onDestroy, instance });
+                const instancevido = Object.assign(Object.assign({}, vido), { update, onDestroy, instance });
                 let firstMethods, methods;
                 if (props) {
-                    firstMethods = component(props, instanceCore);
+                    firstMethods = component(props, instancevido);
                 }
                 else {
-                    firstMethods = component(instanceCore);
+                    firstMethods = component(instancevido);
                 }
                 if (typeof firstMethods === 'function') {
                     const destroy = () => {
@@ -2131,7 +2152,17 @@
             render() {
                 render(components[app].update(), element);
                 for (const action of actions) {
-                    action.fn(action.element, action.props);
+                    if (typeof action.element._vido === 'undefined') {
+                        if (typeof action.componentAction.create === 'function') {
+                            action.componentAction.create(action.element, action.props);
+                        }
+                        action.element._vido = true;
+                    }
+                    else {
+                        if (typeof action.componentAction.update === 'function') {
+                            action.componentAction.update(action.element, action.props);
+                        }
+                    }
                 }
                 actions = [];
             }
@@ -2140,20 +2171,20 @@
             return {
                 instance,
                 destroy() {
-                    return core.destroyComponent(instance);
+                    return vido.destroyComponent(instance);
                 },
                 update() {
-                    return core.updateTemplate();
+                    return vido.updateTemplate();
                 },
                 html(props = {}) {
                     return components[instance].update(props);
                 }
             };
         }
-        return core;
+        return vido;
     }
 
-    return Core;
+    return Vido;
 
 }));
 //# sourceMappingURL=vido.umd.js.map

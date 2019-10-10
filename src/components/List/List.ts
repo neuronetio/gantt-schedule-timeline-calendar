@@ -1,9 +1,9 @@
 import ListColumnComponent from './ListColumn';
-export default function List(core) {
-  const { api, state, onDestroy, action, update, createComponent, html, repeat } = core;
+export default function List(vido) {
+  const { api, state, onDestroy, actions, update, createComponent, html, repeat } = vido;
 
   const componentName = 'list';
-  const componentAction = api.getAction(componentName);
+  const componentActions = api.getActions(componentName);
   let className;
 
   let list, percent;
@@ -63,7 +63,7 @@ export default function List(core) {
   }
 
   let width;
-  function mainAction(element) {
+  function getWidth(element) {
     if (!width) {
       width = element.clientWidth;
       if (percent === 0) {
@@ -72,17 +72,19 @@ export default function List(core) {
       state.update('_internal.list.width', width);
       state.update('_internal.elements.List', element);
     }
-    if (typeof action === 'function') {
-      componentAction(element, { list, columns, state, api });
-    }
   }
+
+  componentActions.push({
+    create: getWidth,
+    update: getWidth
+  });
 
   return props =>
     list.columns.percent > 0
       ? html`
           <div
             class=${className}
-            data-action=${action(mainAction)}
+            data-actions=${actions(componentActions)}
             style=${style}
             @scroll=${onScroll}
             @wheel=${onScroll}

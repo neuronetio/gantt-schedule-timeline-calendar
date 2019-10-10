@@ -60,6 +60,7 @@ const directive = (f) => ((...args) => {
 const isDirective = (o) => {
     return typeof o === 'function' && directives.has(o);
 };
+//# sourceMappingURL=directive.js.map
 
 /**
  * @license
@@ -103,6 +104,7 @@ const removeNodes = (container, start, end = null) => {
         start = n;
     }
 };
+//# sourceMappingURL=dom.js.map
 
 /**
  * @license
@@ -126,6 +128,7 @@ const noChange = {};
  * A sentinel value that signals a NodePart to fully clear its content.
  */
 const nothing = {};
+//# sourceMappingURL=part.js.map
 
 /**
  * @license
@@ -339,6 +342,7 @@ const createMarker = () => document.createComment('');
  *    * (') then any non-(')
  */
 const lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
+//# sourceMappingURL=template.js.map
 
 /**
  * @license
@@ -471,6 +475,7 @@ class TemplateInstance {
         return fragment;
     }
 }
+//# sourceMappingURL=template-instance.js.map
 
 /**
  * @license
@@ -579,6 +584,7 @@ class SVGTemplateResult extends TemplateResult {
         return template;
     }
 }
+//# sourceMappingURL=template-result.js.map
 
 /**
  * @license
@@ -1018,6 +1024,7 @@ const getOptions = (o) => o &&
     (eventOptionsSupported ?
         { capture: o.capture, passive: o.passive, once: o.once } :
         o.capture);
+//# sourceMappingURL=parts.js.map
 
 /**
  * @license
@@ -1069,6 +1076,7 @@ class DefaultTemplateProcessor {
     }
 }
 const defaultTemplateProcessor = new DefaultTemplateProcessor();
+//# sourceMappingURL=default-template-processor.js.map
 
 /**
  * @license
@@ -1116,6 +1124,7 @@ function templateFactory(result) {
     return template;
 }
 const templateCaches = new Map();
+//# sourceMappingURL=template-factory.js.map
 
 /**
  * @license
@@ -1156,6 +1165,7 @@ const render = (result, container, options) => {
     part.setValue(result);
     part.commit();
 };
+//# sourceMappingURL=render.js.map
 
 /**
  * @license
@@ -1184,6 +1194,7 @@ const html = (strings, ...values) => new TemplateResult(strings, values, 'html',
  * render to and update a container.
  */
 const svg = (strings, ...values) => new SVGTemplateResult(strings, values, 'svg', defaultTemplateProcessor);
+//# sourceMappingURL=lit-html.js.map
 
 /**
  * @license
@@ -1259,6 +1270,7 @@ const cache = directive((value) => (part) => {
     }
     part.setValue(value);
 });
+//# sourceMappingURL=cache.js.map
 
 /**
  * @license
@@ -1320,6 +1332,7 @@ const classMap = directive((classInfo) => (part) => {
     }
     classMapCache.set(part, classInfo);
 });
+//# sourceMappingURL=class-map.js.map
 
 /**
  * @license
@@ -1388,6 +1401,7 @@ const guard = directive((value, f) => (part) => {
     // what the previous values were.
     previousValues.set(part, Array.isArray(value) ? Array.from(value) : value);
 });
+//# sourceMappingURL=guard.js.map
 
 /**
  * @license
@@ -1419,6 +1433,7 @@ const ifDefined = directive((value) => (part) => {
         part.setValue(value);
     }
 });
+//# sourceMappingURL=if-defined.js.map
 
 /**
  * @license
@@ -1833,6 +1848,7 @@ const repeat = directive((items, keyFnOrTemplate, template) => {
         keyListCache.set(containerPart, newKeys);
     };
 });
+//# sourceMappingURL=repeat.js.map
 
 /**
  * @license
@@ -1906,6 +1922,7 @@ const styleMap = directive((styleInfo) => (part) => {
     }
     styleMapCache.set(part, styleInfo);
 });
+//# sourceMappingURL=style-map.js.map
 
 /**
  * @license
@@ -1948,6 +1965,7 @@ const unsafeHTML = directive((value) => (part) => {
     part.setValue(fragment);
     previousValues$1.set(part, { value, fragment });
 });
+//# sourceMappingURL=unsafe-html.js.map
 
 /**
  * @license
@@ -2032,15 +2050,16 @@ const until = directive((...args) => (part) => {
         });
     }
 });
+//# sourceMappingURL=until.js.map
 
-function Core(state, api) {
+function Vido(state, api) {
     let componentId = 0;
     const components = {};
     let actions = [];
     let app, element;
     let shouldUpdateCount = 0;
     const resolved = Promise.resolve();
-    const core = {
+    const vido = {
         state,
         api,
         html,
@@ -2056,10 +2075,12 @@ function Core(state, api) {
         styleMap,
         unsafeHTML,
         until,
-        action: directive(function action(fn, props) {
+        actions: directive(function actionsDirective(componentActions, props) {
             return function partial(part) {
-                if (typeof fn === 'function') {
-                    actions.push({ fn, element: part.committer.element, props });
+                if (typeof componentActions !== 'undefined') {
+                    for (const componentAction of componentActions) {
+                        actions.push({ componentAction, element: part.committer.element, props });
+                    }
                 }
             };
         }),
@@ -2067,19 +2088,19 @@ function Core(state, api) {
             const instance = componentId++;
             const componentInstance = getComponentInstance(instance);
             function update() {
-                core.updateTemplate();
+                vido.updateTemplate();
             }
             const destroyable = [];
             function onDestroy(fn) {
                 destroyable.push(fn);
             }
-            const instanceCore = Object.assign(Object.assign({}, core), { update, onDestroy, instance });
+            const instancevido = Object.assign(Object.assign({}, vido), { update, onDestroy, instance });
             let firstMethods, methods;
             if (props) {
-                firstMethods = component(props, instanceCore);
+                firstMethods = component(props, instancevido);
             }
             else {
-                firstMethods = component(instanceCore);
+                firstMethods = component(instancevido);
             }
             if (typeof firstMethods === 'function') {
                 const destroy = () => {
@@ -2125,7 +2146,17 @@ function Core(state, api) {
         render() {
             render(components[app].update(), element);
             for (const action of actions) {
-                action.fn(action.element, action.props);
+                if (typeof action.element._vido === 'undefined') {
+                    if (typeof action.componentAction.create === 'function') {
+                        action.componentAction.create(action.element, action.props);
+                    }
+                    action.element._vido = true;
+                }
+                else {
+                    if (typeof action.componentAction.update === 'function') {
+                        action.componentAction.update(action.element, action.props);
+                    }
+                }
             }
             actions = [];
         }
@@ -2134,18 +2165,18 @@ function Core(state, api) {
         return {
             instance,
             destroy() {
-                return core.destroyComponent(instance);
+                return vido.destroyComponent(instance);
             },
             update() {
-                return core.updateTemplate();
+                return vido.updateTemplate();
             },
             html(props = {}) {
                 return components[instance].update(props);
             }
         };
     }
-    return core;
+    return vido;
 }
 
-export default Core;
+export default Vido;
 //# sourceMappingURL=vido.esm.js.map

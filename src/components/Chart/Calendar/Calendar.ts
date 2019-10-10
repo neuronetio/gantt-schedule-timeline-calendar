@@ -1,9 +1,9 @@
 import DateComponent from './CalendarDate';
 
-export default function Calendar(core) {
-  const { api, state, onDestroy, action, update, createComponent, html, repeat } = core;
+export default function Calendar(vido) {
+  const { api, state, onDestroy, actions, update, createComponent, html, repeat } = vido;
   const componentName = 'chart-calendar';
-  const componentAction = api.getAction(componentName);
+  const componentActions = api.getActions(componentName);
 
   let className;
   onDestroy(
@@ -40,15 +40,14 @@ export default function Calendar(core) {
     datesComponents.forEach(date => date.component.destroy());
   });
 
-  function mainAction(element) {
-    state.update('_internal.elements.Calendar', element);
-    if (typeof componentAction === 'function') {
-      componentAction({ api, state });
+  componentActions.push({
+    create(element) {
+      state.update('_internal.elements.Calendar', element);
     }
-  }
+  });
 
   return props => html`
-    <div class=${className} data-action=${action(mainAction)} style=${style}>
+    <div class=${className} data-actions=${actions(componentActions)} style=${style}>
       ${repeat(datesComponents, d => d.id, d => d.component.html())}
     </div>
   `;

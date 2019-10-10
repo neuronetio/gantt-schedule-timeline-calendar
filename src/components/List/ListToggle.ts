@@ -1,6 +1,9 @@
-export default function ListToggle(props, { api, state, onDestroy, action, update, html, unsafeHTML }) {
+export default function ListToggle(props, vido) {
+  const { api, state, onDestroy, actions, update, html, unsafeHTML } = vido;
   const componentName = 'list-expander-toggle';
-  let className, componentAction, style;
+
+  const componentActions = api.getActions(componentName);
+  let className, style;
   let classNameOpen, classNameClosed;
   let expanded = false;
   let iconOpen, iconClosed;
@@ -15,7 +18,7 @@ export default function ListToggle(props, { api, state, onDestroy, action, updat
         classNameOpen = api.getClass(componentName + '-open');
         classNameClosed = api.getClass(componentName + '-closed');
       }
-      componentAction = api.getAction(componentName);
+
       update();
     })
   );
@@ -75,7 +78,7 @@ export default function ListToggle(props, { api, state, onDestroy, action, updat
   return () => html`
     <div
       class=${className}
-      data-action=${action(componentAction, { row: props.row, api, state })}
+      data-actions=${actions(componentActions, { row: props.row, api, state })}
       style=${style}
       @click=${toggle}
     >

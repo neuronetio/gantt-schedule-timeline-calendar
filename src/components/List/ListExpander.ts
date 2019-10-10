@@ -1,7 +1,8 @@
 import ListToggle from './ListToggle';
-export default function ListExpander(props, { api, state, onDestroy, action, update, html, createComponent }) {
+export default function ListExpander(props, vido) {
+  const { api, state, onDestroy, actions, update, html, createComponent } = vido;
   const componentName = 'list-expander';
-  const componentAction = api.getAction(componentName);
+  const componentActions = api.getActions(componentName);
   let className,
     padding,
     width,
@@ -45,7 +46,7 @@ export default function ListExpander(props, { api, state, onDestroy, action, upd
   onDestroy(listToggle.destroy);
 
   return () => html`
-    <div class=${className} data-action=${action(componentAction, { row: props.row, api, state })}>
+    <div class=${className} data-action=${actions(componentActions, { row: props.row, api, state })}>
       <div class=${paddingClass} style=${width}></div>
       ${children.length || !props.row ? listToggle.html() : ''}
     </div>

@@ -1,11 +1,11 @@
 import ListColumnHeaderResizerComponent from './ListColumnHeaderResizer';
 import ListExpander from './ListExpander';
 
-export default function ListColumnHeader({ columnId }, core) {
-  const { api, state, onDestroy, action, update, createComponent, html } = core;
+export default function ListColumnHeader({ columnId }, vido) {
+  const { api, state, onDestroy, actions, update, createComponent, html } = vido;
 
   const componentName = 'list-column-header';
-  const componentAction = api.getAction(componentName);
+  const componentActions = api.getActions(componentName);
 
   let column;
   onDestroy(
@@ -51,7 +51,7 @@ export default function ListColumnHeader({ columnId }, core) {
 
   return function() {
     return html`
-      <div class=${className} style=${style} data-action=${action(componentAction, { column, api, state })}>
+      <div class=${className} style=${style} data-actions=${actions(componentActions, { column, api, state })}>
         ${typeof column.expander === 'boolean' && column.expander ? withExpander() : withoutExpander()}
       </div>
     `;

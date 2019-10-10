@@ -1,8 +1,8 @@
 import ItemsRowComponent from './GanttItemsRow';
-export default function GnattItems(core) {
-  const { api, state, onDestroy, action, update, html, createComponent, repeat } = core;
+export default function GnattItems(vido) {
+  const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
   const componentName = 'chart-gantt-items';
-  const componentAction = api.getAction(componentName);
+  const componentActions = api.getActions(componentName);
   let className;
   onDestroy(
     state.subscribe('config.classNames', () => {
@@ -30,7 +30,7 @@ export default function GnattItems(core) {
   });
 
   return props => html`
-    <div class=${className} data-action=${action(componentAction, { api, state })}>
+    <div class=${className} data-actions=${actions(componentActions, { api, state })}>
       ${rowsComponents.map(r => r.component.html())}
     </div>
   `;

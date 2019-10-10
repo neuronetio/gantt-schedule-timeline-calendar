@@ -1,8 +1,8 @@
 import CalendarComponent from './Calendar/Calendar';
 import GanttComponent from './Gantt/Gantt';
 
-export default function Chart(core) {
-  const { api, state, onDestroy, action, update, html, createComponent } = core;
+export default function Chart(vido) {
+  const { api, state, onDestroy, actions, update, html, createComponent } = vido;
   const componentName = 'chart';
 
   const Calendar = createComponent(CalendarComponent);
@@ -16,7 +16,7 @@ export default function Chart(core) {
     scrollElement,
     styleScroll = '',
     styleScrollInner = '',
-    componentAction = api.getAction(componentName);
+    componentActions = api.getActions(componentName);
 
   onDestroy(
     state.subscribe('config.classNames', value => {
@@ -72,14 +72,19 @@ export default function Chart(core) {
     passive: true
   };
 
-  function bindElement(element) {
-    scrollElement = element;
-  }
+  const bindElement = [
+    {
+      create(element) {
+        scrollElement = element;
+        state.update('_internal.elements.horizontalScroll', element);
+      }
+    }
+  ];
 
   return props => html`
-    <div class=${className} data-action=${action(componentAction, { api, state })} @wheel=${onScroll}>
+    <div class=${className} data-actions=${actions(componentActions, { api, state })} @wheel=${onScroll}>
       ${Calendar.html()}${Gantt.html()}
-      <div class=${classNameScroll} style=${styleScroll} data-action=${action(bindElement)} @scroll=${onScroll}>
+      <div class=${classNameScroll} style=${styleScroll} data-actions=${actions(bindElement)} @scroll=${onScroll}>
         <div class=${classNameScrollInner} style=${styleScrollInner} />
       </div>
     </div>

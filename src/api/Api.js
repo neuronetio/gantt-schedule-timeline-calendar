@@ -147,38 +147,15 @@ export function getInternalApi(state) {
       return className.trim();
     },
 
-    actionsExecutor(node, data) {
-      const name = this.name;
-      const actionResults = [];
-      for (const action of $state.config.actions[name]) {
-        actionResults.push(action(node, data));
-      }
-      return {
-        update(data) {
-          for (const result of actionResults) {
-            if (result && typeof result.update === 'function') {
-              result.update(data);
-            }
-          }
-        },
-        destroy() {
-          for (const result of actionResults) {
-            if (result && typeof result.destroy === 'function') {
-              result.destroy();
-            }
-          }
-        }
-      };
-    },
-
     allActions: [],
 
-    getAction(name) {
+    getActions(name) {
       if (!this.allActions.includes(name)) this.allActions.push(name);
-      if (typeof $state.config.actions[name] === 'undefined') {
-        return () => {};
+      let actions = state.get('config.actions.' + name);
+      if (typeof actions === 'undefined') {
+        actions = [];
       }
-      return this.actionsExecutor.bind({ name });
+      return actions;
     },
 
     isItemInViewport(item, left, right) {

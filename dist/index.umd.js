@@ -1081,38 +1081,15 @@
         return className.trim();
       },
 
-      actionsExecutor(node, data) {
-        const name = this.name;
-        const actionResults = [];
-        for (const action of $state.config.actions[name]) {
-          actionResults.push(action(node, data));
-        }
-        return {
-          update(data) {
-            for (const result of actionResults) {
-              if (result && typeof result.update === 'function') {
-                result.update(data);
-              }
-            }
-          },
-          destroy() {
-            for (const result of actionResults) {
-              if (result && typeof result.destroy === 'function') {
-                result.destroy();
-              }
-            }
-          }
-        };
-      },
-
       allActions: [],
 
-      getAction(name) {
+      getActions(name) {
         if (!this.allActions.includes(name)) this.allActions.push(name);
-        if (typeof $state.config.actions[name] === 'undefined') {
-          return () => {};
+        let actions = state.get('config.actions.' + name);
+        if (typeof actions === 'undefined') {
+          actions = [];
         }
-        return this.actionsExecutor.bind({ name });
+        return actions;
       },
 
       isItemInViewport(item, left, right) {
@@ -1349,9 +1326,11 @@
     return api;
   }
 
-  function ListToggle(props, { api, state, onDestroy, action, update, html, unsafeHTML }) {
+  function ListToggle(props, vido) {
+      const { api, state, onDestroy, actions, update, html, unsafeHTML } = vido;
       const componentName = 'list-expander-toggle';
-      let className, componentAction, style;
+      const componentActions = api.getActions(componentName);
+      let className, style;
       let classNameOpen, classNameClosed;
       let expanded = false;
       let iconOpen, iconClosed;
@@ -1366,7 +1345,6 @@
               classNameOpen = api.getClass(componentName + '-open');
               classNameClosed = api.getClass(componentName + '-closed');
           }
-          componentAction = api.getAction(componentName);
           update();
       }));
       onDestroy(state.subscribeAll(['config.list.expander.size', 'config.list.expander.icons'], () => {
@@ -1410,7 +1388,7 @@
       return () => html `
     <div
       class=${className}
-      data-action=${action(componentAction, { row: props.row, api, state })}
+      data-actions=${actions(componentActions, { row: props.row, api, state })}
       style=${style}
       @click=${toggle}
     >
@@ -1430,9 +1408,10 @@
   }
   //# sourceMappingURL=ListToggle.js.map
 
-  function ListExpander(props, { api, state, onDestroy, action, update, html, createComponent }) {
+  function ListExpander(props, vido) {
+      const { api, state, onDestroy, actions, update, html, createComponent } = vido;
       const componentName = 'list-expander';
-      const componentAction = api.getAction(componentName);
+      const componentActions = api.getActions(componentName);
       let className, padding, width, paddingClass, children = [];
       onDestroy(state.subscribe('config.classNames', value => {
           if (props.row) {
@@ -1464,7 +1443,7 @@
       const listToggle = createComponent(ListToggle, props.row ? { row: props.row } : {});
       onDestroy(listToggle.destroy);
       return () => html `
-    <div class=${className} data-action=${action(componentAction, { row: props.row, api, state })}>
+    <div class=${className} data-action=${actions(componentActions, { row: props.row, api, state })}>
       <div class=${paddingClass} style=${width}></div>
       ${children.length || !props.row ? listToggle.html() : ''}
     </div>
@@ -1472,8 +1451,8 @@
   }
   //# sourceMappingURL=ListExpander.js.map
 
-  function ListColumnRow({ rowId, columnId }, core) {
-      const { api, state, onDestroy, action, update, html, createComponent } = core;
+  function ListColumnRow({ rowId, columnId }, vido) {
+      const { api, state, onDestroy, actions, update, html, createComponent } = vido;
       let row, rowPath = `config.list.rows.${rowId}`;
       let style;
       onDestroy(state.subscribe(rowPath, value => {
@@ -1487,7 +1466,7 @@
           update();
       }));
       const componentName = 'list-column-row';
-      const componentAction = api.getAction(componentName);
+      const componentActions = api.getActions(componentName);
       let className;
       onDestroy(state.subscribe('config.classNames', value => {
           className = api.getClass(componentName, { row, column });
@@ -1513,7 +1492,7 @@
     <div
       class=${className}
       style=${style}
-      data-action=${action(componentAction, {
+      data-actions=${actions(componentActions, {
         column,
         row,
         api,
@@ -1527,10 +1506,10 @@
   }
   //# sourceMappingURL=ListColumnRow.js.map
 
-  function ListColumnHeaderResizer({ columnId }, core) {
-      const { api, state, onDestroy, update, html, action } = core;
+  function ListColumnHeaderResizer({ columnId }, vido) {
+      const { api, state, onDestroy, update, html, actions } = vido;
       const componentName = 'list-column-header-resizer';
-      const componentAction = api.getAction(componentName);
+      const componentActions = api.getActions(componentName);
       let column;
       onDestroy(state.subscribe(`config.list.columns.data.${columnId}`, val => {
           column = val;
@@ -1596,7 +1575,7 @@
       document.body.addEventListener('mouseup', onMouseUp);
       onDestroy(() => document.body.removeEventListener('mouseup', onMouseUp));
       return props => html `
-    <div class=${className} data-action=${action(componentAction, { column, api, state })}>
+    <div class=${className} data-actions=${actions(componentActions, { column, api, state })}>
       <div class=${containerClass}>
         ${column.header.html
         ? html `
@@ -1614,10 +1593,10 @@
   }
   //# sourceMappingURL=ListColumnHeaderResizer.js.map
 
-  function ListColumnHeader({ columnId }, core) {
-      const { api, state, onDestroy, action, update, createComponent, html } = core;
+  function ListColumnHeader({ columnId }, vido) {
+      const { api, state, onDestroy, actions, update, createComponent, html } = vido;
       const componentName = 'list-column-header';
-      const componentAction = api.getAction(componentName);
+      const componentActions = api.getActions(componentName);
       let column;
       onDestroy(state.subscribe(`config.list.columns.data.${columnId}`, val => {
           column = val;
@@ -1652,7 +1631,7 @@
       }
       return function () {
           return html `
-      <div class=${className} style=${style} data-action=${action(componentAction, { column, api, state })}>
+      <div class=${className} style=${style} data-actions=${actions(componentActions, { column, api, state })}>
         ${typeof column.expander === 'boolean' && column.expander ? withExpander() : withoutExpander()}
       </div>
     `;
@@ -1660,8 +1639,8 @@
   }
   //# sourceMappingURL=ListColumnHeader.js.map
 
-  function ListColumnComponent({ columnId }, core) {
-      const { api, state, onDestroy, action, update, createComponent, html, repeat } = core;
+  function ListColumnComponent({ columnId }, vido) {
+      const { api, state, onDestroy, actions, update, createComponent, html, repeat } = vido;
       let column, columnPath = `config.list.columns.data.${columnId}`;
       onDestroy(state.subscribe(columnPath, val => {
           column = val;
@@ -1669,8 +1648,8 @@
       }));
       const componentName = 'list-column';
       const rowsComponentName = componentName + '-rows';
-      const componentAction = api.getAction(componentName);
-      const rowsAction = api.getAction(rowsComponentName);
+      const componentActions = api.getActions(componentName);
+      const rowsActions = api.getActions(rowsComponentName);
       let className, classNameContainer, calculatedWidth, width, styleContainer;
       onDestroy(state.subscribe('config.classNames', value => {
           className = api.getClass(componentName, { column });
@@ -1704,9 +1683,13 @@
       const ListColumnHeader$1 = createComponent(ListColumnHeader, { columnId });
       onDestroy(ListColumnHeader$1.destroy);
       return props => html `
-    <div class=${className} data-action=${action(componentAction, { column, state: state, api: api })} style=${width}>
+    <div
+      class=${className}
+      data-actions=${actions(componentActions, { column, state: state, api: api })}
+      style=${width}
+    >
       ${ListColumnHeader$1.html()}
-      <div class=${classNameContainer} style=${styleContainer} data-action=${action(rowsAction, { api, state })}>
+      <div class=${classNameContainer} style=${styleContainer} data-actions=${actions(rowsActions, { api, state })}>
         ${visibleRows.map(row => row.component.html())}
       </div>
     </div>
@@ -1714,10 +1697,10 @@
   }
   //# sourceMappingURL=ListColumn.js.map
 
-  function List(core) {
-      const { api, state, onDestroy, action, update, createComponent, html, repeat } = core;
+  function List(vido) {
+      const { api, state, onDestroy, actions, update, createComponent, html, repeat } = vido;
       const componentName = 'list';
-      const componentAction = api.getAction(componentName);
+      const componentActions = api.getActions(componentName);
       let className;
       let list, percent;
       onDestroy(state.subscribe('config.list', () => {
@@ -1762,7 +1745,7 @@
           }
       }
       let width;
-      function mainAction(element) {
+      function getWidth(element) {
           if (!width) {
               width = element.clientWidth;
               if (percent === 0) {
@@ -1771,15 +1754,16 @@
               state.update('_internal.list.width', width);
               state.update('_internal.elements.List', element);
           }
-          if (typeof action === 'function') {
-              componentAction(element, { list, columns, state, api });
-          }
       }
+      componentActions.push({
+          create: getWidth,
+          update: getWidth
+      });
       return props => list.columns.percent > 0
           ? html `
           <div
             class=${className}
-            data-action=${action(mainAction)}
+            data-actions=${actions(componentActions)}
             style=${style}
             @scroll=${onScroll}
             @wheel=${onScroll}
@@ -1791,10 +1775,10 @@
   }
   //# sourceMappingURL=List.js.map
 
-  function CalendarDate({ date }, core) {
-      const { api, state, onDestroy, action, update, createComponent, html, repeat } = core;
+  function CalendarDate({ date }, vido) {
+      const { api, state, onDestroy, actions, update, html } = vido;
       const componentName = 'chart-calendar-date';
-      const componentAction = api.getAction(componentName);
+      const componentActions = api.getActions(componentName);
       let className, formattedClassName, formattedYearClassName, formattedMonthClassName, formattedDayClassName, formattedDayWordClassName;
       onDestroy(state.subscribe('config.classNames', () => {
           className = api.getClass(componentName, { date });
@@ -1832,7 +1816,7 @@
           update();
       }, { bulk: true }));
       return props => html `
-    <div class=${className} style=${style} data-action=${action(componentAction, { date, api, state })}>
+    <div class=${className} style=${style} data-actions=${actions(componentActions, { date, api, state })}>
       ${small
         ? html `
             <div class=${formattedClassName} style="transform: rotate(90deg);">${smallFormatted}</div>
@@ -1850,10 +1834,10 @@
   }
   //# sourceMappingURL=CalendarDate.js.map
 
-  function Calendar(core) {
-      const { api, state, onDestroy, action, update, createComponent, html, repeat } = core;
+  function Calendar(vido) {
+      const { api, state, onDestroy, actions, update, createComponent, html, repeat } = vido;
       const componentName = 'chart-calendar';
-      const componentAction = api.getAction(componentName);
+      const componentActions = api.getActions(componentName);
       let className;
       onDestroy(state.subscribe('config.classNames', value => {
           className = api.getClass(componentName);
@@ -1878,24 +1862,23 @@
       onDestroy(() => {
           datesComponents.forEach(date => date.component.destroy());
       });
-      function mainAction(element) {
-          state.update('_internal.elements.Calendar', element);
-          if (typeof componentAction === 'function') {
-              componentAction({ api, state });
+      componentActions.push({
+          create(element) {
+              state.update('_internal.elements.Calendar', element);
           }
-      }
+      });
       return props => html `
-    <div class=${className} data-action=${action(mainAction)} style=${style}>
+    <div class=${className} data-actions=${actions(componentActions)} style=${style}>
       ${repeat(datesComponents, d => d.id, d => d.component.html())}
     </div>
   `;
   }
   //# sourceMappingURL=Calendar.js.map
 
-  function GanttGridBlock({ row, time, top }, core) {
-      const { api, state, onDestroy, action, update, html } = core;
+  function GanttGridBlock({ row, time, top }, vido) {
+      const { api, state, onDestroy, actions, update, html } = vido;
       const componentName = 'chart-gantt-grid-block';
-      const componentAction = api.getAction(componentName, { row, time, top });
+      const componentActions = api.getActions(componentName, { row, time, top });
       let className = api.getClass(componentName, { row });
       onDestroy(state.subscribe('config.classNames', () => {
           className = api.getClass(componentName);
@@ -1903,15 +1886,19 @@
       }));
       let style = `width: ${time.width}px;height: 100%;margin-left:-${time.subPx}px`;
       return props => html `
-      <div class=${className} data-action=${action(componentAction, { row, time, top, api, state })} style=${style} />
+      <div
+        class=${className}
+        data-actions=${actions(componentActions, { row, time, top, api, state })}
+        style=${style}
+      />
     `;
   }
   //# sourceMappingURL=GanttGridBlock.js.map
 
-  function GanttGridRow({ row }, core) {
-      const { api, state, onDestroy, action, update, html, createComponent, repeat } = core;
+  function GanttGridRow({ row }, vido) {
+      const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
       const componentName = 'chart-gantt-grid-row';
-      const componentAction = api.getAction(componentName, { row });
+      const componentActions = api.getActions(componentName);
       let className;
       onDestroy(state.subscribe('config.classNames', value => {
           className = api.getClass(componentName, { row });
@@ -1929,7 +1916,7 @@
       });
       let style = `height: ${row.rowData.height}px;`;
       return props => html `
-    <div class=${className} data-action=${action(componentAction, { row, api, state })} style=${style}>
+    <div class=${className} data-actions=${actions(componentActions, { row, api, state })} style=${style}>
       ${rowsBlocksComponents.map(r => r.component.html())}
     </div>
   `;
@@ -1937,10 +1924,10 @@
   //# sourceMappingURL=GanttGridRow.js.map
 
   //import GridBlock from './GanttGridBlock.svelte';
-  function GanttGrid(core) {
-      const { api, state, onDestroy, action, update, html, createComponent, repeat } = core;
+  function GanttGrid(vido) {
+      const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
       const componentName = 'chart-gantt-grid';
-      const componentAction = api.getAction(componentName);
+      const componentActions = api.getActions(componentName);
       let className;
       onDestroy(state.subscribe('config.classNames', () => {
           className = api.getClass(componentName);
@@ -1978,15 +1965,15 @@
           rowsComponents.forEach(row => row.component.destroy());
       });
       return props => html `
-    <div class=${className} data-action=${action(componentAction, { api, state })} style=${style}>
+    <div class=${className} data-actions=${actions(componentActions, { api, state })} style=${style}>
       ${rowsComponents.map(r => r.component.html())}
     </div>
   `;
   }
   //# sourceMappingURL=GanttGrid.js.map
 
-  function GanttItemsRowItem({ rowId, itemId }, core) {
-      const { api, state, onDestroy, action, update, html } = core;
+  function GanttItemsRowItem({ rowId, itemId }, vido) {
+      const { api, state, onDestroy, actions, update, html } = vido;
       let row, rowPath = `config.list.rows.${rowId}`;
       onDestroy(state.subscribe(rowPath, value => {
           row = value;
@@ -1998,7 +1985,7 @@
           update();
       }));
       const componentName = 'chart-gantt-items-row-item';
-      const componentAction = api.getAction(componentName, { row, item });
+      const componentActions = api.getActions(componentName);
       let className, contentClassName, labelClassName;
       onDestroy(state.subscribe('config.classNames', () => {
           className = api.getClass(componentName, { row, item });
@@ -2007,7 +1994,8 @@
           update();
       }));
       let style, itemLeftPx = 0, itemWidthPx = 0;
-      onDestroy(state.subscribeAll(['_internal.chart.time', 'config.scroll'], bulk => {
+      onDestroy(state.subscribeAll(['_internal.chart.time', 'config.scroll', itemPath], bulk => {
+          item = state.get(itemPath);
           let time = state.get('_internal.chart.time');
           itemLeftPx = (item.time.start - time.from) / time.timePerPixel;
           itemWidthPx = (item.time.end - item.time.start) / time.timePerPixel;
@@ -2018,7 +2006,7 @@
       return props => html `
     <div
       class=${className}
-      data-action=${action(componentAction, { item, row, left: itemLeftPx, width: itemWidthPx, api, state })}
+      data-actions=${actions(componentActions, { item, row, left: itemLeftPx, width: itemWidthPx, api, state })}
       style=${style}
     >
       <div class=${contentClassName}>
@@ -2027,20 +2015,16 @@
     </div>
   `;
   }
-  //# sourceMappingURL=GanttItemsRowItem.js.map
 
-  function GanttItemsRow({ rowId }, core) {
-      const { api, state, onDestroy, action, update, html, createComponent, repeat } = core;
+  function GanttItemsRow({ rowId }, vido) {
+      const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
       let rowPath = `_internal.flatTreeMapById.${rowId}`;
-      let row, element, style, styleInner;
+      let row, style, styleInner;
       onDestroy(state.subscribeAll([rowPath, '_internal.chart'], bulk => {
           row = state.get(rowPath);
           const chart = state.get('_internal.chart');
           style = `width:${chart.dimensions.width}px;height:${row.height}px;--row-height:${row.height}px;`;
           styleInner = `width: ${chart.time.totalViewDurationPx}px;height: 100%;`;
-          if (element) {
-              element.scrollLeft = chart.time.leftPx;
-          }
           update();
       }));
       let items, itemComponents = [];
@@ -2058,21 +2042,15 @@
       });
       const componentName = 'chart-gantt-items-row';
       const componentNameInner = componentName + '-inner';
-      const componentAction = api.getAction(componentName, { row });
+      const componentActions = api.getActions(componentName);
       let className, classNameInner;
       onDestroy(state.subscribe('config.classNames', () => {
           className = api.getClass(componentName, { row });
           classNameInner = api.getClass(componentNameInner, { row });
           update();
       }));
-      function mainAction(el) {
-          element = el;
-          if (typeof componentAction === 'function') {
-              componentAction({ row, api, state });
-          }
-      }
       return props => html `
-    <div class=${className} data-action=${action(mainAction)} style=${style}>
+    <div class=${className} data-actions=${actions(componentActions)} style=${style}>
       <div class=${classNameInner} style=${styleInner}>
         ${repeat(itemComponents, i => i.id, i => i.component.html())}
       </div>
@@ -2081,10 +2059,10 @@
   }
   //# sourceMappingURL=GanttItemsRow.js.map
 
-  function GnattItems(core) {
-      const { api, state, onDestroy, action, update, html, createComponent, repeat } = core;
+  function GnattItems(vido) {
+      const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
       const componentName = 'chart-gantt-items';
-      const componentAction = api.getAction(componentName);
+      const componentActions = api.getActions(componentName);
       let className;
       onDestroy(state.subscribe('config.classNames', () => {
           className = api.getClass(componentName);
@@ -2104,17 +2082,17 @@
           rowsComponents.forEach(row => row.component.destroy());
       });
       return props => html `
-    <div class=${className} data-action=${action(componentAction, { api, state })}>
+    <div class=${className} data-actions=${actions(componentActions, { api, state })}>
       ${rowsComponents.map(r => r.component.html())}
     </div>
   `;
   }
   //# sourceMappingURL=GanttItems.js.map
 
-  function Gantt(core) {
-      const { api, state, onDestroy, action, update, html, createComponent } = core;
+  function Gantt(vido) {
+      const { api, state, onDestroy, actions, update, html, createComponent } = vido;
       const componentName = 'chart-gantt';
-      const componentAction = api.getAction(componentName);
+      const componentActions = api.getActions(componentName);
       const Grid = createComponent(GanttGrid);
       onDestroy(Grid.destroy);
       const Items = createComponent(GnattItems);
@@ -2131,14 +2109,13 @@
           styleInner = `height: ${state.get('_internal.list.expandedHeight')}px;`;
           update();
       }));
-      function mainAction(element) {
-          state.update('_internal.elements.Gantt', element);
-          if (typeof componentAction === 'function') {
-              componentAction({ api, state });
+      componentActions.push({
+          create(element) {
+              state.update('_internal.elements.Gantt', element);
           }
-      }
+      });
       return props => html `
-    <div class=${className} style=${style} data-action=${action(mainAction)} @wheel=${api.onScroll}>
+    <div class=${className} style=${style} data-actions=${actions(componentActions)} @wheel=${api.onScroll}>
       <div class=${classNameInner} style=${styleInner}>
         ${Grid.html()}${Items.html()}
       </div>
@@ -2147,14 +2124,14 @@
   }
   //# sourceMappingURL=Gantt.js.map
 
-  function Chart(core) {
-      const { api, state, onDestroy, action, update, html, createComponent } = core;
+  function Chart(vido) {
+      const { api, state, onDestroy, actions, update, html, createComponent } = vido;
       const componentName = 'chart';
       const Calendar$1 = createComponent(Calendar);
       onDestroy(Calendar$1.destroy);
       const Gantt$1 = createComponent(Gantt);
       onDestroy(Gantt$1.destroy);
-      let className, classNameScroll, classNameScrollInner, scrollElement, styleScroll = '', styleScrollInner = '', componentAction = api.getAction(componentName);
+      let className, classNameScroll, classNameScrollInner, scrollElement, styleScroll = '', styleScrollInner = '', componentActions = api.getActions(componentName);
       onDestroy(state.subscribe('config.classNames', value => {
           className = api.getClass(componentName);
           classNameScroll = api.getClass('horizontal-scroll');
@@ -2200,13 +2177,18 @@
           },
           passive: true
       };
-      function bindElement(element) {
-          scrollElement = element;
-      }
+      const bindElement = [
+          {
+              create(element) {
+                  scrollElement = element;
+                  state.update('_internal.elements.horizontalScroll', element);
+              }
+          }
+      ];
       return props => html `
-    <div class=${className} data-action=${action(componentAction, { api, state })} @wheel=${onScroll}>
+    <div class=${className} data-actions=${actions(componentActions, { api, state })} @wheel=${onScroll}>
       ${Calendar$1.html()}${Gantt$1.html()}
-      <div class=${classNameScroll} style=${styleScroll} data-action=${action(bindElement)} @scroll=${onScroll}>
+      <div class=${classNameScroll} style=${styleScroll} data-actions=${actions(bindElement)} @scroll=${onScroll}>
         <div class=${classNameScrollInner} style=${styleScrollInner} />
       </div>
     </div>
@@ -2214,22 +2196,21 @@
   }
   //# sourceMappingURL=Chart.js.map
 
-  function Main(core) {
-      const { api, state, onDestroy, action, update, createComponent, html } = core;
+  function Main(vido) {
+      const { api, state, onDestroy, actions, update, createComponent, html } = vido;
       const componentName = api.name;
       const List$1 = createComponent(List);
       onDestroy(List$1.destroy);
       const Chart$1 = createComponent(Chart);
       onDestroy(Chart$1.destroy);
-      let pluginsPath = 'config.plugins';
-      onDestroy(state.subscribe(pluginsPath, plugins => {
+      onDestroy(state.subscribe('config.plugins', plugins => {
           if (typeof plugins !== 'undefined' && Array.isArray(plugins)) {
               for (const plugin of plugins) {
                   plugin(state, api);
               }
           }
       }));
-      const componentAction = api.getAction('');
+      const componentActions = api.getActions('');
       let className, classNameVerticalScroll, style, styleVerticalScroll, styleVerticalScrollArea;
       let verticalScrollBarElement;
       let expandedHeight = 0;
@@ -2388,31 +2369,36 @@
           passive: false
       };
       const dimensions = { width: 0, height: 0 };
-      function mainAction(element) {
-          if (dimensions.width === 0) {
-              const width = element.clientWidth;
-              const height = element.clientHeight;
-              if (dimensions.width !== width || dimensions.height !== height) {
-                  dimensions.width = width;
-                  dimensions.height = height;
-                  state.update('_internal.dimensions', dimensions);
+      componentActions.push({
+          create(element) {
+              state.update('_internal.elements.Main', element);
+              if (dimensions.width === 0) {
+                  const width = element.clientWidth;
+                  const height = element.clientHeight;
+                  if (dimensions.width !== width || dimensions.height !== height) {
+                      dimensions.width = width;
+                      dimensions.height = height;
+                      state.update('_internal.dimensions', dimensions);
+                  }
               }
           }
-          if (typeof action === 'function') {
-              componentAction(element, { state, api });
+      });
+      const bindScrollElement = [
+          {
+              create(element) {
+                  verticalScrollBarElement = element;
+                  state.update('_internal.elements.verticalScroll', element);
+              }
           }
-      }
-      function bindElement(element) {
-          verticalScrollBarElement = element;
-      }
+      ];
       return props => html `
-      <div class=${className} @scroll=${onScroll} data-action=${action(mainAction)}>
+      <div class=${className} style=${style} @scroll=${onScroll} data-actions=${actions(componentActions)}>
         ${List$1.html()} ${Chart$1.html()}
         <div
           class=${classNameVerticalScroll}
           style=${styleVerticalScroll}
           @scroll=${onScroll}
-          data-action=${action(bindElement)}
+          data-action=${actions(bindScrollElement)}
         >
           <div style=${styleVerticalScrollArea} />
         </div>
@@ -2480,6 +2466,7 @@
       return { state };
   };
   GSTC.api = publicApi;
+  //# sourceMappingURL=index.js.map
 
   return GSTC;
 

@@ -1,8 +1,8 @@
-export default function CalendarDate({ date }, core) {
-  const { api, state, onDestroy, action, update, createComponent, html, repeat } = core;
+export default function CalendarDate({ date }, vido) {
+  const { api, state, onDestroy, actions, update, html } = vido;
 
   const componentName = 'chart-calendar-date';
-  const componentAction = api.getAction(componentName);
+  const componentActions = api.getActions(componentName);
 
   let className,
     formattedClassName,
@@ -55,7 +55,7 @@ export default function CalendarDate({ date }, core) {
   );
 
   return props => html`
-    <div class=${className} style=${style} data-action=${action(componentAction, { date, api, state })}>
+    <div class=${className} style=${style} data-actions=${actions(componentActions, { date, api, state })}>
       ${small
         ? html`
             <div class=${formattedClassName} style="transform: rotate(90deg);">${smallFormatted}</div>

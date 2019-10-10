@@ -1,8 +1,8 @@
 import ListColumnRow from './ListColumnRow';
 import ListColumnHeaderComponent from './ListColumnHeader';
 
-export default function ListColumnComponent({ columnId }, core) {
-  const { api, state, onDestroy, action, update, createComponent, html, repeat } = core;
+export default function ListColumnComponent({ columnId }, vido) {
+  const { api, state, onDestroy, actions, update, createComponent, html, repeat } = vido;
 
   let column,
     columnPath = `config.list.columns.data.${columnId}`;
@@ -15,8 +15,8 @@ export default function ListColumnComponent({ columnId }, core) {
 
   const componentName = 'list-column';
   const rowsComponentName = componentName + '-rows';
-  const componentAction = api.getAction(componentName);
-  const rowsAction = api.getAction(rowsComponentName);
+  const componentActions = api.getActions(componentName);
+  const rowsActions = api.getActions(rowsComponentName);
   let className, classNameContainer, calculatedWidth, width, styleContainer;
 
   onDestroy(
@@ -66,9 +66,13 @@ export default function ListColumnComponent({ columnId }, core) {
   onDestroy(ListColumnHeader.destroy);
 
   return props => html`
-    <div class=${className} data-action=${action(componentAction, { column, state: state, api: api })} style=${width}>
+    <div
+      class=${className}
+      data-actions=${actions(componentActions, { column, state: state, api: api })}
+      style=${width}
+    >
       ${ListColumnHeader.html()}
-      <div class=${classNameContainer} style=${styleContainer} data-action=${action(rowsAction, { api, state })}>
+      <div class=${classNameContainer} style=${styleContainer} data-actions=${actions(rowsActions, { api, state })}>
         ${visibleRows.map(row => row.component.html())}
       </div>
     </div>

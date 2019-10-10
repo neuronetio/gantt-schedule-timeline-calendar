@@ -1,5 +1,5 @@
-export default function GanttItemsRowItem({ rowId, itemId }, core) {
-  const { api, state, onDestroy, action, update, html } = core;
+export default function GanttItemsRowItem({ rowId, itemId }, vido) {
+  const { api, state, onDestroy, actions, update, html } = vido;
 
   let row,
     rowPath = `config.list.rows.${rowId}`;
@@ -19,7 +19,7 @@ export default function GanttItemsRowItem({ rowId, itemId }, core) {
   );
 
   const componentName = 'chart-gantt-items-row-item';
-  const componentAction = api.getAction(componentName, { row, item });
+  const componentActions = api.getActions(componentName);
   let className, contentClassName, labelClassName;
   onDestroy(
     state.subscribe('config.classNames', () => {
@@ -35,8 +35,9 @@ export default function GanttItemsRowItem({ rowId, itemId }, core) {
     itemWidthPx = 0;
   onDestroy(
     state.subscribeAll(
-      ['_internal.chart.time', 'config.scroll'],
+      ['_internal.chart.time', 'config.scroll', itemPath],
       bulk => {
+        item = state.get(itemPath);
         let time = state.get('_internal.chart.time');
         itemLeftPx = (item.time.start - time.from) / time.timePerPixel;
         itemWidthPx = (item.time.end - item.time.start) / time.timePerPixel;
@@ -51,7 +52,7 @@ export default function GanttItemsRowItem({ rowId, itemId }, core) {
   return props => html`
     <div
       class=${className}
-      data-action=${action(componentAction, { item, row, left: itemLeftPx, width: itemWidthPx, api, state })}
+      data-actions=${actions(componentActions, { item, row, left: itemLeftPx, width: itemWidthPx, api, state })}
       style=${style}
     >
       <div class=${contentClassName}>
