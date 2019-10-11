@@ -132,6 +132,23 @@ export default [
     ]
   },
   {
+    input: 'src/plugins/ItemHold.plugin.js',
+    output: {
+      sourcemap: true,
+      file: 'dist/ItemHold.plugin.js',
+      format: 'umd',
+      name: 'ItemHold'
+    },
+    plugins: [
+      resolve({
+        browser: true
+        //module: true
+      }),
+      commonjs({ extensions: ['.js'] }),
+      production && terser()
+    ]
+  },
+  {
     input: 'src/style.styl',
     output: { format: 'esm', file: 'dist/style.css' },
     plugins: [stylus()]

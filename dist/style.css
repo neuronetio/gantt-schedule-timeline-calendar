@@ -156,6 +156,7 @@
   color: #747a81;
   flex-grow: 0;
   flex-shrink: 0;
+  user-select: none;
 }
 .gantt-shedule-timeline-calendar__chart-calendar-date.current {
   box-shadow: inset 0px 0px 6px rgba(177,184,189,0.75);

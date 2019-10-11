@@ -114,12 +114,14 @@ export default function Vido(state, api) {
           if (typeof action.componentAction.create === 'function') {
             action.componentAction.create(action.element, action.props);
           }
-          action.element.__vido__ = { props: action.props };
         } else {
           if (typeof action.componentAction.update === 'function') {
             action.componentAction.update(action.element, action.props);
           }
         }
+      }
+      for (const action of actions) {
+        action.element.__vido__ = { props: action.props };
       }
       actions = [];
     }

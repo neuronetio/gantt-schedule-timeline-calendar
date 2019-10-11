@@ -52,6 +52,8 @@ export default function List(vido) {
   );
 
   function onScroll(event) {
+    event.stopPropagation();
+    event.preventDefault();
     if (event.type === 'scroll') {
       state.update('config.scroll.top', event.target.scrollTop);
     } else {

@@ -43,6 +43,7 @@
     <script src="../vido.umd.js"></script>
     <script src="../index.umd.js"></script>
     <script src="../ItemMovement.plugin.js"></script>
+    <script src="../ItemHold.plugin.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="https://cdn.jsdelivr.net/npm/quasar@^1.1.6/dist/quasar.umd.min.js"></script>
     <script>
@@ -156,6 +157,13 @@
             resizeable: true,
             collisionDetection: true,
             snapTo
+          }),
+          ItemHold({
+            time: 1000,
+            movementThreshold: 2,
+            action(element, item) {
+              alert(`item ${item.label} holded for 1s!`);
+            }
           })
         ],
         height: 40 * 12 + 94,
@@ -176,7 +184,20 @@
           }
         },
         classNames: {},
-        actions: {},
+        actions: {
+          'list-column-header': [
+            {
+              create(element, data) {
+                const target = element.querySelector('.gantt-shedule-timeline-calendar__list-column-header-content');
+                target.style['cursor'] = 'pointer';
+                target.addEventListener('click', () => {
+                  target.style.color = '#' + Math.round(Math.random() * 999999);
+                  console.log(`${data.column.header.content} clicked!`);
+                });
+              }
+            }
+          ]
+        },
         locale: {
           name: 'pl',
           weekdays: 'Niedziela_Poniedziałek_Wtorek_Środa_Czwartek_Piątek_Sobota'.split('_'),

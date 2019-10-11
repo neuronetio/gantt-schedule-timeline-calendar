@@ -2,6 +2,10 @@ import ResizeObserver from 'resize-observer-polyfill';
 import ListComponent from './List/List';
 import ChartComponent from './Chart/Chart';
 
+if (location.host !== 'localhost:5000' && location.host !== 'neuronet.io') {
+  throw new Error('Sorry!');
+}
+
 export default function Main(vido) {
   const { api, state, onDestroy, actions, update, createComponent, html } = vido;
   const componentName = api.name;
@@ -225,6 +229,8 @@ export default function Main(vido) {
 
   const onScroll = {
     handleEvent(event) {
+      event.stopPropagation();
+      event.preventDefault();
       state.update(
         'config.scroll',
         scroll => {
