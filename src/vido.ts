@@ -110,11 +110,11 @@ export default function Vido(state, api) {
     render() {
       render(components[app].update(), element);
       for (const action of actions) {
-        if (typeof action.element._vido === 'undefined') {
+        if (typeof action.element.__vido__ === 'undefined') {
           if (typeof action.componentAction.create === 'function') {
             action.componentAction.create(action.element, action.props);
           }
-          action.element._vido = true;
+          action.element.__vido__ = { props: action.props };
         } else {
           if (typeof action.componentAction.update === 'function') {
             action.componentAction.update(action.element, action.props);

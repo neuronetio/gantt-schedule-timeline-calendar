@@ -57,7 +57,11 @@ const defaultConfig = {
     top: 0,
     left: 0,
     xMultiplier: 1.5,
-    yMultiplier: 1
+    yMultiplier: 1,
+    percent: {
+      top: 0,
+      left: 0
+    }
   },
   chart: {
     time: {

@@ -39,10 +39,11 @@ export default function GanttItemsRowItem({ rowId, itemId }, vido) {
       bulk => {
         item = state.get(itemPath);
         let time = state.get('_internal.chart.time');
-        itemLeftPx = (item.time.start - time.from) / time.timePerPixel;
+        itemLeftPx = (item.time.start - time.leftGlobal) / time.timePerPixel;
         itemWidthPx = (item.time.end - item.time.start) / time.timePerPixel;
+        itemWidthPx -= state.get('config.chart.spacing');
         const inViewPort = api.isItemInViewport(item, time.leftGlobal, time.rightGlobal);
-        style = `left:${itemLeftPx}px;width:${itemWidthPx}px;${inViewPort ? 'display:block;' : 'visibility:hidden;'}`;
+        style = `left:${itemLeftPx}px;width:${itemWidthPx}px;`;
         update();
       },
       { bulk: true }

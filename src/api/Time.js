@@ -1,15 +1,13 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-dayjs.extend(utc);
+//dayjs.extend(utc, { parseToLocal: true });
 
 export default function timeApi(state, getApi) {
   const locale = state.get('config.locale');
   dayjs.locale(locale, null, true);
   return {
     date(time) {
-      return dayjs(time)
-        .utc()
-        .locale(locale.name);
+      return time ? dayjs(time).locale(locale.name) : dayjs().locale(locale.name);
     },
     recalculateFromTo(time) {
       time = { ...time };

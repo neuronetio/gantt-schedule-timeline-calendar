@@ -42,7 +42,7 @@ export default function Calendar(vido) {
 
   componentActions.push({
     create(element) {
-      state.update('_internal.elements.Calendar', element);
+      state.update('_internal.elements.calendar', element);
     }
   });
 

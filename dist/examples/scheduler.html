@@ -128,12 +128,34 @@
         }
       };
 
+      const from = GSTC.api
+        .date()
+        .startOf('month')
+        .valueOf();
+      const to = GSTC.api
+        .date()
+        .endOf('month')
+        .valueOf();
+      let snapTo = [];
+      const diffDays = GSTC.api.date(to).diff(from, 'days');
+      for (let i = 0; i < diffDays; i++) {
+        // or snap to 12:00
+        snapTo.push(
+          GSTC.api
+            .date(from)
+            .add(i, 'days')
+            .add(12, 'hours')
+            .valueOf()
+        );
+      }
+
       let config = {
         plugins: [
           ItemMovement({
             moveable: true,
             resizeable: true,
-            collisionDetection: true
+            collisionDetection: true,
+            snapTo
           })
         ],
         height: 40 * 12 + 94,
@@ -145,17 +167,12 @@
           }
         },
         chart: {
+          spacing: 1,
           items,
           time: {
             period: 'day',
-            from: GSTC.api
-              .date()
-              .startOf('month')
-              .valueOf(),
-            to: GSTC.api
-              .date()
-              .endOf('month')
-              .valueOf()
+            from,
+            to
           }
         },
         classNames: {},

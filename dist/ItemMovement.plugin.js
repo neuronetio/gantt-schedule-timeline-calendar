@@ -6,14 +6,15 @@
 
   // @ts-nocheck
   function ItemMovementPlugin(options = {}) {
-    let state;
     const defaultOptions = {
       moveable: true,
       resizeable: true,
       resizerContent: '',
-      collisionDetection: true
+      collisionDetection: true,
+      snapTo: []
     };
     options = { ...defaultOptions, ...options };
+    options.snapTo = options.snapTo.slice();
     const movementState = {};
 
     /**
@@ -64,7 +65,7 @@
         const item = state.get(`config.chart.items.${data.item.id}`);
         const chartLeftTime = state.get('_internal.chart.time.leftGlobal');
         const timePerPixel = state.get('_internal.chart.time.timePerPixel');
-        const ganttRect = state.get('_internal.elements.Gantt').getBoundingClientRect();
+        const ganttRect = state.get('_internal.elements.gantt').getBoundingClientRect();
         movement.ganttTop = ganttRect.top;
         movement.ganttLeft = ganttRect.left;
         movement.itemX = Math.round((item.time.start - chartLeftTime) / timePerPixel);
@@ -77,7 +78,7 @@
         const item = state.get(`config.chart.items.${data.item.id}`);
         const chartLeftTime = state.get('_internal.chart.time.leftGlobal');
         const timePerPixel = state.get('_internal.chart.time.timePerPixel');
-        const ganttRect = state.get('_internal.elements.Gantt').getBoundingClientRect();
+        const ganttRect = state.get('_internal.elements.gantt').getBoundingClientRect();
         movement.ganttTop = ganttRect.top;
         movement.ganttLeft = ganttRect.left;
         movement.itemX = (item.time.end - chartLeftTime) / timePerPixel;
@@ -92,7 +93,7 @@
         if (start < time.from || end > time.to) {
           return true;
         }
-        if (api.time.date(end).diff(start, time.period) < 0) {
+        if (api.time.date(end).diff(start, time.period) <= 0) {
           return true;
         }
         const row = state.get('config.list.rows.' + rowId);
@@ -112,15 +113,32 @@
         return false;
       }
 
+      function snap(addMilliseconds, currentDate, addToEnd = 0) {
+        let smallestDiff = Number.MAX_SAFE_INTEGER;
+        let smallestTime = 0;
+        for (let snapTime of options.snapTo) {
+          let diff = currentDate
+            .clone()
+            .add(addMilliseconds, 'milliseconds')
+            .diff(snapTime, 'milliseconds');
+          if (Math.sign(diff) === -1) {
+            diff = -diff;
+          }
+          if (diff < smallestDiff) {
+            smallestDiff = diff;
+            smallestTime = snapTime;
+          }
+        }
+        smallestTime += addToEnd;
+        return api.time.date(smallestTime);
+      }
+
       function movementX(ev, row, item, zoom, timePerPixel) {
         const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
         const leftMs = state.get('_internal.chart.time.leftGlobal') + left * timePerPixel;
         const add = leftMs - item.time.start;
         const originalStart = item.time.start;
-        const finalStartTime = data.api.time
-          .date(item.time.start + add)
-          .startOf('day')
-          .valueOf();
+        const finalStartTime = snap(add, data.api.time.date(item.time.start));
         const finalAdd = finalStartTime - originalStart;
         const collision = isCollision(row.id, item.id, item.time.start + finalAdd, item.time.end + finalAdd);
         if (finalAdd && !collision) {
@@ -141,10 +159,7 @@
           return;
         }
         const originalEnd = item.time.end;
-        const finalEndTime = data.api.time
-          .date(item.time.end + add)
-          .endOf(time.period)
-          .valueOf();
+        const finalEndTime = snap(add, data.api.time.date(item.time.end), -1);
         const finalAdd = finalEndTime - originalEnd;
         const collision = isCollision(row.id, item.id, item.time.start, item.time.end + finalAdd);
         if (finalAdd && !collision) {
@@ -236,7 +251,6 @@
     };
 
     return function initializePlugin(State, api) {
-      state = State;
       state.update('config.actions.chart-gantt-items-row-item', actions => {
         if (!actions.some(a => a === action)) {
           actions.push(action);

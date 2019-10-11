@@ -88,7 +88,7 @@ const publicApi = {
   stateFromConfig,
   mergeDeep,
   date(time) {
-    return time ? dayjs(time).utc() : dayjs().utc();
+    return time ? dayjs(time) : dayjs();
   },
   dayjs
 };
@@ -327,7 +327,7 @@ export function getInternalApi(state) {
 
     limitScroll(which, scroll) {
       if (which === 'top') {
-        const height = state.get('_internal.list.expandedHeight') - state.get('_internal.height');
+        const height = state.get('_internal.list.rowsHeight') - state.get('_internal.height');
         if (scroll < 0) {
           scroll = 0;
         } else if (scroll > height) {

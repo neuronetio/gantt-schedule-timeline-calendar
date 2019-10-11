@@ -48,6 +48,7 @@ export default function Chart(vido) {
 
   const onScroll = {
     handleEvent(event) {
+      let scrollLeft;
       if (event.type === 'scroll') {
         state.update('config.scroll.left', event.target.scrollLeft);
       } else {
@@ -68,24 +69,42 @@ export default function Chart(vido) {
           });
         }
       }
+      const chart = state.get('_internal.elements.chart');
+      const scrollInner = state.get('_internal.elements.horizontalScrollInner');
+      if (chart) {
+        const scrollLeft = state.get('config.scroll.left');
+        const percent = Math.round((scrollLeft / (scrollInner.clientWidth - chart.clientWidth)) * 100);
+        console.log(percent);
+        state.update('config.scroll.percent.left', percent);
+      }
     },
     passive: true
   };
 
-  const bindElement = [
-    {
-      create(element) {
-        scrollElement = element;
-        state.update('_internal.elements.horizontalScroll', element);
-      }
+  const bindElement = {
+    create(element) {
+      scrollElement = element;
+      state.update('_internal.elements.horizontalScroll', element);
     }
-  ];
+  };
+
+  const bindInnerScroll = {
+    create(element) {
+      state.update('_internal.elements.horizontalScrollInner', element);
+    }
+  };
+
+  componentActions.push({
+    create(element) {
+      state.update('_internal.elements.chart', element);
+    }
+  });
 
   return props => html`
     <div class=${className} data-actions=${actions(componentActions, { api, state })} @wheel=${onScroll}>
       ${Calendar.html()}${Gantt.html()}
-      <div class=${classNameScroll} style=${styleScroll} data-actions=${actions(bindElement)} @scroll=${onScroll}>
-        <div class=${classNameScrollInner} style=${styleScrollInner} />
+      <div class=${classNameScroll} style=${styleScroll} data-actions=${actions([bindElement])} @scroll=${onScroll}>
+        <div class=${classNameScrollInner} style=${styleScrollInner} data-actions=${actions([bindInnerScroll])} />
       </div>
     </div>
   `;

@@ -13,6 +13,25 @@ export default function CalendarDate({ date }, vido) {
   onDestroy(
     state.subscribe('config.classNames', () => {
       className = api.getClass(componentName, { date });
+      if (api.time.date(date.leftGlobal).format('YYYY-MM-DD') === api.time.date().format('YYYY-MM-DD')) {
+        className += ' current';
+      }
+      if (
+        api.time
+          .date(date.leftGlobal)
+          .subtract(1, 'day')
+          .format('YYYY-MM-DD') === api.time.date().format('YYYY-MM-DD')
+      ) {
+        className += ' next';
+      }
+      if (
+        api.time
+          .date(date.leftGlobal)
+          .add(1, 'day')
+          .format('YYYY-MM-DD') === api.time.date().format('YYYY-MM-DD')
+      ) {
+        className += ' previous';
+      }
       formattedClassName = api.getClass(`${componentName}-formatted`, { date });
       formattedYearClassName = api.getClass(`${componentName}-formatted-year`, { date });
       formattedMonthClassName = api.getClass(`${componentName}-formatted-month`, { date });

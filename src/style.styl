@@ -2,6 +2,7 @@ $bg-dark-1 = hsl(192, 15%, 98%)
 $bg-dark-2 = hsl(210, 20%, 98%)
 $bg-dark-3 = hsl(192, 15%, 94%)
 $bg-dark-4 = rgba(177, 184, 189, 0.5)
+$bg-dark-5 = rgba(177, 184, 189, 0.75)
 
 //$dot = hsl(192, 15%, 80%)
 $dot = #e0eff2
@@ -150,6 +151,12 @@ $item-content-padding = 5px
         color: $font-color-3;
         flex-grow: 0
         flex-shrink: 0
+        &.current
+          box-shadow: inset 0px 0px 6px $bg-dark-5
+          & *
+            border-right: none
+        &.previous *
+          border-right: none
         &-formatted
           margin-top: 4px
           white-space: nowrap

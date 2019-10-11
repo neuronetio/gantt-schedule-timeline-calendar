@@ -1,3 +1,4 @@
+import ResizeObserver from 'resize-observer-polyfill';
 import ListComponent from './List/List';
 import ChartComponent from './Chart/Chart';
 
@@ -23,7 +24,7 @@ export default function Main(vido) {
   const componentActions = api.getActions('');
   let className, classNameVerticalScroll, style, styleVerticalScroll, styleVerticalScrollArea;
   let verticalScrollBarElement;
-  let expandedHeight = 0;
+  let rowsHeight = 0;
   let resizerActive = false;
 
   onDestroy(
@@ -102,8 +103,8 @@ export default function Main(vido) {
           ),
           configRows
         );
-        expandedHeight = api.getRowsHeight(rowsWithParentsExpanded);
-        state.update('_internal.list.expandedHeight', expandedHeight);
+        rowsHeight = api.getRowsHeight(rowsWithParentsExpanded);
+        state.update('_internal.list.rowsHeight', rowsHeight);
         state.update('_internal.list.rowsWithParentsExpanded', rowsWithParentsExpanded);
         update();
       },
@@ -122,7 +123,7 @@ export default function Main(vido) {
   onDestroy(
     state.subscribeAll(['config.scroll.top', '_internal.list.visibleRows'], () => {
       const top = state.get('config.scroll.top');
-      styleVerticalScrollArea = `height: ${expandedHeight}px; width: 1px`;
+      styleVerticalScrollArea = `height: ${rowsHeight}px; width: 1px`;
       if (verticalScrollBarElement && verticalScrollBarElement.scrollTop !== top) {
         verticalScrollBarElement.scrollTop = top;
       }
@@ -184,7 +185,12 @@ export default function Main(vido) {
       function recalculateTimesAction() {
         const chartWidth = state.get('_internal.dimensions.width') - state.get('_internal.list.width');
         const chartInnerWidth = chartWidth - state.get('_internal.scrollBarHeight');
-        state.update('_internal.chart.dimensions', { width: chartWidth, innerWidth: chartInnerWidth });
+        const chartHeight = state.get('_internal.dimensions.height') - state.get('config.headerHeight');
+        state.update('_internal.chart.dimensions', {
+          width: chartWidth,
+          innerWidth: chartInnerWidth,
+          height: chartHeight
+        });
         let time = api.mergeDeep({}, state.get('config.chart.time'));
         time = api.time.recalculateFromTo(time);
         const zoomPercent = time.zoom * 0.01;
@@ -219,7 +225,16 @@ export default function Main(vido) {
 
   const onScroll = {
     handleEvent(event) {
-      state.update('config.scroll.top', event.target.scrollTop);
+      state.update(
+        'config.scroll',
+        scroll => {
+          scroll.top = event.target.scrollTop;
+          const scrollHeight = state.get('_internal.elements.verticalScrollInner').clientHeight;
+          scroll.percent.top = scroll.top / scrollHeight;
+          return scroll;
+        },
+        { only: ['top', 'percent.top'] }
+      );
     },
     passive: false
   };
@@ -228,39 +243,51 @@ export default function Main(vido) {
 
   componentActions.push({
     create(element) {
-      state.update('_internal.elements.Main', element);
-      if (dimensions.width === 0) {
+      const ro = new ResizeObserver((entries, observer) => {
         const width = element.clientWidth;
         const height = element.clientHeight;
         if (dimensions.width !== width || dimensions.height !== height) {
           dimensions.width = width;
           dimensions.height = height;
           state.update('_internal.dimensions', dimensions);
+          state.update(
+            'config.scroll',
+            scroll => {
+              scroll.left = (scroll.percent.left * scroll.left) / 100;
+              return scroll;
+            },
+            { only: 'left' }
+          );
         }
-      }
+      });
+      ro.observe(element);
+      state.update('_internal.elements.main', element);
     }
   });
 
-  const bindScrollElement = [
-    {
-      create(element) {
-        verticalScrollBarElement = element;
-        state.update('_internal.elements.verticalScroll', element);
-      }
+  const bindScrollElement = {
+    create(element) {
+      verticalScrollBarElement = element;
+      state.update('_internal.elements.verticalScroll', element);
     }
-  ];
+  };
+  const bindScrollInnerElement = {
+    create(element) {
+      state.update('_internal.elements.verticalScrollInner', element);
+    }
+  };
 
   return props =>
     html`
       <div class=${className} style=${style} @scroll=${onScroll} data-actions=${actions(componentActions)}>
-        ${List.html()} ${Chart.html()}
+        ${List.html()}${Chart.html()}
         <div
           class=${classNameVerticalScroll}
           style=${styleVerticalScroll}
           @scroll=${onScroll}
-          data-action=${actions(bindScrollElement)}
+          data-action=${actions([bindScrollElement])}
         >
-          <div style=${styleVerticalScrollArea} />
+          <div style=${styleVerticalScrollArea} data-actions=${actions([bindScrollInnerElement])} />
         </div>
       </div>
     `;

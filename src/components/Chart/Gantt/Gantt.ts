@@ -22,16 +22,16 @@ export default function Gantt(vido) {
   let style = '',
     styleInner = '';
   onDestroy(
-    state.subscribeAll(['_internal.height', '_internal.list.expandedHeight'], () => {
+    state.subscribeAll(['_internal.height', '_internal.list.rowsHeight'], () => {
       style = `height: ${state.get('_internal.height')}px`;
-      styleInner = `height: ${state.get('_internal.list.expandedHeight')}px;`;
+      styleInner = `height: ${state.get('_internal.list.rowsHeight')}px;`;
       update();
     })
   );
 
   componentActions.push({
     create(element) {
-      state.update('_internal.elements.Gantt', element);
+      state.update('_internal.elements.gantt', element);
     }
   });
 
