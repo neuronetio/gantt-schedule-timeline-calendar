@@ -311,7 +311,6 @@ export default function ItemMovementPlugin(options = {}) {
   return function initializePlugin(state, api) {
     state.update('config.actions.chart-gantt-items-row-item', actions => {
       actions.push(action);
-      console.log(actions);
       return actions;
     });
   };
