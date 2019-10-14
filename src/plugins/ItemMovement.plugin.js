@@ -5,6 +5,7 @@ export default function ItemMovementPlugin(options = {}) {
     resizeable: true,
     resizerContent: '',
     collisionDetection: true,
+    outOfBorders: false,
     snapTo: []
   };
   options = { ...defaultOptions, ...options };
@@ -89,7 +90,7 @@ export default function ItemMovementPlugin(options = {}) {
         return false;
       }
       const time = state.get('_internal.chart.time');
-      if (start < time.from || end > time.to) {
+      if (options.outOfBorders && (start < time.from || end > time.to)) {
         return true;
       }
       let diff = api.time.date(end).diff(start, 'milliseconds');
@@ -252,7 +253,7 @@ export default function ItemMovementPlugin(options = {}) {
     };
   }
 
-  return function initializePlugin(State, api) {
+  return function initializePlugin(state, api) {
     state.update('config.actions.chart-gantt-items-row-item', actions => {
       actions.push(action);
       return actions;

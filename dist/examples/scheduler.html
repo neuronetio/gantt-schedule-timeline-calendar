@@ -138,13 +138,13 @@
         .endOf('month')
         .valueOf();
       let snapTo = [];
-      const diffDays = GSTC.api.date(to).diff(from, 'days');
+      const diffDays = GSTC.api.date(to).diff(from, 'days') + 20;
       for (let i = 0; i < diffDays; i++) {
         // or snap to 12:00
         snapTo.push(
           GSTC.api
             .date(from)
-            .add(i, 'days')
+            .add(i - 10, 'days')
             .add(12, 'hours')
             .valueOf()
         );
