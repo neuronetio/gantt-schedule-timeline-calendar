@@ -7,7 +7,8 @@ export default function ItemMovementPlugin(options = {}) {
     collisionDetection: true,
     outOfBorders: false,
     snapStart: [],
-    snapEnd: []
+    snapEnd: [],
+    ghostNode: true
   };
   options = { ...defaultOptions, ...options };
   options.snapStart = options.snapStart.slice();
@@ -56,13 +57,42 @@ export default function ItemMovementPlugin(options = {}) {
 
     const el = element;
     const resizerEl = el.querySelector('.gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content-resizer');
-
     const state = data.state;
 
     if (typeof movementState[data.item.id] === 'undefined') {
       movementState[data.item.id] = { moving: false, resizing: false };
     }
     const movement = movementState[data.item.id];
+
+    function createGhost(itemId, ev, ganttLeft, ganttTop) {
+      if (!options.ghostNode) {
+        return;
+      }
+      const ghost = element.cloneNode(true);
+      const style = getComputedStyle(element);
+      ghost.style.position = 'absolute';
+      ghost.style.left = 0;
+      ghost.style.top = element.offsetTop + 'px';
+      ghost.style.width = style.width;
+      const height = element.clientHeight + 'px';
+      ghost.style.height = height;
+      ghost.style['line-height'] = height;
+      element.style.opacity = '0.5';
+      state.get('_internal.elements.gantt').appendChild(ghost);
+      movementState[itemId].ghost = ghost;
+      return ghost;
+    }
+
+    function destroyGhost(itemId) {
+      if (!options.ghostNode) {
+        return;
+      }
+      if (typeof movementState[itemId] !== 'undefined' && typeof movementState[itemId].ghost !== 'undefined') {
+        state.get('_internal.elements.gantt').removeChild(movementState[itemId].ghost);
+        delete movementState[itemId].ghost;
+      }
+      element.style.opacity = '1';
+    }
 
     function labelMouseDown(ev) {
       if (ev.button !== 0) {
@@ -77,6 +107,7 @@ export default function ItemMovementPlugin(options = {}) {
       movement.ganttLeft = ganttRect.left;
       movement.itemX = Math.round((item.time.start - chartLeftTime) / timePerPixel);
       movement.itemLeftCompensation = ev.x - movement.ganttLeft - movement.itemX;
+      createGhost(data.item.id, ev, ganttRect.left, ganttRect.top);
     }
 
     function resizerMouseDown(ev) {
@@ -149,6 +180,11 @@ export default function ItemMovementPlugin(options = {}) {
 
     function movementX(ev, row, item, zoom, timePerPixel) {
       const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
+      if (options.ghostNode) {
+        movement.ghost.style.left = left + 'px';
+        movement.ghost.style.top = ev.y - movement.ganttTop + 'px';
+        element.style.opacity = '0.5';
+      }
       const leftMs = state.get('_internal.chart.time.leftGlobal') + left * timePerPixel;
       const add = leftMs - item.time.start;
       const originalStart = item.time.start;
@@ -173,7 +209,7 @@ export default function ItemMovementPlugin(options = {}) {
         return;
       }
       const originalEnd = item.time.end;
-      const finalEndTime = snap(add, data.api.time.date(item.time.end), 0, snapEnd);
+      const finalEndTime = snap(add, data.api.time.date(item.time.end), -1, snapEnd);
       const finalAdd = finalEndTime - originalEnd;
       const collision = isCollision(row.id, item.id, item.time.start, item.time.end + finalAdd);
       if (finalAdd && !collision) {
@@ -245,6 +281,7 @@ export default function ItemMovementPlugin(options = {}) {
       for (const itemId in movementState) {
         movementState[itemId].moving = false;
         movementState[itemId].resizing = false;
+        destroyGhost(itemId);
       }
     }
     if (moveable) el.addEventListener('mousedown', labelMouseDown);
