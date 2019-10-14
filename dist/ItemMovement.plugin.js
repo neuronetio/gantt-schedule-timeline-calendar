@@ -126,7 +126,11 @@
       function snap(addMilliseconds, currentDate, addToEnd = 0) {
         let smallestDiff = Number.MAX_SAFE_INTEGER;
         let smallestTime = 0;
-        for (let snapTime of options.snapTo) {
+        let snapTo = options.snapTo;
+        if (typeof data.item.snapTo !== 'undefined' && Array.isArray(data.item.snapTo)) {
+          snapTo = data.item.snapTo;
+        }
+        for (let snapTime of snapTo) {
           let diff = currentDate
             .clone()
             .add(addMilliseconds, 'milliseconds')
