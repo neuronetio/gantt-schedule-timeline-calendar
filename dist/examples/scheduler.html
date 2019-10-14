@@ -137,14 +137,25 @@
         .date()
         .endOf('month')
         .valueOf();
-      let snapTo = [];
+      let snapStart = [];
+      let snapEnd = [];
       const diffDays = GSTC.api.date(to).diff(from, 'days') + 20;
       for (let i = 0; i < diffDays; i++) {
-        // or snap to 12:00
-        snapTo.push(
+        //snap to 12:00
+        snapStart.push(
           GSTC.api
             .date(from)
             .add(i - 10, 'days')
+            .add(12, 'hours')
+            .valueOf()
+        );
+      }
+      for (let i = 0; i < diffDays; i += 3) {
+        snapEnd.push(
+          GSTC.api
+            .date(from)
+            .add(i - 10, 'days')
+            .add(3, 'days')
             .add(12, 'hours')
             .valueOf()
         );
@@ -156,7 +167,8 @@
             moveable: true,
             resizeable: true,
             collisionDetection: true,
-            snapTo
+            snapStart,
+            snapEnd
           }),
           ItemHold({
             time: 1000,

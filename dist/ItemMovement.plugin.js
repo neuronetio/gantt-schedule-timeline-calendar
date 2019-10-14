@@ -12,10 +12,12 @@
       resizerContent: '',
       collisionDetection: true,
       outOfBorders: false,
-      snapTo: []
+      snapStart: [],
+      snapEnd: []
     };
     options = { ...defaultOptions, ...options };
-    options.snapTo = options.snapTo.slice();
+    options.snapStart = options.snapStart.slice();
+    options.snapEnd = options.snapEnd.slice();
     const movementState = {};
 
     /**
@@ -41,6 +43,14 @@
         resizeable = data.row.resizeable;
       }
       const api = data.api;
+      let snapStart = options.snapStart;
+      if (typeof data.item.snapStart !== 'undefined' && Array.isArray(data.item.snapStart)) {
+        snapStart = item.snapStart;
+      }
+      let snapEnd = options.snapEnd;
+      if (typeof data.item.snapEnd !== 'undefined' && Array.isArray(data.item.snapEnd)) {
+        snapEnd = data.item.snapEnd;
+      }
 
       if (resizeable) {
         const resizerHTML = `<div class="${api.getClass('chart-gantt-items-row-item-content-resizer')}">${
@@ -123,14 +133,10 @@
         return false;
       }
 
-      function snap(addMilliseconds, currentDate, addToEnd = 0) {
+      function snap(addMilliseconds, currentDate, addToEnd = 0, snapValues = []) {
         let smallestDiff = Number.MAX_SAFE_INTEGER;
         let smallestTime = 0;
-        let snapTo = options.snapTo;
-        if (typeof data.item.snapTo !== 'undefined' && Array.isArray(data.item.snapTo)) {
-          snapTo = data.item.snapTo;
-        }
-        for (let snapTime of snapTo) {
+        for (let snapTime of snapValues) {
           let diff = currentDate
             .clone()
             .add(addMilliseconds, 'milliseconds')
@@ -152,7 +158,7 @@
         const leftMs = state.get('_internal.chart.time.leftGlobal') + left * timePerPixel;
         const add = leftMs - item.time.start;
         const originalStart = item.time.start;
-        const finalStartTime = snap(add, data.api.time.date(item.time.start));
+        const finalStartTime = snap(add, data.api.time.date(item.time.start), 0, snapStart);
         const finalAdd = finalStartTime - originalStart;
         const collision = isCollision(row.id, item.id, item.time.start + finalAdd, item.time.end + finalAdd);
         if (finalAdd && !collision) {
@@ -173,7 +179,7 @@
           return;
         }
         const originalEnd = item.time.end;
-        const finalEndTime = snap(add, data.api.time.date(item.time.end), -1);
+        const finalEndTime = snap(add, data.api.time.date(item.time.end), 0, snapEnd);
         const finalAdd = finalEndTime - originalEnd;
         const collision = isCollision(row.id, item.id, item.time.start, item.time.end + finalAdd);
         if (finalAdd && !collision) {
