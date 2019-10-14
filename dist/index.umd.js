@@ -123,7 +123,6 @@
           }
       }
   };
-  //# sourceMappingURL=default-config.js.map
 
   var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -270,7 +269,6 @@
           return true;
       }
   }
-  //# sourceMappingURL=stringMatcher.js.map
 
   class WildcardObject {
       constructor(obj, delimeter, wildcard) {
@@ -355,7 +353,6 @@
           return this.goFurther(wildcard, this.obj, 0, '');
       }
   }
-  //# sourceMappingURL=wildcard-object-scan.js.map
 
   class ObjectPath {
       static get(path, obj, copiedPath = null) {
@@ -398,7 +395,6 @@
           ObjectPath.set(path, newValue, obj[currentPath], copiedPath);
       }
   }
-  //# sourceMappingURL=ObjectPath.js.map
 
   function log(message, info) {
       console.debug(message, info);
@@ -937,7 +933,6 @@
           return groupedListener.listener.options.debug || groupedListener.eventInfo.options.debug ? Date.now() : 0;
       }
   }
-  //# sourceMappingURL=index.js.map
 
   // @ts-nocheck
   const lib = 'gantt-shedule-timeline-calendar';
@@ -2335,7 +2330,6 @@
     </div>
   `;
   }
-  //# sourceMappingURL=ListToggle.js.map
 
   function ListExpander(props, vido) {
       const { api, state, onDestroy, actions, update, html, createComponent } = vido;
@@ -2378,7 +2372,6 @@
     </div>
   `;
   }
-  //# sourceMappingURL=ListExpander.js.map
 
   function ListColumnRow({ rowId, columnId }, vido) {
       const { api, state, onDestroy, actions, update, html, createComponent } = vido;
@@ -2433,7 +2426,6 @@
     </div>
   `;
   }
-  //# sourceMappingURL=ListColumnRow.js.map
 
   function ListColumnHeaderResizer({ columnId }, vido) {
       const { api, state, onDestroy, update, html, actions } = vido;
@@ -2520,7 +2512,6 @@
     </div>
   `;
   }
-  //# sourceMappingURL=ListColumnHeaderResizer.js.map
 
   function ListColumnHeader({ columnId }, vido) {
       const { api, state, onDestroy, actions, update, createComponent, html } = vido;
@@ -2566,7 +2557,6 @@
     `;
       };
   }
-  //# sourceMappingURL=ListColumnHeader.js.map
 
   function ListColumnComponent({ columnId }, vido) {
       const { api, state, onDestroy, actions, update, createComponent, html, repeat } = vido;
@@ -2624,7 +2614,6 @@
     </div>
   `;
   }
-  //# sourceMappingURL=ListColumn.js.map
 
   function List(vido) {
       const { api, state, onDestroy, actions, update, createComponent, html, repeat } = vido;
@@ -2707,7 +2696,6 @@
         `
           : null;
   }
-  //# sourceMappingURL=List.js.map
 
   function CalendarDate({ date }, vido) {
       const { api, state, onDestroy, actions, update, html } = vido;
@@ -2781,7 +2769,6 @@
     </div>
   `;
   }
-  //# sourceMappingURL=CalendarDate.js.map
 
   function Calendar(vido) {
       const { api, state, onDestroy, actions, update, createComponent, html, repeat } = vido;
@@ -2820,7 +2807,6 @@
     </div>
   `;
   }
-  //# sourceMappingURL=Calendar.js.map
 
   function GanttGridBlock({ row, time, top }, vido) {
       const { api, state, onDestroy, actions, update, html } = vido;
@@ -2847,7 +2833,6 @@
       />
     `;
   }
-  //# sourceMappingURL=GanttGridBlock.js.map
 
   function GanttGridRow({ row }, vido) {
       const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
@@ -2875,7 +2860,6 @@
     </div>
   `;
   }
-  //# sourceMappingURL=GanttGridRow.js.map
 
   //import GridBlock from './GanttGridBlock.svelte';
   function GanttGrid(vido) {
@@ -2927,7 +2911,6 @@
     </div>
   `;
   }
-  //# sourceMappingURL=GanttGrid.js.map
 
   function GanttItemsRowItem({ rowId, itemId }, vido) {
       const { api, state, onDestroy, actions, update, html } = vido;
@@ -2973,7 +2956,6 @@
     </div>
   `;
   }
-  //# sourceMappingURL=GanttItemsRowItem.js.map
 
   function GanttItemsRow({ rowId }, vido) {
       const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
@@ -3016,7 +2998,6 @@
     </div>
   `;
   }
-  //# sourceMappingURL=GanttItemsRow.js.map
 
   function GnattItems(vido) {
       const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
@@ -3078,7 +3059,6 @@
     </div>
   `;
   }
-  //# sourceMappingURL=Gantt.js.map
 
   function Chart(vido) {
       const { api, state, onDestroy, actions, update, html, createComponent } = vido;
@@ -3169,7 +3149,6 @@
     </div>
   `;
   }
-  //# sourceMappingURL=Chart.js.map
 
   if (location.host !== 'localhost:5000' && location.host !== 'neuronet.io') {
       throw new Error('Sorry!');
@@ -3404,7 +3383,6 @@
       </div>
     `;
   }
-  //# sourceMappingURL=Main.js.map
 
   const _internal = {
       components: {
@@ -3465,7 +3443,6 @@
       return { state };
   };
   GSTC.api = publicApi;
-  //# sourceMappingURL=index.js.map
 
   return GSTC;
 

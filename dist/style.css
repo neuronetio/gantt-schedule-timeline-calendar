@@ -245,6 +245,7 @@
   pointer-events: all;
   padding: 4px 0px;
   height: 100%;
+  user-select: none;
 }
 .gantt-shedule-timeline-calendar__chart-gantt-items-row-item--moving {
   opacity: 0.5;

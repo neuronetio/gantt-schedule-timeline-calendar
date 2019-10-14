@@ -54,7 +54,6 @@
     const mouseMoves = [];
 
     function action(element, data) {
-      console.log('hold created for', data);
       element.addEventListener('mousedown', event => {
         onMouseDown(data.item, element, event);
       });
@@ -78,7 +77,6 @@
     }
 
     return function initializePlugin(state, api) {
-      console.log('initializing hold');
       state.update('config.actions.chart-gantt-items-row-item', actions => {
         actions.push(action);
         return actions;

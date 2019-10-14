@@ -65,19 +65,22 @@ export default function ItemMovementPlugin(options = {}) {
     const movement = movementState[data.item.id];
 
     function createGhost(itemId, ev, ganttLeft, ganttTop) {
-      if (!options.ghostNode) {
+      if (!options.ghostNode || typeof movementState[itemId].ghost !== 'undefined') {
         return;
       }
       const ghost = element.cloneNode(true);
       const style = getComputedStyle(element);
       ghost.style.position = 'absolute';
-      ghost.style.left = 0;
-      ghost.style.top = element.offsetTop + 'px';
+      ghost.style.left = ev.x - ganttLeft - movement.itemLeftCompensation + 'px';
+      const itemTop = ev.y - ganttTop - data.row.top - element.offsetTop;
+      movement.itemTop = itemTop;
+      ghost.style.top = ev.y - ganttTop - itemTop + 'px';
       ghost.style.width = style.width;
+      ghost.style['box-shadow'] = '10px 10px 6px #00000020';
       const height = element.clientHeight + 'px';
       ghost.style.height = height;
       ghost.style['line-height'] = height;
-      element.style.opacity = '0.5';
+      ghost.style.opacity = '0.75';
       state.get('_internal.elements.gantt').appendChild(ghost);
       movementState[itemId].ghost = ghost;
       return ghost;
@@ -182,8 +185,7 @@ export default function ItemMovementPlugin(options = {}) {
       const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
       if (options.ghostNode) {
         movement.ghost.style.left = left + 'px';
-        movement.ghost.style.top = ev.y - movement.ganttTop + 'px';
-        element.style.opacity = '0.5';
+        movement.ghost.style.top = ev.y - movement.ganttTop - movement.itemTop + 'px';
       }
       const leftMs = state.get('_internal.chart.time.leftGlobal') + left * timePerPixel;
       const add = leftMs - item.time.start;
@@ -303,6 +305,7 @@ export default function ItemMovementPlugin(options = {}) {
   return function initializePlugin(state, api) {
     state.update('config.actions.chart-gantt-items-row-item', actions => {
       actions.push(action);
+      console.log(actions);
       return actions;
     });
   };

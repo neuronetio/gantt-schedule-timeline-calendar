@@ -163,19 +163,19 @@
 
       let config = {
         plugins: [
-          ItemMovement({
-            moveable: true,
-            resizeable: true,
-            collisionDetection: true,
-            snapStart,
-            snapEnd
-          }),
           ItemHold({
             time: 1000,
             movementThreshold: 2,
             action(element, item) {
               alert(`item ${item.label} holded for 1s!`);
             }
+          }),
+          ItemMovement({
+            moveable: true,
+            resizeable: true,
+            collisionDetection: true,
+            snapStart,
+            snapEnd
           })
         ],
         height: 40 * 12 + 94,

@@ -2062,19 +2062,11 @@ function Vido(state, api) {
     function getActions(instance) {
         return directive(function actionsDirective(createFunctions, props) {
             return function partial(part) {
+                const element = part.committer.element;
                 for (const create of createFunctions) {
                     if (typeof create === 'function') {
-                        const exists = actions.find(action => action.instance === instance);
-                        if (!exists) {
-                            const componentAction = { create, update() { }, destroy() { } };
-                            const element = part.committer.element;
-                            if (typeof element.__vido__ !== 'undefined')
-                                delete element.__vido__;
-                            actions.push({ instance, componentAction, element, props });
-                        }
-                        else {
-                            exists.props = props;
-                        }
+                        const componentAction = { create, update() { }, destroy() { } };
+                        actions.push({ instance, componentAction, element, props });
                     }
                 }
             };
@@ -2167,7 +2159,6 @@ function Vido(state, api) {
                 if (typeof action.element.__vido__ === 'undefined') {
                     if (typeof action.componentAction.create === 'function') {
                         const result = action.componentAction.create(action.element, action.props);
-                        action.element.__vido__ = { props: action.props };
                         if (typeof result !== 'undefined') {
                             if (typeof result.update === 'function') {
                                 action.componentAction.update = result.update;
@@ -2187,6 +2178,7 @@ function Vido(state, api) {
             for (const action of actions) {
                 action.element.__vido__ = { instance: action.instance, props: action.props };
             }
+            actions = [];
         },
         render() {
             render(components[app].update(), element);
