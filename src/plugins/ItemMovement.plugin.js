@@ -86,6 +86,14 @@ export default function ItemMovementPlugin(options = {}) {
       return ghost;
     }
 
+    function moveGhost(ev) {
+      if (options.ghostNode) {
+        const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
+        movement.ghost.style.left = left + 'px';
+        movement.ghost.style.top = ev.y - movement.ganttTop - movement.itemTop + 'px';
+      }
+    }
+
     function destroyGhost(itemId) {
       if (!options.ghostNode) {
         return;
@@ -183,10 +191,7 @@ export default function ItemMovementPlugin(options = {}) {
 
     function movementX(ev, row, item, zoom, timePerPixel) {
       const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
-      if (options.ghostNode) {
-        movement.ghost.style.left = left + 'px';
-        movement.ghost.style.top = ev.y - movement.ganttTop - movement.itemTop + 'px';
-      }
+      moveGhost(ev);
       const leftMs = state.get('_internal.chart.time.leftGlobal') + left * timePerPixel;
       const add = leftMs - item.time.start;
       const originalStart = item.time.start;
@@ -222,6 +227,7 @@ export default function ItemMovementPlugin(options = {}) {
     }
 
     function movementY(ev, row, item, zoom, timePerPixel) {
+      moveGhost(ev);
       const top = ev.y - movement.ganttTop;
       const visibleRows = state.get('_internal.list.visibleRows');
       let index = 0;
