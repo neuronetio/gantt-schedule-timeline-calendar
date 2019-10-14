@@ -1,2 +1,272 @@
-!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e=e||self).ItemMovement=t()}(this,(function(){"use strict";return function(e={}){(e={moveable:!0,resizeable:!0,resizerContent:"",collisionDetection:!0,snapTo:[],...e}).snapTo=e.snapTo.slice();const t={},i={create:function(i,n){const o=i.querySelector(".gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content");if(!e.moveable&&!e.resizeable)return;let r=e.moveable;n.item.hasOwnProperty("moveable")&&r&&(r=n.item.moveable),n.row.hasOwnProperty("moveable")&&r&&(r=n.row.moveable);let a=e.resizeable&&(!n.item.hasOwnProperty("resizeable")||!0===n.item.resizeable);n.row.hasOwnProperty("resizeable")&&a&&(a=n.row.resizeable);const s=n.api;if(a){const t=`<div class="${s.getClass("chart-gantt-items-row-item-content-resizer")}">${e.resizerContent}</div>`;o.insertAdjacentHTML("beforeend",t)}const m=o,c=(m.querySelector(".gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content-label"),m.querySelector(".gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content-resizer")),l=n.state;void 0===t[n.item.id]&&(t[n.item.id]={moving:!1,resizing:!1});const d=t[n.item.id];function f(e){d.moving=!0;const t=l.get(`config.chart.items.${n.item.id}`),i=l.get("_internal.chart.time.leftGlobal"),o=l.get("_internal.chart.time.timePerPixel"),r=l.get("_internal.elements.gantt").getBoundingClientRect();d.ganttTop=r.top,d.ganttLeft=r.left,d.itemX=Math.round((t.time.start-i)/o),d.itemLeftCompensation=e.x-d.ganttLeft-d.itemX}function u(e){e.stopPropagation(),d.resizing=!0;const t=l.get(`config.chart.items.${n.item.id}`),i=l.get("_internal.chart.time.leftGlobal"),o=l.get("_internal.chart.time.timePerPixel"),r=l.get("_internal.elements.gantt").getBoundingClientRect();d.ganttTop=r.top,d.ganttLeft=r.left,d.itemX=(t.time.end-i)/o,d.itemLeftCompensation=e.x-d.ganttLeft-d.itemX}function g(t,i,n,o){if(!e.collisionDetection)return!1;const r=l.get("_internal.chart.time");if(n<r.from||o>r.to)return!0;if(s.time.date(o).diff(n,r.period)<=0)return!0;const a=l.get("config.list.rows."+t);for(const e of a._internal.items)if(e.id!==i){if(n>=e.time.start&&n<=e.time.end)return!0;if(o>=e.time.start&&o<=e.time.end)return!0;if(n<=e.time.start&&o>=e.time.end)return!0}return!1}function p(t,i,n=0){let o=Number.MAX_SAFE_INTEGER,r=0;for(let n of e.snapTo){let e=i.clone().add(t,"milliseconds").diff(n,"milliseconds");-1===Math.sign(e)&&(e=-e),e<o&&(o=e,r=n)}return r+=n,s.time.date(r)}function v(e){let t,i,o,a,s;if((d.moving||d.resizing)&&(t=l.get(`config.chart.items.${n.item.id}`),i=l.get(`config.chart.items.${n.item.id}.rowId`),o=l.get(`config.list.rows.${i}`),a=l.get("config.chart.time.zoom"),s=l.get("_internal.chart.time.timePerPixel")),d.moving){if((!0===r||"x"===r||Array.isArray(r)&&r.includes(i))&&function(e,t,i,o,r){const a=e.x-d.ganttLeft-d.itemLeftCompensation,s=l.get("_internal.chart.time.leftGlobal")+a*r-i.time.start,m=i.time.start,c=p(s,n.api.time.date(i.time.start))-m,f=g(t.id,i.id,i.time.start+c,i.time.end+c);c&&!f&&l.update(`config.chart.items.${n.item.id}.time`,(function(e){return e.start+=c,e.end+=c,e}))}(e,o,t,0,s),!r||"x"===r)return;let a=function(e,t,i,n,o){const r=e.y-d.ganttTop,a=l.get("_internal.list.visibleRows");let s=0;for(const e of a){if(e.top>r)return s>0?s-1:0;s++}return s}(e);const m=l.get("_internal.list.visibleRows");void 0===m[a]&&(a>0?a=m.length-1:a<0&&(a=0));const c=m[a],f=c.id,u=g(f,t.id,t.time.start,t.time.end);f===t.rowId||u||Array.isArray(r)&&!r.includes(f)||c.hasOwnProperty("moveable")&&!c.moveable||l.update(`config.chart.items.${t.id}.rowId`,f)}else!d.resizing||void 0!==t.resizeable&&!0!==t.resizeable||function(e,t,i,o,r){const a=l.get("_internal.chart.time"),s=e.x-d.ganttLeft-d.itemLeftCompensation,m=a.leftGlobal+s*r-i.time.end;if(i.time.end+m<i.time.start)return;const c=i.time.end,f=p(m,n.api.time.date(i.time.end),-1)-c,u=g(t.id,i.id,i.time.start,i.time.end+f);f&&!u&&l.update(`config.chart.items.${n.item.id}.time.end`,(function(e){return e+f}))}(e,o,t,0,s)}function h(e){d.moving=!1,d.resizing=!1}return r&&m.addEventListener("mousedown",f),a&&c.addEventListener("mousedown",u),document.addEventListener("mousemove",v),document.addEventListener("mouseup",h),{update(e){},destroy(){r&&m.removeEventListener("moudedown",f),a&&c.removeEventListener("mousedown",u),document.removeEventListener("mousemove",v),document.removeEventListener("mouseup",h)}}}};return function(e,t){state.update("config.actions.chart-gantt-items-row-item",e=>(e.some(e=>e===i)||e.push(i),e))}}}));
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
+  (global = global || self, global.ItemMovement = factory());
+}(this, function () { 'use strict';
+
+  // @ts-nocheck
+  function ItemMovementPlugin(options = {}) {
+    const defaultOptions = {
+      moveable: true,
+      resizeable: true,
+      resizerContent: '',
+      collisionDetection: true,
+      snapTo: []
+    };
+    options = { ...defaultOptions, ...options };
+    options.snapTo = options.snapTo.slice();
+    const movementState = {};
+
+    /**
+     * Add moving functionality to items as action
+     *
+     * @param {Node} node DOM Node
+     * @param {Object} data
+     */
+    function action(node, data) {
+      const element = node.querySelector('.gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content');
+      if (!options.moveable && !options.resizeable) {
+        return;
+      }
+      let moveable = options.moveable;
+      if (data.item.hasOwnProperty('moveable') && moveable) {
+        moveable = data.item.moveable;
+      }
+      if (data.row.hasOwnProperty('moveable') && moveable) {
+        moveable = data.row.moveable;
+      }
+      let resizeable = options.resizeable && (!data.item.hasOwnProperty('resizeable') || data.item.resizeable === true);
+      if (data.row.hasOwnProperty('resizeable') && resizeable) {
+        resizeable = data.row.resizeable;
+      }
+      const api = data.api;
+
+      if (resizeable) {
+        const resizerHTML = `<div class="${api.getClass('chart-gantt-items-row-item-content-resizer')}">${
+        options.resizerContent
+      }</div>`;
+        // @ts-ignore
+        element.insertAdjacentHTML('beforeend', resizerHTML);
+      }
+
+      const el = element;
+      const resizerEl = el.querySelector('.gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content-resizer');
+
+      const state = data.state;
+
+      if (typeof movementState[data.item.id] === 'undefined') {
+        movementState[data.item.id] = { moving: false, resizing: false };
+      }
+      const movement = movementState[data.item.id];
+
+      function labelMouseDown(ev) {
+        if (ev.button !== 0) {
+          return;
+        }
+        movement.moving = true;
+        const item = state.get(`config.chart.items.${data.item.id}`);
+        const chartLeftTime = state.get('_internal.chart.time.leftGlobal');
+        const timePerPixel = state.get('_internal.chart.time.timePerPixel');
+        const ganttRect = state.get('_internal.elements.gantt').getBoundingClientRect();
+        movement.ganttTop = ganttRect.top;
+        movement.ganttLeft = ganttRect.left;
+        movement.itemX = Math.round((item.time.start - chartLeftTime) / timePerPixel);
+        movement.itemLeftCompensation = ev.x - movement.ganttLeft - movement.itemX;
+      }
+
+      function resizerMouseDown(ev) {
+        if (ev.button !== 0) {
+          return;
+        }
+        ev.stopPropagation();
+        movement.resizing = true;
+        const item = state.get(`config.chart.items.${data.item.id}`);
+        const chartLeftTime = state.get('_internal.chart.time.leftGlobal');
+        const timePerPixel = state.get('_internal.chart.time.timePerPixel');
+        const ganttRect = state.get('_internal.elements.gantt').getBoundingClientRect();
+        movement.ganttTop = ganttRect.top;
+        movement.ganttLeft = ganttRect.left;
+        movement.itemX = (item.time.end - chartLeftTime) / timePerPixel;
+        movement.itemLeftCompensation = ev.x - movement.ganttLeft - movement.itemX;
+      }
+
+      function isCollision(rowId, itemId, start, end) {
+        if (!options.collisionDetection) {
+          return false;
+        }
+        const time = state.get('_internal.chart.time');
+        if (start < time.from || end > time.to) {
+          return true;
+        }
+        let diff = api.time.date(end).diff(start, 'milliseconds');
+        if (Math.sign(diff) === -1) {
+          diff = -diff;
+        }
+        if (diff <= 1) {
+          return true;
+        }
+        const row = state.get('config.list.rows.' + rowId);
+        for (const rowItem of row._internal.items) {
+          if (rowItem.id !== itemId) {
+            if (start >= rowItem.time.start && start <= rowItem.time.end) {
+              return true;
+            }
+            if (end >= rowItem.time.start && end <= rowItem.time.end) {
+              return true;
+            }
+            if (start <= rowItem.time.start && end >= rowItem.time.end) {
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+
+      function snap(addMilliseconds, currentDate, addToEnd = 0) {
+        let smallestDiff = Number.MAX_SAFE_INTEGER;
+        let smallestTime = 0;
+        for (let snapTime of options.snapTo) {
+          let diff = currentDate
+            .clone()
+            .add(addMilliseconds, 'milliseconds')
+            .diff(snapTime, 'milliseconds');
+          if (Math.sign(diff) === -1) {
+            diff = -diff;
+          }
+          if (diff < smallestDiff) {
+            smallestDiff = diff;
+            smallestTime = snapTime;
+          }
+        }
+        smallestTime += addToEnd;
+        return api.time.date(smallestTime);
+      }
+
+      function movementX(ev, row, item, zoom, timePerPixel) {
+        const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
+        const leftMs = state.get('_internal.chart.time.leftGlobal') + left * timePerPixel;
+        const add = leftMs - item.time.start;
+        const originalStart = item.time.start;
+        const finalStartTime = snap(add, data.api.time.date(item.time.start));
+        const finalAdd = finalStartTime - originalStart;
+        const collision = isCollision(row.id, item.id, item.time.start + finalAdd, item.time.end + finalAdd);
+        if (finalAdd && !collision) {
+          state.update(`config.chart.items.${data.item.id}.time`, function moveItem(time) {
+            time.start += finalAdd;
+            time.end += finalAdd;
+            return time;
+          });
+        }
+      }
+
+      function resizeX(ev, row, item, zoom, timePerPixel) {
+        const time = state.get('_internal.chart.time');
+        const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
+        const leftMs = time.leftGlobal + left * timePerPixel;
+        const add = leftMs - item.time.end;
+        if (item.time.end + add < item.time.start) {
+          return;
+        }
+        const originalEnd = item.time.end;
+        const finalEndTime = snap(add, data.api.time.date(item.time.end), -1);
+        const finalAdd = finalEndTime - originalEnd;
+        const collision = isCollision(row.id, item.id, item.time.start, item.time.end + finalAdd);
+        if (finalAdd && !collision) {
+          state.update(`config.chart.items.${data.item.id}.time.end`, function resizeItem(end) {
+            return (end += finalAdd);
+          });
+        }
+      }
+
+      function movementY(ev, row, item, zoom, timePerPixel) {
+        const top = ev.y - movement.ganttTop;
+        const visibleRows = state.get('_internal.list.visibleRows');
+        let index = 0;
+        for (const currentRow of visibleRows) {
+          if (currentRow.top > top) {
+            if (index > 0) {
+              return index - 1;
+            }
+            return 0;
+          }
+          index++;
+        }
+        return index;
+      }
+
+      function documentMouseMove(ev) {
+        let item, rowId, row, zoom, timePerPixel;
+        if (movement.moving || movement.resizing) {
+          item = state.get(`config.chart.items.${data.item.id}`);
+          rowId = state.get(`config.chart.items.${data.item.id}.rowId`);
+          row = state.get(`config.list.rows.${rowId}`);
+          zoom = state.get('config.chart.time.zoom');
+          timePerPixel = state.get('_internal.chart.time.timePerPixel');
+        }
+        if (movement.moving) {
+          if (moveable === true || moveable === 'x' || (Array.isArray(moveable) && moveable.includes(rowId))) {
+            movementX(ev, row, item, zoom, timePerPixel);
+          }
+          if (!moveable || moveable === 'x') {
+            return;
+          }
+          let visibleRowsIndex = movementY(ev);
+          const visibleRows = state.get('_internal.list.visibleRows');
+          if (typeof visibleRows[visibleRowsIndex] === 'undefined') {
+            if (visibleRowsIndex > 0) {
+              visibleRowsIndex = visibleRows.length - 1;
+            } else if (visibleRowsIndex < 0) {
+              visibleRowsIndex = 0;
+            }
+          }
+          const newRow = visibleRows[visibleRowsIndex];
+          const newRowId = newRow.id;
+          const collision = isCollision(newRowId, item.id, item.time.start, item.time.end);
+          if (newRowId !== item.rowId && !collision) {
+            if (!Array.isArray(moveable) || moveable.includes(newRowId)) {
+              if (!newRow.hasOwnProperty('moveable') || newRow.moveable) {
+                state.update(`config.chart.items.${item.id}.rowId`, newRowId);
+              }
+            }
+          }
+        } else if (movement.resizing && (typeof item.resizeable === 'undefined' || item.resizeable === true)) {
+          resizeX(ev, row, item, zoom, timePerPixel);
+        }
+      }
+
+      function documentMouseUp(ev) {
+        movement.moving = false;
+        movement.resizing = false;
+        for (const itemId in movementState) {
+          movementState[itemId].moving = false;
+          movementState[itemId].resizing = false;
+        }
+      }
+      if (moveable) el.addEventListener('mousedown', labelMouseDown);
+      if (resizeable) resizerEl.addEventListener('mousedown', resizerMouseDown);
+      document.addEventListener('mousemove', documentMouseMove);
+      document.addEventListener('mouseup', documentMouseUp);
+
+      return {
+        destroy(node, data) {
+          if (moveable) el.removeEventListener('moudedown', labelMouseDown);
+          if (resizeable) resizerEl.removeEventListener('mousedown', resizerMouseDown);
+          document.removeEventListener('mousemove', documentMouseMove);
+          document.removeEventListener('mouseup', documentMouseUp);
+          if (resizeable) element.removeChild(resizerEl);
+        }
+      };
+    }
+
+    return function initializePlugin(State, api) {
+      state.update('config.actions.chart-gantt-items-row-item', actions => {
+        actions.push(action);
+        return actions;
+      });
+    };
+  }
+
+  return ItemMovementPlugin;
+
+}));
 //# sourceMappingURL=ItemMovement.plugin.js.map

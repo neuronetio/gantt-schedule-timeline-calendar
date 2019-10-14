@@ -51,10 +51,8 @@ export default function GanttGrid(vido) {
     )
   );
 
-  componentActions.push({
-    create(element) {
-      state.update('_internal.elements.grid');
-    }
+  componentActions.push(element => {
+    state.update('_internal.elements.grid');
   });
 
   onDestroy(() => {

@@ -220,6 +220,9 @@
   border-bottom: 1px solid #f9fafb;
   will-change: margin-left;
 }
+.gantt-shedule-timeline-calendar__chart-gantt-grid-block.current {
+  background: #f9fafb;
+}
 .gantt-shedule-timeline-calendar__chart-gantt-items {
   position: absolute;
   left: 0;

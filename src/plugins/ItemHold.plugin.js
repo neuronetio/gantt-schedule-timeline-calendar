@@ -47,28 +47,28 @@ export default function ItemHoldPlugin(options = {}) {
   const mouseUps = [];
   const mouseMoves = [];
 
-  const action = {
-    create(element, data) {
-      element.addEventListener('mousedown', event => {
-        onMouseDown(data.item, element, event);
-      });
-      function mouseUp() {
-        onMouseUp(data.item.id);
-      }
-      mouseUps.push(mouseUp);
-      document.addEventListener('mouseup', mouseUp);
-      function mouseMove(event) {
-        mouse.x = event.x;
-        mouse.y = event.y;
-      }
-      mouseMoves.push(mouseMove);
-      document.addEventListener('mousemove', mouseMove);
-    },
-    destroy() {
-      mouseUps.forEach(mouseUp => document.removeEventListener('mouseup', mouseUp));
-      mouseMoves.forEach(mouseMove => document.removeEventListener('mousemove', mouseMove));
+  function action(element, data) {
+    element.addEventListener('mousedown', event => {
+      onMouseDown(data.item, element, event);
+    });
+    function mouseUp() {
+      onMouseUp(data.item.id);
     }
-  };
+    mouseUps.push(mouseUp);
+    document.addEventListener('mouseup', mouseUp);
+    function mouseMove(event) {
+      mouse.x = event.x;
+      mouse.y = event.y;
+    }
+    mouseMoves.push(mouseMove);
+    document.addEventListener('mousemove', mouseMove);
+    return {
+      destroy() {
+        mouseUps.forEach(mouseUp => document.removeEventListener('mouseup', mouseUp));
+        mouseMoves.forEach(mouseMove => document.removeEventListener('mousemove', mouseMove));
+      }
+    };
+  }
 
   return function initializePlugin(state, api) {
     state.update('config.actions.chart-gantt-items-row-item', actions => {

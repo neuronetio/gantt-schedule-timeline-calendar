@@ -17,7 +17,7 @@ export default function ItemMovementPlugin(options = {}) {
    * @param {Node} node DOM Node
    * @param {Object} data
    */
-  function createAction(node, data) {
+  function action(node, data) {
     const element = node.querySelector('.gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content');
     if (!options.moveable && !options.resizeable) {
       return;
@@ -44,7 +44,6 @@ export default function ItemMovementPlugin(options = {}) {
     }
 
     const el = element;
-    const labelEl = el.querySelector('.gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content-label');
     const resizerEl = el.querySelector('.gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content-resizer');
 
     const state = data.state;
@@ -55,6 +54,9 @@ export default function ItemMovementPlugin(options = {}) {
     const movement = movementState[data.item.id];
 
     function labelMouseDown(ev) {
+      if (ev.button !== 0) {
+        return;
+      }
       movement.moving = true;
       const item = state.get(`config.chart.items.${data.item.id}`);
       const chartLeftTime = state.get('_internal.chart.time.leftGlobal');
@@ -67,6 +69,9 @@ export default function ItemMovementPlugin(options = {}) {
     }
 
     function resizerMouseDown(ev) {
+      if (ev.button !== 0) {
+        return;
+      }
       ev.stopPropagation();
       movement.resizing = true;
       const item = state.get(`config.chart.items.${data.item.id}`);
@@ -87,7 +92,11 @@ export default function ItemMovementPlugin(options = {}) {
       if (start < time.from || end > time.to) {
         return true;
       }
-      if (api.time.date(end).diff(start, time.period) <= 0) {
+      let diff = api.time.date(end).diff(start, 'milliseconds');
+      if (Math.sign(diff) === -1) {
+        diff = -diff;
+      }
+      if (diff <= 1) {
         return true;
       }
       const row = state.get('config.list.rows.' + rowId);
@@ -222,33 +231,30 @@ export default function ItemMovementPlugin(options = {}) {
     function documentMouseUp(ev) {
       movement.moving = false;
       movement.resizing = false;
+      for (const itemId in movementState) {
+        movementState[itemId].moving = false;
+        movementState[itemId].resizing = false;
+      }
     }
-
     if (moveable) el.addEventListener('mousedown', labelMouseDown);
     if (resizeable) resizerEl.addEventListener('mousedown', resizerMouseDown);
     document.addEventListener('mousemove', documentMouseMove);
     document.addEventListener('mouseup', documentMouseUp);
 
     return {
-      update(data) {},
-      destroy() {
+      destroy(node, data) {
         if (moveable) el.removeEventListener('moudedown', labelMouseDown);
         if (resizeable) resizerEl.removeEventListener('mousedown', resizerMouseDown);
         document.removeEventListener('mousemove', documentMouseMove);
         document.removeEventListener('mouseup', documentMouseUp);
+        if (resizeable) element.removeChild(resizerEl);
       }
     };
   }
 
-  const action = {
-    create: createAction
-  };
-
   return function initializePlugin(State, api) {
     state.update('config.actions.chart-gantt-items-row-item', actions => {
-      if (!actions.some(a => a === action)) {
-        actions.push(action);
-      }
+      actions.push(action);
       return actions;
     });
   };

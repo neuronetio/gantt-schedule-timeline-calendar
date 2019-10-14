@@ -6,6 +6,15 @@ export default function GanttGridBlock({ row, time, top }, vido) {
   onDestroy(
     state.subscribe('config.classNames', () => {
       className = api.getClass(componentName);
+      if (
+        time.leftGlobal ===
+        api.time
+          .date()
+          .startOf('day')
+          .valueOf()
+      ) {
+        className += ' current';
+      }
       update();
     })
   );

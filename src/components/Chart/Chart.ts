@@ -50,24 +50,25 @@ export default function Chart(vido) {
     handleEvent(event) {
       event.stopPropagation();
       event.preventDefault();
-      let scrollLeft;
+      let scrollLeft, scrollTop;
       if (event.type === 'scroll') {
         state.update('config.scroll.left', event.target.scrollLeft);
+        scrollLeft = event.target.scrollLeft;
       } else {
         const wheel = api.normalizeMouseWheelEvent(event);
         const xMultiplier = state.get('config.scroll.xMultiplier');
         const yMultiplier = state.get('config.scroll.yMultiplier');
         if (event.shiftKey && wheel.y) {
           state.update('config.scroll.left', left => {
-            return api.limitScroll('left', (left += wheel.y * xMultiplier));
+            return (scrollLeft = api.limitScroll('left', (left += wheel.y * xMultiplier)));
           });
         } else if (wheel.x) {
           state.update('config.scroll.left', left => {
-            return api.limitScroll('left', (left += wheel.x * xMultiplier));
+            return (scrollLeft = api.limitScroll('left', (left += wheel.x * xMultiplier)));
           });
         } else {
           state.update('config.scroll.top', top => {
-            return api.limitScroll('top', (top += wheel.y * yMultiplier));
+            return (scrollTop = api.limitScroll('top', (top += wheel.y * yMultiplier)));
           });
         }
       }
@@ -75,31 +76,29 @@ export default function Chart(vido) {
       const scrollInner = state.get('_internal.elements.horizontalScrollInner');
       if (chart) {
         const scrollLeft = state.get('config.scroll.left');
-        const percent = Math.round((scrollLeft / (scrollInner.clientWidth - chart.clientWidth)) * 100);
-        console.log(percent);
+        let percent = 0;
+        if (scrollLeft) {
+          percent = Math.round((scrollLeft / (scrollInner.clientWidth - chart.clientWidth)) * 100);
+          if (percent > 100) percent = 100;
+          console.log(`scrollLeft: ${scrollLeft} percent: ${percent} chart clientWidth: ${chart.clientWidth}`);
+        }
         state.update('config.scroll.percent.left', percent);
       }
     },
     passive: false
   };
 
-  const bindElement = {
-    create(element) {
-      scrollElement = element;
-      state.update('_internal.elements.horizontalScroll', element);
-    }
-  };
+  function bindElement(element) {
+    scrollElement = element;
+    state.update('_internal.elements.horizontalScroll', element);
+  }
 
-  const bindInnerScroll = {
-    create(element) {
-      state.update('_internal.elements.horizontalScrollInner', element);
-    }
-  };
+  function bindInnerScroll(element) {
+    state.update('_internal.elements.horizontalScrollInner', element);
+  }
 
-  componentActions.push({
-    create(element) {
-      state.update('_internal.elements.chart', element);
-    }
+  componentActions.push(element => {
+    state.update('_internal.elements.chart', element);
   });
 
   return props => html`

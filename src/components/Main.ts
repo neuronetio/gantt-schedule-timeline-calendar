@@ -211,12 +211,20 @@ export default function Main(vido) {
         time.rightInner = time.rightGlobal - time.from;
         time.leftPx = time.leftInner / time.timePerPixel;
         time.rightPx = time.rightInner / time.timePerPixel;
-        if (Math.round(time.rightGlobal / time.timePerPixel) > Math.round(time.to / time.timePerPixel)) {
+        const pixelGlobal = Math.round(time.rightGlobal / time.timePerPixel);
+        const pixelTo = Math.round(time.to / time.timePerPixel);
+        if (pixelGlobal > pixelTo) {
+          const diff = time.rightGlobal - time.to;
+          const diffPercent = diff / (time.rightGlobal - time.from);
+          time.timePerPixel = time.timePerPixel - time.timePerPixel * diffPercent;
+          time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
           time.rightGlobal = time.to;
           time.rightInner = time.rightGlobal - time.from;
           time.totalViewDurationMs = time.to - time.from;
-          time.totalViewDurationPx = time.rightPx;
-          time.timePerPixel = time.totalViewDurationMs / time.totalViewDurationPx;
+          time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
+          time.rightInner = time.rightGlobal - time.from;
+          time.rightPx = time.rightInner / time.timePerPixel;
+          time.leftPx = time.leftInner / time.timePerPixel;
         }
         generateAndAddDates(time, chartWidth);
         state.update(`_internal.chart.time`, time);
@@ -235,8 +243,11 @@ export default function Main(vido) {
         'config.scroll',
         scroll => {
           scroll.top = event.target.scrollTop;
-          const scrollHeight = state.get('_internal.elements.verticalScrollInner').clientHeight;
-          scroll.percent.top = scroll.top / scrollHeight;
+          const scrollInner = state.get('_internal.elements.verticalScrollInner');
+          if (scrollInner) {
+            const scrollHeight = scrollInner.clientHeight;
+            scroll.percent.top = scroll.top / scrollHeight;
+          }
           return scroll;
         },
         { only: ['top', 'percent.top'] }
@@ -247,41 +258,27 @@ export default function Main(vido) {
 
   const dimensions = { width: 0, height: 0 };
 
-  componentActions.push({
-    create(element) {
-      const ro = new ResizeObserver((entries, observer) => {
-        const width = element.clientWidth;
-        const height = element.clientHeight;
-        if (dimensions.width !== width || dimensions.height !== height) {
-          dimensions.width = width;
-          dimensions.height = height;
-          state.update('_internal.dimensions', dimensions);
-          state.update(
-            'config.scroll',
-            scroll => {
-              scroll.left = (scroll.percent.left * scroll.left) / 100;
-              return scroll;
-            },
-            { only: 'left' }
-          );
-        }
-      });
-      ro.observe(element);
-      state.update('_internal.elements.main', element);
-    }
+  componentActions.push(element => {
+    const ro = new ResizeObserver((entries, observer) => {
+      const width = element.clientWidth;
+      const height = element.clientHeight;
+      if (dimensions.width !== width || dimensions.height !== height) {
+        dimensions.width = width;
+        dimensions.height = height;
+        state.update('_internal.dimensions', dimensions);
+      }
+    });
+    ro.observe(element);
+    state.update('_internal.elements.main', element);
   });
 
-  const bindScrollElement = {
-    create(element) {
-      verticalScrollBarElement = element;
-      state.update('_internal.elements.verticalScroll', element);
-    }
-  };
-  const bindScrollInnerElement = {
-    create(element) {
-      state.update('_internal.elements.verticalScrollInner', element);
-    }
-  };
+  function bindScrollElement(element) {
+    verticalScrollBarElement = element;
+    state.update('_internal.elements.verticalScroll', element);
+  }
+  function bindScrollInnerElement(element) {
+    state.update('_internal.elements.verticalScrollInner', element);
+  }
 
   return props =>
     html`

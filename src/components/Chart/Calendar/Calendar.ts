@@ -40,10 +40,8 @@ export default function Calendar(vido) {
     datesComponents.forEach(date => date.component.destroy());
   });
 
-  componentActions.push({
-    create(element) {
-      state.update('_internal.elements.calendar', element);
-    }
+  componentActions.push(element => {
+    state.update('_internal.elements.calendar', element);
   });
 
   return props => html`

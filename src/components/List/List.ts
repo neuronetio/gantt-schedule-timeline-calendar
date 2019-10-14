@@ -76,12 +76,12 @@ export default function List(vido) {
     }
   }
 
-  componentActions.push({
-    create(element) {
-      state.update('_internal.elements.list', element);
-      getWidth(element);
-    },
-    update: getWidth
+  componentActions.push(element => {
+    state.update('_internal.elements.list', element);
+    getWidth(element);
+    return {
+      update: getWidth
+    };
   });
 
   return props =>

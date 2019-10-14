@@ -20,6 +20,26 @@ export default function Vido(state, api) {
   let shouldUpdateCount = 0;
   const resolved = Promise.resolve();
 
+  function getActions(instance) {
+    return directive(function actionsDirective(createFunctions, props) {
+      return function partial(part) {
+        for (const create of createFunctions) {
+          if (typeof create === 'function') {
+            const exists = actions.find(action => action.instance === instance);
+            if (!exists) {
+              const componentAction = { create, update() {}, destroy() {} };
+              const element = part.committer.element;
+              if (typeof element.__vido__ !== 'undefined') delete element.__vido__;
+              actions.push({ instance, componentAction, element, props });
+            } else {
+              exists.props = props;
+            }
+          }
+        }
+      };
+    });
+  }
+
   const vido = {
     state,
     api,
@@ -36,18 +56,10 @@ export default function Vido(state, api) {
     styleMap,
     unsafeHTML,
     until,
-    actions: directive(function actionsDirective(componentActions, props) {
-      return function partial(part) {
-        if (typeof componentActions !== 'undefined') {
-          for (const componentAction of componentActions) {
-            actions.push({ componentAction, element: part.committer.element, props });
-          }
-        }
-      };
-    }),
+    actions(componentActions, props) {},
 
     createComponent(component, props) {
-      const instance = componentId++;
+      const instance = component.name + ':' + componentId++;
       const componentInstance = getComponentInstance(instance);
       function update() {
         vido.updateTemplate();
@@ -56,12 +68,12 @@ export default function Vido(state, api) {
       function onDestroy(fn) {
         destroyable.push(fn);
       }
-      const instancevido = { ...vido, update, onDestroy, instance };
+      const vidoInstance = { ...vido, update, onDestroy, instance, actions: getActions(instance) };
       let firstMethods, methods;
       if (props) {
-        firstMethods = component(props, instancevido);
+        firstMethods = component(props, vidoInstance);
       } else {
-        firstMethods = component(instancevido);
+        firstMethods = component(vidoInstance);
       }
       if (typeof firstMethods === 'function') {
         const destroy = () => {
@@ -84,6 +96,13 @@ export default function Vido(state, api) {
       if (typeof components[instance].destroy === 'function') {
         components[instance].destroy();
       }
+      actions = actions.filter(action => {
+        if (action.instance === instance && typeof action.componentAction.destroy === 'function') {
+          action.componentAction.destroy(action.element, action.props);
+          if (typeof element.__vido__ !== 'undefined') delete element.__vido__;
+        }
+        return action.instance !== instance;
+      });
       delete components[instance];
     },
 
@@ -107,12 +126,20 @@ export default function Vido(state, api) {
       return App;
     },
 
-    render() {
-      render(components[app].update(), element);
+    executeActions() {
       for (const action of actions) {
         if (typeof action.element.__vido__ === 'undefined') {
           if (typeof action.componentAction.create === 'function') {
-            action.componentAction.create(action.element, action.props);
+            const result = action.componentAction.create(action.element, action.props);
+            action.element.__vido__ = { props: action.props };
+            if (typeof result !== 'undefined') {
+              if (typeof result.update === 'function') {
+                action.componentAction.update = result.update;
+              }
+              if (typeof result.destroy === 'function') {
+                action.componentAction.destroy = result.destroy;
+              }
+            }
           }
         } else {
           if (typeof action.componentAction.update === 'function') {
@@ -121,9 +148,13 @@ export default function Vido(state, api) {
         }
       }
       for (const action of actions) {
-        action.element.__vido__ = { props: action.props };
+        action.element.__vido__ = { instance: action.instance };
       }
-      actions = [];
+    },
+
+    render() {
+      render(components[app].update(), element);
+      vido.executeActions();
     }
   };
 

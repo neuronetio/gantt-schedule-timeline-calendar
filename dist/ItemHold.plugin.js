@@ -1,2 +1,90 @@
-!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e=e||self).ItemHold=t()}(this,(function(){"use strict";return function(e={}){e={...{time:1e3,movementThreshold:2,action(e,t){}},...e};const t={},o={x:0,y:0},n=[],i=[],d={create(d,m){function u(){var e;e=m.item.id,void 0!==t[e]&&delete t[e]}function s(e){o.x=e.x,o.y=e.y}d.addEventListener("mousedown",n=>{!function(n,i,d){void 0===t[n.id]&&(t[n.id]={x:d.x,y:d.y},setTimeout(()=>{if(void 0!==t[n.id]){let d=!0,m=t[n.id].x-o.x;-1===Math.sign(m)&&(m=-m);let u=t[n.id].y-o.y;-1===Math.sign(u)&&(u=-u),m>e.movementThreshold&&(d=!1),u>e.movementThreshold&&(d=!1),delete t[n.id],d&&e.action(i,n)}},e.time))}(m.item,d,n)}),n.push(u),document.addEventListener("mouseup",u),i.push(s),document.addEventListener("mousemove",s)},destroy(){n.forEach(e=>document.removeEventListener("mouseup",e)),i.forEach(e=>document.removeEventListener("mousemove",e))}};return function(e,t){e.update("config.actions.chart-gantt-items-row-item",e=>(e.push(d),e))}}}));
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
+  (global = global || self, global.ItemHold = factory());
+}(this, function () { 'use strict';
+
+  function ItemHoldPlugin(options = {}) {
+    const defaultOptions = {
+      time: 1000,
+      movementThreshold: 2,
+      action(element, data) {}
+    };
+    options = { ...defaultOptions, ...options };
+
+    const holding = {};
+    const mouse = { x: 0, y: 0 };
+
+    function onMouseDown(item, element, event) {
+      if (typeof holding[item.id] === 'undefined') {
+        holding[item.id] = { x: event.x, y: event.y };
+        setTimeout(() => {
+          if (typeof holding[item.id] !== 'undefined') {
+            let exec = true;
+            let xMovement = holding[item.id].x - mouse.x;
+            if (Math.sign(xMovement) === -1) {
+              xMovement = -xMovement;
+            }
+            let yMovement = holding[item.id].y - mouse.y;
+            if (Math.sign(yMovement) === -1) {
+              yMovement = -yMovement;
+            }
+            if (xMovement > options.movementThreshold) {
+              exec = false;
+            }
+            if (yMovement > options.movementThreshold) {
+              exec = false;
+            }
+            delete holding[item.id];
+            if (exec) {
+              options.action(element, item);
+            }
+          }
+        }, options.time);
+      }
+    }
+
+    function onMouseUp(itemId) {
+      if (typeof holding[itemId] !== 'undefined') {
+        delete holding[itemId];
+      }
+    }
+
+    const mouseUps = [];
+    const mouseMoves = [];
+
+    function action(element, data) {
+      element.addEventListener('mousedown', event => {
+        onMouseDown(data.item, element, event);
+      });
+      function mouseUp() {
+        onMouseUp(data.item.id);
+      }
+      mouseUps.push(mouseUp);
+      document.addEventListener('mouseup', mouseUp);
+      function mouseMove(event) {
+        mouse.x = event.x;
+        mouse.y = event.y;
+      }
+      mouseMoves.push(mouseMove);
+      document.addEventListener('mousemove', mouseMove);
+      return {
+        destroy() {
+          mouseUps.forEach(mouseUp => document.removeEventListener('mouseup', mouseUp));
+          mouseMoves.forEach(mouseMove => document.removeEventListener('mousemove', mouseMove));
+        }
+      };
+    }
+
+    return function initializePlugin(state, api) {
+      state.update('config.actions.chart-gantt-items-row-item', actions => {
+        actions.push(action);
+        return actions;
+      });
+    };
+  }
+
+  return ItemHoldPlugin;
+
+}));
 //# sourceMappingURL=ItemHold.plugin.js.map

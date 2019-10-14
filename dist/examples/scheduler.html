@@ -186,15 +186,13 @@
         classNames: {},
         actions: {
           'list-column-header': [
-            {
-              create(element, data) {
-                const target = element.querySelector('.gantt-shedule-timeline-calendar__list-column-header-content');
-                target.style['cursor'] = 'pointer';
-                target.addEventListener('click', () => {
-                  target.style.color = '#' + Math.round(Math.random() * 999999);
-                  console.log(`${data.column.header.content} clicked!`);
-                });
-              }
+            (element, data) => {
+              const target = element.querySelector('.gantt-shedule-timeline-calendar__list-column-header-content');
+              target.style['cursor'] = 'pointer';
+              target.addEventListener('click', () => {
+                target.style.color = '#' + Math.round(Math.random() * 999999);
+                console.log(`${data.column.header.content} clicked!`);
+              });
             }
           ]
         },

@@ -29,10 +29,8 @@ export default function Gantt(vido) {
     })
   );
 
-  componentActions.push({
-    create(element) {
-      state.update('_internal.elements.gantt', element);
-    }
+  componentActions.push(element => {
+    state.update('_internal.elements.gantt', element);
   });
 
   return props => html`
