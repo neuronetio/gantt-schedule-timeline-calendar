@@ -2145,8 +2145,6 @@
                 actions = actions.filter(action => {
                     if (action.instance === instance && typeof action.componentAction.destroy === 'function') {
                         action.componentAction.destroy(action.element, action.props);
-                        if (typeof element.__vido__ !== 'undefined')
-                            delete element.__vido__;
                     }
                     return action.instance !== instance;
                 });
@@ -2193,7 +2191,7 @@
                     }
                 }
                 for (const action of actions) {
-                    action.element.__vido__ = { instance: action.instance };
+                    action.element.__vido__ = { instance: action.instance, props: action.props };
                 }
             },
             render() {
