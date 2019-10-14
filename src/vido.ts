@@ -26,8 +26,17 @@ export default function Vido(state, api) {
         const element = part.committer.element;
         for (const create of createFunctions) {
           if (typeof create === 'function') {
-            const componentAction = { create, update() {}, destroy() {} };
-            actions.push({ instance, componentAction, element, props });
+            const exists = actions.find(
+              action =>
+                action.instance === instance && action.componentAction.create === create && action.element === element
+            );
+            if (!exists) {
+              if (typeof element.__vido__ !== 'undefined') delete element.__vido__;
+              const componentAction = { create, update() {}, destroy() {} };
+              actions.push({ instance, componentAction, element, props });
+            } else {
+              exists.props = props;
+            }
           }
         }
       };
@@ -142,7 +151,6 @@ export default function Vido(state, api) {
       for (const action of actions) {
         action.element.__vido__ = { instance: action.instance, props: action.props };
       }
-      actions = [];
     },
 
     render() {
