@@ -1,6 +1,13 @@
+/**
+ * Gantt-Schedule-Timeline-Calendar
+ *
+ * @copyright Rafal Pospiech <https://neuronet.io>
+ * @author    Rafal Pospiech <neuronet.io@gmail.com>
+ * @package   gantt-schedule-timeline-calendar
+ * @license   GPL-3.0
+ */
+
 import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-//dayjs.extend(utc, { parseToLocal: true });
 
 export default function timeApi(state, getApi) {
   const locale = state.get('config.locale');

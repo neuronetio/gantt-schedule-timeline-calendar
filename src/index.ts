@@ -1,3 +1,12 @@
+/**
+ * Gantt-Schedule-Timeline-Calendar
+ *
+ * @copyright Rafal Pospiech <https://neuronet.io>
+ * @author    Rafal Pospiech <neuronet.io@gmail.com>
+ * @package   gantt-schedule-timeline-calendar
+ * @license   GPL-3.0
+ */
+
 import Vido from '@neuronet.io/vido';
 import publicApi, { getInternalApi } from './api/Api';
 import Main from './components/Main';

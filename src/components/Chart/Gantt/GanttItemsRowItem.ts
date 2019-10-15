@@ -1,3 +1,12 @@
+/**
+ * Gantt-Schedule-Timeline-Calendar
+ *
+ * @copyright Rafal Pospiech <https://neuronet.io>
+ * @author    Rafal Pospiech <neuronet.io@gmail.com>
+ * @package   gantt-schedule-timeline-calendar
+ * @license   GPL-3.0
+ */
+
 export default function GanttItemsRowItem({ rowId, itemId }, vido) {
   const { api, state, onDestroy, actions, update, html } = vido;
 

@@ -1,10 +1,15 @@
+/**
+ * Gantt-Schedule-Timeline-Calendar
+ *
+ * @copyright Rafal Pospiech <https://neuronet.io>
+ * @author    Rafal Pospiech <neuronet.io@gmail.com>
+ * @package   gantt-schedule-timeline-calendar
+ * @license   GPL-3.0
+ */
+
 import ResizeObserver from 'resize-observer-polyfill';
 import ListComponent from './List/List';
 import ChartComponent from './Chart/Chart';
-
-if (location.host !== 'localhost:5000' && location.host !== 'neuronet.io') {
-  throw new Error('Sorry!');
-}
 
 export default function Main(vido) {
   const { api, state, onDestroy, actions, update, createComponent, html } = vido;

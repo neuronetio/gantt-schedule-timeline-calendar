@@ -1,3 +1,12 @@
+/**
+ * Gantt-Schedule-Timeline-Calendar
+ *
+ * @copyright Rafal Pospiech <https://neuronet.io>
+ * @author    Rafal Pospiech <neuronet.io@gmail.com>
+ * @package   gantt-schedule-timeline-calendar
+ * @license   GPL-3.0
+ */
+
 export default function ListColumnHeaderResizer({ columnId }, vido) {
   const { api, state, onDestroy, update, html, actions } = vido;
 

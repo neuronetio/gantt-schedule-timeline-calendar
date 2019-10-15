@@ -1,0 +1,25 @@
+{
+  "name": "gantt-schedule-timeline-calendar",
+  "version": "0.0.2",
+  "description": "Gantt, scheduler, timeline and calendar component all in one!",
+  "main": "index.umd.js",
+  "module": "index.esm.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "gantt",
+    "schedule",
+    "scheduler",
+    "timeline",
+    "calendar",
+    "component",
+    "js",
+    "javascript"
+  ],
+  "author": "Rafal Pospiech <neuronet.io@gmail.com>",
+  "license": "GPL-3.0"
+}
