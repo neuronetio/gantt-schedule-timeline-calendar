@@ -22,7 +22,7 @@ export default function ItemMovementPlugin(options = {}) {
    * @param {Object} data
    */
   function action(node, data) {
-    const element = node.querySelector('.gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content');
+    const element = node.querySelector('.gantt-schedule-timeline-calendar__chart-gantt-items-row-item-content');
     if (!options.moveable && !options.resizeable) {
       return;
     }
@@ -56,7 +56,7 @@ export default function ItemMovementPlugin(options = {}) {
     }
 
     const el = element;
-    const resizerEl = el.querySelector('.gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content-resizer');
+    const resizerEl = el.querySelector('.gantt-schedule-timeline-calendar__chart-gantt-items-row-item-content-resizer');
     const state = data.state;
 
     if (typeof movementState[data.item.id] === 'undefined') {

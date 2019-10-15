@@ -149,6 +149,23 @@ export default [
     ]
   },
   {
+    input: 'src/plugins/SaveAsImage.plugin.js',
+    output: {
+      sourcemap: true,
+      file: 'dist/SaveAsImage.plugin.js',
+      format: 'umd',
+      name: 'SaveAsImage'
+    },
+    plugins: [
+      resolve({
+        browser: true
+        //module: true
+      }),
+      commonjs({ extensions: ['.js'] }),
+      production && terser()
+    ]
+  },
+  {
     input: 'src/style.styl',
     output: { format: 'esm', file: 'dist/style.css' },
     plugins: [stylus()]

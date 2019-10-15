@@ -18,20 +18,20 @@
 
     <link href="https://cdn.jsdelivr.net/npm/animate.css@^3.5.2/animate.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/quasar@^1.0.3/dist/quasar.min.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" href="../style.css" />
-    <style>
-      .gantt-shedule-timeline-calendar__chart-gantt-items-row-item {
+    <link rel="stylesheet" href="../style.css" title="gstc" />
+    <style title="gstc">
+      .gantt-schedule-timeline-calendar__chart-gantt-items-row-item {
         line-height: calc(var(--row-height) - 10px);
       }
-      .gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content {
+      .gantt-schedule-timeline-calendar__chart-gantt-items-row-item-content {
         border-radius: 10px;
         border: none;
         background: #f75c4c;
         /*box-shadow: 0px 10px 10px #f75c4c20;*/
         /*border: 1px solid #e74c3c;*/
       }
-      .gantt-shedule-timeline-calendar__chart-gantt-items-row-item--row_2-item_2
-        .gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content {
+      .gantt-schedule-timeline-calendar__chart-gantt-items-row-item--row_2-item_2
+        .gantt-schedule-timeline-calendar__chart-gantt-items-row-item-content {
         background: #f39c12;
         border: 1px solid #f1892d;
       }
@@ -44,6 +44,7 @@
     <script src="../index.umd.js"></script>
     <script src="../ItemMovement.plugin.js"></script>
     <script src="../ItemHold.plugin.js"></script>
+    <script src="../SaveAsImage.plugin.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="https://cdn.jsdelivr.net/npm/quasar@^1.1.6/dist/quasar.umd.min.js"></script>
     <script>
@@ -176,7 +177,8 @@
             collisionDetection: true,
             snapStart,
             snapEnd
-          })
+          }),
+          SaveAsImage()
         ],
         height: 40 * 12 + 94,
         list: {
@@ -199,7 +201,7 @@
         actions: {
           'list-column-header': [
             (element, data) => {
-              const target = element.querySelector('.gantt-shedule-timeline-calendar__list-column-header-content');
+              const target = element.querySelector('.gantt-schedule-timeline-calendar__list-column-header-content');
               target.style['cursor'] = 'pointer';
               target.addEventListener('click', () => {
                 target.style.color = '#' + Math.round(Math.random() * 999999);
@@ -275,6 +277,7 @@
             element: this.$el,
             state
           });
+          this.$root.gstcElement = this.$el.querySelector('.gantt-schedule-timeline-calendar');
         },
         destroyed: function() {
           this.GSTCInstance.destroy();
@@ -343,6 +346,7 @@
 
           <div class="q-pa-md">
             <q-btn color="primary" icon="add_circle" label="Add event" @click="showAddEventDialog" />
+            <q-btn color="secondary" icon="image" label="Save as image" @click="saveAsImage" />
           </div>
           <shedule/>
 
@@ -351,6 +355,10 @@
         methods: {
           showAddEventDialog() {
             this.dialog = true;
+          },
+          saveAsImage() {
+            const event = new Event('save-as-image');
+            this.$root.gstcElement.dispatchEvent(event);
           },
           addEvent() {
             this.state.update(`config.list.rows.${this.lastId}`, {

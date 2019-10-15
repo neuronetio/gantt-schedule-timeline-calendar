@@ -1,75 +1,75 @@
-.gantt-shedule-timeline-calendar {
+.gantt-schedule-timeline-calendar {
   display: flex;
   overflow: hidden;
   color: #606060;
 }
-.gantt-shedule-timeline-calendar * {
+.gantt-schedule-timeline-calendar * {
   font-size: 14px;
   box-sizing: border-box;
 }
-.gantt-shedule-timeline-calendar__helper-center {
+.gantt-schedule-timeline-calendar__helper-center {
   text-align: center;
 }
-.gantt-shedule-timeline-calendar__helper-dark {
+.gantt-schedule-timeline-calendar__helper-dark {
   background: #f9fafb;
 }
-.gantt-shedule-timeline-calendar__list-column-header-resizer--active {
+.gantt-schedule-timeline-calendar__list-column-header-resizer--active {
   cursor: ew-resize;
 }
-.gantt-shedule-timeline-calendar__list-column-header-resizer--active * {
+.gantt-schedule-timeline-calendar__list-column-header-resizer--active * {
   -webkit-user-select: none; /* Safari 3.1+ */
   -moz-user-select: none; /* Firefox 2+ */
   -ms-user-select: none; /* IE 10+ */
   user-select: none; /* Standard syntax */
 }
-.gantt-shedule-timeline-calendar__vertical-scroll {
+.gantt-schedule-timeline-calendar__vertical-scroll {
   overflow: hidden;
   overflow-y: visible;
   flex-shrink: 0;
   position: absolute;
   right: 0px;
 }
-.gantt-shedule-timeline-calendar__horizontal-scroll {
+.gantt-schedule-timeline-calendar__horizontal-scroll {
   overflow: hidden;
   overflow-x: scroll;
 }
-.gantt-shedule-timeline-calendar__list {
+.gantt-schedule-timeline-calendar__list {
   border-collapse: collapse;
   display: flex;
   overflow: hidden;
   flex-grow: 0;
   flex-shrink: 0;
 }
-.gantt-shedule-timeline-calendar__list-expander {
+.gantt-schedule-timeline-calendar__list-expander {
   display: inline-flex;
   height: var(--height);
 }
-.gantt-shedule-timeline-calendar__list-expander-padding {
+.gantt-schedule-timeline-calendar__list-expander-padding {
   width: var(--width);
   height: var(--height);
   display: inline-block;
 }
-.gantt-shedule-timeline-calendar__list-expander-toggle {
+.gantt-schedule-timeline-calendar__list-expander-toggle {
   cursor: pointer;
   display: inline-block;
   margin-right: 5px;
 }
-.gantt-shedule-timeline-calendar__list-expander-toggle svg {
+.gantt-schedule-timeline-calendar__list-expander-toggle svg {
   vertical-align: middle;
   width: 16px;
   height: 16px;
   margin-left: 10px;
 }
-.gantt-shedule-timeline-calendar__list-column {
+.gantt-schedule-timeline-calendar__list-column {
   width: var(--width);
   position: relative;
 }
-.gantt-shedule-timeline-calendar__list-column-rows {
+.gantt-schedule-timeline-calendar__list-column-rows {
   height: var(--height);
   overflow: hidden;
 }
-.gantt-shedule-timeline-calendar__list-column-row,
-.gantt-shedule-timeline-calendar__list-column-header {
+.gantt-schedule-timeline-calendar__list-column-row,
+.gantt-schedule-timeline-calendar__list-column-header {
   overflow: hidden;
   text-overflow: ellipsis;
   height: var(--height);
@@ -77,17 +77,17 @@
   vertical-align: middle;
   font-size: 14px;
 }
-.gantt-shedule-timeline-calendar__list-column-row * {
+.gantt-schedule-timeline-calendar__list-column-row * {
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: middle;
   line-height: var(--height);
 }
-.gantt-shedule-timeline-calendar__list-column-row {
+.gantt-schedule-timeline-calendar__list-column-row {
   border-bottom: 1px solid #f9fafb;
   border-right: 1px solid #f9fafb;
 }
-.gantt-shedule-timeline-calendar__list-column-header {
+.gantt-schedule-timeline-calendar__list-column-header {
   background: #f9fafb;
   font-weight: 500;
   color: #707070;
@@ -95,28 +95,28 @@
   line-height: var(--height);
   display: flex;
 }
-.gantt-shedule-timeline-calendar__list-column-header-content {
+.gantt-schedule-timeline-calendar__list-column-header-content {
   vertical-align: middle;
   line-height: calc(var(--height) - 2px);
   margin-left: 4px;
   width: 100%;
   display: flex;
 }
-.gantt-shedule-timeline-calendar__list-column-header-resizer {
+.gantt-schedule-timeline-calendar__list-column-header-resizer {
   display: inline-flex;
   flex-grow: 1;
   background: transparent;
   vertical-align: middle;
   height: var(--height);
 }
-.gantt-shedule-timeline-calendar__list-column-header-resizer-container,
-.gantt-shedule-timeline-calendar__list-column-header-resizer-dots {
+.gantt-schedule-timeline-calendar__list-column-header-resizer-container,
+.gantt-schedule-timeline-calendar__list-column-header-resizer-dots {
   display: block;
 }
-.gantt-shedule-timeline-calendar__list-column-header-resizer-container {
+.gantt-schedule-timeline-calendar__list-column-header-resizer-container {
   flex-grow: 1;
 }
-.gantt-shedule-timeline-calendar__list-column-header-resizer-line {
+.gantt-schedule-timeline-calendar__list-column-header-resizer-line {
   position: absolute;
   top: 0;
   width: 0px;
@@ -126,14 +126,14 @@
   left: var(--left);
   z-index: 1000;
 }
-.gantt-shedule-timeline-calendar__list-column-header-resizer-dots {
+.gantt-schedule-timeline-calendar__list-column-header-resizer-dots {
   cursor: ew-resize;
   background: transparent;
   padding-top: 20px;
   padding-left: 6px;
   padding-right: 2px;
 }
-.gantt-shedule-timeline-calendar__list-column-header-resizer-dots-dot {
+.gantt-schedule-timeline-calendar__list-column-header-resizer-dots-dot {
   background: #e0eff2;
   width: 3px;
   height: 3px;
@@ -141,16 +141,16 @@
   margin-bottom: 6px;
   box-shadow: inset 1px 1px 0px rgba(0,0,0,0.05);
 }
-.gantt-shedule-timeline-calendar__chart {
+.gantt-schedule-timeline-calendar__chart {
   flex-grow: 1;
   flex-shrink: 1;
 }
-.gantt-shedule-timeline-calendar__chart-calendar {
+.gantt-schedule-timeline-calendar__chart-calendar {
   background: #f9fafb;
   margin-right: -17px;
   display: flex;
 }
-.gantt-shedule-timeline-calendar__chart-calendar-date {
+.gantt-schedule-timeline-calendar__chart-calendar-date {
   text-align: center;
   overflow: hidden;
   color: #747a81;
@@ -158,28 +158,28 @@
   flex-shrink: 0;
   user-select: none;
 }
-.gantt-shedule-timeline-calendar__chart-calendar-date.current {
+.gantt-schedule-timeline-calendar__chart-calendar-date.current {
   box-shadow: inset 0px 0px 6px rgba(177,184,189,0.75);
 }
-.gantt-shedule-timeline-calendar__chart-calendar-date.current * {
+.gantt-schedule-timeline-calendar__chart-calendar-date.current * {
   border-right: none;
 }
-.gantt-shedule-timeline-calendar__chart-calendar-date.previous * {
+.gantt-schedule-timeline-calendar__chart-calendar-date.previous * {
   border-right: none;
 }
-.gantt-shedule-timeline-calendar__chart-calendar-date-formatted {
+.gantt-schedule-timeline-calendar__chart-calendar-date-formatted {
   margin-top: 4px;
   white-space: nowrap;
 }
-.gantt-shedule-timeline-calendar__chart-calendar-date-formatted-year {
+.gantt-schedule-timeline-calendar__chart-calendar-date-formatted-year {
   font-size: 10px;
   letter-spacing: 6px;
 }
-.gantt-shedule-timeline-calendar__chart-calendar-date-formatted-month {
+.gantt-schedule-timeline-calendar__chart-calendar-date-formatted-month {
   font-size: 12px;
   border-right: 1px solid rgba(177,184,189,0.5);
 }
-.gantt-shedule-timeline-calendar__chart-calendar-date-formatted-day {
+.gantt-schedule-timeline-calendar__chart-calendar-date-formatted-day {
   font-size: var(--day-size);
   font-weight: 500;
   line-height: 30px;
@@ -187,22 +187,22 @@
   border-right: 1px solid rgba(177,184,189,0.5);
   text-shadow: 0px 5px 3px rgba(0,0,0,0.08);
 }
-.gantt-shedule-timeline-calendar__chart-gantt {
+.gantt-schedule-timeline-calendar__chart-gantt {
   overflow: hidden;
   position: relative;
 }
-.gantt-shedule-timeline-calendar__chart-gantt-inner {
+.gantt-schedule-timeline-calendar__chart-gantt-inner {
   overflow: hidden;
 }
-.gantt-shedule-timeline-calendar__chart-gantt-grid {
+.gantt-schedule-timeline-calendar__chart-gantt-grid {
   position: relative;
 }
-.gantt-shedule-timeline-calendar__chart-gantt-grid-row {
+.gantt-schedule-timeline-calendar__chart-gantt-grid-row {
   display: flex;
   text-align: center;
   user-select: none;
 }
-.gantt-shedule-timeline-calendar__chart-gantt-grid-column {
+.gantt-schedule-timeline-calendar__chart-gantt-grid-column {
   overflow: hidden;
   position: absolute;
   height: 100%;
@@ -210,7 +210,7 @@
   border-right: 1px solid #f9fafb;
   pointer-events: none;
 }
-.gantt-shedule-timeline-calendar__chart-gantt-grid-block {
+.gantt-schedule-timeline-calendar__chart-gantt-grid-block {
   flex-grow: 0;
   flex-shrink: 0;
   margin: auto 0;
@@ -220,10 +220,10 @@
   border-bottom: 1px solid #f9fafb;
   will-change: margin-left;
 }
-.gantt-shedule-timeline-calendar__chart-gantt-grid-block.current {
+.gantt-schedule-timeline-calendar__chart-gantt-grid-block.current {
   background: #f9fafb;
 }
-.gantt-shedule-timeline-calendar__chart-gantt-items {
+.gantt-schedule-timeline-calendar__chart-gantt-items {
   position: absolute;
   left: 0;
   top: 0;
@@ -231,26 +231,26 @@
   height: 100%;
   pointer-events: none;
 }
-.gantt-shedule-timeline-calendar__chart-gantt-items-row {
+.gantt-schedule-timeline-calendar__chart-gantt-items-row {
   overflow: hidden;
   pointer-events: none;
 }
-.gantt-shedule-timeline-calendar__chart-gantt-items-row-inner {
+.gantt-schedule-timeline-calendar__chart-gantt-items-row-inner {
   position: relative;
   overflow: hidden;
   height: 100%;
 }
-.gantt-shedule-timeline-calendar__chart-gantt-items-row-item {
+.gantt-schedule-timeline-calendar__chart-gantt-items-row-item {
   position: absolute;
   pointer-events: all;
   padding: 4px 0px;
   height: 100%;
   user-select: none;
 }
-.gantt-shedule-timeline-calendar__chart-gantt-items-row-item--moving {
+.gantt-schedule-timeline-calendar__chart-gantt-items-row-item--moving {
   opacity: 0.5;
 }
-.gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content {
+.gantt-schedule-timeline-calendar__chart-gantt-items-row-item-content {
   user-select: none;
   background: #e74c3c;
   color: #fff;
@@ -260,13 +260,13 @@
   height: 100%;
   line-height: calc(var(--row-height) - 10px);
 }
-.gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content-label {
+.gantt-schedule-timeline-calendar__chart-gantt-items-row-item-content-label {
   flex-grow: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.gantt-shedule-timeline-calendar__chart-gantt-items-row-item-content-resizer {
+.gantt-schedule-timeline-calendar__chart-gantt-items-row-item-content-resizer {
   width: 8px;
   background: rgba(255,255,255,0.1);
   cursor: ew-resize;

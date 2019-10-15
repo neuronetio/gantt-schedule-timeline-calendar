@@ -72,7 +72,7 @@ export default function List(vido) {
         width = 0;
       }
       state.update('_internal.list.width', width);
-      state.update('_internal.elements.List', element);
+      state.update('_internal.elements.list', element);
     }
   }
 

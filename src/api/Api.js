@@ -3,7 +3,7 @@ import defaultConfig from '../default-config.ts';
 import timeApi from './Time';
 import State from 'deep-state-observer';
 import dayjs from 'dayjs';
-const lib = 'gantt-shedule-timeline-calendar';
+const lib = 'gantt-schedule-timeline-calendar';
 /**
  * Helper function to determine if specified variable is an object
  *
