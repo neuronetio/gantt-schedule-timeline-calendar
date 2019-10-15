@@ -11,7 +11,7 @@
     "start:dev": "sirv dist --single --dev"
   },
   "author": "Rafal Pospiech <neuronet.io@gmail.com>",
-  "license": "GPL-3.0-only",
+  "license": "GPL-3.0",
   "dependencies": {
     "dayjs": "^1.8.16",
     "deep-state-observer": "^3.0.28",
