@@ -41,42 +41,6 @@ const production = !process.env.ROLLUP_WATCH;
 
 export default [
   {
-    input: 'src/vido.ts',
-    output: {
-      sourcemap: true,
-      file: 'dist/vido.umd.js',
-      format: 'umd',
-      name: 'Vido'
-    },
-    plugins: [
-      typescript({ target: 'es6' }),
-      resolve({
-        browser: true
-        //module: true
-      }),
-      commonjs({ extensions: ['.js', '.ts'] }),
-      production && terser()
-    ]
-  },
-  {
-    input: 'src/vido.ts',
-    output: {
-      sourcemap: true,
-      file: 'dist/vido.esm.js',
-      format: 'esm',
-      name: 'Vido'
-    },
-    plugins: [
-      typescript({ target: 'es6' }),
-      resolve({
-        browser: true
-        //module: true
-      }),
-      commonjs({ extensions: ['.js', '.ts'] }),
-      production && terser()
-    ]
-  },
-  {
     input: 'src/index.ts',
     output: {
       sourcemap: true,

@@ -1,3 +1,4 @@
+import Vido from '@neuronet.io/vido';
 import publicApi, { getInternalApi } from './api/Api';
 import Main from './components/Main';
 
