@@ -2,7 +2,7 @@
   "name": "litgantt",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.umd.js",
   "scripts": {
     "build": "rollup -c",
     "autobuild": "rollup -c -w",
@@ -10,15 +10,11 @@
     "start": "sirv dist --single",
     "start:dev": "sirv dist --single --dev"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Rafal Pospiech <neuronet.io@gmail.com>",
+  "license": "GPL-3.0-only",
   "dependencies": {
-    "@henrikjoreteg/rollup-plugin-css": "^2.0.0",
     "dayjs": "^1.8.16",
     "deep-state-observer": "^3.0.28",
-    "hyperhtml": "^2.31.0",
-    "hypersimple": "^0.4.0",
-    "lit-element": "^2.2.1",
     "lit-html": "^1.1.2",
     "resize-observer-polyfill": "^1.5.1",
     "rollup-plugin-cjs-es": "^0.9.0"
