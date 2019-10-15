@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "main": "dist/index.umd.js",
+  "module": "dist/index.esm.js",
   "scripts": {
     "build": "rollup -c",
     "autobuild": "rollup -c -w",
