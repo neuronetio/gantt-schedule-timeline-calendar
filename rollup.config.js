@@ -130,6 +130,23 @@ export default [
     ]
   },
   {
+    input: 'src/plugins/plugins.js',
+    output: {
+      sourcemap: true,
+      file: 'dist/plugins.js',
+      format: 'esm',
+      name: 'plugins'
+    },
+    plugins: [
+      resolve({
+        browser: true
+        //module: true
+      }),
+      commonjs({ extensions: ['.js'] }),
+      production && terser()
+    ]
+  },
+  {
     input: 'src/style.styl',
     output: { format: 'esm', file: 'dist/style.css' },
     plugins: [stylus()]
