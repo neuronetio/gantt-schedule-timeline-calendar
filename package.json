@@ -1,6 +1,6 @@
 {
   "name": "gantt-schedule-timeline-calendar",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "",
   "main": "dist/index.umd.js",
   "module": "dist/index.esm.js",
