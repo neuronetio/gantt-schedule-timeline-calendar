@@ -9,7 +9,7 @@
 
 export default function GanttGrid(vido) {
   const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
-  const componentName = 'chart-gantt-grid';
+  const componentName = 'chart-timeline-grid';
   const componentActions = api.getActions(componentName);
 
   let wrapper;

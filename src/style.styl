@@ -174,7 +174,7 @@ $item-content-padding = 5px
             color: $font-color-4
             border-right: 1px solid $bg-dark-4
             text-shadow: 0px 5px 3px hsla(0, 0%, 0%, 0.08)
-    &-gantt
+    &-timeline
       overflow: hidden
       position: relative
       &-inner
@@ -205,6 +205,10 @@ $item-content-padding = 5px
           will-change: margin-left
           &.current
             background: $bg-dark-2
+      &-dependency-lines
+        position: absolute
+        left: 0
+        top: 0
       &-items
         position: absolute
         left: 0

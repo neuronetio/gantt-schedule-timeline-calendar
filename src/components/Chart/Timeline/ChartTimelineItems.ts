@@ -9,7 +9,7 @@
 
 export default function GnattItems(vido) {
   const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
-  const componentName = 'chart-gantt-items';
+  const componentName = 'chart-timeline-items';
   const componentActions = api.getActions(componentName);
 
   let wrapper;

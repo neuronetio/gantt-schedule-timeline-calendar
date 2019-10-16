@@ -9,7 +9,7 @@
 
 export default function Gantt(vido) {
   const { api, state, onDestroy, actions, update, html, createComponent } = vido;
-  const componentName = 'chart-gantt';
+  const componentName = 'chart-timeline';
   const componentActions = api.getActions(componentName);
 
   let wrapper;

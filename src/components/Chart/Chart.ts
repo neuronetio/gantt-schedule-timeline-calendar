@@ -89,7 +89,6 @@ export default function Chart(vido) {
         if (scrollLeft) {
           percent = Math.round((scrollLeft / (scrollInner.clientWidth - chart.clientWidth)) * 100);
           if (percent > 100) percent = 100;
-          console.log(`scrollLeft: ${scrollLeft} percent: ${percent} chart clientWidth: ${chart.clientWidth}`);
         }
         state.update('config.scroll.percent.left', percent);
       }

@@ -30,7 +30,7 @@ export default function GanttItemsRowItem({ rowId, itemId }, vido) {
     })
   );
 
-  const componentName = 'chart-gantt-items-row-item';
+  const componentName = 'chart-timeline-items-row-item';
   const componentActions = api.getActions(componentName);
   let className, contentClassName, labelClassName;
   onDestroy(

@@ -9,7 +9,7 @@
 
 export default function GanttGridBlock({ row, time, top }, vido) {
   const { api, state, onDestroy, actions, update, html } = vido;
-  const componentName = 'chart-gantt-grid-block';
+  const componentName = 'chart-timeline-grid-block';
   const componentActions = api.getActions(componentName, { row, time, top });
 
   let wrapper;

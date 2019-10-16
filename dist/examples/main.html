@@ -23,9 +23,10 @@
       <button id="change-something">Change something</button>
     </div>
     <div id="app"></div>
+    <script src="../DependencyLines.plugin.js"></script>
     <script src="../index.umd.js"></script>
     <script>
-      const iterations = 30000;
+      const iterations = 1000;
 
       const rows = {};
       for (let i = 0; i < iterations; i++) {
@@ -129,6 +130,7 @@
       };
 
       const config = {
+        //plugins: [DependencyLines()],
         height: 40 * 12 + 94,
         list: {
           rows,

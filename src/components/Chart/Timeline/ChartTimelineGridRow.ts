@@ -9,10 +9,10 @@
 
 export default function GanttGridRow({ row }, vido) {
   const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
-  const componentName = 'chart-gantt-grid-row';
+  const componentName = 'chart-timeline-grid-row';
 
   let wrapper;
-  onDestroy(state.subscribe('config.wrappers.ChartTimelineGrid', value => (wrapper = value)));
+  onDestroy(state.subscribe('config.wrappers.ChartTimelineGridRow', value => (wrapper = value)));
 
   const GridBlockComponent = state.get('config.components.ChartTimelineGridBlock');
 

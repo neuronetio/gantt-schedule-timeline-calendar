@@ -96,6 +96,23 @@ export default [
     ]
   },
   {
+    input: 'src/plugins/DependencyLines.plugin.js',
+    output: {
+      sourcemap: true,
+      file: 'dist/DependencyLines.plugin.js',
+      format: 'umd',
+      name: 'DependencyLines'
+    },
+    plugins: [
+      resolve({
+        browser: true
+        //module: true
+      }),
+      commonjs({ extensions: ['.js'] }),
+      production && terser()
+    ]
+  },
+  {
     input: 'src/plugins/ItemHold.plugin.js',
     output: {
       sourcemap: true,
