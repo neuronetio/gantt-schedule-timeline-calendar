@@ -6,7 +6,87 @@
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0
  */
-function t(t={}){t={...{time:1e3,movementThreshold:2,action(t,e){}},...t};const e={},n={x:0,y:0};const i=[],o=[];function s(s,r){function a(){var t;t=r.item.id,void 0!==e[t]&&delete e[t]}function m(t){n.x=t.x,n.y=t.y}return s.addEventListener("mousedown",i=>{!function(i,o,s){void 0===e[i.id]&&(e[i.id]={x:s.x,y:s.y},setTimeout(()=>{if(void 0!==e[i.id]){let s=!0,r=e[i.id].x-n.x;-1===Math.sign(r)&&(r=-r);let a=e[i.id].y-n.y;-1===Math.sign(a)&&(a=-a),r>t.movementThreshold&&(s=!1),a>t.movementThreshold&&(s=!1),delete e[i.id],s&&t.action(o,i)}},t.time))}(r.item,s,i)}),i.push(a),document.addEventListener("mouseup",a),o.push(m),document.addEventListener("mousemove",m),{destroy(t,e){i.forEach(t=>document.removeEventListener("mouseup",t)),o.forEach(t=>document.removeEventListener("mousemove",t))}}}return function(t,e){t.update("config.actions.chart-gantt-items-row-item",t=>(t.push(s),t))}}
+
+function ItemHoldPlugin(options = {}) {
+  const defaultOptions = {
+    time: 1000,
+    movementThreshold: 2,
+    action(element, data) {}
+  };
+  options = { ...defaultOptions, ...options };
+
+  const holding = {};
+  const mouse = { x: 0, y: 0 };
+
+  function onMouseDown(item, element, event) {
+    if (typeof holding[item.id] === 'undefined') {
+      holding[item.id] = { x: event.x, y: event.y };
+      setTimeout(() => {
+        if (typeof holding[item.id] !== 'undefined') {
+          let exec = true;
+          let xMovement = holding[item.id].x - mouse.x;
+          if (Math.sign(xMovement) === -1) {
+            xMovement = -xMovement;
+          }
+          let yMovement = holding[item.id].y - mouse.y;
+          if (Math.sign(yMovement) === -1) {
+            yMovement = -yMovement;
+          }
+          if (xMovement > options.movementThreshold) {
+            exec = false;
+          }
+          if (yMovement > options.movementThreshold) {
+            exec = false;
+          }
+          delete holding[item.id];
+          if (exec) {
+            options.action(element, item);
+          }
+        }
+      }, options.time);
+    }
+  }
+
+  function onMouseUp(itemId) {
+    if (typeof holding[itemId] !== 'undefined') {
+      delete holding[itemId];
+    }
+  }
+
+  const mouseUps = [];
+  const mouseMoves = [];
+
+  function action(element, data) {
+    element.addEventListener('mousedown', event => {
+      onMouseDown(data.item, element, event);
+    });
+    function mouseUp() {
+      onMouseUp(data.item.id);
+    }
+    mouseUps.push(mouseUp);
+    document.addEventListener('mouseup', mouseUp);
+    function mouseMove(event) {
+      mouse.x = event.x;
+      mouse.y = event.y;
+    }
+    mouseMoves.push(mouseMove);
+    document.addEventListener('mousemove', mouseMove);
+    return {
+      destroy(element, data) {
+        mouseUps.forEach(mouseUp => document.removeEventListener('mouseup', mouseUp));
+        mouseMoves.forEach(mouseMove => document.removeEventListener('mousemove', mouseMove));
+      }
+    };
+  }
+
+  return function initializePlugin(state, api) {
+    state.update('config.actions.chart-gantt-items-row-item', actions => {
+      actions.push(action);
+      return actions;
+    });
+  };
+}
+
 /**
  * Gantt-Schedule-Timeline-Calendar
  *
@@ -14,7 +94,326 @@ function t(t={}){t={...{time:1e3,movementThreshold:2,action(t,e){}},...t};const 
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0
- */function e(t={}){(t={moveable:!0,resizeable:!0,resizerContent:"",collisionDetection:!0,outOfBorders:!1,snapStart:[],snapEnd:[],ghostNode:!0,...t}).snapStart=t.snapStart.slice(),t.snapEnd=t.snapEnd.slice();const e={};function n(n,i){const o=n.querySelector(".gantt-schedule-timeline-calendar__chart-gantt-items-row-item-content");if(!t.moveable&&!t.resizeable)return;let s=t.moveable;i.item.hasOwnProperty("moveable")&&s&&(s=i.item.moveable),i.row.hasOwnProperty("moveable")&&s&&(s=i.row.moveable);let r=t.resizeable&&(!i.item.hasOwnProperty("resizeable")||!0===i.item.resizeable);i.row.hasOwnProperty("resizeable")&&r&&(r=i.row.resizeable);const a=i.api;let m=t.snapStart;void 0!==i.item.snapStart&&Array.isArray(i.item.snapStart)&&(m=item.snapStart);let d=t.snapEnd;if(void 0!==i.item.snapEnd&&Array.isArray(i.item.snapEnd)&&(d=i.item.snapEnd),r){const e=`<div class="${a.getClass("chart-gantt-items-row-item-content-resizer")}">${t.resizerContent}</div>`;o.insertAdjacentHTML("beforeend",e)}const l=o,c=l.querySelector(".gantt-schedule-timeline-calendar__chart-gantt-items-row-item-content-resizer"),g=i.state;void 0===e[i.item.id]&&(e[i.item.id]={moving:!1,resizing:!1});const f=e[i.item.id];function u(e){if(t.ghostNode){const t=e.x-f.ganttLeft-f.itemLeftCompensation;f.ghost.style.left=t+"px",f.ghost.style.top=e.y-f.ganttTop-f.itemTop+"px"}}function h(n){t.ghostNode&&(void 0!==e[n]&&void 0!==e[n].ghost&&(g.get("_internal.elements.gantt").removeChild(e[n].ghost),delete e[n].ghost),o.style.opacity="1")}function p(n){if(0!==n.button)return;f.moving=!0;const s=g.get(`config.chart.items.${i.item.id}`),r=g.get("_internal.chart.time.leftGlobal"),a=g.get("_internal.chart.time.timePerPixel"),m=g.get("_internal.elements.gantt").getBoundingClientRect();f.ganttTop=m.top,f.ganttLeft=m.left,f.itemX=Math.round((s.time.start-r)/a),f.itemLeftCompensation=n.x-f.ganttLeft-f.itemX,function(n,s,r,a){if(!t.ghostNode||void 0!==e[n].ghost)return;const m=o.cloneNode(!0),d=getComputedStyle(o);m.style.position="absolute",m.style.left=s.x-r-f.itemLeftCompensation+"px";const l=s.y-a-i.row.top-o.offsetTop;f.itemTop=l,m.style.top=s.y-a-l+"px",m.style.width=d.width,m.style["box-shadow"]="10px 10px 6px #00000020";const c=o.clientHeight+"px";m.style.height=c,m.style["line-height"]=c,m.style.opacity="0.75",g.get("_internal.elements.gantt").appendChild(m),e[n].ghost=m}(i.item.id,n,m.left,m.top)}function v(t){if(0!==t.button)return;t.stopPropagation(),f.resizing=!0;const e=g.get(`config.chart.items.${i.item.id}`),n=g.get("_internal.chart.time.leftGlobal"),o=g.get("_internal.chart.time.timePerPixel"),s=g.get("_internal.elements.gantt").getBoundingClientRect();f.ganttTop=s.top,f.ganttLeft=s.left,f.itemX=(e.time.end-n)/o,f.itemLeftCompensation=t.x-f.ganttLeft-f.itemX}function y(e,n,i,o){if(!t.collisionDetection)return!1;const s=g.get("_internal.chart.time");if(t.outOfBorders&&(i<s.from||o>s.to))return!0;let r=a.time.date(o).diff(i,"milliseconds");if(-1===Math.sign(r)&&(r=-r),r<=1)return!0;const m=g.get("config.list.rows."+e);for(const t of m._internal.items)if(t.id!==n){if(i>=t.time.start&&i<=t.time.end)return!0;if(o>=t.time.start&&o<=t.time.end)return!0;if(i<=t.time.start&&o>=t.time.end)return!0}return!1}function w(t,e,n=0,i=[]){let o=Number.MAX_SAFE_INTEGER,s=0;for(let n of i){let i=e.clone().add(t,"milliseconds").diff(n,"milliseconds");-1===Math.sign(i)&&(i=-i),i<o&&(o=i,s=n)}return s+=n,a.time.date(s)}function b(t){let e,n,o,r,a;if((f.moving||f.resizing)&&(e=g.get(`config.chart.items.${i.item.id}`),n=g.get(`config.chart.items.${i.item.id}.rowId`),o=g.get(`config.list.rows.${n}`),r=g.get("config.chart.time.zoom"),a=g.get("_internal.chart.time.timePerPixel")),f.moving){if((!0===s||"x"===s||Array.isArray(s)&&s.includes(n))&&function(t,e,n,o,s){const r=t.x-f.ganttLeft-f.itemLeftCompensation;u(t);const a=g.get("_internal.chart.time.leftGlobal")+r*s-n.time.start,d=n.time.start,l=w(a,i.api.time.date(n.time.start),0,m)-d,c=y(e.id,n.id,n.time.start+l,n.time.end+l);l&&!c&&g.update(`config.chart.items.${i.item.id}.time`,(function(t){return t.start+=l,t.end+=l,t}))}(t,o,e,0,a),!s||"x"===s)return;let r=function(t,e,n,i,o){u(t);const s=t.y-f.ganttTop,r=g.get("_internal.list.visibleRows");let a=0;for(const t of r){if(t.top>s)return a>0?a-1:0;a++}return a}(t);const d=g.get("_internal.list.visibleRows");void 0===d[r]&&(r>0?r=d.length-1:r<0&&(r=0));const l=d[r],c=l.id,h=y(c,e.id,e.time.start,e.time.end);c===e.rowId||h||Array.isArray(s)&&!s.includes(c)||l.hasOwnProperty("moveable")&&!l.moveable||g.update(`config.chart.items.${e.id}.rowId`,c)}else!f.resizing||void 0!==e.resizeable&&!0!==e.resizeable||function(t,e,n,o,s){const r=g.get("_internal.chart.time"),a=t.x-f.ganttLeft-f.itemLeftCompensation,m=r.leftGlobal+a*s-n.time.end;if(n.time.end+m<n.time.start)return;const l=n.time.end,c=w(m,i.api.time.date(n.time.end),-1,d)-l,u=y(e.id,n.id,n.time.start,n.time.end+c);c&&!u&&g.update(`config.chart.items.${i.item.id}.time.end`,(function(t){return t+c}))}(t,o,e,0,a)}function x(t){f.moving=!1,f.resizing=!1;for(const t in e)e[t].moving=!1,e[t].resizing=!1,h(t)}return s&&l.addEventListener("mousedown",p),r&&c.addEventListener("mousedown",v),document.addEventListener("mousemove",b),document.addEventListener("mouseup",x),{destroy(t,e){s&&l.removeEventListener("moudedown",p),r&&c.removeEventListener("mousedown",v),document.removeEventListener("mousemove",b),document.removeEventListener("mouseup",x),r&&o.removeChild(c)}}}return function(t,e){t.update("config.actions.chart-gantt-items-row-item",t=>(t.push(n),t))}}
+ */
+
+// @ts-nocheck
+function ItemMovementPlugin(options = {}) {
+  const defaultOptions = {
+    moveable: true,
+    resizeable: true,
+    resizerContent: '',
+    collisionDetection: true,
+    outOfBorders: false,
+    snapStart: [],
+    snapEnd: [],
+    ghostNode: true
+  };
+  options = { ...defaultOptions, ...options };
+  options.snapStart = options.snapStart.slice();
+  options.snapEnd = options.snapEnd.slice();
+  const movementState = {};
+
+  /**
+   * Add moving functionality to items as action
+   *
+   * @param {Node} node DOM Node
+   * @param {Object} data
+   */
+  function action(node, data) {
+    const element = node.querySelector('.gantt-schedule-timeline-calendar__chart-gantt-items-row-item-content');
+    if (!options.moveable && !options.resizeable) {
+      return;
+    }
+    let moveable = options.moveable;
+    if (data.item.hasOwnProperty('moveable') && moveable) {
+      moveable = data.item.moveable;
+    }
+    if (data.row.hasOwnProperty('moveable') && moveable) {
+      moveable = data.row.moveable;
+    }
+    let resizeable = options.resizeable && (!data.item.hasOwnProperty('resizeable') || data.item.resizeable === true);
+    if (data.row.hasOwnProperty('resizeable') && resizeable) {
+      resizeable = data.row.resizeable;
+    }
+    const api = data.api;
+    let snapStart = options.snapStart;
+    if (typeof data.item.snapStart !== 'undefined' && Array.isArray(data.item.snapStart)) {
+      snapStart = item.snapStart;
+    }
+    let snapEnd = options.snapEnd;
+    if (typeof data.item.snapEnd !== 'undefined' && Array.isArray(data.item.snapEnd)) {
+      snapEnd = data.item.snapEnd;
+    }
+
+    if (resizeable) {
+      const resizerHTML = `<div class="${api.getClass('chart-gantt-items-row-item-content-resizer')}">${
+        options.resizerContent
+      }</div>`;
+      // @ts-ignore
+      element.insertAdjacentHTML('beforeend', resizerHTML);
+    }
+
+    const el = element;
+    const resizerEl = el.querySelector('.gantt-schedule-timeline-calendar__chart-gantt-items-row-item-content-resizer');
+    const state = data.state;
+
+    if (typeof movementState[data.item.id] === 'undefined') {
+      movementState[data.item.id] = { moving: false, resizing: false };
+    }
+    const movement = movementState[data.item.id];
+
+    function createGhost(itemId, ev, ganttLeft, ganttTop) {
+      if (!options.ghostNode || typeof movementState[itemId].ghost !== 'undefined') {
+        return;
+      }
+      const ghost = element.cloneNode(true);
+      const style = getComputedStyle(element);
+      ghost.style.position = 'absolute';
+      ghost.style.left = ev.x - ganttLeft - movement.itemLeftCompensation + 'px';
+      const itemTop = ev.y - ganttTop - data.row.top - element.offsetTop;
+      movement.itemTop = itemTop;
+      ghost.style.top = ev.y - ganttTop - itemTop + 'px';
+      ghost.style.width = style.width;
+      ghost.style['box-shadow'] = '10px 10px 6px #00000020';
+      const height = element.clientHeight + 'px';
+      ghost.style.height = height;
+      ghost.style['line-height'] = height;
+      ghost.style.opacity = '0.75';
+      state.get('_internal.elements.gantt').appendChild(ghost);
+      movementState[itemId].ghost = ghost;
+      return ghost;
+    }
+
+    function moveGhost(ev) {
+      if (options.ghostNode) {
+        const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
+        movement.ghost.style.left = left + 'px';
+        movement.ghost.style.top = ev.y - movement.ganttTop - movement.itemTop + 'px';
+      }
+    }
+
+    function destroyGhost(itemId) {
+      if (!options.ghostNode) {
+        return;
+      }
+      if (typeof movementState[itemId] !== 'undefined' && typeof movementState[itemId].ghost !== 'undefined') {
+        state.get('_internal.elements.gantt').removeChild(movementState[itemId].ghost);
+        delete movementState[itemId].ghost;
+      }
+      element.style.opacity = '1';
+    }
+
+    function labelMouseDown(ev) {
+      if (ev.button !== 0) {
+        return;
+      }
+      movement.moving = true;
+      const item = state.get(`config.chart.items.${data.item.id}`);
+      const chartLeftTime = state.get('_internal.chart.time.leftGlobal');
+      const timePerPixel = state.get('_internal.chart.time.timePerPixel');
+      const ganttRect = state.get('_internal.elements.gantt').getBoundingClientRect();
+      movement.ganttTop = ganttRect.top;
+      movement.ganttLeft = ganttRect.left;
+      movement.itemX = Math.round((item.time.start - chartLeftTime) / timePerPixel);
+      movement.itemLeftCompensation = ev.x - movement.ganttLeft - movement.itemX;
+      createGhost(data.item.id, ev, ganttRect.left, ganttRect.top);
+    }
+
+    function resizerMouseDown(ev) {
+      if (ev.button !== 0) {
+        return;
+      }
+      ev.stopPropagation();
+      movement.resizing = true;
+      const item = state.get(`config.chart.items.${data.item.id}`);
+      const chartLeftTime = state.get('_internal.chart.time.leftGlobal');
+      const timePerPixel = state.get('_internal.chart.time.timePerPixel');
+      const ganttRect = state.get('_internal.elements.gantt').getBoundingClientRect();
+      movement.ganttTop = ganttRect.top;
+      movement.ganttLeft = ganttRect.left;
+      movement.itemX = (item.time.end - chartLeftTime) / timePerPixel;
+      movement.itemLeftCompensation = ev.x - movement.ganttLeft - movement.itemX;
+    }
+
+    function isCollision(rowId, itemId, start, end) {
+      if (!options.collisionDetection) {
+        return false;
+      }
+      const time = state.get('_internal.chart.time');
+      if (options.outOfBorders && (start < time.from || end > time.to)) {
+        return true;
+      }
+      let diff = api.time.date(end).diff(start, 'milliseconds');
+      if (Math.sign(diff) === -1) {
+        diff = -diff;
+      }
+      if (diff <= 1) {
+        return true;
+      }
+      const row = state.get('config.list.rows.' + rowId);
+      for (const rowItem of row._internal.items) {
+        if (rowItem.id !== itemId) {
+          if (start >= rowItem.time.start && start <= rowItem.time.end) {
+            return true;
+          }
+          if (end >= rowItem.time.start && end <= rowItem.time.end) {
+            return true;
+          }
+          if (start <= rowItem.time.start && end >= rowItem.time.end) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    function snap(addMilliseconds, currentDate, addToEnd = 0, snapValues = []) {
+      let smallestDiff = Number.MAX_SAFE_INTEGER;
+      let smallestTime = 0;
+      for (let snapTime of snapValues) {
+        let diff = currentDate
+          .clone()
+          .add(addMilliseconds, 'milliseconds')
+          .diff(snapTime, 'milliseconds');
+        if (Math.sign(diff) === -1) {
+          diff = -diff;
+        }
+        if (diff < smallestDiff) {
+          smallestDiff = diff;
+          smallestTime = snapTime;
+        }
+      }
+      smallestTime += addToEnd;
+      return api.time.date(smallestTime);
+    }
+
+    function movementX(ev, row, item, zoom, timePerPixel) {
+      const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
+      moveGhost(ev);
+      const leftMs = state.get('_internal.chart.time.leftGlobal') + left * timePerPixel;
+      const add = leftMs - item.time.start;
+      const originalStart = item.time.start;
+      const finalStartTime = snap(add, data.api.time.date(item.time.start), 0, snapStart);
+      const finalAdd = finalStartTime - originalStart;
+      const collision = isCollision(row.id, item.id, item.time.start + finalAdd, item.time.end + finalAdd);
+      if (finalAdd && !collision) {
+        state.update(`config.chart.items.${data.item.id}.time`, function moveItem(time) {
+          time.start += finalAdd;
+          time.end += finalAdd;
+          return time;
+        });
+      }
+    }
+
+    function resizeX(ev, row, item, zoom, timePerPixel) {
+      const time = state.get('_internal.chart.time');
+      const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
+      const leftMs = time.leftGlobal + left * timePerPixel;
+      const add = leftMs - item.time.end;
+      if (item.time.end + add < item.time.start) {
+        return;
+      }
+      const originalEnd = item.time.end;
+      const finalEndTime = snap(add, data.api.time.date(item.time.end), -1, snapEnd);
+      const finalAdd = finalEndTime - originalEnd;
+      const collision = isCollision(row.id, item.id, item.time.start, item.time.end + finalAdd);
+      if (finalAdd && !collision) {
+        state.update(`config.chart.items.${data.item.id}.time.end`, function resizeItem(end) {
+          return (end += finalAdd);
+        });
+      }
+    }
+
+    function movementY(ev, row, item, zoom, timePerPixel) {
+      moveGhost(ev);
+      const top = ev.y - movement.ganttTop;
+      const visibleRows = state.get('_internal.list.visibleRows');
+      let index = 0;
+      for (const currentRow of visibleRows) {
+        if (currentRow.top > top) {
+          if (index > 0) {
+            return index - 1;
+          }
+          return 0;
+        }
+        index++;
+      }
+      return index;
+    }
+
+    function documentMouseMove(ev) {
+      let item, rowId, row, zoom, timePerPixel;
+      if (movement.moving || movement.resizing) {
+        item = state.get(`config.chart.items.${data.item.id}`);
+        rowId = state.get(`config.chart.items.${data.item.id}.rowId`);
+        row = state.get(`config.list.rows.${rowId}`);
+        zoom = state.get('config.chart.time.zoom');
+        timePerPixel = state.get('_internal.chart.time.timePerPixel');
+      }
+      if (movement.moving) {
+        if (moveable === true || moveable === 'x' || (Array.isArray(moveable) && moveable.includes(rowId))) {
+          movementX(ev, row, item, zoom, timePerPixel);
+        }
+        if (!moveable || moveable === 'x') {
+          return;
+        }
+        let visibleRowsIndex = movementY(ev);
+        const visibleRows = state.get('_internal.list.visibleRows');
+        if (typeof visibleRows[visibleRowsIndex] === 'undefined') {
+          if (visibleRowsIndex > 0) {
+            visibleRowsIndex = visibleRows.length - 1;
+          } else if (visibleRowsIndex < 0) {
+            visibleRowsIndex = 0;
+          }
+        }
+        const newRow = visibleRows[visibleRowsIndex];
+        const newRowId = newRow.id;
+        const collision = isCollision(newRowId, item.id, item.time.start, item.time.end);
+        if (newRowId !== item.rowId && !collision) {
+          if (!Array.isArray(moveable) || moveable.includes(newRowId)) {
+            if (!newRow.hasOwnProperty('moveable') || newRow.moveable) {
+              state.update(`config.chart.items.${item.id}.rowId`, newRowId);
+            }
+          }
+        }
+      } else if (movement.resizing && (typeof item.resizeable === 'undefined' || item.resizeable === true)) {
+        resizeX(ev, row, item, zoom, timePerPixel);
+      }
+    }
+
+    function documentMouseUp(ev) {
+      movement.moving = false;
+      movement.resizing = false;
+      for (const itemId in movementState) {
+        movementState[itemId].moving = false;
+        movementState[itemId].resizing = false;
+        destroyGhost(itemId);
+      }
+    }
+    if (moveable) el.addEventListener('mousedown', labelMouseDown);
+    if (resizeable) resizerEl.addEventListener('mousedown', resizerMouseDown);
+    document.addEventListener('mousemove', documentMouseMove);
+    document.addEventListener('mouseup', documentMouseUp);
+
+    return {
+      destroy(node, data) {
+        if (moveable) el.removeEventListener('moudedown', labelMouseDown);
+        if (resizeable) resizerEl.removeEventListener('mousedown', resizerMouseDown);
+        document.removeEventListener('mousemove', documentMouseMove);
+        document.removeEventListener('mouseup', documentMouseUp);
+        if (resizeable) element.removeChild(resizerEl);
+      }
+    };
+  }
+
+  return function initializePlugin(state, api) {
+    state.update('config.actions.chart-gantt-items-row-item', actions => {
+      actions.push(action);
+      return actions;
+    });
+  };
+}
+
 /**
  * Gantt-Schedule-Timeline-Calendar
  *
@@ -22,5 +421,69 @@ function t(t={}){t={...{time:1e3,movementThreshold:2,action(t,e){}},...t};const 
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0
- */function n(t={}){function e(e){const n=e.target,i=n.clientWidth,o=n.clientHeight,s=unescape(encodeURIComponent(n.outerHTML));let r="";for(const t of document.styleSheets)if("gstc"===t.title)for(const e of t.rules)r+=e.cssText;const a=`<svg xmlns="http://www.w3.org/2000/svg" width="${i}" height="${o}" viewBox="0 0 ${i} ${o}">\n      <foreignObject x="0" y="0" width="${i}" height="${o}">\n        <div xmlns="http://www.w3.org/1999/xhtml">\n          ${r=`<style>* {${t.style}} ${r}</style>`}\n          ${s}\n        </div>\n      </foreignObject>\n    </svg>`,m=document.createElement("canvas");m.width=i,m.height=o;const d=m.getContext("2d");d.fillStyle="white",d.fillRect(0,0,i,o);const l="data:image/svg+xml;base64,"+btoa(a),c=new Image;c.onload=function(){d.drawImage(c,0,0),function(t,e){const n=document.createElement("a");n.href=t,n.download=e,document.body.appendChild(n),n.click()}(m.toDataURL("image/jpeg",1),t.filename)},c.src=l}return t={style:"font-family: sans-serif;",filename:"gantt-schedule-timeline-calendar.jpeg",options:t},function(t,n){t.subscribe("_internal.elements.main",t=>{t&&t.addEventListener("save-as-image",e)})}}export{t as ItemHold,e as ItemMovement,n as SaveAsImage};
+ */
+
+// @ts-nocheck
+function SaveAsImage(options = {}) {
+  const defaultOptions = {
+    style: 'font-family: sans-serif;',
+    filename: 'gantt-schedule-timeline-calendar.jpeg'
+  };
+  options = { ...defaultOptions, options };
+  function downloadImage(data, filename) {
+    const a = document.createElement('a');
+    a.href = data;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+  }
+
+  function saveAsImage(ev) {
+    const element = ev.target;
+    const width = element.clientWidth;
+    const height = element.clientHeight;
+    const html = unescape(encodeURIComponent(element.outerHTML));
+    let style = '';
+    for (const styleSheet of document.styleSheets) {
+      if (styleSheet.title === 'gstc') {
+        for (const rule of styleSheet.rules) {
+          style += rule.cssText;
+        }
+      }
+    }
+    style = `<style>* {${options.style}} ${style}</style>`;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+      <foreignObject x="0" y="0" width="${width}" height="${height}">
+        <div xmlns="http://www.w3.org/1999/xhtml">
+          ${style}
+          ${html}
+        </div>
+      </foreignObject>
+    </svg>`;
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, width, height);
+    const svg64 = 'data:image/svg+xml;base64,' + btoa(svg);
+    const img = new Image();
+    img.onload = function onLoad() {
+      ctx.drawImage(img, 0, 0);
+      const jpeg = canvas.toDataURL('image/jpeg', 1.0);
+      downloadImage(jpeg, options.filename);
+    };
+    img.src = svg64;
+  }
+
+  return function initializePlugin(state, api) {
+    state.subscribe('_internal.elements.main', main => {
+      if (main) {
+        main.addEventListener('save-as-image', saveAsImage);
+      }
+    });
+  };
+}
+
+export { ItemHoldPlugin as ItemHold, ItemMovementPlugin as ItemMovement, SaveAsImage };
 //# sourceMappingURL=plugins.js.map

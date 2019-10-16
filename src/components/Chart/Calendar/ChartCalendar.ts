@@ -7,12 +7,12 @@
  * @license   GPL-3.0
  */
 
-import DateComponent from './CalendarDate';
-
 export default function Calendar(vido) {
   const { api, state, onDestroy, actions, update, createComponent, html, repeat } = vido;
   const componentName = 'chart-calendar';
   const componentActions = api.getActions(componentName);
+
+  const ChartCalendarDateComponent = state.get('config.components.ChartCalendarDate');
 
   let className;
   onDestroy(
@@ -40,7 +40,7 @@ export default function Calendar(vido) {
       datesComponents.forEach(date => date.component.destroy());
       datesComponents = [];
       for (const date of dates) {
-        datesComponents.push({ id: date.id, component: createComponent(DateComponent, { date }) });
+        datesComponents.push({ id: date.id, component: createComponent(ChartCalendarDateComponent, { date }) });
       }
       update();
     })

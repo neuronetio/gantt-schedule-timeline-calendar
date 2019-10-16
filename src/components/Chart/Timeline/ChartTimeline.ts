@@ -7,12 +7,13 @@
  * @license   GPL-3.0
  */
 
-import GridComponent from './GanttGrid';
-import ItemsComponent from './GanttItems';
 export default function Gantt(vido) {
   const { api, state, onDestroy, actions, update, html, createComponent } = vido;
   const componentName = 'chart-gantt';
   const componentActions = api.getActions(componentName);
+
+  const GridComponent = state.get('config.components.ChartTimelineGrid');
+  const ItemsComponent = state.get('config.components.ChartTimelineItems');
 
   const Grid = createComponent(GridComponent);
   onDestroy(Grid.destroy);

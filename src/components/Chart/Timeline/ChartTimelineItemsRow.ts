@@ -7,9 +7,11 @@
  * @license   GPL-3.0
  */
 
-import RowItemComponent from './GanttItemsRowItem';
 export default function GanttItemsRow({ rowId }, vido) {
   const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
+
+  const ItemComponent = state.get('config.components.ChartTimelineItemsRowItem');
+
   let rowPath = `_internal.flatTreeMapById.${rowId}`;
   let row, element, style, styleInner;
   onDestroy(
@@ -33,7 +35,7 @@ export default function GanttItemsRow({ rowId }, vido) {
       itemComponents.forEach(item => item.component.destroy());
       itemComponents = [];
       for (const item of items) {
-        itemComponents.push({ id: item.id, component: createComponent(RowItemComponent, { rowId, itemId: item.id }) });
+        itemComponents.push({ id: item.id, component: createComponent(ItemComponent, { rowId, itemId: item.id }) });
       }
       update();
     })

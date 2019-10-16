@@ -7,6 +7,25 @@
  * @license   GPL-3.0
  */
 
+import Main from './components/Main';
+import List from './components/List/List';
+import ListColumn from './components/List/ListColumn';
+import ListColumnHeader from './components/List/ListColumnHeader';
+import ListColumnHeaderResizer from './components/List/ListColumnHeaderResizer';
+import ListColumnRow from './components/List/ListColumnRow';
+import ListExpander from './components/List/ListExpander';
+import ListToggle from './components/List/ListToggle';
+import Chart from './components/Chart/Chart';
+import ChartCalendar from './components/Chart/Calendar/ChartCalendar';
+import ChartCalendarDate from './components/Chart/Calendar/ChartCalendarDate';
+import ChartTimeline from './components/Chart/Timeline/ChartTimeline';
+import ChartTimelineGrid from './components/Chart/Timeline/ChartTimelineGrid';
+import ChartTimelineGridBlock from './components/Chart/Timeline/ChartTimelineGridBlock';
+import ChartTimelineGridRow from './components/Chart/Timeline/ChartTimelineGridRow';
+import ChartTimelineItems from './components/Chart/Timeline/ChartTimelineItems';
+import ChartTimelineItemsRow from './components/Chart/Timeline/ChartTimelineItemsRow';
+import ChartTimelineItemsRowItem from './components/Chart/Timeline/ChartTimelineItemsRowItem';
+
 export const actionNames = [
   '',
   'list',
@@ -39,6 +58,26 @@ function generateEmptyActions() {
 const defaultConfig = {
   height: 740,
   headerHeight: 86,
+  components: {
+    Main,
+    List,
+    ListColumn,
+    ListColumnHeader,
+    ListColumnHeaderResizer,
+    ListColumnRow,
+    ListExpander,
+    ListToggle,
+    Chart,
+    ChartCalendar,
+    ChartCalendarDate,
+    ChartTimeline,
+    ChartTimelineGrid,
+    ChartTimelineGridBlock,
+    ChartTimelineGridRow,
+    ChartTimelineItems,
+    ChartTimelineItemsRow,
+    ChartTimelineItemsRowItem
+  },
   list: {
     rows: {},
     rowHeight: 40,

@@ -7,12 +7,13 @@
  * @license   GPL-3.0
  */
 
-import GridRowComponent from './GanttGridRow';
-//import GridBlock from './GanttGridBlock.svelte';
 export default function GanttGrid(vido) {
   const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
   const componentName = 'chart-gantt-grid';
   const componentActions = api.getActions(componentName);
+
+  const GridRowComponent = state.get('config.components.ChartTimelineGridRow');
+
   let className;
   onDestroy(
     state.subscribe('config.classNames', () => {

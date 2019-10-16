@@ -7,10 +7,11 @@
  * @license   GPL-3.0
  */
 
-import GridBlock from './GanttGridBlock';
 export default function GanttGridRow({ row }, vido) {
   const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
   const componentName = 'chart-gantt-grid-row';
+
+  const GridBlockComponent = state.get('config.components.ChartTimelineGridBlock');
 
   const componentActions = api.getActions(componentName);
   let className;
@@ -25,7 +26,7 @@ export default function GanttGridRow({ row }, vido) {
   for (const block of row.blocks) {
     rowsBlocksComponents.push({
       id: block.id,
-      component: createComponent(GridBlock, { row, time: block.date, top: block.top })
+      component: createComponent(GridBlockComponent, { row, time: block.date, top: block.top })
     });
   }
 

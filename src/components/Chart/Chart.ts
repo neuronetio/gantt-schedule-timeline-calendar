@@ -7,17 +7,17 @@
  * @license   GPL-3.0
  */
 
-import CalendarComponent from './Calendar/Calendar';
-import GanttComponent from './Gantt/Gantt';
-
 export default function Chart(vido) {
   const { api, state, onDestroy, actions, update, html, createComponent } = vido;
   const componentName = 'chart';
 
-  const Calendar = createComponent(CalendarComponent);
+  const ChartCalendarComponent = state.get('config.components.ChartCalendar');
+  const ChartTimelineComponent = state.get('config.components.ChartTimeline');
+
+  const Calendar = createComponent(ChartCalendarComponent);
   onDestroy(Calendar.destroy);
-  const Gantt = createComponent(GanttComponent);
-  onDestroy(Gantt.destroy);
+  const Timeline = createComponent(ChartTimelineComponent);
+  onDestroy(Timeline.destroy);
 
   let className,
     classNameScroll,
@@ -112,7 +112,7 @@ export default function Chart(vido) {
 
   return props => html`
     <div class=${className} data-actions=${actions(componentActions, { api, state })} @wheel=${onScroll}>
-      ${Calendar.html()}${Gantt.html()}
+      ${Calendar.html()}${Timeline.html()}
       <div class=${classNameScroll} style=${styleScroll} data-actions=${actions([bindElement])} @scroll=${onScroll}>
         <div class=${classNameScrollInner} style=${styleScrollInner} data-actions=${actions([bindInnerScroll])} />
       </div>

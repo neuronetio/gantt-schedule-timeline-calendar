@@ -8,12 +8,12 @@
  */
 
 import ResizeObserver from 'resize-observer-polyfill';
-import ListComponent from './List/List';
-import ChartComponent from './Chart/Chart';
-
 export default function Main(vido) {
   const { api, state, onDestroy, actions, update, createComponent, html } = vido;
   const componentName = api.name;
+
+  const ListComponent = state.get('config.components.List');
+  const ChartComponent = state.get('config.components.Chart');
 
   const List = createComponent(ListComponent);
   onDestroy(List.destroy);

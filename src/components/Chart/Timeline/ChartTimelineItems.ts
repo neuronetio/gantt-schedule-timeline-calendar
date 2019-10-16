@@ -7,11 +7,13 @@
  * @license   GPL-3.0
  */
 
-import ItemsRowComponent from './GanttItemsRow';
 export default function GnattItems(vido) {
   const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
   const componentName = 'chart-gantt-items';
   const componentActions = api.getActions(componentName);
+
+  const ItemsRowComponent = state.get('config.components.ChartTimelineItemsRow');
+
   let className;
   onDestroy(
     state.subscribe('config.classNames', () => {
