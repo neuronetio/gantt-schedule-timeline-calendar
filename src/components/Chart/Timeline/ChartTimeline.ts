@@ -12,6 +12,9 @@ export default function Gantt(vido) {
   const componentName = 'chart-gantt';
   const componentActions = api.getActions(componentName);
 
+  let wrapper;
+  onDestroy(state.subscribe('config.wrappers.ChartTimeline', value => (wrapper = value)));
+
   const GridComponent = state.get('config.components.ChartTimelineGrid');
   const ItemsComponent = state.get('config.components.ChartTimelineItems');
 
@@ -43,11 +46,15 @@ export default function Gantt(vido) {
     state.update('_internal.elements.gantt', element);
   });
 
-  return props => html`
-    <div class=${className} style=${style} data-actions=${actions(componentActions)} @wheel=${api.onScroll}>
-      <div class=${classNameInner} style=${styleInner}>
-        ${Grid.html()}${Items.html()}
-      </div>
-    </div>
-  `;
+  return props =>
+    wrapper(
+      html`
+        <div class=${className} style=${style} data-actions=${actions(componentActions)} @wheel=${api.onScroll}>
+          <div class=${classNameInner} style=${styleInner}>
+            ${Grid.html()}${Items.html()}
+          </div>
+        </div>
+      `,
+      { props: {}, vido, templateProps: props }
+    );
 }

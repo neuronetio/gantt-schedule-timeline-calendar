@@ -11,6 +11,9 @@ export default function GanttGridRow({ row }, vido) {
   const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
   const componentName = 'chart-gantt-grid-row';
 
+  let wrapper;
+  onDestroy(state.subscribe('config.wrappers.ChartTimelineGrid', value => (wrapper = value)));
+
   const GridBlockComponent = state.get('config.components.ChartTimelineGridBlock');
 
   const componentActions = api.getActions(componentName);
@@ -36,9 +39,13 @@ export default function GanttGridRow({ row }, vido) {
 
   let style = `height: ${row.rowData.height}px;`;
 
-  return props => html`
-    <div class=${className} data-actions=${actions(componentActions, { row, api, state })} style=${style}>
-      ${rowsBlocksComponents.map(r => r.component.html())}
-    </div>
-  `;
+  return props =>
+    wrapper(
+      html`
+        <div class=${className} data-actions=${actions(componentActions, { row, api, state })} style=${style}>
+          ${rowsBlocksComponents.map(r => r.component.html())}
+        </div>
+      `,
+      { vido, props: { row }, templateProps: props }
+    );
 }

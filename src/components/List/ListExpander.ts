@@ -7,7 +7,6 @@
  * @license   GPL-3.0
  */
 
-import ListToggle from './ListToggle';
 export default function ListExpander(props, vido) {
   const { api, state, onDestroy, actions, update, html, createComponent } = vido;
   const componentName = 'list-expander';
@@ -15,9 +14,16 @@ export default function ListExpander(props, vido) {
   let className,
     padding,
     width,
-    rows,
     paddingClass,
     children = [];
+
+  let ListToggleComponent;
+  onDestroy(state.subscribe('config.components.ListToggle', value => (ListToggleComponent = value)));
+  const ListToggle = createComponent(ListToggleComponent, props.row ? { row: props.row } : {});
+  onDestroy(ListToggle.destroy);
+
+  let wrapper;
+  onDestroy(state.subscribe('config.wrappers.ListExpander', value => (wrapper = value)));
 
   onDestroy(
     state.subscribe('config.classNames', value => {
@@ -50,14 +56,15 @@ export default function ListExpander(props, vido) {
     width = 'width:0px';
     children = [];
   }
-  // @ts-ignore
-  const listToggle = createComponent(ListToggle, props.row ? { row: props.row } : {});
-  onDestroy(listToggle.destroy);
 
-  return () => html`
-    <div class=${className} data-action=${actions(componentActions, { row: props.row, api, state })}>
-      <div class=${paddingClass} style=${width}></div>
-      ${children.length || !props.row ? listToggle.html() : ''}
-    </div>
-  `;
+  return templateProps =>
+    wrapper(
+      html`
+        <div class=${className} data-action=${actions(componentActions, { row: props.row, api, state })}>
+          <div class=${paddingClass} style=${width}></div>
+          ${children.length || !props.row ? ListToggle.html() : ''}
+        </div>
+      `,
+      { vido, props, templateProps }
+    );
 }

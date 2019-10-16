@@ -78,6 +78,62 @@ const defaultConfig = {
     ChartTimelineItemsRow,
     ChartTimelineItemsRowItem
   },
+  wrappers: {
+    Main(input) {
+      return input;
+    },
+    List(input) {
+      return input;
+    },
+    ListColumn(input) {
+      return input;
+    },
+    ListColumnHeader(input) {
+      return input;
+    },
+    ListColumnHeaderResizer(input) {
+      return input;
+    },
+    ListColumnRow(input) {
+      return input;
+    },
+    ListExpander(input) {
+      return input;
+    },
+    ListToggle(input) {
+      return input;
+    },
+    Chart(input) {
+      return input;
+    },
+    ChartCalendar(input) {
+      return input;
+    },
+    ChartCalendarDate(input) {
+      return input;
+    },
+    ChartTimeline(input) {
+      return input;
+    },
+    ChartTimelineGrid(input) {
+      return input;
+    },
+    ChartTimelineGridBlock(input) {
+      return input;
+    },
+    ChartTimelineGridRow(input) {
+      return input;
+    },
+    ChartTimelineItems(input) {
+      return input;
+    },
+    ChartTimelineItemsRow(input) {
+      return input;
+    },
+    ChartTimelineItemsRowItem(input) {
+      return input;
+    }
+  },
   list: {
     rows: {},
     rowHeight: 40,

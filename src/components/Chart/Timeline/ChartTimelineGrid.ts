@@ -12,6 +12,9 @@ export default function GanttGrid(vido) {
   const componentName = 'chart-gantt-grid';
   const componentActions = api.getActions(componentName);
 
+  let wrapper;
+  onDestroy(state.subscribe('config.wrappers.ChartTimelineGrid', value => (wrapper = value)));
+
   const GridRowComponent = state.get('config.components.ChartTimelineGridRow');
 
   let className;
@@ -69,9 +72,13 @@ export default function GanttGrid(vido) {
     rowsComponents.forEach(row => row.component.destroy());
   });
 
-  return props => html`
-    <div class=${className} data-actions=${actions(componentActions, { api, state })} style=${style}>
-      ${rowsComponents.map(r => r.component.html())}
-    </div>
-  `;
+  return props =>
+    wrapper(
+      html`
+        <div class=${className} data-actions=${actions(componentActions, { api, state })} style=${style}>
+          ${rowsComponents.map(r => r.component.html())}
+        </div>
+      `,
+      { props: {}, vido, templateProps: props }
+    );
 }

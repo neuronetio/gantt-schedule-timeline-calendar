@@ -7,11 +7,16 @@
  * @license   GPL-3.0
  */
 
-import ListColumnRow from './ListColumnRow';
-import ListColumnHeaderComponent from './ListColumnHeader';
-
 export default function ListColumnComponent({ columnId }, vido) {
   const { api, state, onDestroy, actions, update, createComponent, html, repeat } = vido;
+
+  let wrapper;
+  onDestroy(state.subscribe('config.wrappers.ListColumn', value => (wrapper = value)));
+
+  let ListColumnRowComponent;
+  onDestroy(state.subscribe('config.components.ListColumnRow', value => (ListColumnRowComponent = value)));
+  let ListColumnHeaderComponent;
+  onDestroy(state.subscribe('config.components.ListColumnHeader', value => (ListColumnHeaderComponent = value)));
 
   let column,
     columnPath = `config.list.columns.data.${columnId}`;
@@ -42,7 +47,7 @@ export default function ListColumnComponent({ columnId }, vido) {
       visibleRows.forEach(row => row.component.destroy());
       visibleRows = val.map(row => ({
         id: row.id,
-        component: createComponent(ListColumnRow, { columnId, rowId: row.id })
+        component: createComponent(ListColumnRowComponent, { columnId, rowId: row.id })
       }));
       update();
     })
@@ -74,16 +79,20 @@ export default function ListColumnComponent({ columnId }, vido) {
   const ListColumnHeader = createComponent(ListColumnHeaderComponent, { columnId });
   onDestroy(ListColumnHeader.destroy);
 
-  return props => html`
-    <div
-      class=${className}
-      data-actions=${actions(componentActions, { column, state: state, api: api })}
-      style=${width}
-    >
-      ${ListColumnHeader.html()}
-      <div class=${classNameContainer} style=${styleContainer} data-actions=${actions(rowsActions, { api, state })}>
-        ${visibleRows.map(row => row.component.html())}
-      </div>
-    </div>
-  `;
+  return props =>
+    wrapper(
+      html`
+        <div
+          class=${className}
+          data-actions=${actions(componentActions, { column, state: state, api: api })}
+          style=${width}
+        >
+          ${ListColumnHeader.html()}
+          <div class=${classNameContainer} style=${styleContainer} data-actions=${actions(rowsActions, { api, state })}>
+            ${visibleRows.map(row => row.component.html())}
+          </div>
+        </div>
+      `,
+      { vido, props: { columnId }, templateProps: props }
+    );
 }

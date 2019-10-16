@@ -14,6 +14,9 @@ export default function Calendar(vido) {
 
   const ChartCalendarDateComponent = state.get('config.components.ChartCalendarDate');
 
+  let wrapper;
+  onDestroy(state.subscribe('config.wrappers.ChartCalendar', value => (wrapper = value)));
+
   let className;
   onDestroy(
     state.subscribe('config.classNames', value => {
@@ -53,9 +56,13 @@ export default function Calendar(vido) {
     state.update('_internal.elements.calendar', element);
   });
 
-  return props => html`
-    <div class=${className} data-actions=${actions(componentActions)} style=${style}>
-      ${repeat(datesComponents, d => d.id, d => d.component.html())}
-    </div>
-  `;
+  return props =>
+    wrapper(
+      html`
+        <div class=${className} data-actions=${actions(componentActions)} style=${style}>
+          ${repeat(datesComponents, d => d.id, d => d.component.html())}
+        </div>
+      `,
+      { props: {}, vido, templateProps: props }
+    );
 }

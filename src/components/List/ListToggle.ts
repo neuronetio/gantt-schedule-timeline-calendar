@@ -11,6 +11,9 @@ export default function ListToggle(props, vido) {
   const { api, state, onDestroy, actions, update, html, unsafeHTML } = vido;
   const componentName = 'list-expander-toggle';
 
+  let wrapper;
+  onDestroy(state.subscribe('config.wrappers.ListToggle', value => (wrapper = value)));
+
   const componentActions = api.getActions(componentName);
   let className, style;
   let classNameOpen, classNameClosed;
@@ -84,24 +87,28 @@ export default function ListToggle(props, vido) {
     }
   }
 
-  return () => html`
-    <div
-      class=${className}
-      data-actions=${actions(componentActions, { row: props.row, api, state })}
-      style=${style}
-      @click=${toggle}
-    >
-      ${expanded
-        ? html`
-            <div class=${classNameOpen}>
-              ${unsafeHTML(iconOpen)}
-            </div>
-          `
-        : html`
-            <div class=${classNameClosed}>
-              ${unsafeHTML(iconClosed)}
-            </div>
-          `}
-    </div>
-  `;
+  return templateProps =>
+    wrapper(
+      html`
+        <div
+          class=${className}
+          data-actions=${actions(componentActions, { row: props.row, api, state })}
+          style=${style}
+          @click=${toggle}
+        >
+          ${expanded
+            ? html`
+                <div class=${classNameOpen}>
+                  ${unsafeHTML(iconOpen)}
+                </div>
+              `
+            : html`
+                <div class=${classNameClosed}>
+                  ${unsafeHTML(iconClosed)}
+                </div>
+              `}
+        </div>
+      `,
+      { vido, props, templateProps }
+    );
 }

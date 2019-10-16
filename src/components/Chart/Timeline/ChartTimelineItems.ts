@@ -12,6 +12,9 @@ export default function GnattItems(vido) {
   const componentName = 'chart-gantt-items';
   const componentActions = api.getActions(componentName);
 
+  let wrapper;
+  onDestroy(state.subscribe('config.wrappers.ChartTimelineItems', value => (wrapper = value)));
+
   const ItemsRowComponent = state.get('config.components.ChartTimelineItemsRow');
 
   let className;

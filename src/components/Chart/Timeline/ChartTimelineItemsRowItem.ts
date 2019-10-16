@@ -10,6 +10,9 @@
 export default function GanttItemsRowItem({ rowId, itemId }, vido) {
   const { api, state, onDestroy, actions, update, html } = vido;
 
+  let wrapper;
+  onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
+
   let row,
     rowPath = `config.list.rows.${rowId}`;
   onDestroy(
@@ -59,7 +62,9 @@ export default function GanttItemsRowItem({ rowId, itemId }, vido) {
     )
   );
 
-  return props => html`
+  return props =>
+    wrapper(
+      html`
     <div
       class=${className}
       data-actions=${actions(componentActions, { item, row, left: itemLeftPx, width: itemWidthPx, api, state })}
@@ -69,5 +74,7 @@ export default function GanttItemsRowItem({ rowId, itemId }, vido) {
         <div class=${labelClassName}">${item.label}</div>
       </div>
     </div>
-  `;
+  `,
+      { vido, props: { rowId, itemId }, templateProps: props }
+    );
 }

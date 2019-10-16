@@ -13,6 +13,9 @@ export default function CalendarDate({ date }, vido) {
   const componentName = 'chart-calendar-date';
   const componentActions = api.getActions(componentName);
 
+  let wrapper;
+  onDestroy(state.subscribe('config.wrappers.ChartCalendarDate', value => (wrapper = value)));
+
   let className,
     formattedClassName,
     formattedYearClassName,
@@ -81,20 +84,24 @@ export default function CalendarDate({ date }, vido) {
     )
   );
 
-  return props => html`
-    <div class=${className} style=${style} data-actions=${actions(componentActions, { date, api, state })}>
-      ${small
-        ? html`
-            <div class=${formattedClassName} style="transform: rotate(90deg);">${smallFormatted}</div>
-          `
-        : html`
-            <div class=${formattedClassName}>
-              <div class=${formattedYearClassName}>${year}</div>
-              <div class=${formattedMonthClassName}>${month}</div>
-              <div class=${formattedDayClassName}>${day}</div>
-              <div class=${formattedDayWordClassName}>${dayWord}</div>
-            </div>
-          `}
-    </div>
-  `;
+  return props =>
+    wrapper(
+      html`
+        <div class=${className} style=${style} data-actions=${actions(componentActions, { date, api, state })}>
+          ${small
+            ? html`
+                <div class=${formattedClassName} style="transform: rotate(90deg);">${smallFormatted}</div>
+              `
+            : html`
+                <div class=${formattedClassName}>
+                  <div class=${formattedYearClassName}>${year}</div>
+                  <div class=${formattedMonthClassName}>${month}</div>
+                  <div class=${formattedDayClassName}>${day}</div>
+                  <div class=${formattedDayWordClassName}>${dayWord}</div>
+                </div>
+              `}
+        </div>
+      `,
+      { props: {}, vido, templateProps: props }
+    );
 }

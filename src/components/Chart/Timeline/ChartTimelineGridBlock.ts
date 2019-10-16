@@ -11,6 +11,10 @@ export default function GanttGridBlock({ row, time, top }, vido) {
   const { api, state, onDestroy, actions, update, html } = vido;
   const componentName = 'chart-gantt-grid-block';
   const componentActions = api.getActions(componentName, { row, time, top });
+
+  let wrapper;
+  onDestroy(state.subscribe('config.wrappers.ChartTimelineGridBlock', value => (wrapper = value)));
+
   let className = api.getClass(componentName, { row });
   onDestroy(
     state.subscribe('config.classNames', () => {
@@ -30,11 +34,14 @@ export default function GanttGridBlock({ row, time, top }, vido) {
 
   let style = `width: ${time.width}px;height: 100%;margin-left:-${time.subPx}px`;
   return props =>
-    html`
-      <div
-        class=${className}
-        data-actions=${actions(componentActions, { row, time, top, api, state })}
-        style=${style}
-      />
-    `;
+    wrapper(
+      html`
+        <div
+          class=${className}
+          data-actions=${actions(componentActions, { row, time, top, api, state })}
+          style=${style}
+        />
+      `,
+      { props: { row, time, top }, vido, templateProps: props }
+    );
 }

@@ -7,14 +7,19 @@
  * @license   GPL-3.0
  */
 
-import ListColumnComponent from './ListColumn';
 export default function List(vido) {
   const { api, state, onDestroy, actions, update, createComponent, html, repeat } = vido;
 
   const componentName = 'list';
   const componentActions = api.getActions(componentName);
-  let className;
 
+  let wrapper;
+  onDestroy(state.subscribe('config.wrappers.List', value => (wrapper = value)));
+
+  let ListColumnComponent;
+  onDestroy(state.subscribe('config.components.ListColumn', value => (ListColumnComponent = value)));
+
+  let className;
   let list, percent;
   onDestroy(
     state.subscribe('config.list', () => {
@@ -94,17 +99,20 @@ export default function List(vido) {
   });
 
   return props =>
-    list.columns.percent > 0
-      ? html`
-          <div
-            class=${className}
-            data-actions=${actions(componentActions)}
-            style=${style}
-            @scroll=${onScroll}
-            @wheel=${onScroll}
-          >
-            ${listColumns.map(c => c.component.html())}
-          </div>
-        `
-      : null;
+    wrapper(
+      list.columns.percent > 0
+        ? html`
+            <div
+              class=${className}
+              data-actions=${actions(componentActions)}
+              style=${style}
+              @scroll=${onScroll}
+              @wheel=${onScroll}
+            >
+              ${listColumns.map(c => c.component.html())}
+            </div>
+          `
+        : null,
+      { vido, props: {}, templateProps: props }
+    );
 }

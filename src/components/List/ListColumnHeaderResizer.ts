@@ -13,6 +13,9 @@ export default function ListColumnHeaderResizer({ columnId }, vido) {
   const componentName = 'list-column-header-resizer';
   const componentActions = api.getActions(componentName);
 
+  let wrapper;
+  onDestroy(state.subscribe('config.wrappers.ListColumnHeaderResizer', value => (wrapper = value)));
+
   let column;
   onDestroy(
     state.subscribe(`config.list.columns.data.${columnId}`, val => {
@@ -103,23 +106,27 @@ export default function ListColumnHeaderResizer({ columnId }, vido) {
   document.body.addEventListener('mouseup', onMouseUp);
   onDestroy(() => document.body.removeEventListener('mouseup', onMouseUp));
 
-  return props => html`
-    <div class=${className} data-actions=${actions(componentActions, { column, api, state })}>
-      <div class=${containerClass}>
-        ${column.header.html
-          ? html`
-              ${column.header.html}
-            `
-          : column.header.content}
-      </div>
-      <div class=${dotsClass} style=${'--' + dotsWidth} @mousedown=${onMouseDown}>
-        ${dots.map(
-          dot =>
-            html`
-              <div class=${dotClass} />
-            `
-        )}
-      </div>
-    </div>
-  `;
+  return props =>
+    wrapper(
+      html`
+        <div class=${className} data-actions=${actions(componentActions, { column, api, state })}>
+          <div class=${containerClass}>
+            ${column.header.html
+              ? html`
+                  ${column.header.html}
+                `
+              : column.header.content}
+          </div>
+          <div class=${dotsClass} style=${'--' + dotsWidth} @mousedown=${onMouseDown}>
+            ${dots.map(
+              dot =>
+                html`
+                  <div class=${dotClass} />
+                `
+            )}
+          </div>
+        </div>
+      `,
+      { vido, props: { columnId }, temlateProps: props }
+    );
 }

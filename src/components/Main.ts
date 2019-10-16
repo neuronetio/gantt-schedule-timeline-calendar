@@ -12,8 +12,10 @@ export default function Main(vido) {
   const { api, state, onDestroy, actions, update, createComponent, html } = vido;
   const componentName = api.name;
 
-  const ListComponent = state.get('config.components.List');
-  const ChartComponent = state.get('config.components.Chart');
+  let ListComponent;
+  onDestroy(state.subscribe('config.components.List', value => (ListComponent = value)));
+  let ChartComponent;
+  onDestroy(state.subscribe('config.components.Chart', value => (ChartComponent = value)));
 
   const List = createComponent(ListComponent);
   onDestroy(List.destroy);
@@ -29,6 +31,9 @@ export default function Main(vido) {
       }
     })
   );
+
+  let wrapper;
+  onDestroy(state.subscribe('config.wrappers.Main', value => (wrapper = value)));
 
   const componentActions = api.getActions('');
   let className, classNameVerticalScroll, style, styleVerticalScroll, styleVerticalScrollArea;
@@ -286,17 +291,20 @@ export default function Main(vido) {
   }
 
   return props =>
-    html`
-      <div class=${className} style=${style} @scroll=${onScroll} data-actions=${actions(componentActions)}>
-        ${List.html()}${Chart.html()}
-        <div
-          class=${classNameVerticalScroll}
-          style=${styleVerticalScroll}
-          @scroll=${onScroll}
-          data-action=${actions([bindScrollElement])}
-        >
-          <div style=${styleVerticalScrollArea} data-actions=${actions([bindScrollInnerElement])} />
+    wrapper(
+      html`
+        <div class=${className} style=${style} @scroll=${onScroll} data-actions=${actions(componentActions)}>
+          ${List.html()}${Chart.html()}
+          <div
+            class=${classNameVerticalScroll}
+            style=${styleVerticalScroll}
+            @scroll=${onScroll}
+            data-action=${actions([bindScrollElement])}
+          >
+            <div style=${styleVerticalScrollArea} data-actions=${actions([bindScrollInnerElement])} />
+          </div>
         </div>
-      </div>
-    `;
+      `,
+      { props: {}, vido, templateProps: props }
+    );
 }

@@ -7,9 +7,14 @@
  * @license   GPL-3.0
  */
 
-import ListExpander from './ListExpander';
 export default function ListColumnRow({ rowId, columnId }, vido) {
   const { api, state, onDestroy, actions, update, html, createComponent } = vido;
+
+  let wrapper;
+  onDestroy(state.subscribe('config.wrappers.ListColumnRow', value => (wrapper = value)));
+
+  let ListExpanderComponent;
+  onDestroy(state.subscribe('config.components.ListExpander', value => (ListExpanderComponent = value)));
 
   let row,
     rowPath = `config.list.rows.${rowId}`;
@@ -21,6 +26,9 @@ export default function ListColumnRow({ rowId, columnId }, vido) {
       update();
     })
   );
+
+  const ListExpander = createComponent(ListExpanderComponent, { row });
+  onDestroy(ListExpander.destroy);
 
   let column,
     columnPath = `config.list.columns.data.${columnId}`;
@@ -56,22 +64,23 @@ export default function ListColumnRow({ rowId, columnId }, vido) {
     return row[column.data];
   }
 
-  const listExpander = createComponent(ListExpander, { row });
-  onDestroy(listExpander.destroy);
-
-  return props => html`
-    <div
-      class=${className}
-      style=${style}
-      data-actions=${actions(componentActions, {
-        column,
-        row,
-        api,
-        state
-      })}
-    >
-      ${typeof column.expander === 'boolean' && column.expander ? listExpander.html() : ''}
-      ${typeof column.html === 'string' ? getHtml() : getText()}
-    </div>
-  `;
+  return props =>
+    wrapper(
+      html`
+        <div
+          class=${className}
+          style=${style}
+          data-actions=${actions(componentActions, {
+            column,
+            row,
+            api,
+            state
+          })}
+        >
+          ${typeof column.expander === 'boolean' && column.expander ? ListExpander.html() : ''}
+          ${typeof column.html === 'string' ? getHtml() : getText()}
+        </div>
+      `,
+      { vido, props: { rowId, columnId }, templateProps: props }
+    );
 }
