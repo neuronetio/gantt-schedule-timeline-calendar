@@ -1,5 +1,5 @@
 {
-  "name": "litgantt",
+  "name": "gantt-schedule-timeline-calendar",
   "version": "0.0.2",
   "description": "",
   "main": "dist/index.umd.js",
