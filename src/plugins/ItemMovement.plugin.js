@@ -31,7 +31,7 @@ export default function ItemMovementPlugin(options = {}) {
    * @param {Object} data
    */
   function action(node, data) {
-    const element = node.querySelector('.gantt-schedule-timeline-calendar__chart-gantt-items-row-item-content');
+    const element = node.querySelector('.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content');
     if (!options.moveable && !options.resizeable) {
       return;
     }
@@ -57,7 +57,7 @@ export default function ItemMovementPlugin(options = {}) {
     }
 
     if (resizeable) {
-      const resizerHTML = `<div class="${api.getClass('chart-gantt-items-row-item-content-resizer')}">${
+      const resizerHTML = `<div class="${api.getClass('chart-timeline-items-row-item-content-resizer')}">${
         options.resizerContent
       }</div>`;
       // @ts-ignore
@@ -65,7 +65,9 @@ export default function ItemMovementPlugin(options = {}) {
     }
 
     const el = element;
-    const resizerEl = el.querySelector('.gantt-schedule-timeline-calendar__chart-gantt-items-row-item-content-resizer');
+    const resizerEl = el.querySelector(
+      '.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content-resizer'
+    );
     const state = data.state;
 
     if (typeof movementState[data.item.id] === 'undefined') {
@@ -318,7 +320,7 @@ export default function ItemMovementPlugin(options = {}) {
   }
 
   return function initializePlugin(state, api) {
-    state.update('config.actions.chart-gantt-items-row-item', actions => {
+    state.update('config.actions.chart-timeline-items-row-item', actions => {
       actions.push(action);
       return actions;
     });

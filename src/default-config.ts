@@ -37,15 +37,15 @@ export const actionNames = [
   'list-column-row',
   'chart',
   'chart-calendar',
-  'chart-gantt',
-  'chart-gantt-grid',
-  'chart-gantt-grid-row',
-  'chart-gantt-items',
-  'chart-gantt-items-row',
-  'chart-gantt-items-row-item',
   'chart-calendar-date',
-  'chart-gantt-grid-column',
-  'chart-gantt-grid-block'
+  'chart-timeline',
+  'chart-timeline-grid',
+  'chart-timeline-grid-row',
+  'chart-timeline-items',
+  'chart-timeline-items-row',
+  'chart-timeline-items-row-item',
+  'chart-timeline-grid-column',
+  'chart-timeline-grid-block'
 ];
 
 function generateEmptyActions() {

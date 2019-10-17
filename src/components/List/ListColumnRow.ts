@@ -22,7 +22,22 @@ export default function ListColumnRow({ rowId, columnId }, vido) {
   onDestroy(
     state.subscribe(rowPath, value => {
       row = value;
-      style = `--height: ${row.height}px`;
+      style = `--height: ${row.height}px;`;
+      for (let parentId of row._internal.parents) {
+        const parent = state.get('config.list.rows.' + parentId);
+        if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
+          if (typeof parent.style.children === 'string') {
+            style += parent.style.children;
+          }
+        }
+      }
+      if (
+        typeof row.style === 'object' &&
+        row.style.constructor.name === 'Object' &&
+        typeof row.style.current === 'string'
+      ) {
+        style += row.style.current;
+      }
       update();
     })
   );

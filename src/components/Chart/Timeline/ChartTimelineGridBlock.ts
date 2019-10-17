@@ -32,7 +32,24 @@ export default function GanttGridBlock({ row, time, top }, vido) {
     })
   );
 
-  let style = `width: ${time.width}px;height: 100%;margin-left:-${time.subPx}px`;
+  let style = `width: ${time.width}px;height: 100%;margin-left:-${time.subPx}px;`;
+  for (const parentId of row.rowData._internal.parents) {
+    const parent = state.get('config.list.rows.' + parentId);
+    if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
+      if (typeof parent.style.gridBlock === 'object' && parent.style.gridBlock.constructor.name === 'Object') {
+        if (typeof parent.style.gridBlock.children === 'string') {
+          style += parent.style.gridBlock.children;
+        }
+      }
+    }
+  }
+  if (typeof row.rowData.style === 'object' && row.rowData.style.constructor.name === 'Object') {
+    if (typeof row.rowData.style.gridBlock === 'object' && row.rowData.style.gridBlock.constructor.name === 'Object') {
+      if (typeof row.rowData.style.gridBlock.current === 'string') {
+        style += row.rowData.style.gridBlock.current;
+      }
+    }
+  }
   return props =>
     wrapper(
       html`

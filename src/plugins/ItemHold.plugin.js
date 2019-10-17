@@ -80,7 +80,7 @@ export default function ItemHoldPlugin(options = {}) {
   }
 
   return function initializePlugin(state, api) {
-    state.update('config.actions.chart-gantt-items-row-item', actions => {
+    state.update('config.actions.chart-timeline-items-row-item', actions => {
       actions.push(action);
       return actions;
     });

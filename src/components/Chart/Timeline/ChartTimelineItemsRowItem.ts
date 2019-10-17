@@ -43,6 +43,7 @@ export default function GanttItemsRowItem({ rowId, itemId }, vido) {
   );
 
   let style,
+    contentStyle = '',
     itemLeftPx = 0,
     itemWidthPx = 0;
   onDestroy(
@@ -56,6 +57,11 @@ export default function GanttItemsRowItem({ rowId, itemId }, vido) {
         itemWidthPx -= state.get('config.chart.spacing');
         const inViewPort = api.isItemInViewport(item, time.leftGlobal, time.rightGlobal);
         style = `left:${itemLeftPx}px;width:${itemWidthPx}px;`;
+        if (typeof item.style === 'object' && item.style.constructor.name === 'Object') {
+          if (typeof item.style.current === 'string') {
+            contentStyle += item.style.current;
+          }
+        }
         update();
       },
       { bulk: true }
@@ -70,7 +76,7 @@ export default function GanttItemsRowItem({ rowId, itemId }, vido) {
       data-actions=${actions(componentActions, { item, row, left: itemLeftPx, width: itemWidthPx, api, state })}
       style=${style}
     >
-      <div class=${contentClassName}>
+      <div class=${contentClassName} style=${contentStyle}>
         <div class=${labelClassName}">${item.label}</div>
       </div>
     </div>
