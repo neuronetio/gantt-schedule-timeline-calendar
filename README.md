@@ -1,4 +1,4 @@
-# gantt-schedule-timeline-calendar :star:
+# gantt-schedule-timeline-calendar
 
 Gantt, scheduler, timeline and calendar componens all in one!
 
@@ -69,8 +69,7 @@ for (let i = 0; i < iterations; i++) {
     rowId: id
   };
 }
-      
-      
+
 // CONFIGURE COLUMNS VISIBLE ON THE LEFT
 
 const columns = {
@@ -127,7 +126,6 @@ const columns = {
     }
   }
 };
-      
 
 // MAKE CONFIGURATION OUT OF IT
 
@@ -161,10 +159,9 @@ const config = {
   }
 };
 
-
 // CREATE COMPONENT STATE FROM CONFIGURATION
 
-let GSTCState = (window.state = GSTC.api.stateFromConfig(config));
+let GSTCState = GSTC.api.stateFromConfig(config);
 
 // MOUNT IT !
 
@@ -172,5 +169,4 @@ const app = GSTC({
   element: document.getElementById('app'),
   state: GSTCState
 });
-
 ```
