@@ -11,6 +11,10 @@
     "start": "sirv dist --single",
     "start:dev": "sirv dist --single --dev"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neuronetio/gantt-schedule-timeline-calendar.git"
+  },
   "author": "Rafal Pospiech <neuronet.io@gmail.com>",
   "license": "GPL-3.0",
   "dependencies": {
