@@ -14,6 +14,8 @@
 
 gantt-schedule-timeline-calendar is all-in-one component that you can use in different scenarios.
 
+You can use it in react, vue, angular or svelte projects.
+
 You can use it as schedule for reservation system. You can use it for organizing events. You can use it as gantt chart. Or you can use it as calendar for different purposes.
 
 gantt-schedule-timeline-calendar is very extensible and elastic. You can make your own plugins or modify configuration in couple of ways to achieve your goals.
@@ -169,12 +171,9 @@ const config = {
   }
 };
 
-// CREATE COMPONENT STATE FROM CONFIGURATION
+// CREATE COMPONENT STATE FROM CONFIGURATION AND MOUNT IT !
 
 let GSTCState = GSTC.api.stateFromConfig(config);
-
-// MOUNT IT !
-
 const app = GSTC({
   element: document.getElementById('app'),
   state: GSTCState
