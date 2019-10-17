@@ -6,7 +6,7 @@
 <img src="https://api.codacy.com/project/badge/Grade/732e0ef156344594b48584af97ba1e4a">
 <img src="https://snyk.io/test/github/neuronetio/gantt-schedule-timeline-calendar/badge.svg">
 <img src="https://img.badgesize.io/neuronetio/gantt-schedule-timeline-calendar/master/dist/index.umd.js.png?compression=gzip&label=gzipped">
-<img src="https://img.shields.io/npm/dm/gantt-scheule-timeline-calendar.svg">
+<img src="https://img.shields.io/npm/dm/gantt-schedule-timeline-calendar.svg">
 <img src="https://img.shields.io/npm/l/gantt-schedule-timeline-calendar.svg">
 <img src="https://badge.fury.io/js/gantt-schedule-timeline-calendar.svg">
 <a href="https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fneuronetio%2Fgantt-schedule-timeline-calendar"><img alt="Twitter" src="https://img.shields.io/twitter/url/https/github.com/neuronetio/gantt-schedule-timeline-calendar?style=social"></a>
