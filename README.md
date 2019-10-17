@@ -21,7 +21,7 @@ You can use it as schedule for reservation system. You can use it for organizing
 gantt-schedule-timeline-calendar is very extensible and elastic. You can make your own plugins or modify configuration in couple of ways to achieve your goals.
 You can control almost everything. You can change html structure, stylize every html element and even override original components without any compilation stage!
 
-### PS Give it a star :star: if you want more activity in this repo, thanks!
+### PS Give it a star :star: if you want more activity in this repo
 
 ## install
 
