@@ -37,7 +37,7 @@ const _internal = {
     },
     visibleItems: [],
     time: {
-      dates: [],
+      dates: {},
       timePerPixel: 0,
       firstTaskTime: 0,
       lastTaskTime: 0,

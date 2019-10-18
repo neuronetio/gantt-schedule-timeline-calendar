@@ -15,13 +15,11 @@ export default function ItemMovementPlugin(options = {}) {
     resizerContent: '',
     collisionDetection: true,
     outOfBorders: false,
-    snapStart: [],
-    snapEnd: [],
+    snapStart: (timeStart, startDiff) => timeStart + startDiff,
+    snapEnd: (timeEnd, endDiff) => timeEnd + endDiff,
     ghostNode: true
   };
   options = { ...defaultOptions, ...options };
-  options.snapStart = options.snapStart.slice();
-  options.snapEnd = options.snapEnd.slice();
   const movementState = {};
 
   /**
@@ -180,25 +178,7 @@ export default function ItemMovementPlugin(options = {}) {
       return false;
     }
 
-    function snap(addMilliseconds, currentDate, addToEnd = 0, snapValues = []) {
-      let smallestDiff = Number.MAX_SAFE_INTEGER;
-      let smallestTime = 0;
-      for (let snapTime of snapValues) {
-        let diff = currentDate
-          .clone()
-          .add(addMilliseconds, 'milliseconds')
-          .diff(snapTime, 'milliseconds');
-        if (Math.sign(diff) === -1) {
-          diff = -diff;
-        }
-        if (diff < smallestDiff) {
-          smallestDiff = diff;
-          smallestTime = snapTime;
-        }
-      }
-      smallestTime += addToEnd;
-      return api.time.date(smallestTime);
-    }
+    function snap(timeStart, diffStart, timeEnd, diffEnd) {}
 
     function movementX(ev, row, item, zoom, timePerPixel) {
       const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
@@ -206,13 +186,13 @@ export default function ItemMovementPlugin(options = {}) {
       const leftMs = state.get('_internal.chart.time.leftGlobal') + left * timePerPixel;
       const add = leftMs - item.time.start;
       const originalStart = item.time.start;
-      const finalStartTime = snap(add, data.api.time.date(item.time.start), 0, snapStart);
+      const finalStartTime = snapStart(item.time.start, add, item);
       const finalAdd = finalStartTime - originalStart;
       const collision = isCollision(row.id, item.id, item.time.start + finalAdd, item.time.end + finalAdd);
       if (finalAdd && !collision) {
         state.update(`config.chart.items.${data.item.id}.time`, function moveItem(time) {
           time.start += finalAdd;
-          time.end += finalAdd;
+          time.end = snapEnd(time.end, finalAdd, item);
           return time;
         });
       }
@@ -227,12 +207,14 @@ export default function ItemMovementPlugin(options = {}) {
         return;
       }
       const originalEnd = item.time.end;
-      const finalEndTime = snap(add, data.api.time.date(item.time.end), -1, snapEnd);
+      const finalEndTime = snapEnd(item.time.end, add, item) - 1;
       const finalAdd = finalEndTime - originalEnd;
       const collision = isCollision(row.id, item.id, item.time.start, item.time.end + finalAdd);
       if (finalAdd && !collision) {
-        state.update(`config.chart.items.${data.item.id}.time.end`, function resizeItem(end) {
-          return (end += finalAdd);
+        state.update(`config.chart.items.${data.item.id}.time`, time => {
+          time.start = snapStart(time.start, 0, item);
+          time.end = snapEnd(time.end, finalAdd, item);
+          return time;
         });
       }
     }
@@ -310,7 +292,7 @@ export default function ItemMovementPlugin(options = {}) {
 
     return {
       destroy(node, data) {
-        if (moveable) el.removeEventListener('moudedown', labelMouseDown);
+        if (moveable) el.removeEventListener('mousedown', labelMouseDown);
         if (resizeable) resizerEl.removeEventListener('mousedown', resizerMouseDown);
         document.removeEventListener('mousemove', documentMouseMove);
         document.removeEventListener('mouseup', documentMouseUp);

@@ -12,6 +12,8 @@ export default function Main(vido) {
   const { api, state, onDestroy, actions, update, createComponent, html } = vido;
   const componentName = api.name;
 
+  const periods = ['second', 'minute', 'hour', 'day', 'month', 'year'];
+
   let ListComponent;
   onDestroy(state.subscribe('config.components.List', value => (ListComponent = value)));
   let ChartComponent;
@@ -145,12 +147,11 @@ export default function Main(vido) {
     })
   );
 
-  function generateAndAddDates(internalTime, chartWidth) {
+  function generateAndAddPeriodDates(period, internalTime, chartWidth) {
     const dates = [];
     let leftGlobal = internalTime.leftGlobal;
     const rightGlobal = internalTime.rightGlobal;
     const timePerPixel = internalTime.timePerPixel;
-    const period = internalTime.period;
     let sub = leftGlobal - api.time.date(leftGlobal).startOf(period);
     let subPx = sub / timePerPixel;
     let leftPx = 0;
@@ -183,8 +184,8 @@ export default function Main(vido) {
       sub = 0;
       subPx = 0;
     }
-    internalTime.maxWidth = maxWidth;
-    internalTime.dates = dates;
+    internalTime.maxWidth[period] = maxWidth;
+    internalTime.dates[period] = dates;
   }
 
   onDestroy(
@@ -207,6 +208,7 @@ export default function Main(vido) {
         });
         let time = api.mergeDeep({}, state.get('config.chart.time'));
         time = api.time.recalculateFromTo(time);
+        const period = time.period;
         const zoomPercent = time.zoom * 0.01;
         let scrollLeft = state.get('config.scroll.left');
         time.timePerPixel = zoomPercent + Math.pow(2, time.zoom);
@@ -236,7 +238,7 @@ export default function Main(vido) {
           time.rightPx = time.rightInner / time.timePerPixel;
           time.leftPx = time.leftInner / time.timePerPixel;
         }
-        generateAndAddDates(time, chartWidth);
+        generateAndAddPeriodDates(period, time, chartWidth);
         state.update(`_internal.chart.time`, time);
         update();
       }

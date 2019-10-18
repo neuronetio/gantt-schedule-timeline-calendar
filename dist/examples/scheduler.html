@@ -95,9 +95,31 @@
               .valueOf()
           },
           rowId: id,
-          style: { current: i === 0 ? 'background: green; color:white;' : '' }
+          style: { current: i === 0 ? 'background: green; color:white;' : '' },
+          snapEnd:
+            i === 8
+              ? [
+                  GSTC.api
+                    .date()
+                    .startOf('month')
+                    .add(4, 'day')
+                    .valueOf(),
+                  GSTC.api
+                    .date()
+                    .startOf('month')
+                    .add(8, 'day')
+                    .valueOf()
+                ]
+              : null
         };
       }
+
+      items['8'].label = 'end on 5 and 9 only';
+      items['8'].time.start = GSTC.api
+        .date()
+        .startOf('month')
+        .add(12, 'hour')
+        .valueOf();
 
       items['0'].moveable = ['0', '1', '2', '3'];
       items['0'].label = 'moveable inside rooms  0, 2, 3';
@@ -138,6 +160,38 @@
         }
       };
 
+      function snapStart(time, diff, item) {
+        return GSTC.api
+          .date(time)
+          .add(diff, 'milliseconds')
+          .startOf('day')
+          .add('12', 'hours')
+          .valueOf();
+      }
+
+      function snapEnd(time, diff, item) {
+        const diffDays = Math.abs(
+          GSTC.api
+            .date(time + diff)
+            .startOf('day')
+            .diff(item.time.start, 'days')
+        );
+        const multipleTwo = Math.round(diffDays / 2);
+        if (multipleTwo === 0) {
+          return GSTC.api
+            .date(time)
+            .startOf('day')
+            .add(12, 'hours')
+            .valueOf();
+        }
+        return GSTC.api
+          .date(item.time.start)
+          .add(multipleTwo * 2, 'days')
+          .startOf('day')
+          .add('12', 'hours')
+          .valueOf();
+      }
+
       const from = GSTC.api
         .date()
         .startOf('month')
@@ -146,29 +200,6 @@
         .date()
         .endOf('month')
         .valueOf();
-      let snapStart = [];
-      let snapEnd = [];
-      const diffDays = GSTC.api.date(to).diff(from, 'days') + 20;
-      for (let i = 0; i < diffDays; i++) {
-        //snap to 12:00
-        snapStart.push(
-          GSTC.api
-            .date(from)
-            .add(i - 10, 'days')
-            .add(12, 'hours')
-            .valueOf()
-        );
-      }
-      for (let i = 0; i < diffDays; i += 3) {
-        snapEnd.push(
-          GSTC.api
-            .date(from)
-            .add(i - 10, 'days')
-            .add(3, 'days')
-            .add(12, 'hours')
-            .valueOf()
-        );
-      }
 
       let config = {
         plugins: [

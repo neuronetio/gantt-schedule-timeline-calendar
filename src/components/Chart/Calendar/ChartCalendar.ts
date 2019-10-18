@@ -35,21 +35,26 @@ export default function Calendar(vido) {
     })
   );
 
-  let dates,
-    datesComponents = [];
+  let period;
+  onDestroy(state.subscribe('config.chart.time.period', value => (period = value)));
+
+  let periodDates,
+    periodDatesComponents = [];
   onDestroy(
-    state.subscribe('_internal.chart.time.dates', value => {
-      dates = value;
-      datesComponents.forEach(date => date.component.destroy());
-      datesComponents = [];
-      for (const date of dates) {
-        datesComponents.push({ id: date.id, component: createComponent(ChartCalendarDateComponent, { date }) });
+    state.subscribe(`_internal.chart.time.dates.${period}`, value => {
+      if (value) {
+        periodDates = value;
+        periodDatesComponents.forEach(date => date.component.destroy());
+        periodDatesComponents = [];
+        for (const date of periodDates) {
+          periodDatesComponents.push({ id: date.id, component: createComponent(ChartCalendarDateComponent, { date }) });
+        }
+        update();
       }
-      update();
     })
   );
   onDestroy(() => {
-    datesComponents.forEach(date => date.component.destroy());
+    periodDatesComponents.forEach(date => date.component.destroy());
   });
 
   componentActions.push(element => {
@@ -60,7 +65,7 @@ export default function Calendar(vido) {
     wrapper(
       html`
         <div class=${className} data-actions=${actions(componentActions)} style=${style}>
-          ${repeat(datesComponents, d => d.id, d => d.component.html())}
+          ${repeat(periodDatesComponents, d => d.id, d => d.component.html())}
         </div>
       `,
       { props: {}, vido, templateProps: props }

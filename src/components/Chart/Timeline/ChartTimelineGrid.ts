@@ -34,14 +34,20 @@ export default function GanttGrid(vido) {
     })
   );
 
+  let period;
+  onDestroy(state.subscribe('config.chart.time.period', value => (period = value)));
+
   let rows,
     rowsComponents = [];
   onDestroy(
     state.subscribeAll(
-      ['_internal.chart.time.dates', '_internal.list.visibleRows', 'config.chart.grid.block'],
+      [`_internal.chart.time.dates.${period}`, '_internal.list.visibleRows', 'config.chart.grid.block'],
       function generateBlocks() {
         const rowsData = state.get('_internal.list.visibleRows');
-        const dates = state.get('_internal.chart.time.dates');
+        const periodDates = state.get(`_internal.chart.time.dates.${period}`);
+        if (!periodDates) {
+          return;
+        }
         rowsComponents.forEach(row => row.component.destroy());
         rowsComponents = [];
         let top = 0;
@@ -50,7 +56,7 @@ export default function GanttGrid(vido) {
           const rowData = rowsData[rowId];
           const blocks = [];
           let index = 0;
-          for (const date of dates) {
+          for (const date of periodDates) {
             blocks.push({ id: index++, date, row: rowData, top });
           }
           const row = { id: rowData.id, blocks, rowData, top };

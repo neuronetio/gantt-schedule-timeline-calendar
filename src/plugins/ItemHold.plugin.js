@@ -53,28 +53,27 @@ export default function ItemHoldPlugin(options = {}) {
     }
   }
 
-  const mouseUps = [];
-  const mouseMoves = [];
-
   function action(element, data) {
-    element.addEventListener('mousedown', event => {
+    function elementMouseDown(event) {
       onMouseDown(data.item, element, event);
-    });
+    }
+    element.addEventListener('mousedown', elementMouseDown);
     function mouseUp() {
       onMouseUp(data.item.id);
     }
-    mouseUps.push(mouseUp);
+
     document.addEventListener('mouseup', mouseUp);
-    function mouseMove(event) {
+    function onMouseMove(event) {
       mouse.x = event.x;
       mouse.y = event.y;
     }
-    mouseMoves.push(mouseMove);
-    document.addEventListener('mousemove', mouseMove);
+
+    document.addEventListener('mousemove', onMouseMove);
     return {
       destroy(element, data) {
-        mouseUps.forEach(mouseUp => document.removeEventListener('mouseup', mouseUp));
-        mouseMoves.forEach(mouseMove => document.removeEventListener('mousemove', mouseMove));
+        document.removeEventListener('mouseup', onMouseUp);
+        document.removeEventListener('mousemove', onMouseMove);
+        element.removeEventListener('mousedown', elementMouseDown);
       }
     };
   }
