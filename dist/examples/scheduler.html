@@ -75,7 +75,10 @@
       rows['3'].label = 'Level 1';
       rows['3'].parentId = '1';
 
-      let startDayjs = GSTC.api.date().startOf('month');
+      let startDayjs = GSTC.api
+        .date()
+        .startOf('month')
+        .add(12, 'hours');
       let items = {};
       for (let i = 0; i < iterations; i++) {
         const id = i.toString();
