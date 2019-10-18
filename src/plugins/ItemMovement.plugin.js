@@ -190,7 +190,7 @@ export default function ItemMovementPlugin(options = {}) {
       if (finalAdd && !collision) {
         state.update(`config.chart.items.${data.item.id}.time`, function moveItem(time) {
           time.start += finalAdd;
-          time.end = snapEnd(time.end, finalAdd, item);
+          time.end = snapEnd(time.end, finalAdd, item) - 1;
           return time;
         });
       }
@@ -211,7 +211,7 @@ export default function ItemMovementPlugin(options = {}) {
       if (finalAdd && !collision) {
         state.update(`config.chart.items.${data.item.id}.time`, time => {
           time.start = snapStart(time.start, 0, item);
-          time.end = snapEnd(time.end, finalAdd, item);
+          time.end = snapEnd(time.end, finalAdd, item) - 1;
           return time;
         });
       }

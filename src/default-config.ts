@@ -17,7 +17,6 @@ import ListExpander from './components/List/ListExpander';
 import ListToggle from './components/List/ListToggle';
 import Chart from './components/Chart/Chart';
 import ChartCalendar from './components/Chart/Calendar/ChartCalendar';
-import ChartCalendarTop from './components/Chart/Calendar/ChartCalendarTop';
 import ChartCalendarDate from './components/Chart/Calendar/ChartCalendarDate';
 import ChartTimeline from './components/Chart/Timeline/ChartTimeline';
 import ChartTimelineGrid from './components/Chart/Timeline/ChartTimelineGrid';
