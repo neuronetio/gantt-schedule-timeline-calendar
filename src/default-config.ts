@@ -174,7 +174,8 @@ const defaultConfig = {
       to: 0,
       zoom: 21,
       period: 'day',
-      dates: {}
+      dates: {},
+      maxWidth: {}
     },
     calendar: {
       vertical: {

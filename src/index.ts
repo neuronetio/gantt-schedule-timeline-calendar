@@ -48,7 +48,8 @@ const _internal = {
       leftPx: 0,
       rightPx: 0,
       leftInner: 0,
-      rightInner: 0
+      rightInner: 0,
+      maxWidth: {}
     }
   },
   elements: {}

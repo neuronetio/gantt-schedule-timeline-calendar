@@ -46,11 +46,11 @@ export default function ItemMovementPlugin(options = {}) {
     }
     const api = data.api;
     let snapStart = options.snapStart;
-    if (typeof data.item.snapStart !== 'undefined' && Array.isArray(data.item.snapStart)) {
+    if (typeof data.item.snapStart === 'function') {
       snapStart = item.snapStart;
     }
     let snapEnd = options.snapEnd;
-    if (typeof data.item.snapEnd !== 'undefined' && Array.isArray(data.item.snapEnd)) {
+    if (typeof data.item.snapEnd === 'function') {
       snapEnd = data.item.snapEnd;
     }
 

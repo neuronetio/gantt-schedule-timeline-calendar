@@ -61,7 +61,7 @@ export default function CalendarDate({ date }, vido) {
         time = state.get('_internal.chart.time');
         daySize = time.zoom <= 22 ? 18 : 13;
         const dateMod = api.time.date(date.leftGlobal);
-        const maxWidth = time.maxWidth;
+        const maxWidth = time.maxWidth[time.period];
         small = maxWidth <= 40;
         const smallFormat = state.get('config.chart.calendar.vertical.smallFormat');
         smallFormatted = dateMod.format(smallFormat);

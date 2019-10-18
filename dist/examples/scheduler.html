@@ -114,6 +114,19 @@
         };
       }
 
+      items['0'].snapEnd = function snapEnd(time, diff, item) {
+        const end = GSTC.api
+          .date(time)
+          .add(diff, 'milliseconds')
+          .startOf('day')
+          .add('12', 'hours')
+          .valueOf();
+        if (end <= item.time.start) {
+          return time;
+        }
+        return end;
+      };
+
       items['8'].label = 'end on 5 and 9 only';
       items['8'].time.start = GSTC.api
         .date()
@@ -184,12 +197,16 @@
             .add(12, 'hours')
             .valueOf();
         }
-        return GSTC.api
+        const end = GSTC.api
           .date(item.time.start)
           .add(multipleTwo * 2, 'days')
           .startOf('day')
           .add('12', 'hours')
           .valueOf();
+        if (end <= item.time.start) {
+          return time;
+        }
+        return end;
       }
 
       const from = GSTC.api
