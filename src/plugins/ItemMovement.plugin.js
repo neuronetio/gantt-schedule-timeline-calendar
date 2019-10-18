@@ -178,8 +178,6 @@ export default function ItemMovementPlugin(options = {}) {
       return false;
     }
 
-    function snap(timeStart, diffStart, timeEnd, diffEnd) {}
-
     function movementX(ev, row, item, zoom, timePerPixel) {
       const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
       moveGhost(ev);
