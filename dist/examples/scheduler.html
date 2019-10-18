@@ -98,22 +98,7 @@
               .valueOf()
           },
           rowId: id,
-          style: { current: i === 0 ? 'background: green; color:white;' : '' },
-          snapEnd:
-            i === 8
-              ? [
-                  GSTC.api
-                    .date()
-                    .startOf('month')
-                    .add(4, 'day')
-                    .valueOf(),
-                  GSTC.api
-                    .date()
-                    .startOf('month')
-                    .add(8, 'day')
-                    .valueOf()
-                ]
-              : null
+          style: { current: i === 0 ? 'background: green; color:white;' : '' }
         };
       }
 
