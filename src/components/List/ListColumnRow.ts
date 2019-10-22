@@ -17,14 +17,14 @@ export default function ListColumnRow({ rowId, columnId }, vido) {
   onDestroy(state.subscribe('config.components.ListExpander', value => (ListExpanderComponent = value)));
 
   let row,
-    rowPath = `config.list.rows.${rowId}`;
+    rowPath = `_internal.flatTreeMapById.${rowId}`;
   let style;
   onDestroy(
     state.subscribe(rowPath, value => {
       row = value;
       style = `--height: ${row.height}px;`;
       for (let parentId of row._internal.parents) {
-        const parent = state.get('config.list.rows.' + parentId);
+        const parent = state.get(`_internal.flatTreeMapById.${parentId}`);
         if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
           if (typeof parent.style.children === 'string') {
             style += parent.style.children;
