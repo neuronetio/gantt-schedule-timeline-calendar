@@ -1,6 +1,6 @@
 {
   "name": "gantt-schedule-timeline-calendar",
-  "version": "0.0.31",
+  "version": "0.0.32",
   "description": "Gantt, Scheduler, Timeline, Calendar components all in one!",
   "main": "dist/index.umd.js",
   "module": "dist/index.esm.js",
