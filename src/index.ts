@@ -70,7 +70,7 @@ const GSTC = options => {
   // @ts-ignore
   const vido = Vido(state, api);
   const app = vido.createApp(Main, options.element);
-  return { state };
+  return { state, app };
 };
 
 GSTC.api = publicApi;
