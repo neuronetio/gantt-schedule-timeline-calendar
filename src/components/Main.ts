@@ -269,9 +269,9 @@ export default function Main(vido) {
   };
 
   const dimensions = { width: 0, height: 0 };
-
+  let ro;
   componentActions.push(element => {
-    const ro = new ResizeObserver((entries, observer) => {
+    ro = new ResizeObserver((entries, observer) => {
       const width = element.clientWidth;
       const height = element.clientHeight;
       if (dimensions.width !== width || dimensions.height !== height) {
@@ -282,6 +282,10 @@ export default function Main(vido) {
     });
     ro.observe(element);
     state.update('_internal.elements.main', element);
+  });
+
+  onDestroy(() => {
+    ro.disconnect();
   });
 
   function bindScrollElement(element) {
