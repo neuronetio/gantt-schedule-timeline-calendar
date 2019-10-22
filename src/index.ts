@@ -58,8 +58,10 @@ const _internal = {
 const GSTC = options => {
   const state = options.state;
   const api = getInternalApi(state);
-  // @ts-ignore
-  window.state = state;
+  if (typeof options.debug === 'boolean' && options.debug) {
+    // @ts-ignore
+    window.state = state;
+  }
 
   state.update('', oldValue => {
     return {

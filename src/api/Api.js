@@ -7,12 +7,12 @@
  * @license   GPL-3.0
  */
 
-// @ts-nocheck
-import defaultConfig from '../default-config.ts';
+import defaultConfigFn from '../default-config';
 import timeApi from './Time';
 import State from 'deep-state-observer';
 import dayjs from 'dayjs';
 const lib = 'gantt-schedule-timeline-calendar';
+
 /**
  * Helper function to determine if specified variable is an object
  *
@@ -61,15 +61,11 @@ export function mergeDeep(target, ...sources) {
   return mergeDeep(target, ...sources);
 }
 
-function mergeActions(userConfig) {
+function mergeActions(userConfig, defaultConfig) {
   const defaultConfigActions = mergeDeep({}, defaultConfig.actions);
   const userActions = mergeDeep({}, userConfig.actions);
-  const allActionNames = [Object.keys(defaultConfigActions), Object.keys(userActions)].flatMap((item, index, all) => {
-    if (index === 1) {
-      return item.filter(i => !all[0].includes(i));
-    }
-    return item;
-  });
+  let allActionNames = [...Object.keys(defaultConfigActions), ...Object.keys(userActions)];
+  allActionNames = allActionNames.filter(i => allActionNames.includes(i));
   const actions = {};
   for (const actionName of allActionNames) {
     actions[actionName] = [];
@@ -86,9 +82,11 @@ function mergeActions(userConfig) {
 }
 
 export function stateFromConfig(userConfig) {
-  const actions = mergeActions(userConfig);
+  const defaultConfig = defaultConfigFn();
+  const actions = mergeActions(userConfig, defaultConfig);
   const state = { config: mergeDeep({}, defaultConfig, userConfig) };
   state.config.actions = actions;
+  // @ts-ignore
   return new State(state, { delimeter: '.' });
 }
 
@@ -314,10 +312,15 @@ export function getInternalApi(state) {
      * @param {Event} event mouse wheel event
      */
     normalizeMouseWheelEvent(event) {
+      // @ts-ignore
       let x = event.deltaX || 0;
+      // @ts-ignore
       let y = event.deltaY || 0;
+      // @ts-ignore
       let z = event.deltaZ || 0;
+      // @ts-ignore
       const mode = event.deltaMode;
+      // @ts-ignore
       const lineHeight = parseInt(getComputedStyle(event.target).getPropertyValue('line-height'));
       let scale = 1;
       switch (mode) {
@@ -325,6 +328,7 @@ export function getInternalApi(state) {
           scale = lineHeight;
           break;
         case 2:
+          // @ts-ignore
           scale = window.height;
           break;
       }
@@ -388,13 +392,16 @@ export function getInternalApi(state) {
       }
       unsubscribers = [];
       if (api.debug) {
+        // @ts-ignore
         delete window.state;
       }
     }
   };
 
   if (api.debug) {
+    // @ts-ignore
     window.state = state;
+    // @ts-ignore
     window.api = api;
   }
 
