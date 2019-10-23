@@ -1,5 +1,5 @@
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ItemMovement plugin
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -8,7 +8,7 @@
  */
 
 // @ts-nocheck
-export default function ItemMovementPlugin(options = {}) {
+export default function ItemMovement(options = {}) {
   const defaultOptions = {
     moveable: true,
     resizeable: true,

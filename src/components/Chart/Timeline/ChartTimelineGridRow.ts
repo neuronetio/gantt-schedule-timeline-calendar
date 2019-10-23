@@ -1,5 +1,5 @@
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ChartTimelineGridRow component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -7,7 +7,7 @@
  * @license   GPL-3.0
  */
 
-export default function GanttGridRow({ row }, vido) {
+export default function ChartTimelineGridRow({ row }, vido) {
   const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
   const componentName = 'chart-timeline-grid-row';
 

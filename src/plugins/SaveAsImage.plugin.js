@@ -1,5 +1,5 @@
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * SaveAsImage plugin
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>

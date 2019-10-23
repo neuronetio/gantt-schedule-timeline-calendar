@@ -1,5 +1,5 @@
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ChartTimelineGrid component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -7,7 +7,7 @@
  * @license   GPL-3.0
  */
 
-export default function GanttGrid(vido) {
+export default function ChartTimelineGrid(vido) {
   const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
   const componentName = 'chart-timeline-grid';
   const componentActions = api.getActions(componentName);

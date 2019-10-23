@@ -1,5 +1,5 @@
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ChartCalendarDate component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -7,7 +7,7 @@
  * @license   GPL-3.0
  */
 
-export default function CalendarDate({ date }, vido) {
+export default function ChartCalendarDate({ date }, vido) {
   const { api, state, onDestroy, actions, update, html } = vido;
 
   const componentName = 'chart-calendar-date';

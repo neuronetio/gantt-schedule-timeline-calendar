@@ -1,5 +1,5 @@
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ItemsHold plugin
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -7,7 +7,7 @@
  * @license   GPL-3.0
  */
 
-export default function ItemHoldPlugin(options = {}) {
+export default function ItemHold(options = {}) {
   const defaultOptions = {
     time: 1000,
     movementThreshold: 2,

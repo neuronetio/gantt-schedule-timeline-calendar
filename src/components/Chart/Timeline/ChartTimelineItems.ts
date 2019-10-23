@@ -1,5 +1,5 @@
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ChartTimelineItems component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -7,7 +7,7 @@
  * @license   GPL-3.0
  */
 
-export default function GnattItems(vido) {
+export default function ChartTimelineItems(vido) {
   const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
   const componentName = 'chart-timeline-items';
   const componentActions = api.getActions(componentName);

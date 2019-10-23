@@ -1,5 +1,5 @@
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ChartTimelineItemsRow component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -7,7 +7,7 @@
  * @license   GPL-3.0
  */
 
-export default function GanttItemsRow({ rowId }, vido) {
+export default function ChartTimelineItemsRow({ rowId }, vido) {
   const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
 
   let wrapper;

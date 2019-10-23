@@ -1,6 +1,6 @@
 !function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e=e||self).ItemHold=t()}(this,(function(){"use strict";
 /**
-   * Gantt-Schedule-Timeline-Calendar
+   * ItemsHold plugin
    *
    * @copyright Rafal Pospiech <https://neuronet.io>
    * @author    Rafal Pospiech <neuronet.io@gmail.com>

@@ -1,5 +1,5 @@
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ChartTimelineGridBlock component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -7,7 +7,7 @@
  * @license   GPL-3.0
  */
 
-export default function GanttGridBlock({ row, time, top }, vido) {
+export default function ChartTimelineGridBlock({ row, time, top }, vido) {
   const { api, state, onDestroy, actions, update, html } = vido;
   const componentName = 'chart-timeline-grid-block';
   const componentActions = api.getActions(componentName, { row, time, top });

@@ -1,6 +1,6 @@
 !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define(e):(t=t||self).ItemMovement=e()}(this,(function(){"use strict";
 /**
-   * Gantt-Schedule-Timeline-Calendar
+   * ItemMovement plugin
    *
    * @copyright Rafal Pospiech <https://neuronet.io>
    * @author    Rafal Pospiech <neuronet.io@gmail.com>

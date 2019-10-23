@@ -1,5 +1,5 @@
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ChartCalendar component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -7,7 +7,7 @@
  * @license   GPL-3.0
  */
 
-export default function Calendar(vido) {
+export default function ChartCalendar(vido) {
   const { api, state, onDestroy, actions, update, createComponent, html, repeat } = vido;
   const componentName = 'chart-calendar';
   const componentActions = api.getActions(componentName);

@@ -1,5 +1,5 @@
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ListColumn component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -7,7 +7,7 @@
  * @license   GPL-3.0
  */
 
-export default function ListColumnComponent({ columnId }, vido) {
+export default function ListColumn({ columnId }, vido) {
   const { api, state, onDestroy, actions, update, createComponent, html, repeat } = vido;
 
   let wrapper;
@@ -89,7 +89,7 @@ export default function ListColumnComponent({ columnId }, vido) {
         >
           ${ListColumnHeader.html()}
           <div class=${classNameContainer} style=${styleContainer} data-actions=${actions(rowsActions, { api, state })}>
-            ${visibleRows.map(row => row.component.html())}
+            ${repeat(visibleRows, row => row.id, row => row.component.html())}
           </div>
         </div>
       `,

@@ -106,7 +106,7 @@ class b{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this
  */
 (window.litHtmlVersions||(window.litHtmlVersions=[])).push("1.1.2");const R=(t,...e)=>new y(t,e,"html",D),V=(t,...e)=>new w(t,e,"svg",D),H=new WeakMap,j=e(t=>e=>{if(!(e instanceof C))throw new Error("cache can only be used in text bindings");let n=H.get(e);void 0===n&&(n=new WeakMap,H.set(e,n));const i=e.value;if(i instanceof b){if(t instanceof y&&i.template===e.options.templateFactory(t))return void e.setValue(t);{let t=n.get(i.template);void 0===t&&(t={instance:i,nodes:document.createDocumentFragment()},n.set(i.template,t)),s(t.nodes,e.startNode.nextSibling,e.endNode)}}if(t instanceof y){const i=e.options.templateFactory(t),s=n.get(i);void 0!==s&&(e.setValue(s.nodes),e.commit(),e.value=s.instance)}e.setValue(t)}),W=new WeakMap,Y=e(t=>e=>{if(!(e instanceof M)||e instanceof A||"class"!==e.committer.name||e.committer.parts.length>1)throw new Error("The `classMap` directive must be used in the `class` attribute and must be the only part in the attribute.");const{committer:n}=e,{element:i}=n;W.has(e)||(i.className=n.strings.join(" "));const{classList:s}=i,o=W.get(e);for(const e in o)e in t||s.remove(e);for(const e in t){const n=t[e];if(!o||n!==o[e]){s[n?"add":"remove"](e)}}W.set(e,t)}),z=new WeakMap,G=e((t,e)=>n=>{const i=z.get(n);if(Array.isArray(t)){if(Array.isArray(i)&&i.length===t.length&&t.every((t,e)=>t===i[e]))return}else if(i===t&&(void 0!==t||z.has(n)))return;n.setValue(e()),z.set(n,Array.isArray(t)?Array.from(t):t)}),B=e(t=>e=>{if(void 0===t&&e instanceof M){if(t!==e.value){const t=e.committer.name;e.committer.element.removeAttribute(t)}}else e.setValue(t)}),F=(t,e)=>{const n=t.startNode.parentNode,i=void 0===e?t.endNode:e.startNode,s=n.insertBefore(m(),i);n.insertBefore(m(),i);const o=new C(t.options);return o.insertAfterNode(s),o},U=(t,e)=>(t.setValue(e),t.commit(),t),J=(t,e,n)=>{const i=t.startNode.parentNode,o=n?n.startNode:t.endNode,r=e.endNode.nextSibling;r!==o&&s(i,e.startNode,r,o)},q=t=>{o(t.startNode.parentNode,t.startNode,t.endNode.nextSibling)},Z=(t,e,n)=>{const i=new Map;for(let s=e;s<=n;s++)i.set(t[s],s);return i},X=new WeakMap,K=new WeakMap,Q=e((t,e,n)=>{let i;return void 0===n?n=e:void 0!==e&&(i=e),e=>{if(!(e instanceof C))throw new Error("repeat can only be used in text bindings");const s=X.get(e)||[],o=K.get(e)||[],r=[],a=[],l=[];let c,d,h=0;for(const e of t)l[h]=i?i(e,h):h,a[h]=n(e,h),h++;let u=0,p=s.length-1,f=0,m=a.length-1;for(;u<=p&&f<=m;)if(null===s[u])u++;else if(null===s[p])p--;else if(o[u]===l[f])r[f]=U(s[u],a[f]),u++,f++;else if(o[p]===l[m])r[m]=U(s[p],a[m]),p--,m--;else if(o[u]===l[m])r[m]=U(s[u],a[m]),J(e,s[u],r[m+1]),u++,m--;else if(o[p]===l[f])r[f]=U(s[p],a[f]),J(e,s[p],s[u]),p--,f++;else if(void 0===c&&(c=Z(l,f,m),d=Z(o,u,p)),c.has(o[u]))if(c.has(o[p])){const t=d.get(l[f]),n=void 0!==t?s[t]:null;if(null===n){const t=F(e,s[u]);U(t,a[f]),r[f]=t}else r[f]=U(n,a[f]),J(e,n,s[u]),s[t]=null;f++}else q(s[p]),p--;else q(s[u]),u++;for(;f<=m;){const t=F(e,r[m+1]);U(t,a[f]),r[f++]=t}for(;u<=p;){const t=s[u++];null!==t&&q(t)}X.set(e,r),K.set(e,l)}}),tt=new WeakMap,et=e(t=>e=>{if(!(e instanceof M)||e instanceof A||"style"!==e.committer.name||e.committer.parts.length>1)throw new Error("The `styleMap` directive must be used in the style attribute and must be the only part in the attribute.");const{committer:n}=e,{style:i}=n.element;tt.has(e)||(i.cssText=n.strings.join(" "));const s=tt.get(e);for(const e in s)e in t||(-1===e.indexOf("-")?i[e]=null:i.removeProperty(e));for(const e in t)-1===e.indexOf("-")?i[e]=t[e]:i.setProperty(e,t[e]);tt.set(e,t)}),nt=new WeakMap,it=e(t=>e=>{if(!(e instanceof C))throw new Error("unsafeHTML can only be used in text bindings");const n=nt.get(e);if(void 0!==n&&_(t)&&t===n.value&&e.value===n.fragment)return;const i=document.createElement("template");i.innerHTML=t;const s=document.importNode(i.content,!0);e.setValue(s),nt.set(e,{value:t,fragment:s})}),st=new WeakMap,ot=e((...t)=>e=>{let n=st.get(e);void 0===n&&(n={lastRenderedIndex:2147483647,values:[]},st.set(e,n));const i=n.values;let s=i.length;n.values=t;for(let o=0;o<t.length&&!(o>n.lastRenderedIndex);o++){const r=t[o];if(_(r)||"function"!=typeof r.then){e.setValue(r),n.lastRenderedIndex=o;break}o<s&&r===i[o]||(n.lastRenderedIndex=2147483647,s=0,Promise.resolve(r).then(t=>{const i=n.values.indexOf(r);i>-1&&i<n.lastRenderedIndex&&(n.lastRenderedIndex=i,e.setValue(t),e.commit())}))}});function rt(t,n){let i=0;const s={};let o,r,a=[],l=0;const c=Promise.resolve();function d(t){return e((function(e,n){return function(i){const s=i.committer.element;for(const i of e)if("function"==typeof i){const e=a.find(e=>e.instance===t&&e.componentAction.create===i&&e.element===s);if(e)e.props=n;else{void 0!==s.__vido__&&delete s.__vido__;const e={create:i,update(){},destroy(){}};a.push({instance:t,componentAction:e,element:s,props:n})}}}}))}const h={state:t,api:n,html:R,svg:V,directive:e,cache:j,classMap:Y,guard:G,ifDefined:B,repeat:Q,styleMap:et,unsafeHTML:it,until:ot,actions(t,e){},createComponent(t,e){const n=t.name+":"+i++,o=function(t){return{instance:t,destroy:()=>h.destroyComponent(t),update:()=>h.updateTemplate(),html:(e={})=>s[t].update(e)}}(n);const r=[];const a=Object.assign(Object.assign({},h),{update:function(){h.updateTemplate()},onDestroy:function(t){r.push(t)},instance:n,actions:d(n)});let l,c;if("function"==typeof(l=e?t(e,a):t(a))){c={update:l,destroy:()=>{r.forEach(t=>t())}}}else{const t=c.destroy,e=()=>{r.forEach(t=>t()),t()};c=Object.assign(Object.assign({},l),{destroy:e})}return s[n]=c,o},destroyComponent(t){"function"==typeof s[t].destroy&&s[t].destroy(),a=a.filter(e=>(e.instance===t&&"function"==typeof e.componentAction.destroy&&e.componentAction.destroy(e.element,e.props),e.instance!==t)),delete s[t]},updateTemplate(){const t=++l,e=this;c.then((function(){t===l&&(e.render(),l=0)}))},createApp(t,e){r=e;const n=this.createComponent(t);return o=n.instance,this.render(),n},executeActions(){for(const t of a)if(void 0===t.element.__vido__){if("function"==typeof t.componentAction.create){const e=t.componentAction.create(t.element,t.props);void 0!==e&&("function"==typeof e.update&&(t.componentAction.update=e.update),"function"==typeof e.destroy&&(t.componentAction.destroy=e.destroy))}}else"function"==typeof t.componentAction.update&&t.componentAction.update(t.element,t.props);for(const t of a)t.element.__vido__={instance:t.instance,props:t.props}},render(){k(s[o].update(),r),h.executeActions()}};return h}var at=function(){if("undefined"!=typeof Map)return Map;function t(t,e){var n=-1;return t.some((function(t,i){return t[0]===e&&(n=i,!0)})),n}return(function(){function e(){this.__entries__=[]}return Object.defineProperty(e.prototype,"size",{get:function(){return this.__entries__.length},enumerable:!0,configurable:!0}),e.prototype.get=function(e){var n=t(this.__entries__,e),i=this.__entries__[n];return i&&i[1]},e.prototype.set=function(e,n){var i=t(this.__entries__,e);~i?this.__entries__[i][1]=n:this.__entries__.push([e,n])},e.prototype.delete=function(e){var n=this.__entries__,i=t(n,e);~i&&n.splice(i,1)},e.prototype.has=function(e){return!!~t(this.__entries__,e)},e.prototype.clear=function(){this.__entries__.splice(0)},e.prototype.forEach=function(t,e){void 0===e&&(e=null);for(var n=0,i=this.__entries__;n<i.length;n++){var s=i[n];t.call(e,s[1],s[0])}},e}())}(),lt="undefined"!=typeof window&&"undefined"!=typeof document&&window.document===document,ct="undefined"!=typeof global&&global.Math===Math?global:"undefined"!=typeof self&&self.Math===Math?self:"undefined"!=typeof window&&window.Math===Math?window:Function("return this")(),dt="function"==typeof requestAnimationFrame?requestAnimationFrame.bind(ct):function(t){return setTimeout((function(){return t(Date.now())}),1e3/60)},ht=2;var ut=20,pt=["top","right","bottom","left","width","height","size","weight"],ft="undefined"!=typeof MutationObserver,mt=function(){function t(){this.connected_=!1,this.mutationEventsAdded_=!1,this.mutationsObserver_=null,this.observers_=[],this.onTransitionEnd_=this.onTransitionEnd_.bind(this),this.refresh=function(t,e){var n=!1,i=!1,s=0;function o(){n&&(n=!1,t()),i&&a()}function r(){dt(o)}function a(){var t=Date.now();if(n){if(t-s<ht)return;i=!0}else n=!0,i=!1,setTimeout(r,e);s=t}return a}(this.refresh.bind(this),ut)}return t.prototype.addObserver=function(t){~this.observers_.indexOf(t)||this.observers_.push(t),this.connected_||this.connect_()},t.prototype.removeObserver=function(t){var e=this.observers_,n=e.indexOf(t);~n&&e.splice(n,1),!e.length&&this.connected_&&this.disconnect_()},t.prototype.refresh=function(){this.updateObservers_()&&this.refresh()},t.prototype.updateObservers_=function(){var t=this.observers_.filter((function(t){return t.gatherActive(),t.hasActive()}));return t.forEach((function(t){return t.broadcastActive()})),t.length>0},t.prototype.connect_=function(){lt&&!this.connected_&&(document.addEventListener("transitionend",this.onTransitionEnd_),window.addEventListener("resize",this.refresh),ft?(this.mutationsObserver_=new MutationObserver(this.refresh),this.mutationsObserver_.observe(document,{attributes:!0,childList:!0,characterData:!0,subtree:!0})):(document.addEventListener("DOMSubtreeModified",this.refresh),this.mutationEventsAdded_=!0),this.connected_=!0)},t.prototype.disconnect_=function(){lt&&this.connected_&&(document.removeEventListener("transitionend",this.onTransitionEnd_),window.removeEventListener("resize",this.refresh),this.mutationsObserver_&&this.mutationsObserver_.disconnect(),this.mutationEventsAdded_&&document.removeEventListener("DOMSubtreeModified",this.refresh),this.mutationsObserver_=null,this.mutationEventsAdded_=!1,this.connected_=!1)},t.prototype.onTransitionEnd_=function(t){var e=t.propertyName,n=void 0===e?"":e;pt.some((function(t){return!!~n.indexOf(t)}))&&this.refresh()},t.getInstance=function(){return this.instance_||(this.instance_=new t),this.instance_},t.instance_=null,t}(),gt=function(t,e){for(var n=0,i=Object.keys(e);n<i.length;n++){var s=i[n];Object.defineProperty(t,s,{value:e[s],enumerable:!1,writable:!1,configurable:!0})}return t},bt=function(t){return t&&t.ownerDocument&&t.ownerDocument.defaultView||ct},vt=Mt(0,0,0,0);function yt(t){return parseFloat(t)||0}function wt(t){for(var e=[],n=1;n<arguments.length;n++)e[n-1]=arguments[n];return e.reduce((function(e,n){return e+yt(t["border-"+n+"-width"])}),0)}function _t(t){var e=t.clientWidth,n=t.clientHeight;if(!e&&!n)return vt;var i=bt(t).getComputedStyle(t),s=function(t){for(var e={},n=0,i=["top","right","bottom","left"];n<i.length;n++){var s=i[n],o=t["padding-"+s];e[s]=yt(o)}return e}(i),o=s.left+s.right,r=s.top+s.bottom,a=yt(i.width),l=yt(i.height);if("border-box"===i.boxSizing&&(Math.round(a+o)!==e&&(a-=wt(i,"left","right")+o),Math.round(l+r)!==n&&(l-=wt(i,"top","bottom")+r)),!function(t){return t===bt(t).document.documentElement}(t)){var c=Math.round(a+o)-e,d=Math.round(l+r)-n;1!==Math.abs(c)&&(a-=c),1!==Math.abs(d)&&(l-=d)}return Mt(s.left,s.top,a,l)}var $t="undefined"!=typeof SVGGraphicsElement?function(t){return t instanceof bt(t).SVGGraphicsElement}:function(t){return t instanceof bt(t).SVGElement&&"function"==typeof t.getBBox};function xt(t){return lt?$t(t)?function(t){var e=t.getBBox();return Mt(0,0,e.width,e.height)}(t):_t(t):vt}function Mt(t,e,n,i){return{x:t,y:e,width:n,height:i}}var Ct=function(){function t(t){this.broadcastWidth=0,this.broadcastHeight=0,this.contentRect_=Mt(0,0,0,0),this.target=t}return t.prototype.isActive=function(){var t=xt(this.target);return this.contentRect_=t,t.width!==this.broadcastWidth||t.height!==this.broadcastHeight},t.prototype.broadcastRect=function(){var t=this.contentRect_;return this.broadcastWidth=t.width,this.broadcastHeight=t.height,t},t}(),Tt=function(t,e){var n,i,s,o,r,a,l,c=(i=(n=e).x,s=n.y,o=n.width,r=n.height,a="undefined"!=typeof DOMRectReadOnly?DOMRectReadOnly:Object,l=Object.create(a.prototype),gt(l,{x:i,y:s,width:o,height:r,top:s,right:i+o,bottom:r+s,left:i}),l);gt(this,{target:t,contentRect:c})},Pt=function(){function t(t,e,n){if(this.activeObservations_=[],this.observations_=new at,"function"!=typeof t)throw new TypeError("The callback provided as parameter 1 is not a function.");this.callback_=t,this.controller_=e,this.callbackCtx_=n}return t.prototype.observe=function(t){if(!arguments.length)throw new TypeError("1 argument required, but only 0 present.");if("undefined"!=typeof Element&&Element instanceof Object){if(!(t instanceof bt(t).Element))throw new TypeError('parameter 1 is not of type "Element".');var e=this.observations_;e.has(t)||(e.set(t,new Ct(t)),this.controller_.addObserver(this),this.controller_.refresh())}},t.prototype.unobserve=function(t){if(!arguments.length)throw new TypeError("1 argument required, but only 0 present.");if("undefined"!=typeof Element&&Element instanceof Object){if(!(t instanceof bt(t).Element))throw new TypeError('parameter 1 is not of type "Element".');var e=this.observations_;e.has(t)&&(e.delete(t),e.size||this.controller_.removeObserver(this))}},t.prototype.disconnect=function(){this.clearActive(),this.observations_.clear(),this.controller_.removeObserver(this)},t.prototype.gatherActive=function(){var t=this;this.clearActive(),this.observations_.forEach((function(e){e.isActive()&&t.activeObservations_.push(e)}))},t.prototype.broadcastActive=function(){if(this.hasActive()){var t=this.callbackCtx_,e=this.activeObservations_.map((function(t){return new Tt(t.target,t.broadcastRect())}));this.callback_.call(t,e,t),this.clearActive()}},t.prototype.clearActive=function(){this.activeObservations_.splice(0)},t.prototype.hasActive=function(){return this.activeObservations_.length>0},t}(),At="undefined"!=typeof WeakMap?new WeakMap:new at,It=function t(e){if(!(this instanceof t))throw new TypeError("Cannot call a class as a function.");if(!arguments.length)throw new TypeError("1 argument required, but only 0 present.");var n=mt.getInstance(),i=new Pt(e,n,this);At.set(this,i)};["observe","unobserve","disconnect"].forEach((function(t){It.prototype[t]=function(){var e;return(e=At.get(this))[t].apply(e,arguments)}}));var Nt=void 0!==ct.ResizeObserver?ct.ResizeObserver:It;
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * Main component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -126,7 +126,7 @@ class b{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this
         </div>
       `,{props:{},vido:t,templateProps:e})}
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * List component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -144,7 +144,7 @@ class b{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this
             </div>
           `:null,{vido:t,props:{},templateProps:e})}
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ListColumn component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -158,12 +158,12 @@ class b{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this
         >
           ${x.html()}
           <div class=${v} style=${_} data-actions=${o(g,{api:n,state:i})}>
-            ${$.map(t=>t.component.html())}
+            ${c($,t=>t.id,t=>t.component.html())}
           </div>
         </div>
       `,{vido:e,props:{columnId:t},templateProps:s})}
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ListColumnHeader component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -183,7 +183,7 @@ class b{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this
         </div>
       `,{vido:e,props:{columnId:t},templateProps:s})}
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ListColumnHeaderResizer component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -204,7 +204,7 @@ class b{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this
         </div>
       `,{vido:e,props:{columnId:t},temlateProps:s})}
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ListColumnRow component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -225,7 +225,7 @@ class b{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this
         </div>
       `,{vido:n,props:{rowId:t,columnId:e},templateProps:o})}
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ListExpander component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -238,7 +238,7 @@ class b{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this
         </div>
       `,{vido:e,props:t,templateProps:s})}
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ListToggle component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -263,7 +263,7 @@ class b{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this
         </div>
       `,{vido:e,props:t,templateProps:s})}
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * Chart component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -278,7 +278,7 @@ class b{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this
     </div>
   `}
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ChartCalendar component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -290,7 +290,7 @@ class b{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this
         </div>
       `,{props:{},vido:t,templateProps:e})}
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ChartCalendarDate component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -311,7 +311,7 @@ class b{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this
         </div>
       `,{props:{},vido:e,templateProps:s})}
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ChartTimeline component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -325,7 +325,7 @@ class b{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this
         </div>
       `,{props:{},vido:t,templateProps:n})}
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ChartTimelineGrid component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -337,7 +337,7 @@ class b{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this
         </div>
       `,{props:{},vido:t,templateProps:i})}
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ChartTimelineGridBlock component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -351,7 +351,7 @@ class b{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this
         />
       `,{props:{row:t,time:e,top:n},vido:i,templateProps:r})}
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ChartTimelineGridRow component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -363,7 +363,7 @@ class b{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this
         </div>
       `,{vido:e,props:{row:t},templateProps:s})}
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ChartTimelineItems component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -375,7 +375,7 @@ class b{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this
     </div>
   `}
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ChartTimelineItemsRow component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -389,7 +389,7 @@ class b{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this
         </div>
       `,{props:{rowId:t},vido:e,templateProps:n})}
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * ChartTimelineItemsRowItem component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -423,7 +423,7 @@ class b{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this
  * @license   GPL-3.0
  */function Kt(t,e){const n=t.get("config.locale");return Xt.locale(n,null,!0),{date:t=>t?Xt(t).locale(n.name):Xt().locale(n.name),recalculateFromTo(e){0!==(e={...e}).from&&(e.from=this.date(e.from).startOf("day").valueOf()),0!==e.to&&(e.to=this.date(e.to).endOf("day").valueOf());let n=Number.MAX_SAFE_INTEGER,i=0;const s=t.get("config.chart.items");if(0===Object.keys(s).length)return e;if(0===e.from||0===e.to){for(let t in s){const e=s[t];n>e.time.start&&(n=e.time.start),i<e.time.end&&(i=e.time.end)}0===e.from&&(e.from=this.date(n).startOf("day").valueOf()),0===e.to&&(e.to=this.date(i).endOf("day").valueOf())}return e}}}class Qt{constructor(t,e="*"){this.wchar=e,this.pattern=t,this.segments=[],this.starCount=0,this.minLength=0,this.maxLength=0,this.segStartIndex=0;for(let n=0,i=t.length;n<i;n+=1){const i=t[n];i===e&&(this.starCount+=1,n>this.segStartIndex&&this.segments.push(t.substring(this.segStartIndex,n)),this.segments.push(i),this.segStartIndex=n+1)}this.segStartIndex<t.length&&this.segments.push(t.substring(this.segStartIndex)),this.starCount?(this.minLength=t.length-this.starCount,this.maxLength=1/0):this.maxLength=this.minLength=t.length}match(t){if(this.pattern===this.wchar)return!0;if(0===this.segments.length)return this.pattern===t;const{length:e}=t;if(e<this.minLength||e>this.maxLength)return!1;let n=this.segments.length-1,i=t.length-1,s=!1;for(;;){const e=this.segments[n];if(n-=1,e===this.wchar)s=!0;else{const n=i+1-e.length,o=t.lastIndexOf(e,n);if(-1===o||o>n)return!1;if(s)i=o-1,s=!1;else{if(o!==n)return!1;i-=e.length}}if(0>n)break}return!0}}class te{constructor(t,e,n){this.obj=t,this.delimeter=e,this.wildcard=n}simpleMatch(t,e){if(t===e)return!0;if(t===this.wildcard)return!0;const n=t.indexOf(this.wildcard);if(n>-1){const i=t.substr(n+1);if(0===n||e.substring(0,n)===t.substring(0,n)){const t=i.length;return!(t>0)||e.substr(-t)===i}}return!1}match(t,e){return t===e||t===this.wildcard||e===this.wildcard||this.simpleMatch(t,e)||new Qt(t).match(e)}handleArray(t,e,n,i,s={}){let o=t.indexOf(this.delimeter,n),r=!1;-1===o&&(r=!0,o=t.length);const a=t.substring(n,o);let l=0;for(const n of e){const e=l.toString(),c=""===i?e:i+this.delimeter+l;(a===this.wildcard||a===e||this.simpleMatch(a,e))&&(r?s[c]=n:this.goFurther(t,n,o+1,c,s)),l++}return s}handleObject(t,e,n,i,s={}){let o=t.indexOf(this.delimeter,n),r=!1;-1===o&&(r=!0,o=t.length);const a=t.substring(n,o);for(let n in e){n=n.toString();const l=""===i?n:i+this.delimeter+n;(a===this.wildcard||a===n||this.simpleMatch(a,n))&&(r?s[l]=e[n]:this.goFurther(t,e[n],o+1,l,s))}return s}goFurther(t,e,n,i,s={}){return Array.isArray(e)?this.handleArray(t,e,n,i,s):this.handleObject(t,e,n,i,s)}get(t){return this.goFurther(t,this.obj,0,"")}}class ee{static get(t,e,n=null){if(null===n&&(n=t.slice()),0===n.length||void 0===e)return e;const i=n.shift();return e.hasOwnProperty(i)?0===n.length?e[i]:ee.get(t,e[i],n):void 0}static set(t,e,n,i=null){if(null===i&&(i=t.slice()),0===i.length){for(const t in n)delete n[t];for(const t in e)n[t]=e[t];return}const s=i.shift();0!==i.length?(n.hasOwnProperty(s)||(n[s]={}),ee.set(t,e,n[s],i)):n[s]=e}}const ne={delimeter:".",notRecursive:";",param:":",wildcard:"*",log:function(t,e){console.debug(t,e)}},ie={bulk:!1,debug:!1,source:"",data:void 0},se={only:[],source:"",debug:!1,data:void 0};class oe{constructor(t={},e=ne){this.listeners={},this.data=t,this.options=Object.assign(Object.assign({},ne),e),this.id=0,this.pathGet=ee.get,this.pathSet=ee.set,this.scan=new te(this.data,this.options.delimeter,this.options.wildcard)}getListeners(){return this.listeners}destroy(){this.data=void 0,this.listeners={}}match(t,e){return t===e||(t===this.options.wildcard||e===this.options.wildcard||this.scan.match(t,e))}cutPath(t,e){return this.split(this.cleanNotRecursivePath(t)).slice(0,this.split(this.cleanNotRecursivePath(e)).length).join(this.options.delimeter)}trimPath(t){return this.cleanNotRecursivePath(t).replace(new RegExp(`^\\${this.options.delimeter}{1}`),"")}split(t){return""===t?[]:t.split(this.options.delimeter)}isWildcard(t){return t.includes(this.options.wildcard)}isNotRecursive(t){return t.endsWith(this.options.notRecursive)}cleanNotRecursivePath(t){return this.isNotRecursive(t)?t.slice(0,-this.options.notRecursive.length):t}hasParams(t){return t.includes(this.options.param)}getParamsInfo(t){let e={replaced:"",original:t,params:{}},n=0,i=[];for(const s of this.split(t)){e.params[n]={original:s,replaced:"",name:""};const t=new RegExp(`\\${this.options.param}([^\\${this.options.delimeter}\\${this.options.param}]+)`,"g");let o=t.exec(s);o?(e.params[n].name=o[1],t.lastIndex=0,e.params[n].replaced=s.replace(t,this.options.wildcard),i.push(e.params[n].replaced),n++):(delete e.params[n],i.push(s),n++)}return e.replaced=i.join(this.options.delimeter),e}getParams(t,e){if(!t)return;const n=this.split(e),i={};for(const e in t.params){i[t.params[e].name]=n[e]}return i}subscribeAll(t,e,n=ie){let i=[];for(const s of t)i.push(this.subscribe(s,e,n));return()=>{for(const t of i)t();i=[]}}getCleanListenersCollection(t={}){return Object.assign({listeners:{},isRecursive:!1,isWildcard:!1,hasParams:!1,match:void 0,paramsInfo:void 0,path:void 0,count:0},t)}getCleanListener(t,e=ie){return{fn:t,options:Object.assign(Object.assign({},ie),e)}}getListenerCollectionMatch(t,e,n){return t=this.cleanNotRecursivePath(t),i=>(e&&(i=this.cutPath(i,t)),!(!n||!this.match(t,i))||t===i)}getListenersCollection(t,e){if(void 0!==this.listeners[t]){let n=this.listeners[t];return this.id++,n.listeners[this.id]=e,n}let n={isRecursive:!0,isWildcard:!1,hasParams:!1,paramsInfo:void 0,originalPath:t,path:t};this.hasParams(n.path)&&(n.paramsInfo=this.getParamsInfo(n.path),n.path=n.paramsInfo.replaced,n.hasParams=!0),n.isWildcard=this.isWildcard(n.path),this.isNotRecursive(n.path)&&(n.isRecursive=!1);let i=this.listeners[n.path]=this.getCleanListenersCollection(Object.assign(Object.assign({},n),{match:this.getListenerCollectionMatch(n.path,n.isRecursive,n.isWildcard)}));return this.id++,i.listeners[this.id]=e,i}subscribe(t,e,n=ie,i="subscribe"){let s=this.getCleanListener(e,n);const o=this.getListenersCollection(t,s);if(o.count++,t=o.path,o.isWildcard){const r=this.scan.get(this.cleanNotRecursivePath(t));if(n.bulk){const a=[];for(const t in r)a.push({path:t,params:this.getParams(o.paramsInfo,t),value:r[t]});e(a,{type:i,listener:s,listenersCollection:o,path:{listener:t,update:void 0,resolved:void 0},options:n,params:void 0})}else for(const a in r)e(r[a],{type:i,listener:s,listenersCollection:o,path:{listener:t,update:void 0,resolved:this.cleanNotRecursivePath(a)},params:this.getParams(o.paramsInfo,a),options:n})}else e(this.pathGet(this.split(this.cleanNotRecursivePath(t)),this.data),{type:i,listener:s,listenersCollection:o,path:{listener:t,update:void 0,resolved:this.cleanNotRecursivePath(t)},params:this.getParams(o.paramsInfo,t),options:n});return this.debugSubscribe(s,o,t),this.unsubscribe(t,this.id)}unsubscribe(t,e){const n=this.listeners,i=n[t];return function(){delete i.listeners[e],i.count--,0===i.count&&delete n[t]}}same(t,e){return(["number","string","undefined","boolean"].includes(typeof t)||null===t)&&e===t}notifyListeners(t,e=[],n=!0){const i=[];for(const s in t){let{single:o,bulk:r}=t[s];for(const t of o){if(e.includes(t))continue;const s=this.debugTime(t);t.listener.fn(t.value(),t.eventInfo),n&&i.push(t),this.debugListener(s,t)}for(const t of r){if(e.includes(t))continue;const s=this.debugTime(t),o=t.value.map(t=>Object.assign(Object.assign({},t),{value:t.value()}));t.listener.fn(o,t.eventInfo),n&&i.push(t),this.debugListener(s,t)}}return i}getSubscribedListeners(t,e,n,i="update",s=null){n=Object.assign(Object.assign({},se),n);const o={};for(let r in this.listeners){const a=this.listeners[r];if(o[r]={single:[],bulk:[],bulkData:[]},a.match(t)){const l=a.paramsInfo?this.getParams(a.paramsInfo,t):void 0,c=a.isRecursive||a.isWildcard?()=>this.get(this.cutPath(t,r)):()=>e,d=[{value:c,path:t,params:l}];for(const e in a.listeners){const h=a.listeners[e];h.options.bulk?o[r].bulk.push({listener:h,listenersCollection:a,eventInfo:{type:i,listener:h,path:{listener:r,update:s||t,resolved:void 0},params:l,options:n},value:d}):o[r].single.push({listener:h,listenersCollection:a,eventInfo:{type:i,listener:h,path:{listener:r,update:s||t,resolved:this.cleanNotRecursivePath(t)},params:l,options:n},value:c})}}}return o}notifySubscribedListeners(t,e,n,i="update",s=null){return this.notifyListeners(this.getSubscribedListeners(t,e,n,i,s))}getNestedListeners(t,e,n,i="update",s=null){const o={};for(let r in this.listeners){o[r]={single:[],bulk:[]};const a=this.listeners[r],l=this.cutPath(r,t);if(this.match(l,t)){const c=this.trimPath(r.substr(l.length)),d=new te(e,this.options.delimeter,this.options.wildcard).get(c),h=a.paramsInfo?this.getParams(a.paramsInfo,t):void 0,u=[],p={};for(const e in d){const l=()=>d[e],c=[t,e].join(this.options.delimeter);for(const e in a.listeners){const d=a.listeners[e],f={type:i,listener:d,listenersCollection:a,path:{listener:r,update:s||t,resolved:this.cleanNotRecursivePath(c)},params:h,options:n};d.options.bulk?(u.push({value:l,path:c,params:h}),p[e]=d):o[r].single.push({listener:d,listenersCollection:a,eventInfo:f,value:l})}}for(const e in p){const s=p[e],l={type:i,listener:s,listenersCollection:a,path:{listener:r,update:t,resolved:void 0},options:n,params:h};o[r].bulk.push({listener:s,listenersCollection:a,eventInfo:l,value:u})}}}return o}notifyNestedListeners(t,e,n,i="update",s,o=null){return this.notifyListeners(this.getNestedListeners(t,e,n,i,o),s,!1)}getNotifyOnlyListeners(t,e,n,i="update",s=null){const o={};if("object"!=typeof n.only||!Array.isArray(n.only)||void 0===n.only[0]||!this.canBeNested(e))return o;for(const r of n.only){const a=new te(e,this.options.delimeter,this.options.wildcard).get(r);o[r]={bulk:[],single:[]};for(const e in a){const l=t+this.options.delimeter+e;for(const c in this.listeners){const d=this.listeners[c],h=d.paramsInfo?this.getParams(d.paramsInfo,l):void 0;if(this.match(c,l)){const u=()=>a[e],p=[{value:u,path:l,params:h}];for(const e in d.listeners){const a=d.listeners[e],f={type:i,listener:a,listenersCollection:d,path:{listener:c,update:s||t,resolved:this.cleanNotRecursivePath(l)},params:h,options:n};a.options.bulk?o[r].bulk.some(t=>t.listener===a)||o[r].bulk.push({listener:a,listenersCollection:d,eventInfo:f,value:p}):o[r].single.push({listener:a,listenersCollection:d,eventInfo:f,value:u})}}}}}return o}notifyOnly(t,e,n,i="update",s=null){return void 0!==this.notifyListeners(this.getNotifyOnlyListeners(t,e,n,i,s))[0]}canBeNested(t){return"object"==typeof t&&null!==t}getUpdateValues(t,e,n){"object"==typeof t&&null!==t&&(t=Array.isArray(t)?t.slice():Object.assign({},t));let i=n;return"function"==typeof n&&(i=n(this.pathGet(e,this.data))),{newValue:i,oldValue:t}}wildcardUpdate(t,e,n=se){n=Object.assign(Object.assign({},se),n);const i=this.scan.get(t),s={};for(const t in i){const n=this.split(t),{oldValue:o,newValue:r}=this.getUpdateValues(i[t],n,e);this.same(r,o)||(s[t]=r)}const o=[];for(const e in s){const i=s[e];n.only.length?o.push(this.getNotifyOnlyListeners(e,i,n,"update",t)):(o.push(this.getSubscribedListeners(e,i,n,"update",t)),this.canBeNested(i)&&o.push(this.getNestedListeners(e,i,n,"update",t))),n.debug&&this.options.log("Wildcard update",{path:e,newValue:i}),this.pathSet(this.split(e),i,this.data)}let r=[];for(const t of o)r=[...r,...this.notifyListeners(t,r)]}update(t,e,n=se){if(this.isWildcard(t))return this.wildcardUpdate(t,e,n);const i=this.split(t),{oldValue:s,newValue:o}=this.getUpdateValues(this.pathGet(i,this.data),i,e);if(n.debug&&this.options.log(`Updating ${t} ${n.source?`from ${n.source}`:""}`,s,o),this.same(o,s))return o;if(this.pathSet(i,o,this.data),n=Object.assign(Object.assign({},se),n),this.notifyOnly(t,o,n))return o;const r=this.notifySubscribedListeners(t,o,n);return this.canBeNested(o)&&this.notifyNestedListeners(t,o,n,"update",r),o}get(t){return void 0===t||""===t?this.data:this.pathGet(this.split(t),this.data)}debugSubscribe(t,e,n){t.options.debug&&this.options.log("listener subscribed",n,t,e)}debugListener(t,e){(e.eventInfo.options.debug||e.listener.options.debug)&&this.options.log("Listener fired",{time:Date.now()-t,info:e})}debugTime(t){return t.listener.options.debug||t.eventInfo.options.debug?Date.now():0}}
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * Api functions
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
