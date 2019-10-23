@@ -371,7 +371,7 @@ class b{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this
  * @license   GPL-3.0
  */function Ft(t){const{api:e,state:n,onDestroy:i,actions:s,update:o,html:r,createComponent:a,repeat:l}=t,c=e.getActions("chart-timeline-items");let d;i(n.subscribe("config.wrappers.ChartTimelineItems",t=>d=t));const h=n.get("config.components.ChartTimelineItemsRow");let u;i(n.subscribe("config.classNames",()=>{u=e.getClass("chart-timeline-items"),o()}));let p=[],f=[];return i(n.subscribe("_internal.list.visibleRows;",t=>{p=t,f.forEach(t=>t.component.destroy()),f=[];for(const t of p)f.push({id:t.id,component:a(h,{rowId:t.id})});o()})),i(()=>{f.forEach(t=>t.component.destroy())}),t=>r`
     <div class=${u} data-actions=${s(c,{api:e,state:n})}>
-      ${f.map(t=>t.component.html())}
+      ${l(f,t=>t.id,t=>t.component.html())}
     </div>
   `}
 /**

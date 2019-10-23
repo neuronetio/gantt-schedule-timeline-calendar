@@ -45,7 +45,7 @@ export default function GnattItems(vido) {
 
   return props => html`
     <div class=${className} data-actions=${actions(componentActions, { api, state })}>
-      ${rowsComponents.map(r => r.component.html())}
+      ${repeat(rowsComponents, r => r.id, r => r.component.html())}
     </div>
   `;
 }
