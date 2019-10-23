@@ -83,9 +83,13 @@ export default function ListColumnHeaderResizer({ columnId }, vido) {
 
   function onMouseMove(event) {
     if (isMoving) {
+      let minWidth = state.get('config.list.columns.minWidth');
+      if (typeof column.minWidth === 'number') {
+        minWidth = column.minWidth;
+      }
       left += event.movementX;
-      if (left < 0) {
-        left = 0;
+      if (left < minWidth) {
+        left = minWidth;
       }
       if (inRealTime) {
         state.update(columnWidthPath, left);

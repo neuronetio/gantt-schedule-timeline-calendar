@@ -195,17 +195,11 @@ export default function Main(vido) {
         '_internal.dimensions.width',
         'config.scroll.left',
         '_internal.scrollBarHeight',
-        '_internal.list.width'
+        '_internal.list.width',
+        '_internal.chart.dimensions'
       ],
       function recalculateTimesAction() {
-        const chartWidth = state.get('_internal.dimensions.width') - state.get('_internal.list.width');
-        const chartInnerWidth = chartWidth - state.get('_internal.scrollBarHeight');
-        const chartHeight = state.get('_internal.dimensions.height') - state.get('config.headerHeight');
-        state.update('_internal.chart.dimensions', {
-          width: chartWidth,
-          innerWidth: chartInnerWidth,
-          height: chartHeight
-        });
+        const chartWidth = state.get('_internal.chart.dimensions.width');
         let time = api.mergeDeep({}, state.get('config.chart.time'));
         time = api.time.recalculateFromTo(time);
         const period = time.period;

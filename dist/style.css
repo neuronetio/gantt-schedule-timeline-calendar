@@ -72,6 +72,7 @@
 .gantt-schedule-timeline-calendar__list-column-header {
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
   height: var(--height);
   line-height: var(--height);
   vertical-align: middle;
@@ -105,6 +106,7 @@
 .gantt-schedule-timeline-calendar__list-column-header-resizer {
   display: inline-flex;
   flex-grow: 1;
+  flex-shrink: 0;
   background: transparent;
   vertical-align: middle;
   height: var(--height);
@@ -144,6 +146,7 @@
 .gantt-schedule-timeline-calendar__chart {
   flex-grow: 1;
   flex-shrink: 1;
+  overflow: hidden;
 }
 .gantt-schedule-timeline-calendar__chart-calendar {
   background: #f9fafb;

@@ -7,6 +7,7 @@
  * @license   GPL-3.0
  */
 
+import ResizeObserver from 'resize-observer-polyfill';
 export default function Chart(vido) {
   const { api, state, onDestroy, actions, update, html, createComponent } = vido;
   const componentName = 'chart';
@@ -107,6 +108,26 @@ export default function Chart(vido) {
 
   componentActions.push(element => {
     state.update('_internal.elements.chart', element);
+  });
+
+  let chartWidth = 0;
+  let ro;
+  componentActions.push(element => {
+    ro = new ResizeObserver((entries, observer) => {
+      const width = element.clientWidth;
+      const height = element.clientHeight;
+      const innerWidth = width - state.get('_internal.scrollBarHeight');
+      if (chartWidth !== width) {
+        chartWidth = width;
+        state.update('_internal.chart.dimensions', { width, innerWidth, height });
+      }
+    });
+    ro.observe(element);
+    state.update('_internal.elements.main', element);
+  });
+
+  onDestroy(() => {
+    ro.disconnect();
   });
 
   return props => html`

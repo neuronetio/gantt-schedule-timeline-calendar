@@ -146,6 +146,7 @@ function defaultConfig() {
           inRealTime: true,
           dots: 6
         },
+        minWidth: 50,
         data: {}
       },
       expander: {
