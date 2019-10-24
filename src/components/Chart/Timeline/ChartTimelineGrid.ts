@@ -8,7 +8,7 @@
  */
 
 export default function ChartTimelineGrid(vido) {
-  const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
+  const { api, state, onDestroy, actions, update, html, createComponent } = vido;
   const componentName = 'chart-timeline-grid';
   const componentActions = api.getActions(componentName);
 
@@ -37,34 +37,57 @@ export default function ChartTimelineGrid(vido) {
   let period;
   onDestroy(state.subscribe('config.chart.time.period', value => (period = value)));
 
-  let rows,
-    rowsComponents = [];
+  function addRowComponent(rowData, periodDates, top) {
+    const blocks = [];
+    let index = 0;
+    for (const date of periodDates) {
+      blocks.push({ id: index++, date, row: rowData, top });
+    }
+    const row = { id: rowData.id, blocks, rowData, top };
+    rowsComponents.push({ id: rowData.id, component: createComponent(GridRowComponent, { row }) });
+  }
+
+  let rowsComponents = [];
   onDestroy(
     state.subscribeAll(
-      [`_internal.chart.time.dates.${period}`, '_internal.list.visibleRows', 'config.chart.grid.block'],
+      ['_internal.list.visibleRows;', `_internal.chart.time.dates.${period};`],
       function generateBlocks() {
         const rowsData = state.get('_internal.list.visibleRows');
         const periodDates = state.get(`_internal.chart.time.dates.${period}`);
-        if (!periodDates) {
+        if (!periodDates || periodDates.length === 0) {
           return;
         }
-        rowsComponents.forEach(row => row.component.destroy());
-        rowsComponents = [];
-        let top = 0;
-        rows = [];
-        for (const rowId in rowsData) {
-          const rowData = rowsData[rowId];
-          const blocks = [];
-          let index = 0;
-          for (const date of periodDates) {
-            blocks.push({ id: index++, date, row: rowData, top });
-          }
-          const row = { id: rowData.id, blocks, rowData, top };
-          rows.push(row);
-          rowsComponents.push({ id: rowData.id, component: createComponent(GridRowComponent, { row }) });
-          top += rowData.height;
+        if (rowsData.length === 0) {
+          rowsComponents.forEach(row => row.component.destroy());
+          rowsComponents = [];
           update();
+          return;
         }
+        if (rowsComponents.length < rowsData.length) {
+          let diff = rowsData.length - rowsComponents.length;
+          let top = 0;
+          while (diff) {
+            const rowData = rowsData[rowsData.length - diff];
+            addRowComponent(rowData, periodDates, top);
+            top += rowData.height;
+            diff--;
+          }
+        } else {
+          let top = 0;
+          let id = 0;
+          for (const rowData of rowsData) {
+            const blocks = [];
+            let index = 0;
+            for (const date of periodDates) {
+              blocks.push({ id: index++, date, row: rowData, top });
+            }
+            const row = { id: rowData.id, blocks, rowData, top };
+            rowsComponents[id].component.change({ row });
+            top += rowData.height;
+            id++;
+          }
+        }
+        update();
       },
       { bulk: true }
     )

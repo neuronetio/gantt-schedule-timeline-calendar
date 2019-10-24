@@ -7,7 +7,7 @@
  * @license   GPL-3.0
  */
 
-export default function ListToggle(props, vido) {
+export default function ListToggle(vido, props) {
   const { api, state, onDestroy, actions, update, html, unsafeHTML } = vido;
   const componentName = 'list-expander-toggle';
 

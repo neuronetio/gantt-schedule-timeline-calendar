@@ -129,6 +129,7 @@ export function getInternalApi(state) {
       if (name === this.name) {
         simple = this.name;
       }
+      return simple;
       let className = `${simple} `;
       let postfix = '-';
       if (typeof attrs !== 'undefined') {

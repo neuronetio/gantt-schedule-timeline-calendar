@@ -70,6 +70,9 @@ export default function ItemHold(options = {}) {
 
     document.addEventListener('mousemove', onMouseMove);
     return {
+      update(element, changedData) {
+        data = changedData;
+      },
       destroy(element, data) {
         document.removeEventListener('mouseup', onMouseUp);
         document.removeEventListener('mousemove', onMouseMove);

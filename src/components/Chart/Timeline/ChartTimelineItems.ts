@@ -8,10 +8,9 @@
  */
 
 export default function ChartTimelineItems(vido) {
-  const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
+  const { api, state, onDestroy, actions, update, html, componentsFromDataArray } = vido;
   const componentName = 'chart-timeline-items';
   const componentActions = api.getActions(componentName);
-
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItems', value => (wrapper = value)));
 
@@ -25,27 +24,30 @@ export default function ChartTimelineItems(vido) {
     })
   );
 
-  let rows = [],
-    rowsComponents = [];
+  let rowsComponents = [];
   onDestroy(
-    state.subscribe('_internal.list.visibleRows;', visibleRows => {
-      rows = visibleRows;
-      rowsComponents.forEach(row => row.component.destroy());
-      rowsComponents = [];
-      for (const row of rows) {
-        rowsComponents.push({ id: row.id, component: createComponent(ItemsRowComponent, { rowId: row.id }) });
-      }
-      update();
-    })
+    state.subscribeAll(
+      ['_internal.list.visibleRows', 'config.chart.items', 'config.list.rows'],
+      () => {
+        const visibleRows = state.get('_internal.list.visibleRows');
+        rowsComponents = componentsFromDataArray(rowsComponents, visibleRows, row => ({ row }), ItemsRowComponent);
+        update();
+      },
+      { bulk: true }
+    )
   );
 
   onDestroy(() => {
-    rowsComponents.forEach(row => row.component.destroy());
+    rowsComponents.forEach(row => row.destroy());
   });
 
-  return props => html`
-    <div class=${className} data-actions=${actions(componentActions, { api, state })}>
-      ${repeat(rowsComponents, r => r.id, r => r.component.html())}
-    </div>
-  `;
+  return props =>
+    wrapper(
+      html`
+        <div class=${className} data-actions=${actions(componentActions, { api, state })}>
+          ${rowsComponents.map(r => r.html())}
+        </div>
+      `,
+      { props: {}, vido, templateProps: props }
+    );
 }

@@ -7,45 +7,62 @@
  * @license   GPL-3.0
  */
 
-export default function ChartTimelineItemsRow({ rowId }, vido) {
-  const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
+export default function ChartTimelineItemsRow(vido, { row }) {
+  const { api, state, onDestroy, actions, update, html, onChange, componentsFromDataArray } = vido;
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRow', value => (wrapper = value)));
 
   const ItemComponent = state.get('config.components.ChartTimelineItemsRowItem');
 
-  let rowPath = `_internal.flatTreeMapById.${rowId}`;
-  let row, element, style, styleInner;
-  onDestroy(
-    state.subscribeAll([rowPath, '_internal.chart'], bulk => {
-      row = state.get(rowPath);
-      const chart = state.get('_internal.chart');
-      style = `width:${chart.dimensions.width}px;height:${row.height}px;--row-height:${row.height}px;`;
-      styleInner = `width: ${chart.time.totalViewDurationPx}px;height: 100%;`;
-      if (element) {
-        element.scrollLeft = chart.time.leftPx;
-      }
-      update();
-    })
-  );
+  let itemsPath = `_internal.flatTreeMapById.${row.id}._internal.items`;
+  let rowSub, itemsSub;
 
-  let items,
-    itemComponents = [];
-  onDestroy(
-    state.subscribe(`_internal.flatTreeMapById.${rowId}._internal.items;`, value => {
-      items = value;
-      itemComponents.forEach(item => item.component.destroy());
-      itemComponents = [];
-      for (const item of items) {
-        itemComponents.push({ id: item.id, component: createComponent(ItemComponent, { rowId, itemId: item.id }) });
-      }
+  let element, scrollLeft, style, styleInner;
+  let itemComponents = [];
+
+  function updateDom() {
+    const chart = state.get('_internal.chart');
+    style = `width:${chart.dimensions.width}px;height:${row.height}px;--row-height:${row.height}px;`;
+    styleInner = `width: ${chart.time.totalViewDurationPx}px;height: 100%;`;
+    if (element && scrollLeft !== chart.time.leftPx) {
+      element.scrollLeft = chart.time.leftPx;
+      scrollLeft = chart.time.leftPx;
+    }
+  }
+
+  function updateRow(row) {
+    itemsPath = `_internal.flatTreeMapById.${row.id}._internal.items`;
+
+    updateDom();
+    if (typeof rowSub === 'function') {
+      rowSub();
+    }
+    if (typeof itemsSub === 'function') {
+      itemsSub();
+    }
+
+    rowSub = state.subscribe('_internal.chart', (bulk, eventInfo) => {
+      updateDom();
       update();
-    })
-  );
+    });
+
+    itemsSub = state.subscribe(itemsPath, value => {
+      itemComponents = componentsFromDataArray(itemComponents, value, item => ({ row, item }), ItemComponent);
+      updateDom();
+      update();
+    });
+  }
+
+  onChange(props => {
+    row = props.row;
+    updateRow(row);
+  });
+
+  updateRow(row);
 
   onDestroy(() => {
-    itemComponents.forEach(item => item.component.destroy());
+    itemComponents.forEach(item => item.destroy());
   });
 
   const componentName = 'chart-timeline-items-row';
@@ -65,10 +82,10 @@ export default function ChartTimelineItemsRow({ rowId }, vido) {
       html`
         <div class=${className} data-actions=${actions(componentActions)} style=${style}>
           <div class=${classNameInner} style=${styleInner}>
-            ${repeat(itemComponents, i => i.id, i => i.component.html())}
+            ${itemComponents.map(i => i.html())}
           </div>
         </div>
       `,
-      { props: { rowId }, vido, templateProps: props }
+      { props: { row }, vido, templateProps: props }
     );
 }

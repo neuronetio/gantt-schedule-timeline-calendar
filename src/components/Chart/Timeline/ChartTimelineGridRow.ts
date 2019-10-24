@@ -7,8 +7,8 @@
  * @license   GPL-3.0
  */
 
-export default function ChartTimelineGridRow({ row }, vido) {
-  const { api, state, onDestroy, actions, update, html, createComponent, repeat } = vido;
+export default function ChartTimelineGridRow(vido, { row }) {
+  const { api, state, onDestroy, actions, update, html, createComponent, onChange, repeat } = vido;
   const componentName = 'chart-timeline-grid-row';
 
   let wrapper;
@@ -25,19 +25,33 @@ export default function ChartTimelineGridRow({ row }, vido) {
     })
   );
 
+  let style;
   let rowsBlocksComponents = [];
-  for (const block of row.blocks) {
-    rowsBlocksComponents.push({
-      id: block.id,
-      component: createComponent(GridBlockComponent, { row, time: block.date, top: block.top })
-    });
-  }
+  onChange(({ row }) => {
+    if (row.blocks.length !== rowsBlocksComponents.length) {
+      rowsBlocksComponents.forEach(row => row.component.destroy());
+      rowsBlocksComponents = [];
+      for (const block of row.blocks) {
+        rowsBlocksComponents.push({
+          id: block.id,
+          component: createComponent(GridBlockComponent, { row, time: block.date, top: block.top })
+        });
+      }
+    } else {
+      let index = 0;
+      for (const block of row.blocks) {
+        rowsBlocksComponents[index].id = block.id;
+        rowsBlocksComponents[index].component.change({ row, time: block.date, top: block.top });
+        index++;
+      }
+    }
+    style = `height: ${row.rowData.height}px;`;
+    update();
+  });
 
   onDestroy(() => {
     rowsBlocksComponents.forEach(row => row.component.destroy());
   });
-
-  let style = `height: ${row.rowData.height}px;`;
 
   return props =>
     wrapper(

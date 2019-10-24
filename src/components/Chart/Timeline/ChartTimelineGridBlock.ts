@@ -7,13 +7,18 @@
  * @license   GPL-3.0
  */
 
-export default function ChartTimelineGridBlock({ row, time, top }, vido) {
-  const { api, state, onDestroy, actions, update, html } = vido;
+export default function ChartTimelineGridBlock(vido, { row, time, top }) {
+  const { api, state, onDestroy, actions, update, html, onChange } = vido;
   const componentName = 'chart-timeline-grid-block';
-  const componentActions = api.getActions(componentName, { row, time, top });
+  const componentActions = api.getActions(componentName);
 
   let wrapper;
-  onDestroy(state.subscribe('config.wrappers.ChartTimelineGridBlock', value => (wrapper = value)));
+  onDestroy(
+    state.subscribe('config.wrappers.ChartTimelineGridBlock', value => {
+      wrapper = value;
+      update();
+    })
+  );
 
   let className = api.getClass(componentName, { row });
   onDestroy(
@@ -33,23 +38,31 @@ export default function ChartTimelineGridBlock({ row, time, top }, vido) {
   );
 
   let style = `width: ${time.width}px;height: 100%;margin-left:-${time.subPx}px;`;
-  for (const parentId of row.rowData._internal.parents) {
-    const parent = state.get('config.list.rows.' + parentId);
-    if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
-      if (typeof parent.style.gridBlock === 'object' && parent.style.gridBlock.constructor.name === 'Object') {
-        if (typeof parent.style.gridBlock.children === 'string') {
-          style += parent.style.gridBlock.children;
+  onChange(({ row, time, top }) => {
+    style = `width: ${time.width}px; height: 100%; margin-left:-${time.subPx}px; `;
+    for (const parentId of row.rowData._internal.parents) {
+      const parent = state.get('config.list.rows.' + parentId);
+      if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
+        if (typeof parent.style.gridBlock === 'object' && parent.style.gridBlock.constructor.name === 'Object') {
+          if (typeof parent.style.gridBlock.children === 'string') {
+            style += parent.style.gridBlock.children;
+          }
         }
       }
     }
-  }
-  if (typeof row.rowData.style === 'object' && row.rowData.style.constructor.name === 'Object') {
-    if (typeof row.rowData.style.gridBlock === 'object' && row.rowData.style.gridBlock.constructor.name === 'Object') {
-      if (typeof row.rowData.style.gridBlock.current === 'string') {
-        style += row.rowData.style.gridBlock.current;
+    if (typeof row.rowData.style === 'object' && row.rowData.style.constructor.name === 'Object') {
+      if (
+        typeof row.rowData.style.gridBlock === 'object' &&
+        row.rowData.style.gridBlock.constructor.name === 'Object'
+      ) {
+        if (typeof row.rowData.style.gridBlock.current === 'string') {
+          style += row.rowData.style.gridBlock.current;
+        }
       }
     }
-  }
+    update();
+  });
+
   return props =>
     wrapper(
       html`

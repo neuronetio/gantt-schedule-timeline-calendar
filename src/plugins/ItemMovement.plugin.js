@@ -7,7 +7,7 @@
  * @license   GPL-3.0
  */
 
-// @ts-nocheck
+//- @ts-nocheck
 export default function ItemMovement(options = {}) {
   const defaultOptions = {
     moveable: true,
@@ -47,7 +47,7 @@ export default function ItemMovement(options = {}) {
     const api = data.api;
     let snapStart = options.snapStart;
     if (typeof data.item.snapStart === 'function') {
-      snapStart = item.snapStart;
+      snapStart = data.item.snapStart;
     }
     let snapEnd = options.snapEnd;
     if (typeof data.item.snapEnd === 'function') {
@@ -68,13 +68,17 @@ export default function ItemMovement(options = {}) {
     );
     const state = data.state;
 
-    if (typeof movementState[data.item.id] === 'undefined') {
-      movementState[data.item.id] = { moving: false, resizing: false };
+    function getMovement() {
+      const itemId = data.item.id;
+      if (typeof movementState[itemId] === 'undefined') {
+        movementState[itemId] = { moving: false, resizing: false };
+      }
+      return movementState[itemId];
     }
-    const movement = movementState[data.item.id];
 
     function createGhost(itemId, ev, ganttLeft, ganttTop) {
-      if (!options.ghostNode || typeof movementState[itemId].ghost !== 'undefined') {
+      const movement = getMovement();
+      if (!options.ghostNode || typeof movement.ghost !== 'undefined') {
         return;
       }
       const ghost = element.cloneNode(true);
@@ -91,12 +95,13 @@ export default function ItemMovement(options = {}) {
       ghost.style['line-height'] = height;
       ghost.style.opacity = '0.75';
       state.get('_internal.elements.gantt').appendChild(ghost);
-      movementState[itemId].ghost = ghost;
+      movement.ghost = ghost;
       return ghost;
     }
 
     function moveGhost(ev) {
       if (options.ghostNode) {
+        const movement = getMovement();
         const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
         movement.ghost.style.left = left + 'px';
         movement.ghost.style.top = ev.y - movement.ganttTop - movement.itemTop + 'px';
@@ -118,6 +123,7 @@ export default function ItemMovement(options = {}) {
       if (ev.button !== 0) {
         return;
       }
+      const movement = getMovement();
       movement.moving = true;
       const item = state.get(`config.chart.items.${data.item.id}`);
       const chartLeftTime = state.get('_internal.chart.time.leftGlobal');
@@ -135,6 +141,7 @@ export default function ItemMovement(options = {}) {
         return;
       }
       ev.stopPropagation();
+      const movement = getMovement();
       movement.resizing = true;
       const item = state.get(`config.chart.items.${data.item.id}`);
       const chartLeftTime = state.get('_internal.chart.time.leftGlobal');
@@ -179,6 +186,7 @@ export default function ItemMovement(options = {}) {
     }
 
     function movementX(ev, row, item, zoom, timePerPixel) {
+      const movement = getMovement();
       const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
       moveGhost(ev);
       const leftMs = state.get('_internal.chart.time.leftGlobal') + left * timePerPixel;
@@ -198,6 +206,7 @@ export default function ItemMovement(options = {}) {
 
     function resizeX(ev, row, item, zoom, timePerPixel) {
       const time = state.get('_internal.chart.time');
+      const movement = getMovement();
       const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
       const leftMs = time.leftGlobal + left * timePerPixel;
       const add = leftMs - item.time.end;
@@ -219,6 +228,7 @@ export default function ItemMovement(options = {}) {
 
     function movementY(ev, row, item, zoom, timePerPixel) {
       moveGhost(ev);
+      const movement = getMovement();
       const top = ev.y - movement.ganttTop;
       const visibleRows = state.get('_internal.list.visibleRows');
       let index = 0;
@@ -235,6 +245,7 @@ export default function ItemMovement(options = {}) {
     }
 
     function documentMouseMove(ev) {
+      const movement = getMovement();
       let item, rowId, row, zoom, timePerPixel;
       if (movement.moving || movement.resizing) {
         item = state.get(`config.chart.items.${data.item.id}`);
@@ -275,6 +286,7 @@ export default function ItemMovement(options = {}) {
     }
 
     function documentMouseUp(ev) {
+      const movement = getMovement();
       movement.moving = false;
       movement.resizing = false;
       for (const itemId in movementState) {
@@ -289,6 +301,9 @@ export default function ItemMovement(options = {}) {
     document.addEventListener('mouseup', documentMouseUp);
 
     return {
+      update(node, changedData) {
+        data = changedData;
+      },
       destroy(node, data) {
         if (moveable) el.removeEventListener('mousedown', labelMouseDown);
         if (resizeable) resizerEl.removeEventListener('mousedown', resizerMouseDown);

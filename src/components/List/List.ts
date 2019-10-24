@@ -8,7 +8,7 @@
  */
 
 export default function List(vido) {
-  const { api, state, onDestroy, actions, update, createComponent, html, repeat } = vido;
+  const { api, state, onDestroy, actions, update, componentsFromDataArray, html } = vido;
 
   const componentName = 'list';
   const componentActions = api.getActions(componentName);
@@ -36,19 +36,15 @@ export default function List(vido) {
     })
   );
 
-  let columns,
-    listColumns = [];
+  let listColumns = [];
   onDestroy(
     state.subscribe('config.list.columns.data;', data => {
-      // only 'config.list.columns.data;' because listcolumn component will watch nested values
-      listColumns.forEach(ls => ls.component.destroy());
-      columns = Object.keys(data);
-      listColumns = columns.map(columnId => {
-        const component = createComponent(ListColumnComponent, {
-          columnId
-        });
-        return { id: columnId, component };
-      });
+      componentsFromDataArray(
+        listColumns,
+        Object.values(data),
+        column => ({ columnId: column.id }),
+        ListColumnComponent
+      );
       update();
     })
   );
@@ -109,7 +105,7 @@ export default function List(vido) {
               @scroll=${onScroll}
               @wheel=${onScroll}
             >
-              ${listColumns.map(c => c.component.html())}
+              ${listColumns.map(c => c.html())}
             </div>
           `
         : null,

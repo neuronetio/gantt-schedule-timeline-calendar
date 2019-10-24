@@ -7,8 +7,8 @@
  * @license   GPL-3.0
  */
 
-export default function ListColumnRow({ rowId, columnId }, vido) {
-  const { api, state, onDestroy, actions, update, html, createComponent } = vido;
+export default function ListColumnRow(vido, { rowId, columnId }) {
+  const { api, state, onDestroy, actions, update, html, createComponent, onChange } = vido;
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListColumnRow', value => (wrapper = value)));
@@ -18,9 +18,21 @@ export default function ListColumnRow({ rowId, columnId }, vido) {
 
   let row,
     rowPath = `_internal.flatTreeMapById.${rowId}`;
+  let column,
+    colPath = `config.list.columns.data.${columnId}`;
   let style;
-  onDestroy(
-    state.subscribe(rowPath, value => {
+  let rowSub, colSub;
+  let ListExpander;
+  onChange(({ rowId, columnId }) => {
+    if (rowSub) {
+      rowSub();
+    }
+    if (colSub) {
+      colSub();
+    }
+    rowPath = `_internal.flatTreeMapById.${rowId}`;
+    colPath = `config.list.columns.data.${columnId}`;
+    rowSub = state.subscribe(rowPath, value => {
       row = value;
       style = `--height: ${row.height}px;`;
       for (let parentId of row._internal.parents) {
@@ -39,21 +51,22 @@ export default function ListColumnRow({ rowId, columnId }, vido) {
         style += row.style.current;
       }
       update();
-    })
-  );
+    });
 
-  const ListExpander = createComponent(ListExpanderComponent, { row });
-  onDestroy(ListExpander.destroy);
+    if (ListExpander) {
+      ListExpander.destroy();
+    }
+    ListExpander = createComponent(ListExpanderComponent, { row });
 
-  let column,
-    columnPath = `config.list.columns.data.${columnId}`;
-  onDestroy(
-    state.subscribe(columnPath, val => {
+    colSub = state.subscribe(colPath, val => {
       column = val;
       update();
-    })
-  );
+    });
+  });
 
+  onDestroy(() => {
+    if (ListExpander) ListExpander.destroy();
+  });
   const componentName = 'list-column-row';
   const componentActions = api.getActions(componentName);
   let className;

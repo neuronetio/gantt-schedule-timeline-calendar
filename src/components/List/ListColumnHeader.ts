@@ -7,7 +7,7 @@
  * @license   GPL-3.0
  */
 
-export default function ListColumnHeader({ columnId }, vido) {
+export default function ListColumnHeader(vido, { columnId }) {
   const { api, state, onDestroy, actions, update, createComponent, html } = vido;
 
   let wrapper;

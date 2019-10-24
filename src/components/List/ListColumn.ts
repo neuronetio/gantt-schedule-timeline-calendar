@@ -7,8 +7,8 @@
  * @license   GPL-3.0
  */
 
-export default function ListColumn({ columnId }, vido) {
-  const { api, state, onDestroy, actions, update, createComponent, html, repeat } = vido;
+export default function ListColumn(vido, { columnId }) {
+  const { api, state, onDestroy, actions, update, createComponent, componentsFromDataArray, html } = vido;
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListColumn', value => (wrapper = value)));
@@ -44,17 +44,13 @@ export default function ListColumn({ columnId }, vido) {
   let visibleRows = [];
   onDestroy(
     state.subscribe('_internal.list.visibleRows;', val => {
-      visibleRows.forEach(row => row.component.destroy());
-      visibleRows = val.map(row => ({
-        id: row.id,
-        component: createComponent(ListColumnRowComponent, { columnId, rowId: row.id })
-      }));
+      componentsFromDataArray(visibleRows, val, row => ({ columnId, rowId: row.id }), ListColumnRowComponent);
       update();
     })
   );
 
   onDestroy(() => {
-    visibleRows.forEach(row => row.component.destroy());
+    visibleRows.forEach(row => row.destroy());
   });
 
   onDestroy(
@@ -89,7 +85,7 @@ export default function ListColumn({ columnId }, vido) {
         >
           ${ListColumnHeader.html()}
           <div class=${classNameContainer} style=${styleContainer} data-actions=${actions(rowsActions, { api, state })}>
-            ${repeat(visibleRows, row => row.id, row => row.component.html())}
+            ${visibleRows.map(row => row.html())}
           </div>
         </div>
       `,

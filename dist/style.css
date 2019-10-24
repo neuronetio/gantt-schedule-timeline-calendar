@@ -188,7 +188,6 @@
   line-height: 30px;
   color: rgba(92,97,102,0.7);
   border-right: 1px solid rgba(177,184,189,0.5);
-  text-shadow: 0px 5px 3px rgba(0,0,0,0.08);
 }
 .gantt-schedule-timeline-calendar__chart-timeline {
   overflow: hidden;

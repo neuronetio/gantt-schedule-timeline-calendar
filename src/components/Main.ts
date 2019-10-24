@@ -131,16 +131,27 @@ export default function Main(vido) {
   onDestroy(
     state.subscribeAll(['_internal.list.rowsWithParentsExpanded', 'config.scroll.top'], () => {
       const visibleRows = api.getVisibleRows(state.get('_internal.list.rowsWithParentsExpanded'));
-      state.update('_internal.list.visibleRows', visibleRows);
+      const current = state.get('_internal.list.visibleRows');
+      const shouldUpdate = visibleRows.some((row, index) => {
+        if (typeof current[index] === 'undefined') {
+          return true;
+        }
+        return row.id !== current[index].id;
+      });
+      if (shouldUpdate) {
+        state.update('_internal.list.visibleRows', visibleRows);
+      }
       update();
     })
   );
 
+  let elementScrollTop = 0;
   onDestroy(
-    state.subscribeAll(['config.scroll.top', '_internal.list.visibleRows'], () => {
+    state.subscribe('_internal.list.visibleRows;', () => {
       const top = state.get('config.scroll.top');
       styleVerticalScrollArea = `height: ${rowsHeight}px; width: 1px`;
-      if (verticalScrollBarElement && verticalScrollBarElement.scrollTop !== top) {
+      if (elementScrollTop !== top && verticalScrollBarElement) {
+        elementScrollTop = top;
         verticalScrollBarElement.scrollTop = top;
       }
       update();
@@ -244,7 +255,6 @@ export default function Main(vido) {
   const onScroll = {
     handleEvent(event) {
       event.stopPropagation();
-      event.preventDefault();
       state.update(
         'config.scroll',
         scroll => {
@@ -259,7 +269,7 @@ export default function Main(vido) {
         { only: ['top', 'percent.top'] }
       );
     },
-    passive: false
+    passive: true
   };
 
   const dimensions = { width: 0, height: 0 };

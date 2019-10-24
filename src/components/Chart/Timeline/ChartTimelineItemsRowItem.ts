@@ -7,28 +7,35 @@
  * @license   GPL-3.0
  */
 
-export default function ChartTimelineItemsRowItem({ rowId, itemId }, vido) {
-  const { api, state, onDestroy, actions, update, html } = vido;
-
+export default function ChartTimelineItemsRowItem(vido, { row, item }) {
+  const { api, state, onDestroy, actions, update, html, onChange } = vido;
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
+  let style,
+    contentStyle,
+    itemLeftPx = 0,
+    itemWidthPx = 0;
 
-  let row,
-    rowPath = `config.list.rows.${rowId}`;
-  onDestroy(
-    state.subscribe(rowPath, value => {
-      row = value;
-      update();
-    })
-  );
-  let item,
-    itemPath = `config.chart.items.${itemId}`;
-  onDestroy(
-    state.subscribe(itemPath, value => {
-      item = value;
-      update();
-    })
-  );
+  function updateItem() {
+    contentStyle = '';
+    let time = state.get('_internal.chart.time');
+    itemLeftPx = (item.time.start - time.leftGlobal) / time.timePerPixel;
+    itemWidthPx = (item.time.end - item.time.start) / time.timePerPixel;
+    itemWidthPx -= state.get('config.chart.spacing');
+    style = `left:${itemLeftPx}px; width:${itemWidthPx}px; `;
+    if (typeof item.style === 'object' && item.style.constructor.name === 'Object') {
+      if (typeof item.style.current === 'string') {
+        contentStyle += item.style.current;
+      }
+    }
+    update();
+  }
+
+  onChange(props => {
+    row = props.row;
+    item = props.item;
+    updateItem();
+  });
 
   const componentName = 'chart-timeline-items-row-item';
   const componentActions = api.getActions(componentName);
@@ -42,45 +49,25 @@ export default function ChartTimelineItemsRowItem({ rowId, itemId }, vido) {
     })
   );
 
-  let style,
-    contentStyle = '',
-    itemLeftPx = 0,
-    itemWidthPx = 0;
   onDestroy(
-    state.subscribeAll(
-      ['_internal.chart.time', 'config.scroll', itemPath],
-      bulk => {
-        item = state.get(itemPath);
-        let time = state.get('_internal.chart.time');
-        itemLeftPx = (item.time.start - time.leftGlobal) / time.timePerPixel;
-        itemWidthPx = (item.time.end - item.time.start) / time.timePerPixel;
-        itemWidthPx -= state.get('config.chart.spacing');
-        const inViewPort = api.isItemInViewport(item, time.leftGlobal, time.rightGlobal);
-        style = `left:${itemLeftPx}px;width:${itemWidthPx}px;`;
-        if (typeof item.style === 'object' && item.style.constructor.name === 'Object') {
-          if (typeof item.style.current === 'string') {
-            contentStyle += item.style.current;
-          }
-        }
-        update();
-      },
-      { bulk: true }
-    )
+    state.subscribe('_internal.chart.time', bulk => {
+      updateItem();
+    })
   );
 
   return props =>
     wrapper(
       html`
-    <div
-      class=${className}
-      data-actions=${actions(componentActions, { item, row, left: itemLeftPx, width: itemWidthPx, api, state })}
-      style=${style}
-    >
-      <div class=${contentClassName} style=${contentStyle}>
-        <div class=${labelClassName}">${item.label}</div>
-      </div>
-    </div>
-  `,
-      { vido, props: { rowId, itemId }, templateProps: props }
+        <div
+          class=${className}
+          data-actions=${actions(componentActions, { item, row, left: itemLeftPx, width: itemWidthPx, api, state })}
+          style=${style}
+        >
+          <div class=${contentClassName} style=${contentStyle}>
+            <div class=${labelClassName}>${item.label}</div>
+          </div>
+        </div>
+      `,
+      { vido, props: { row, item }, templateProps: props }
     );
 }

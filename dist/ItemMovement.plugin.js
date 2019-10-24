@@ -1,10 +1,334 @@
-!function(t,e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define(e):(t=t||self).ItemMovement=e()}(this,(function(){"use strict";
-/**
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
+  (global = global || self, global.ItemMovement = factory());
+}(this, function () { 'use strict';
+
+  /**
    * ItemMovement plugin
    *
    * @copyright Rafal Pospiech <https://neuronet.io>
    * @author    Rafal Pospiech <neuronet.io@gmail.com>
    * @package   gantt-schedule-timeline-calendar
    * @license   GPL-3.0
-   */return function(t={}){t={moveable:!0,resizeable:!0,resizerContent:"",collisionDetection:!0,outOfBorders:!1,snapStart:(t,e)=>t+e,snapEnd:(t,e)=>t+e,ghostNode:!0,...t};const e={};function i(i,n){const o=i.querySelector(".gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content");if(!t.moveable&&!t.resizeable)return;let r=t.moveable;n.item.hasOwnProperty("moveable")&&r&&(r=n.item.moveable),n.row.hasOwnProperty("moveable")&&r&&(r=n.row.moveable);let s=t.resizeable&&(!n.item.hasOwnProperty("resizeable")||!0===n.item.resizeable);n.row.hasOwnProperty("resizeable")&&s&&(s=n.row.resizeable);const a=n.api;let m=t.snapStart;"function"==typeof n.item.snapStart&&(m=item.snapStart);let l=t.snapEnd;if("function"==typeof n.item.snapEnd&&(l=n.item.snapEnd),s){const e=`<div class="${a.getClass("chart-timeline-items-row-item-content-resizer")}">${t.resizerContent}</div>`;o.insertAdjacentHTML("beforeend",e)}const d=o,c=d.querySelector(".gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content-resizer"),f=n.state;void 0===e[n.item.id]&&(e[n.item.id]={moving:!1,resizing:!1});const g=e[n.item.id];function u(e){if(t.ghostNode){const t=e.x-g.ganttLeft-g.itemLeftCompensation;g.ghost.style.left=t+"px",g.ghost.style.top=e.y-g.ganttTop-g.itemTop+"px"}}function p(i){t.ghostNode&&(void 0!==e[i]&&void 0!==e[i].ghost&&(f.get("_internal.elements.gantt").removeChild(e[i].ghost),delete e[i].ghost),o.style.opacity="1")}function h(i){if(0!==i.button)return;g.moving=!0;const r=f.get(`config.chart.items.${n.item.id}`),s=f.get("_internal.chart.time.leftGlobal"),a=f.get("_internal.chart.time.timePerPixel"),m=f.get("_internal.elements.gantt").getBoundingClientRect();g.ganttTop=m.top,g.ganttLeft=m.left,g.itemX=Math.round((r.time.start-s)/a),g.itemLeftCompensation=i.x-g.ganttLeft-g.itemX,function(i,r,s,a){if(!t.ghostNode||void 0!==e[i].ghost)return;const m=o.cloneNode(!0),l=getComputedStyle(o);m.style.position="absolute",m.style.left=r.x-s-g.itemLeftCompensation+"px";const d=r.y-a-n.row.top-o.offsetTop;g.itemTop=d,m.style.top=r.y-a-d+"px",m.style.width=l.width,m.style["box-shadow"]="10px 10px 6px #00000020";const c=o.clientHeight+"px";m.style.height=c,m.style["line-height"]=c,m.style.opacity="0.75",f.get("_internal.elements.gantt").appendChild(m),e[i].ghost=m}(n.item.id,i,m.left,m.top)}function v(t){if(0!==t.button)return;t.stopPropagation(),g.resizing=!0;const e=f.get(`config.chart.items.${n.item.id}`),i=f.get("_internal.chart.time.leftGlobal"),o=f.get("_internal.chart.time.timePerPixel"),r=f.get("_internal.elements.gantt").getBoundingClientRect();g.ganttTop=r.top,g.ganttLeft=r.left,g.itemX=(e.time.end-i)/o,g.itemLeftCompensation=t.x-g.ganttLeft-g.itemX}function y(e,i,n,o){if(!t.collisionDetection)return!1;const r=f.get("_internal.chart.time");if(t.outOfBorders&&(n<r.from||o>r.to))return!0;let s=a.time.date(o).diff(n,"milliseconds");if(-1===Math.sign(s)&&(s=-s),s<=1)return!0;const m=f.get("config.list.rows."+e);for(const t of m._internal.items)if(t.id!==i){if(n>=t.time.start&&n<=t.time.end)return!0;if(o>=t.time.start&&o<=t.time.end)return!0;if(n<=t.time.start&&o>=t.time.end)return!0}return!1}function b(t){let e,i,o,s,a;if((g.moving||g.resizing)&&(e=f.get(`config.chart.items.${n.item.id}`),i=f.get(`config.chart.items.${n.item.id}.rowId`),o=f.get(`config.list.rows.${i}`),s=f.get("config.chart.time.zoom"),a=f.get("_internal.chart.time.timePerPixel")),g.moving){if((!0===r||"x"===r||Array.isArray(r)&&r.includes(i))&&function(t,e,i,o,r){const s=t.x-g.ganttLeft-g.itemLeftCompensation;u(t);const a=f.get("_internal.chart.time.leftGlobal")+s*r-i.time.start,d=i.time.start,c=m(i.time.start,a,i)-d,p=y(e.id,i.id,i.time.start+c,i.time.end+c);c&&!p&&f.update(`config.chart.items.${n.item.id}.time`,(function(t){return t.start+=c,t.end=l(t.end,c,i)-1,t}))}(t,o,e,0,a),!r||"x"===r)return;let s=function(t,e,i,n,o){u(t);const r=t.y-g.ganttTop,s=f.get("_internal.list.visibleRows");let a=0;for(const t of s){if(t.top>r)return a>0?a-1:0;a++}return a}(t);const d=f.get("_internal.list.visibleRows");void 0===d[s]&&(s>0?s=d.length-1:s<0&&(s=0));const c=d[s],p=c.id,h=y(p,e.id,e.time.start,e.time.end);p===e.rowId||h||Array.isArray(r)&&!r.includes(p)||c.hasOwnProperty("moveable")&&!c.moveable||f.update(`config.chart.items.${e.id}.rowId`,p)}else!g.resizing||void 0!==e.resizeable&&!0!==e.resizeable||function(t,e,i,o,r){const s=f.get("_internal.chart.time"),a=t.x-g.ganttLeft-g.itemLeftCompensation,d=s.leftGlobal+a*r-i.time.end;if(i.time.end+d<i.time.start)return;const c=i.time.end,u=l(i.time.end,d,i)-1-c,p=y(e.id,i.id,i.time.start,i.time.end+u);u&&!p&&f.update(`config.chart.items.${n.item.id}.time`,t=>(t.start=m(t.start,0,i),t.end=l(t.end,u,i)-1,t))}(t,o,e,0,a)}function w(t){g.moving=!1,g.resizing=!1;for(const t in e)e[t].moving=!1,e[t].resizing=!1,p(t)}return r&&d.addEventListener("mousedown",h),s&&c.addEventListener("mousedown",v),document.addEventListener("mousemove",b),document.addEventListener("mouseup",w),{destroy(t,e){r&&d.removeEventListener("mousedown",h),s&&c.removeEventListener("mousedown",v),document.removeEventListener("mousemove",b),document.removeEventListener("mouseup",w),s&&o.removeChild(c)}}}return function(t,e){t.update("config.actions.chart-timeline-items-row-item",t=>(t.push(i),t))}}}));
+   */
+
+  //- @ts-nocheck
+  function ItemMovement(options = {}) {
+    const defaultOptions = {
+      moveable: true,
+      resizeable: true,
+      resizerContent: '',
+      collisionDetection: true,
+      outOfBorders: false,
+      snapStart: (timeStart, startDiff) => timeStart + startDiff,
+      snapEnd: (timeEnd, endDiff) => timeEnd + endDiff,
+      ghostNode: true
+    };
+    options = { ...defaultOptions, ...options };
+    const movementState = {};
+
+    /**
+     * Add moving functionality to items as action
+     *
+     * @param {Node} node DOM Node
+     * @param {Object} data
+     */
+    function action(node, data) {
+      const element = node.querySelector('.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content');
+      if (!options.moveable && !options.resizeable) {
+        return;
+      }
+      let moveable = options.moveable;
+      if (data.item.hasOwnProperty('moveable') && moveable) {
+        moveable = data.item.moveable;
+      }
+      if (data.row.hasOwnProperty('moveable') && moveable) {
+        moveable = data.row.moveable;
+      }
+      let resizeable = options.resizeable && (!data.item.hasOwnProperty('resizeable') || data.item.resizeable === true);
+      if (data.row.hasOwnProperty('resizeable') && resizeable) {
+        resizeable = data.row.resizeable;
+      }
+      const api = data.api;
+      let snapStart = options.snapStart;
+      if (typeof data.item.snapStart === 'function') {
+        snapStart = data.item.snapStart;
+      }
+      let snapEnd = options.snapEnd;
+      if (typeof data.item.snapEnd === 'function') {
+        snapEnd = data.item.snapEnd;
+      }
+
+      if (resizeable) {
+        const resizerHTML = `<div class="${api.getClass('chart-timeline-items-row-item-content-resizer')}">${
+        options.resizerContent
+      }</div>`;
+        // @ts-ignore
+        element.insertAdjacentHTML('beforeend', resizerHTML);
+      }
+
+      const el = element;
+      const resizerEl = el.querySelector(
+        '.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content-resizer'
+      );
+      const state = data.state;
+
+      function getMovement() {
+        const itemId = data.item.id;
+        if (typeof movementState[itemId] === 'undefined') {
+          movementState[itemId] = { moving: false, resizing: false };
+        }
+        return movementState[itemId];
+      }
+
+      function createGhost(itemId, ev, ganttLeft, ganttTop) {
+        const movement = getMovement();
+        if (!options.ghostNode || typeof movement.ghost !== 'undefined') {
+          return;
+        }
+        const ghost = element.cloneNode(true);
+        const style = getComputedStyle(element);
+        ghost.style.position = 'absolute';
+        ghost.style.left = ev.x - ganttLeft - movement.itemLeftCompensation + 'px';
+        const itemTop = ev.y - ganttTop - data.row.top - element.offsetTop;
+        movement.itemTop = itemTop;
+        ghost.style.top = ev.y - ganttTop - itemTop + 'px';
+        ghost.style.width = style.width;
+        ghost.style['box-shadow'] = '10px 10px 6px #00000020';
+        const height = element.clientHeight + 'px';
+        ghost.style.height = height;
+        ghost.style['line-height'] = height;
+        ghost.style.opacity = '0.75';
+        state.get('_internal.elements.gantt').appendChild(ghost);
+        movement.ghost = ghost;
+        return ghost;
+      }
+
+      function moveGhost(ev) {
+        if (options.ghostNode) {
+          const movement = getMovement();
+          const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
+          movement.ghost.style.left = left + 'px';
+          movement.ghost.style.top = ev.y - movement.ganttTop - movement.itemTop + 'px';
+        }
+      }
+
+      function destroyGhost(itemId) {
+        if (!options.ghostNode) {
+          return;
+        }
+        if (typeof movementState[itemId] !== 'undefined' && typeof movementState[itemId].ghost !== 'undefined') {
+          state.get('_internal.elements.gantt').removeChild(movementState[itemId].ghost);
+          delete movementState[itemId].ghost;
+        }
+        element.style.opacity = '1';
+      }
+
+      function labelMouseDown(ev) {
+        if (ev.button !== 0) {
+          return;
+        }
+        const movement = getMovement();
+        movement.moving = true;
+        const item = state.get(`config.chart.items.${data.item.id}`);
+        const chartLeftTime = state.get('_internal.chart.time.leftGlobal');
+        const timePerPixel = state.get('_internal.chart.time.timePerPixel');
+        const ganttRect = state.get('_internal.elements.gantt').getBoundingClientRect();
+        movement.ganttTop = ganttRect.top;
+        movement.ganttLeft = ganttRect.left;
+        movement.itemX = Math.round((item.time.start - chartLeftTime) / timePerPixel);
+        movement.itemLeftCompensation = ev.x - movement.ganttLeft - movement.itemX;
+        createGhost(data.item.id, ev, ganttRect.left, ganttRect.top);
+      }
+
+      function resizerMouseDown(ev) {
+        if (ev.button !== 0) {
+          return;
+        }
+        ev.stopPropagation();
+        const movement = getMovement();
+        movement.resizing = true;
+        const item = state.get(`config.chart.items.${data.item.id}`);
+        const chartLeftTime = state.get('_internal.chart.time.leftGlobal');
+        const timePerPixel = state.get('_internal.chart.time.timePerPixel');
+        const ganttRect = state.get('_internal.elements.gantt').getBoundingClientRect();
+        movement.ganttTop = ganttRect.top;
+        movement.ganttLeft = ganttRect.left;
+        movement.itemX = (item.time.end - chartLeftTime) / timePerPixel;
+        movement.itemLeftCompensation = ev.x - movement.ganttLeft - movement.itemX;
+      }
+
+      function isCollision(rowId, itemId, start, end) {
+        if (!options.collisionDetection) {
+          return false;
+        }
+        const time = state.get('_internal.chart.time');
+        if (options.outOfBorders && (start < time.from || end > time.to)) {
+          return true;
+        }
+        let diff = api.time.date(end).diff(start, 'milliseconds');
+        if (Math.sign(diff) === -1) {
+          diff = -diff;
+        }
+        if (diff <= 1) {
+          return true;
+        }
+        const row = state.get('config.list.rows.' + rowId);
+        for (const rowItem of row._internal.items) {
+          if (rowItem.id !== itemId) {
+            if (start >= rowItem.time.start && start <= rowItem.time.end) {
+              return true;
+            }
+            if (end >= rowItem.time.start && end <= rowItem.time.end) {
+              return true;
+            }
+            if (start <= rowItem.time.start && end >= rowItem.time.end) {
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+
+      function movementX(ev, row, item, zoom, timePerPixel) {
+        const movement = getMovement();
+        const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
+        moveGhost(ev);
+        const leftMs = state.get('_internal.chart.time.leftGlobal') + left * timePerPixel;
+        const add = leftMs - item.time.start;
+        const originalStart = item.time.start;
+        const finalStartTime = snapStart(item.time.start, add, item);
+        const finalAdd = finalStartTime - originalStart;
+        const collision = isCollision(row.id, item.id, item.time.start + finalAdd, item.time.end + finalAdd);
+        if (finalAdd && !collision) {
+          state.update(`config.chart.items.${data.item.id}.time`, function moveItem(time) {
+            time.start += finalAdd;
+            time.end = snapEnd(time.end, finalAdd, item) - 1;
+            return time;
+          });
+        }
+      }
+
+      function resizeX(ev, row, item, zoom, timePerPixel) {
+        const time = state.get('_internal.chart.time');
+        const movement = getMovement();
+        const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
+        const leftMs = time.leftGlobal + left * timePerPixel;
+        const add = leftMs - item.time.end;
+        if (item.time.end + add < item.time.start) {
+          return;
+        }
+        const originalEnd = item.time.end;
+        const finalEndTime = snapEnd(item.time.end, add, item) - 1;
+        const finalAdd = finalEndTime - originalEnd;
+        const collision = isCollision(row.id, item.id, item.time.start, item.time.end + finalAdd);
+        if (finalAdd && !collision) {
+          state.update(`config.chart.items.${data.item.id}.time`, time => {
+            time.start = snapStart(time.start, 0, item);
+            time.end = snapEnd(time.end, finalAdd, item) - 1;
+            return time;
+          });
+        }
+      }
+
+      function movementY(ev, row, item, zoom, timePerPixel) {
+        moveGhost(ev);
+        const movement = getMovement();
+        const top = ev.y - movement.ganttTop;
+        const visibleRows = state.get('_internal.list.visibleRows');
+        let index = 0;
+        for (const currentRow of visibleRows) {
+          if (currentRow.top > top) {
+            if (index > 0) {
+              return index - 1;
+            }
+            return 0;
+          }
+          index++;
+        }
+        return index;
+      }
+
+      function documentMouseMove(ev) {
+        const movement = getMovement();
+        let item, rowId, row, zoom, timePerPixel;
+        if (movement.moving || movement.resizing) {
+          item = state.get(`config.chart.items.${data.item.id}`);
+          rowId = state.get(`config.chart.items.${data.item.id}.rowId`);
+          row = state.get(`config.list.rows.${rowId}`);
+          zoom = state.get('config.chart.time.zoom');
+          timePerPixel = state.get('_internal.chart.time.timePerPixel');
+        }
+        if (movement.moving) {
+          if (moveable === true || moveable === 'x' || (Array.isArray(moveable) && moveable.includes(rowId))) {
+            movementX(ev, row, item, zoom, timePerPixel);
+          }
+          if (!moveable || moveable === 'x') {
+            return;
+          }
+          let visibleRowsIndex = movementY(ev);
+          const visibleRows = state.get('_internal.list.visibleRows');
+          if (typeof visibleRows[visibleRowsIndex] === 'undefined') {
+            if (visibleRowsIndex > 0) {
+              visibleRowsIndex = visibleRows.length - 1;
+            } else if (visibleRowsIndex < 0) {
+              visibleRowsIndex = 0;
+            }
+          }
+          const newRow = visibleRows[visibleRowsIndex];
+          const newRowId = newRow.id;
+          const collision = isCollision(newRowId, item.id, item.time.start, item.time.end);
+          if (newRowId !== item.rowId && !collision) {
+            if (!Array.isArray(moveable) || moveable.includes(newRowId)) {
+              if (!newRow.hasOwnProperty('moveable') || newRow.moveable) {
+                state.update(`config.chart.items.${item.id}.rowId`, newRowId);
+              }
+            }
+          }
+        } else if (movement.resizing && (typeof item.resizeable === 'undefined' || item.resizeable === true)) {
+          resizeX(ev, row, item, zoom, timePerPixel);
+        }
+      }
+
+      function documentMouseUp(ev) {
+        const movement = getMovement();
+        movement.moving = false;
+        movement.resizing = false;
+        for (const itemId in movementState) {
+          movementState[itemId].moving = false;
+          movementState[itemId].resizing = false;
+          destroyGhost(itemId);
+        }
+      }
+      if (moveable) el.addEventListener('mousedown', labelMouseDown);
+      if (resizeable) resizerEl.addEventListener('mousedown', resizerMouseDown);
+      document.addEventListener('mousemove', documentMouseMove);
+      document.addEventListener('mouseup', documentMouseUp);
+
+      return {
+        update(node, changedData) {
+          data = changedData;
+        },
+        destroy(node, data) {
+          if (moveable) el.removeEventListener('mousedown', labelMouseDown);
+          if (resizeable) resizerEl.removeEventListener('mousedown', resizerMouseDown);
+          document.removeEventListener('mousemove', documentMouseMove);
+          document.removeEventListener('mouseup', documentMouseUp);
+          if (resizeable) element.removeChild(resizerEl);
+        }
+      };
+    }
+
+    return function initializePlugin(state, api) {
+      state.update('config.actions.chart-timeline-items-row-item', actions => {
+        actions.push(action);
+        return actions;
+      });
+    };
+  }
+
+  return ItemMovement;
+
+}));
 //# sourceMappingURL=ItemMovement.plugin.js.map

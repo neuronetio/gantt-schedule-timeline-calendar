@@ -7,7 +7,7 @@
  * @license   GPL-3.0
  */
 
-export default function ListExpander(props, vido) {
+export default function ListExpander(vido, props) {
   const { api, state, onDestroy, actions, update, html, createComponent } = vido;
   const componentName = 'list-expander';
   const componentActions = api.getActions(componentName);

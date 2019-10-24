@@ -7,7 +7,7 @@
  * @license   GPL-3.0
  */
 
-export default function ListColumnHeaderResizer({ columnId }, vido) {
+export default function ListColumnHeaderResizer(vido, { columnId }) {
   const { api, state, onDestroy, update, html, actions } = vido;
 
   const componentName = 'list-column-header-resizer';

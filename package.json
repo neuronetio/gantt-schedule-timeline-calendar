@@ -1,7 +1,7 @@
 {
   "name": "gantt-schedule-timeline-calendar",
   "version": "0.0.34",
-  "description": "Gantt, Scheduler, Timeline, Calendar components all in one!",
+  "description": "Gantt, Schedule, Timeline, Calendar components all in one!",
   "main": "dist/index.umd.js",
   "module": "dist/index.esm.js",
   "scripts": {
@@ -18,7 +18,7 @@
   "author": "Rafal Pospiech <neuronet.io@gmail.com>",
   "license": "GPL-3.0",
   "dependencies": {
-    "@neuronet.io/vido": "^1.0.1",
+    "@neuronet.io/vido": "^1.0.22",
     "dayjs": "^1.8.16",
     "deep-state-observer": "^3.0.28",
     "lit-html": "^1.1.2",

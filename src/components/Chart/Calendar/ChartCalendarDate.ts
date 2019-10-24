@@ -7,7 +7,7 @@
  * @license   GPL-3.0
  */
 
-export default function ChartCalendarDate({ date }, vido) {
+export default function ChartCalendarDate(vido, { date }) {
   const { api, state, onDestroy, actions, update, html } = vido;
 
   const componentName = 'chart-calendar-date';
@@ -90,7 +90,9 @@ export default function ChartCalendarDate({ date }, vido) {
         <div class=${className} style=${style} data-actions=${actions(componentActions, { date, api, state })}>
           ${small
             ? html`
-                <div class=${formattedClassName} style="transform: rotate(90deg);">${smallFormatted}</div>
+                <div class=${formattedClassName} style="transform: rotate(90deg);">
+                  ${smallFormatted}
+                </div>
               `
             : html`
                 <div class=${formattedClassName}>

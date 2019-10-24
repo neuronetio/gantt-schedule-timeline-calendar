@@ -15,6 +15,9 @@ export default function Chart(vido) {
   const ChartCalendarComponent = state.get('config.components.ChartCalendar');
   const ChartTimelineComponent = state.get('config.components.ChartTimeline');
 
+  let wrapper;
+  onDestroy(state.subscribe('config.wrappers.Chart', value => (wrapper = value)));
+
   const Calendar = createComponent(ChartCalendarComponent);
   onDestroy(Calendar.destroy);
   const Timeline = createComponent(ChartTimelineComponent);
@@ -59,7 +62,6 @@ export default function Chart(vido) {
   const onScroll = {
     handleEvent(event) {
       event.stopPropagation();
-      event.preventDefault();
       let scrollLeft, scrollTop;
       if (event.type === 'scroll') {
         state.update('config.scroll.left', event.target.scrollLeft);
@@ -94,7 +96,7 @@ export default function Chart(vido) {
         state.update('config.scroll.percent.left', percent);
       }
     },
-    passive: false
+    passive: true
   };
 
   function bindElement(element) {
@@ -130,12 +132,16 @@ export default function Chart(vido) {
     ro.disconnect();
   });
 
-  return props => html`
-    <div class=${className} data-actions=${actions(componentActions, { api, state })} @wheel=${onScroll}>
-      ${Calendar.html()}${Timeline.html()}
-      <div class=${classNameScroll} style=${styleScroll} data-actions=${actions([bindElement])} @scroll=${onScroll}>
-        <div class=${classNameScrollInner} style=${styleScrollInner} data-actions=${actions([bindInnerScroll])} />
-      </div>
-    </div>
-  `;
+  return props =>
+    wrapper(
+      html`
+        <div class=${className} data-actions=${actions(componentActions, { api, state })} @wheel=${onScroll}>
+          ${Calendar.html()}${Timeline.html()}
+          <div class=${classNameScroll} style=${styleScroll} data-actions=${actions([bindElement])} @scroll=${onScroll}>
+            <div class=${classNameScrollInner} style=${styleScrollInner} data-actions=${actions([bindInnerScroll])} />
+          </div>
+        </div>
+      `,
+      { vido, props: {}, templateProps: props }
+    );
 }

@@ -82,19 +82,18 @@
       let items = {};
       for (let i = 0; i < iterations; i++) {
         const id = i.toString();
+        const start = startDayjs
+          .clone()
+          .add(Math.round(Math.random() * 26) + 1, 'day')
+          .valueOf();
         items[id] = {
           id,
           label: 'User id ' + i,
           time: {
-            start: startDayjs
-              .clone()
-              .add(i, 'day')
-              .valueOf(),
-            end: startDayjs
-              .clone()
-              .add(i, 'day')
-              .add(Math.round(Math.random() * 4) + 1, 'day')
-              .endOf('day')
+            start,
+            end: GSTC.api
+              .date(start)
+              .add(2, 'days')
               .valueOf()
           },
           rowId: id,
