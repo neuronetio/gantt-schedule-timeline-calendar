@@ -4,11 +4,12 @@
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
  * @package   gantt-schedule-timeline-calendar
- * @license   GPL-3.0
+ * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+ * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
 export default function ChartTimelineItems(vido) {
-  const { api, state, onDestroy, actions, update, html, componentsFromDataArray } = vido;
+  const { api, state, onDestroy, actions, update, html, reuseComponents } = vido;
   const componentName = 'chart-timeline-items';
   const componentActions = api.getActions(componentName);
   let wrapper;
@@ -30,7 +31,7 @@ export default function ChartTimelineItems(vido) {
       ['_internal.list.visibleRows', 'config.chart.items', 'config.list.rows'],
       () => {
         const visibleRows = state.get('_internal.list.visibleRows');
-        rowsComponents = componentsFromDataArray(rowsComponents, visibleRows, row => ({ row }), ItemsRowComponent);
+        rowsComponents = reuseComponents(rowsComponents, visibleRows, row => ({ row }), ItemsRowComponent);
         update();
       },
       { bulk: true }

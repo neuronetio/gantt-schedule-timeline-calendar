@@ -4,11 +4,12 @@
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
  * @package   gantt-schedule-timeline-calendar
- * @license   GPL-3.0
+ * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+ * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
 export default function ChartTimelineGrid(vido) {
-  const { api, state, onDestroy, actions, update, html, createComponent } = vido;
+  const { api, state, onDestroy, actions, update, html, reuseComponents } = vido;
   const componentName = 'chart-timeline-grid';
   const componentActions = api.getActions(componentName);
 
@@ -37,16 +38,6 @@ export default function ChartTimelineGrid(vido) {
   let period;
   onDestroy(state.subscribe('config.chart.time.period', value => (period = value)));
 
-  function addRowComponent(rowData, periodDates, top) {
-    const blocks = [];
-    let index = 0;
-    for (const date of periodDates) {
-      blocks.push({ id: index++, date, row: rowData, top });
-    }
-    const row = { id: rowData.id, blocks, rowData, top };
-    rowsComponents.push({ id: rowData.id, component: createComponent(GridRowComponent, { row }) });
-  }
-
   let rowsComponents = [];
   onDestroy(
     state.subscribeAll(
@@ -57,36 +48,17 @@ export default function ChartTimelineGrid(vido) {
         if (!periodDates || periodDates.length === 0) {
           return;
         }
-        if (rowsData.length === 0) {
-          rowsComponents.forEach(row => row.component.destroy());
-          rowsComponents = [];
-          update();
-          return;
-        }
-        if (rowsComponents.length < rowsData.length) {
-          let diff = rowsData.length - rowsComponents.length;
-          let top = 0;
-          while (diff) {
-            const rowData = rowsData[rowsData.length - diff];
-            addRowComponent(rowData, periodDates, top);
-            top += rowData.height;
-            diff--;
+        let top = 0;
+        const rowsAndBlocks = [];
+        for (const row of rowsData) {
+          const blocks = [];
+          for (const time of periodDates) {
+            blocks.push({ time, row, top });
           }
-        } else {
-          let top = 0;
-          let id = 0;
-          for (const rowData of rowsData) {
-            const blocks = [];
-            let index = 0;
-            for (const date of periodDates) {
-              blocks.push({ id: index++, date, row: rowData, top });
-            }
-            const row = { id: rowData.id, blocks, rowData, top };
-            rowsComponents[id].component.change({ row });
-            top += rowData.height;
-            id++;
-          }
+          rowsAndBlocks.push({ row, blocks, top });
+          top += row.height;
         }
+        reuseComponents(rowsComponents, rowsAndBlocks, row => row, GridRowComponent);
         update();
       },
       { bulk: true }
@@ -98,14 +70,14 @@ export default function ChartTimelineGrid(vido) {
   });
 
   onDestroy(() => {
-    rowsComponents.forEach(row => row.component.destroy());
+    rowsComponents.forEach(row => row.destroy());
   });
 
   return props =>
     wrapper(
       html`
         <div class=${className} data-actions=${actions(componentActions, { api, state })} style=${style}>
-          ${rowsComponents.map(r => r.component.html())}
+          ${rowsComponents.map(r => r.html())}
         </div>
       `,
       { props: {}, vido, templateProps: props }

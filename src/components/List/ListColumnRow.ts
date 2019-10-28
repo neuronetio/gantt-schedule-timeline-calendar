@@ -4,7 +4,8 @@
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
  * @package   gantt-schedule-timeline-calendar
- * @license   GPL-3.0
+ * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+ * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
 export default function ListColumnRow(vido, { rowId, columnId }) {
@@ -16,10 +17,10 @@ export default function ListColumnRow(vido, { rowId, columnId }) {
   let ListExpanderComponent;
   onDestroy(state.subscribe('config.components.ListExpander', value => (ListExpanderComponent = value)));
 
-  let row,
-    rowPath = `_internal.flatTreeMapById.${rowId}`;
-  let column,
-    colPath = `config.list.columns.data.${columnId}`;
+  let rowPath = `_internal.flatTreeMapById.${rowId}`,
+    row = state.get(rowPath);
+  let colPath = `config.list.columns.data.${columnId}`,
+    column = state.get(colPath);
   let style;
   let rowSub, colSub;
   let ListExpander;
@@ -66,13 +67,15 @@ export default function ListColumnRow(vido, { rowId, columnId }) {
 
   onDestroy(() => {
     if (ListExpander) ListExpander.destroy();
+    colSub();
+    rowSub();
   });
   const componentName = 'list-column-row';
   const componentActions = api.getActions(componentName);
   let className;
   onDestroy(
     state.subscribe('config.classNames', value => {
-      className = api.getClass(componentName, { row, column });
+      className = api.getClass(componentName);
       update();
     })
   );

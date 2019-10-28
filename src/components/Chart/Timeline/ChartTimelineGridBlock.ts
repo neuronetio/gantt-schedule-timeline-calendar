@@ -4,10 +4,11 @@
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
  * @package   gantt-schedule-timeline-calendar
- * @license   GPL-3.0
+ * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+ * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-export default function ChartTimelineGridBlock(vido, { row, time, top }) {
+export default function ChartTimelineGridBlock(vido, props) {
   const { api, state, onDestroy, actions, update, html, onChange } = vido;
   const componentName = 'chart-timeline-grid-block';
   const componentActions = api.getActions(componentName);
@@ -20,27 +21,27 @@ export default function ChartTimelineGridBlock(vido, { row, time, top }) {
     })
   );
 
-  let className = api.getClass(componentName, { row });
-  onDestroy(
-    state.subscribe('config.classNames', () => {
-      className = api.getClass(componentName);
-      if (
-        time.leftGlobal ===
-        api.time
-          .date()
-          .startOf('day')
-          .valueOf()
-      ) {
-        className += ' current';
-      }
-      update();
-    })
-  );
+  let className;
+  function updateClassName(time) {
+    className = api.getClass(componentName);
+    if (
+      time.leftGlobal ===
+      api.time
+        .date()
+        .startOf('day')
+        .valueOf()
+    ) {
+      className += ' current';
+    }
+  }
+  updateClassName(props.time);
 
-  let style = `width: ${time.width}px;height: 100%;margin-left:-${time.subPx}px;`;
-  onChange(({ row, time, top }) => {
-    style = `width: ${time.width}px; height: 100%; margin-left:-${time.subPx}px; `;
-    for (const parentId of row.rowData._internal.parents) {
+  let style = `width: ${props.time.width}px;height: 100%;margin-left:-${props.time.subPx}px;`;
+  onChange(changedProps => {
+    props = changedProps;
+    updateClassName(props.time);
+    style = `width: ${props.time.width}px; height: 100%; margin-left:-${props.time.subPx}px; `;
+    for (const parentId of props.row._internal.parents) {
       const parent = state.get('config.list.rows.' + parentId);
       if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
         if (typeof parent.style.gridBlock === 'object' && parent.style.gridBlock.constructor.name === 'Object') {
@@ -50,28 +51,21 @@ export default function ChartTimelineGridBlock(vido, { row, time, top }) {
         }
       }
     }
-    if (typeof row.rowData.style === 'object' && row.rowData.style.constructor.name === 'Object') {
-      if (
-        typeof row.rowData.style.gridBlock === 'object' &&
-        row.rowData.style.gridBlock.constructor.name === 'Object'
-      ) {
-        if (typeof row.rowData.style.gridBlock.current === 'string') {
-          style += row.rowData.style.gridBlock.current;
+    if (typeof props.row.style === 'object' && props.row.style.constructor.name === 'Object') {
+      if (typeof props.row.style.gridBlock === 'object' && props.row.style.gridBlock.constructor.name === 'Object') {
+        if (typeof props.row.style.gridBlock.current === 'string') {
+          style += props.row.style.gridBlock.current;
         }
       }
     }
     update();
   });
 
-  return props =>
+  return () =>
     wrapper(
       html`
-        <div
-          class=${className}
-          data-actions=${actions(componentActions, { row, time, top, api, state })}
-          style=${style}
-        />
+        <div class=${className} data-actions=${actions(componentActions, { ...props, api, state })} style=${style} />
       `,
-      { props: { row, time, top }, vido, templateProps: props }
+      { props, vido, templateProps: props }
     );
 }

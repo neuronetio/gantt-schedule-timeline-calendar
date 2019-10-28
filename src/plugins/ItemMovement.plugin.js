@@ -7,7 +7,6 @@
  * @license   GPL-3.0
  */
 
-//- @ts-nocheck
 export default function ItemMovement(options = {}) {
   const defaultOptions = {
     moveable: true,
@@ -20,6 +19,7 @@ export default function ItemMovement(options = {}) {
     ghostNode: true
   };
   options = { ...defaultOptions, ...options };
+
   const movementState = {};
 
   /**
@@ -29,46 +29,34 @@ export default function ItemMovement(options = {}) {
    * @param {Object} data
    */
   function action(node, data) {
-    const element = node.querySelector('.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content');
+    // @ts-ignore
+    let element = node.querySelector('.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content');
     if (!options.moveable && !options.resizeable) {
       return;
     }
-    let moveable = options.moveable;
-    if (data.item.hasOwnProperty('moveable') && moveable) {
-      moveable = data.item.moveable;
-    }
-    if (data.row.hasOwnProperty('moveable') && moveable) {
-      moveable = data.row.moveable;
-    }
-    let resizeable = options.resizeable && (!data.item.hasOwnProperty('resizeable') || data.item.resizeable === true);
-    if (data.row.hasOwnProperty('resizeable') && resizeable) {
-      resizeable = data.row.resizeable;
-    }
-    const api = data.api;
-    let snapStart = options.snapStart;
-    if (typeof data.item.snapStart === 'function') {
-      snapStart = data.item.snapStart;
-    }
-    let snapEnd = options.snapEnd;
-    if (typeof data.item.snapEnd === 'function') {
-      snapEnd = data.item.snapEnd;
+    let state;
+    let api;
+
+    function isMoveable(data) {
+      let moveable = options.moveable;
+      if (data.item.hasOwnProperty('moveable') && moveable) {
+        moveable = data.item.moveable;
+      }
+      if (data.row.hasOwnProperty('moveable') && moveable) {
+        moveable = data.row.moveable;
+      }
+      return moveable;
     }
 
-    if (resizeable) {
-      const resizerHTML = `<div class="${api.getClass('chart-timeline-items-row-item-content-resizer')}">${
-        options.resizerContent
-      }</div>`;
-      // @ts-ignore
-      element.insertAdjacentHTML('beforeend', resizerHTML);
+    function isResizeable(data) {
+      let resizeable = options.resizeable && (!data.item.hasOwnProperty('resizeable') || data.item.resizeable === true);
+      if (data.row.hasOwnProperty('resizeable') && resizeable) {
+        resizeable = data.row.resizeable;
+      }
+      return resizeable;
     }
 
-    const el = element;
-    const resizerEl = el.querySelector(
-      '.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content-resizer'
-    );
-    const state = data.state;
-
-    function getMovement() {
+    function getMovement(data) {
       const itemId = data.item.id;
       if (typeof movementState[itemId] === 'undefined') {
         movementState[itemId] = { moving: false, resizing: false };
@@ -76,8 +64,8 @@ export default function ItemMovement(options = {}) {
       return movementState[itemId];
     }
 
-    function createGhost(itemId, ev, ganttLeft, ganttTop) {
-      const movement = getMovement();
+    function createGhost(data, ev, ganttLeft, ganttTop) {
+      const movement = getMovement(data);
       if (!options.ghostNode || typeof movement.ghost !== 'undefined') {
         return;
       }
@@ -99,9 +87,9 @@ export default function ItemMovement(options = {}) {
       return ghost;
     }
 
-    function moveGhost(ev) {
+    function moveGhost(data, ev) {
       if (options.ghostNode) {
-        const movement = getMovement();
+        const movement = getMovement(data);
         const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
         movement.ghost.style.left = left + 'px';
         movement.ghost.style.top = ev.y - movement.ganttTop - movement.itemTop + 'px';
@@ -119,11 +107,44 @@ export default function ItemMovement(options = {}) {
       element.style.opacity = '1';
     }
 
+    function getSnapStart(data) {
+      let snapStart = options.snapStart;
+      if (typeof data.item.snapStart === 'function') {
+        snapStart = data.item.snapStart;
+      }
+      return snapStart;
+    }
+
+    function getSnapEnd(data) {
+      let snapEnd = options.snapEnd;
+      if (typeof data.item.snapEnd === 'function') {
+        snapEnd = data.item.snapEnd;
+      }
+      return snapEnd;
+    }
+
+    state = data.state;
+    api = data.api;
+
+    const resizerHTML = `<div class="${api.getClass('chart-timeline-items-row-item-content-resizer')}">${
+      options.resizerContent
+    }</div>`;
+    // @ts-ignore
+    element.insertAdjacentHTML('beforeend', resizerHTML);
+    const resizerEl = element.querySelector(
+      '.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content-resizer'
+    );
+    if (!isResizeable(data)) {
+      resizerEl.style.display = 'none';
+    }
+
     function labelMouseDown(ev) {
       if (ev.button !== 0) {
         return;
       }
-      const movement = getMovement();
+      // @ts-ignore
+      element = node.querySelector('.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content');
+      const movement = getMovement(data);
       movement.moving = true;
       const item = state.get(`config.chart.items.${data.item.id}`);
       const chartLeftTime = state.get('_internal.chart.time.leftGlobal');
@@ -133,7 +154,7 @@ export default function ItemMovement(options = {}) {
       movement.ganttLeft = ganttRect.left;
       movement.itemX = Math.round((item.time.start - chartLeftTime) / timePerPixel);
       movement.itemLeftCompensation = ev.x - movement.ganttLeft - movement.itemX;
-      createGhost(data.item.id, ev, ganttRect.left, ganttRect.top);
+      createGhost(data, ev, ganttRect.left, ganttRect.top);
     }
 
     function resizerMouseDown(ev) {
@@ -141,7 +162,7 @@ export default function ItemMovement(options = {}) {
         return;
       }
       ev.stopPropagation();
-      const movement = getMovement();
+      const movement = getMovement(data);
       movement.resizing = true;
       const item = state.get(`config.chart.items.${data.item.id}`);
       const chartLeftTime = state.get('_internal.chart.time.leftGlobal');
@@ -186,27 +207,30 @@ export default function ItemMovement(options = {}) {
     }
 
     function movementX(ev, row, item, zoom, timePerPixel) {
-      const movement = getMovement();
+      const movement = getMovement(data);
       const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
-      moveGhost(ev);
+      moveGhost(data, ev);
       const leftMs = state.get('_internal.chart.time.leftGlobal') + left * timePerPixel;
       const add = leftMs - item.time.start;
       const originalStart = item.time.start;
-      const finalStartTime = snapStart(item.time.start, add, item);
+      const finalStartTime = getSnapStart(data)(item.time.start, add, item);
       const finalAdd = finalStartTime - originalStart;
       const collision = isCollision(row.id, item.id, item.time.start + finalAdd, item.time.end + finalAdd);
       if (finalAdd && !collision) {
         state.update(`config.chart.items.${data.item.id}.time`, function moveItem(time) {
           time.start += finalAdd;
-          time.end = snapEnd(time.end, finalAdd, item) - 1;
+          time.end = getSnapEnd(data)(time.end, finalAdd, item) - 1;
           return time;
         });
       }
     }
 
     function resizeX(ev, row, item, zoom, timePerPixel) {
+      if (!isResizeable(data)) {
+        return;
+      }
       const time = state.get('_internal.chart.time');
-      const movement = getMovement();
+      const movement = getMovement(data);
       const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
       const leftMs = time.leftGlobal + left * timePerPixel;
       const add = leftMs - item.time.end;
@@ -214,21 +238,21 @@ export default function ItemMovement(options = {}) {
         return;
       }
       const originalEnd = item.time.end;
-      const finalEndTime = snapEnd(item.time.end, add, item) - 1;
+      const finalEndTime = getSnapEnd(data)(item.time.end, add, item) - 1;
       const finalAdd = finalEndTime - originalEnd;
       const collision = isCollision(row.id, item.id, item.time.start, item.time.end + finalAdd);
       if (finalAdd && !collision) {
         state.update(`config.chart.items.${data.item.id}.time`, time => {
-          time.start = snapStart(time.start, 0, item);
-          time.end = snapEnd(time.end, finalAdd, item) - 1;
+          time.start = getSnapStart(data)(time.start, 0, item);
+          time.end = getSnapEnd(data)(time.end, finalAdd, item) - 1;
           return time;
         });
       }
     }
 
     function movementY(ev, row, item, zoom, timePerPixel) {
-      moveGhost(ev);
-      const movement = getMovement();
+      moveGhost(data, ev);
+      const movement = getMovement(data);
       const top = ev.y - movement.ganttTop;
       const visibleRows = state.get('_internal.list.visibleRows');
       let index = 0;
@@ -245,7 +269,7 @@ export default function ItemMovement(options = {}) {
     }
 
     function documentMouseMove(ev) {
-      const movement = getMovement();
+      const movement = getMovement(data);
       let item, rowId, row, zoom, timePerPixel;
       if (movement.moving || movement.resizing) {
         item = state.get(`config.chart.items.${data.item.id}`);
@@ -254,6 +278,7 @@ export default function ItemMovement(options = {}) {
         zoom = state.get('config.chart.time.zoom');
         timePerPixel = state.get('_internal.chart.time.timePerPixel');
       }
+      const moveable = isMoveable(data);
       if (movement.moving) {
         if (moveable === true || moveable === 'x' || (Array.isArray(moveable) && moveable.includes(rowId))) {
           movementX(ev, row, item, zoom, timePerPixel);
@@ -286,7 +311,7 @@ export default function ItemMovement(options = {}) {
     }
 
     function documentMouseUp(ev) {
-      const movement = getMovement();
+      const movement = getMovement(data);
       movement.moving = false;
       movement.resizing = false;
       for (const itemId in movementState) {
@@ -295,21 +320,20 @@ export default function ItemMovement(options = {}) {
         destroyGhost(itemId);
       }
     }
-    if (moveable) el.addEventListener('mousedown', labelMouseDown);
-    if (resizeable) resizerEl.addEventListener('mousedown', resizerMouseDown);
+    element.addEventListener('mousedown', labelMouseDown);
+    resizerEl.addEventListener('mousedown', resizerMouseDown);
     document.addEventListener('mousemove', documentMouseMove);
     document.addEventListener('mouseup', documentMouseUp);
-
     return {
       update(node, changedData) {
         data = changedData;
       },
       destroy(node, data) {
-        if (moveable) el.removeEventListener('mousedown', labelMouseDown);
-        if (resizeable) resizerEl.removeEventListener('mousedown', resizerMouseDown);
+        element.removeEventListener('mousedown', labelMouseDown);
+        resizerEl.removeEventListener('mousedown', resizerMouseDown);
         document.removeEventListener('mousemove', documentMouseMove);
         document.removeEventListener('mouseup', documentMouseUp);
-        if (resizeable) element.removeChild(resizerEl);
+        resizerEl.remove();
       }
     };
   }

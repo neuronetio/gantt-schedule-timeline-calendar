@@ -124,35 +124,12 @@ export function getInternalApi(state) {
       return componentData;
     },
 
-    getClass(name, attrs) {
+    getClass(name) {
       let simple = `${lib}__${name}`;
       if (name === this.name) {
         simple = this.name;
       }
       return simple;
-      let className = `${simple} `;
-      let postfix = '-';
-      if (typeof attrs !== 'undefined') {
-        for (const key in attrs) {
-          if (attrs[key].constructor.name === 'Object' && typeof attrs[key].id !== 'undefined') {
-            postfix += `-${key}_${attrs[key].id}`;
-            return className + className.trim() + postfix;
-          }
-          if (typeof attrs[key] === 'string' || typeof attrs[key] === 'number') {
-            postfix += `-${key}_${attrs[key]}`;
-          }
-        }
-      }
-      if (postfix != '-') {
-        className += simple + postfix + ' ';
-      }
-      if (typeof $state.config.classNames[name] !== 'undefined') {
-        state.get(`config.classNames.${name}`).forEach(customClass => (className += customClass + ' '));
-      }
-      if (typeof $state.config.classNames[name + postfix] !== 'undefined') {
-        state.get(`config.classNames.${name + postfix}`).forEach(customClass => (className += customClass + ' '));
-      }
-      return className.trim();
     },
 
     allActions: [],
@@ -290,16 +267,15 @@ export function getInternalApi(state) {
       const rows = [];
       let currentOffset = 0;
       let rowOffset = 0;
+      const scrollTop = state.get('config.scroll.top');
+      const height = state.get('_internal.height');
       for (const row of rowsWithParentsExpanded) {
-        if (
-          currentOffset + row.height > $state.config.scroll.top &&
-          currentOffset < $state.config.scroll.top + $state._internal.height
-        ) {
+        if (currentOffset + row.height > scrollTop && currentOffset < scrollTop + height) {
           row.top = rowOffset;
           rowOffset += row.height;
           rows.push(row);
         }
-        if (currentOffset > $state.config.scroll.top + $state._internal.height) {
+        if (currentOffset > scrollTop + height) {
           break;
         }
         currentOffset += row.height;

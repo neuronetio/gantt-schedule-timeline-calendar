@@ -91,10 +91,11 @@
           label: 'User id ' + i,
           time: {
             start,
-            end: GSTC.api
-              .date(start)
-              .add(2, 'days')
-              .valueOf()
+            end:
+              GSTC.api
+                .date(start)
+                .add(2, 'days')
+                .valueOf() - 1
           },
           rowId: id,
           style: { current: i === 0 ? 'background: green; color:white;' : '' }
@@ -251,6 +252,29 @@
                 target.style.color = '#' + Math.round(Math.random() * 999999);
                 console.log(`${data.column.header.content} clicked!`);
               });
+            }
+          ],
+          'chart-timeline-grid-block': [
+            function gridBlockAction(element, data) {
+              let bg;
+              if (data.row.id === '1') {
+                element.insertAdjacentHTML('beforeend', '<div class="bg-content">:P</div>');
+                bg = element.querySelector('.bg-content');
+              }
+              return {
+                update(element, changedData) {
+                  if (data.row.id === '1' && changedData.row.id !== '1') {
+                    bg.remove();
+                  } else if (data.row.id !== '1' && changedData.row.id === '1') {
+                    element.insertAdjacentHTML('beforeend', '<div class="bg-content">:P</div>');
+                    bg = element.querySelector('.bg-content');
+                  }
+                  data = changedData;
+                },
+                destroy(element, data) {
+                  if (bg) bg.remove();
+                }
+              };
             }
           ]
         },

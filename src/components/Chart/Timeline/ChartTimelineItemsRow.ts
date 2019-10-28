@@ -4,12 +4,12 @@
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
  * @package   gantt-schedule-timeline-calendar
- * @license   GPL-3.0
+ * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+ * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
 export default function ChartTimelineItemsRow(vido, { row }) {
-  const { api, state, onDestroy, actions, update, html, onChange, componentsFromDataArray } = vido;
-
+  const { api, state, onDestroy, actions, update, html, onChange, reuseComponents } = vido;
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRow', value => (wrapper = value)));
 
@@ -34,7 +34,6 @@ export default function ChartTimelineItemsRow(vido, { row }) {
   function updateRow(row) {
     itemsPath = `_internal.flatTreeMapById.${row.id}._internal.items`;
 
-    updateDom();
     if (typeof rowSub === 'function') {
       rowSub();
     }
@@ -48,7 +47,7 @@ export default function ChartTimelineItemsRow(vido, { row }) {
     });
 
     itemsSub = state.subscribe(itemsPath, value => {
-      itemComponents = componentsFromDataArray(itemComponents, value, item => ({ row, item }), ItemComponent);
+      itemComponents = reuseComponents(itemComponents, value, item => ({ row, item }), ItemComponent);
       updateDom();
       update();
     });
@@ -59,9 +58,9 @@ export default function ChartTimelineItemsRow(vido, { row }) {
     updateRow(row);
   });
 
-  updateRow(row);
-
   onDestroy(() => {
+    itemsSub();
+    rowSub();
     itemComponents.forEach(item => item.destroy());
   });
 

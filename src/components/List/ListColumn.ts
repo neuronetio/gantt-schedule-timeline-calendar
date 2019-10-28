@@ -4,11 +4,12 @@
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
  * @package   gantt-schedule-timeline-calendar
- * @license   GPL-3.0
+ * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+ * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
 export default function ListColumn(vido, { columnId }) {
-  const { api, state, onDestroy, actions, update, createComponent, componentsFromDataArray, html } = vido;
+  const { api, state, onDestroy, actions, update, createComponent, reuseComponents, html } = vido;
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListColumn', value => (wrapper = value)));
@@ -44,7 +45,7 @@ export default function ListColumn(vido, { columnId }) {
   let visibleRows = [];
   onDestroy(
     state.subscribe('_internal.list.visibleRows;', val => {
-      componentsFromDataArray(visibleRows, val, row => ({ columnId, rowId: row.id }), ListColumnRowComponent);
+      reuseComponents(visibleRows, val, row => ({ columnId, rowId: row.id }), ListColumnRowComponent);
       update();
     })
   );

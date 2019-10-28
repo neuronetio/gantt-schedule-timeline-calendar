@@ -4,7 +4,8 @@
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
  * @package   gantt-schedule-timeline-calendar
- * @license   GPL-3.0
+ * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+ * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
 import ResizeObserver from 'resize-observer-polyfill';
@@ -132,12 +133,14 @@ export default function Main(vido) {
     state.subscribeAll(['_internal.list.rowsWithParentsExpanded', 'config.scroll.top'], () => {
       const visibleRows = api.getVisibleRows(state.get('_internal.list.rowsWithParentsExpanded'));
       const current = state.get('_internal.list.visibleRows');
-      const shouldUpdate = visibleRows.some((row, index) => {
-        if (typeof current[index] === 'undefined') {
-          return true;
-        }
-        return row.id !== current[index].id;
-      });
+      let shouldUpdate = true;
+      if (visibleRows.length)
+        shouldUpdate = visibleRows.some((row, index) => {
+          if (typeof current[index] === 'undefined') {
+            return true;
+          }
+          return row.id !== current[index].id;
+        });
       if (shouldUpdate) {
         state.update('_internal.list.visibleRows', visibleRows);
       }
@@ -252,22 +255,26 @@ export default function Main(vido) {
 
   state.update('_internal.scrollBarHeight', api.getScrollBarHeight());
 
+  let scrollTop = 0;
   const onScroll = {
     handleEvent(event) {
       event.stopPropagation();
-      state.update(
-        'config.scroll',
-        scroll => {
-          scroll.top = event.target.scrollTop;
-          const scrollInner = state.get('_internal.elements.verticalScrollInner');
-          if (scrollInner) {
-            const scrollHeight = scrollInner.clientHeight;
-            scroll.percent.top = scroll.top / scrollHeight;
-          }
-          return scroll;
-        },
-        { only: ['top', 'percent.top'] }
-      );
+      const top = event.target.scrollTop;
+      if (scrollTop !== top)
+        state.update(
+          'config.scroll',
+          scroll => {
+            scroll.top = top;
+            scrollTop = scroll.top;
+            const scrollInner = state.get('_internal.elements.verticalScrollInner');
+            if (scrollInner) {
+              const scrollHeight = scrollInner.clientHeight;
+              scroll.percent.top = scroll.top / scrollHeight;
+            }
+            return scroll;
+          },
+          { only: ['top', 'percent.top'] }
+        );
     },
     passive: true
   };
