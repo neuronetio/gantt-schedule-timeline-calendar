@@ -256,18 +256,23 @@
           ],
           'chart-timeline-grid-block': [
             function gridBlockAction(element, data) {
-              let bg;
+              // on create
+              element.insertAdjacentHTML('beforeend', '<div class="dolar-bg-content">$</div>');
+              let bg = element.querySelector('.dolar-bg-content');
+              bg.onclick = ev => alert('dolar clicked!');
               if (data.row.id === '1') {
-                element.insertAdjacentHTML('beforeend', '<div class="bg-content">:P</div>');
-                bg = element.querySelector('.bg-content');
+                bg.style['line-height'] = data.row.height + 'px';
+                bg.style.visibility = 'visible';
+              } else {
+                bg.style.visibility = 'hidden';
               }
               return {
                 update(element, changedData) {
                   if (data.row.id === '1' && changedData.row.id !== '1') {
-                    bg.remove();
+                    bg.style.visibility = 'hidden';
                   } else if (data.row.id !== '1' && changedData.row.id === '1') {
-                    element.insertAdjacentHTML('beforeend', '<div class="bg-content">:P</div>');
-                    bg = element.querySelector('.bg-content');
+                    bg.style['line-height'] = changedData.row.height + 'px';
+                    bg.style.visibility = 'visible';
                   }
                   data = changedData;
                 },

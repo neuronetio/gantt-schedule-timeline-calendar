@@ -135,7 +135,9 @@ export default function ItemMovement(options = {}) {
       '.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content-resizer'
     );
     if (!isResizeable(data)) {
-      resizerEl.style.display = 'none';
+      resizerEl.style.visibility = 'hidden';
+    } else {
+      resizerEl.style.visibility = 'visible';
     }
 
     function labelMouseDown(ev) {
@@ -327,6 +329,11 @@ export default function ItemMovement(options = {}) {
     return {
       update(node, changedData) {
         data = changedData;
+        if (!isResizeable(data)) {
+          resizerEl.style.visibility = 'hidden';
+        } else {
+          resizerEl.style.visibility = 'visible';
+        }
       },
       destroy(node, data) {
         element.removeEventListener('mousedown', labelMouseDown);
