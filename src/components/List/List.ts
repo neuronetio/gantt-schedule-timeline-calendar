@@ -40,18 +40,13 @@ export default function List(vido) {
   let listColumns = [];
   onDestroy(
     state.subscribe('config.list.columns.data;', data => {
-      reuseComponents(
-        listColumns,
-        Object.values(data),
-        column => ({ columnId: column.id }),
-        ListColumnComponent
-      );
+      reuseComponents(listColumns, Object.values(data), column => ({ columnId: column.id }), ListColumnComponent);
       update();
     })
   );
 
   onDestroy(() => {
-    listColumns.forEach(c => c.component.destroy());
+    listColumns.forEach(c => c.destroy());
   });
 
   let style;
