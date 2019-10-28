@@ -259,6 +259,7 @@ export default function Main(vido) {
   const onScroll = {
     handleEvent(event) {
       event.stopPropagation();
+      event.preventDefault();
       const top = event.target.scrollTop;
       if (scrollTop !== top)
         state.update(
