@@ -63,6 +63,7 @@ export default function Chart(vido) {
   const onScroll = {
     handleEvent(event) {
       event.stopPropagation();
+      event.preventDefault();
       let scrollLeft, scrollTop;
       if (event.type === 'scroll') {
         state.update('config.scroll.left', event.target.scrollLeft);
@@ -97,7 +98,8 @@ export default function Chart(vido) {
         state.update('config.scroll.percent.left', percent);
       }
     },
-    passive: true
+    passive: false,
+    capture: true
   };
 
   function bindElement(element) {

@@ -49,7 +49,7 @@ export default function List(vido) {
     listColumns.forEach(c => c.destroy());
   });
 
-  let style;
+  let style = '';
   onDestroy(
     state.subscribe('config.height', height => {
       style = `height: ${height}px`;
@@ -57,18 +57,22 @@ export default function List(vido) {
     })
   );
 
-  function onScroll(event) {
-    event.stopPropagation();
-    event.preventDefault();
-    if (event.type === 'scroll') {
-      state.update('config.scroll.top', event.target.scrollTop);
-    } else {
-      const wheel = api.normalizeMouseWheelEvent(event);
-      state.update('config.scroll.top', top => {
-        return api.limitScroll('top', (top += wheel.y * state.get('config.scroll.yMultiplier')));
-      });
-    }
-  }
+  const onScroll = {
+    handleEvent(event) {
+      event.stopPropagation();
+      event.preventDefault();
+      if (event.type === 'scroll') {
+        state.update('config.scroll.top', event.target.scrollTop);
+      } else {
+        const wheel = api.normalizeMouseWheelEvent(event);
+        state.update('config.scroll.top', top => {
+          return api.limitScroll('top', (top += wheel.y * state.get('config.scroll.yMultiplier')));
+        });
+      }
+    },
+    passive: false,
+    capture: true
+  };
 
   let width;
   function getWidth(element) {

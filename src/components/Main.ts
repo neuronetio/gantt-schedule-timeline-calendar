@@ -131,16 +131,20 @@ export default function Main(vido) {
 
   onDestroy(
     state.subscribeAll(['_internal.list.rowsWithParentsExpanded', 'config.scroll.top'], () => {
-      const visibleRows = api.getVisibleRows(state.get('_internal.list.rowsWithParentsExpanded'));
+      const { visibleRows, compensation } = api.getVisibleRowsAndCompensation(
+        state.get('_internal.list.rowsWithParentsExpanded')
+      );
       const current = state.get('_internal.list.visibleRows');
       let shouldUpdate = true;
-      if (visibleRows.length)
+      state.update('config.scroll.compensation', -compensation);
+      if (visibleRows.length) {
         shouldUpdate = visibleRows.some((row, index) => {
           if (typeof current[index] === 'undefined') {
             return true;
           }
           return row.id !== current[index].id;
         });
+      }
       if (shouldUpdate) {
         state.update('_internal.list.visibleRows', visibleRows);
       }
@@ -277,7 +281,8 @@ export default function Main(vido) {
           { only: ['top', 'percent.top'] }
         );
     },
-    passive: true
+    passive: false,
+    capture: true
   };
 
   const dimensions = { width: 0, height: 0 };

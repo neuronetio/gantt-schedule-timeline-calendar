@@ -263,24 +263,28 @@ export function getInternalApi(state) {
      *
      * @param {array} rowsWithParentsExpanded rows that have parent expanded- they are visible
      */
-    getVisibleRows(rowsWithParentsExpanded) {
-      const rows = [];
-      let currentOffset = 0;
+    getVisibleRowsAndCompensation(rowsWithParentsExpanded) {
+      const visibleRows = [];
+      let currentChartOffset = 0;
       let rowOffset = 0;
       const scrollTop = state.get('config.scroll.top');
       const height = state.get('_internal.height');
+      let chartViewBottom = 0;
+      let compensation = 0;
       for (const row of rowsWithParentsExpanded) {
-        if (currentOffset + row.height > scrollTop && currentOffset < scrollTop + height) {
+        chartViewBottom = scrollTop + height;
+        if (currentChartOffset + row.height > scrollTop && currentChartOffset < chartViewBottom) {
           row.top = rowOffset;
+          compensation = row.top + scrollTop - currentChartOffset;
           rowOffset += row.height;
-          rows.push(row);
+          visibleRows.push(row);
         }
-        if (currentOffset > scrollTop + height) {
+        currentChartOffset += row.height;
+        if (currentChartOffset >= chartViewBottom) {
           break;
         }
-        currentOffset += row.height;
       }
-      return rows;
+      return { visibleRows, compensation };
     },
 
     /**

@@ -91,8 +91,9 @@ export default function ItemMovement(options = {}) {
       if (options.ghostNode) {
         const movement = getMovement(data);
         const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
+        const compensation = state.get('config.scroll.compensation');
         movement.ghost.style.left = left + 'px';
-        movement.ghost.style.top = ev.y - movement.ganttTop - movement.itemTop + 'px';
+        movement.ghost.style.top = ev.y - movement.ganttTop - movement.itemTop + compensation + 'px';
       }
     }
 
@@ -141,6 +142,7 @@ export default function ItemMovement(options = {}) {
     }
 
     function labelMouseDown(ev) {
+      ev.stopPropagation();
       if (ev.button !== 0) {
         return;
       }
@@ -160,10 +162,10 @@ export default function ItemMovement(options = {}) {
     }
 
     function resizerMouseDown(ev) {
+      ev.stopPropagation();
       if (ev.button !== 0) {
         return;
       }
-      ev.stopPropagation();
       const movement = getMovement(data);
       movement.resizing = true;
       const item = state.get(`config.chart.items.${data.item.id}`);
@@ -209,6 +211,7 @@ export default function ItemMovement(options = {}) {
     }
 
     function movementX(ev, row, item, zoom, timePerPixel) {
+      ev.stopPropagation();
       const movement = getMovement(data);
       const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
       moveGhost(data, ev);
@@ -228,6 +231,7 @@ export default function ItemMovement(options = {}) {
     }
 
     function resizeX(ev, row, item, zoom, timePerPixel) {
+      ev.stopPropagation();
       if (!isResizeable(data)) {
         return;
       }
@@ -253,13 +257,15 @@ export default function ItemMovement(options = {}) {
     }
 
     function movementY(ev, row, item, zoom, timePerPixel) {
+      ev.stopPropagation();
       moveGhost(data, ev);
       const movement = getMovement(data);
       const top = ev.y - movement.ganttTop;
       const visibleRows = state.get('_internal.list.visibleRows');
+      const compensation = state.get('config.scroll.compensation');
       let index = 0;
       for (const currentRow of visibleRows) {
-        if (currentRow.top > top) {
+        if (currentRow.top + compensation > top) {
           if (index > 0) {
             return index - 1;
           }
@@ -274,6 +280,7 @@ export default function ItemMovement(options = {}) {
       const movement = getMovement(data);
       let item, rowId, row, zoom, timePerPixel;
       if (movement.moving || movement.resizing) {
+        ev.stopPropagation();
         item = state.get(`config.chart.items.${data.item.id}`);
         rowId = state.get(`config.chart.items.${data.item.id}.rowId`);
         row = state.get(`config.list.rows.${rowId}`);
@@ -314,6 +321,9 @@ export default function ItemMovement(options = {}) {
 
     function documentMouseUp(ev) {
       const movement = getMovement(data);
+      if (movement.moving || movement.resizing) {
+        ev.stopPropagation();
+      }
       movement.moving = false;
       movement.resizing = false;
       for (const itemId in movementState) {
@@ -323,9 +333,9 @@ export default function ItemMovement(options = {}) {
       }
     }
     element.addEventListener('mousedown', labelMouseDown);
-    resizerEl.addEventListener('mousedown', resizerMouseDown);
-    document.addEventListener('mousemove', documentMouseMove);
-    document.addEventListener('mouseup', documentMouseUp);
+    resizerEl.addEventListener('mousedown', resizerMouseDown, { capture: true });
+    document.addEventListener('mousemove', documentMouseMove, { capture: true, passive: true });
+    document.addEventListener('mouseup', documentMouseUp, { capture: true, passive: true });
     return {
       update(node, changedData) {
         data = changedData;

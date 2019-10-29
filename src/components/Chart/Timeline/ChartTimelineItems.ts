@@ -38,6 +38,13 @@ export default function ChartTimelineItems(vido) {
     )
   );
 
+  let style = 'top:0px;';
+  onDestroy(
+    state.subscribe('config.scroll.compensation', compensation => {
+      style = `top: ${compensation}px;`;
+    })
+  );
+
   onDestroy(() => {
     rowsComponents.forEach(row => row.destroy());
   });
@@ -45,7 +52,7 @@ export default function ChartTimelineItems(vido) {
   return props =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, { api, state })}>
+        <div class=${className} style=${style} data-actions=${actions(componentActions, { api, state })}>
           ${rowsComponents.map(r => r.html())}
         </div>
       `,

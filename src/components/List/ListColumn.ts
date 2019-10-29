@@ -32,7 +32,7 @@ export default function ListColumn(vido, { columnId }) {
   const rowsComponentName = componentName + '-rows';
   const componentActions = api.getActions(componentName);
   const rowsActions = api.getActions(rowsComponentName);
-  let className, classNameContainer, calculatedWidth, width, styleContainer;
+  let className, classNameContainer, calculatedWidth, width, styleContainer, styleScrollCompensation;
 
   onDestroy(
     state.subscribe('config.classNames', value => {
@@ -60,14 +60,16 @@ export default function ListColumn(vido, { columnId }) {
         'config.list.columns.percent',
         'config.list.columns.resizer.width',
         `config.list.columns.data.${column.id}.width`,
-        'config.height',
-        'config.headerHeight'
+        '_internal.height',
+        'config.scroll.compensation'
       ],
       bulk => {
         const list = state.get('config.list');
+        const compensation = state.get('config.scroll.compensation');
         calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
         width = `width: ${calculatedWidth + list.columns.resizer.width}px`;
-        styleContainer = `height: ${state.get('config.height')}px`;
+        styleContainer = `height: ${state.get('_internal.height')}px;`;
+        styleScrollCompensation = `margin-top:${compensation}px;`;
       },
       { bulk: true }
     )
@@ -86,7 +88,9 @@ export default function ListColumn(vido, { columnId }) {
         >
           ${ListColumnHeader.html()}
           <div class=${classNameContainer} style=${styleContainer} data-actions=${actions(rowsActions, { api, state })}>
-            ${visibleRows.map(row => row.html())}
+            <div class=${classNameContainer + '--scroll-compensation'} style=${styleScrollCompensation}>
+              ${visibleRows.map(row => row.html())}
+            </div>
           </div>
         </div>
       `,

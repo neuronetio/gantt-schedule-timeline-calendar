@@ -43,7 +43,7 @@ export default function ListColumnHeader(vido, { columnId }) {
       const value = state.get('config');
       className = api.getClass(componentName, { column });
       contentClass = api.getClass(componentName + '-content', { column });
-      style = `--height: ${value.headerHeight}px;`;
+      style = `--height: ${value.headerHeight}px;height:${value.headerHeight}px;`;
       update();
     })
   );

@@ -23,7 +23,7 @@
       <button id="change-something">Change something</button>
     </div>
     <div id="app"></div>
-    <script src="../DependencyLines.plugin.js"></script>
+    <script src="../ItemMovement.plugin.js"></script>
     <script src="../index.umd.js"></script>
     <script>
       const iterations = 1000;
@@ -32,21 +32,10 @@
       for (let i = 0; i < iterations; i++) {
         const withParent = i > 0 && i % 2 === 0;
         const id = i.toString();
-        let startDayjs = GSTC.api
-          .date()
-          .startOf('day')
-          .add(i - iterations / 2, 'days');
         rows[id] = {
           id,
           label: 'row id ' + i,
           progress: 50,
-          time: {
-            start: startDayjs.valueOf(),
-            end: startDayjs
-              .clone()
-              .add(4, 'days')
-              .valueOf()
-          },
           parentId: withParent ? (i - 1).toString() : undefined,
           expanded: false
         };
@@ -58,7 +47,7 @@
         let startDayjs = GSTC.api
           .date()
           .startOf('day')
-          .add(i - iterations / 2, 'days');
+          .add(Math.floor(Math.random() * 100), 'days');
         items[id] = {
           id,
           label: 'item id ' + i,
@@ -98,26 +87,6 @@
               content: 'Label'
             }
           },
-          start: {
-            id: 'start',
-            data(row) {
-              return GSTC.api.date(row.time.start).format('YYYY-MM-DD');
-            },
-            width: 100,
-            header: {
-              content: 'Start'
-            }
-          },
-          due: {
-            id: 'due',
-            data(row) {
-              return GSTC.api.date(row.time.end).format('YYYY-MM-DD');
-            },
-            width: 100,
-            header: {
-              content: 'Due'
-            }
-          },
           progress: {
             id: 'progress',
             data: 'progress',
@@ -130,7 +99,13 @@
       };
 
       const config = {
-        //plugins: [DependencyLines()],
+        plugins: [
+          ItemMovement({
+            moveable: true,
+            resizeable: true,
+            collisionDetection: true
+          })
+        ],
         height: 40 * 12 + 94,
         list: {
           rows,
