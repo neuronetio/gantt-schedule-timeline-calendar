@@ -316,7 +316,7 @@ export function getInternalApi(state) {
       x *= scale;
       y *= scale;
       z *= scale;
-      return { x, y, z };
+      return { x, y, z, event };
     },
 
     limitScroll(which, scroll) {

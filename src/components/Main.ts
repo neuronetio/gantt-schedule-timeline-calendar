@@ -262,8 +262,6 @@ export default function Main(vido) {
   let scrollTop = 0;
   const onScroll = {
     handleEvent(event) {
-      event.stopPropagation();
-      event.preventDefault();
       const top = event.target.scrollTop;
       if (scrollTop !== top)
         state.update(
@@ -281,9 +279,17 @@ export default function Main(vido) {
           { only: ['top', 'percent.top'] }
         );
     },
-    passive: false,
-    capture: true
+    passive: true
   };
+
+  /**
+   * Stop scroll / wheel to sink into parent elements
+   * @param Event event
+   */
+  function onScrollStop(event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
 
   const dimensions = { width: 0, height: 0 };
   let ro;
@@ -316,7 +322,13 @@ export default function Main(vido) {
   return props =>
     wrapper(
       html`
-        <div class=${className} style=${style} @scroll=${onScroll} data-actions=${actions(componentActions)}>
+        <div
+          class=${className}
+          style=${style}
+          @scroll=${onScrollStop}
+          @wheel=${onScrollStop}
+          data-actions=${actions(componentActions)}
+        >
           ${List.html()}${Chart.html()}
           <div
             class=${classNameVerticalScroll}

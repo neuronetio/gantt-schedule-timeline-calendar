@@ -43,7 +43,6 @@ export default function ChartTimelineGrid(vido) {
     state.subscribeAll(
       ['_internal.list.visibleRows;', `_internal.chart.time.dates.${period};`],
       function generateBlocks() {
-        //console.profile('generate blocks');
         const visibleRows = state.get('_internal.list.visibleRows');
         const periodDates = state.get(`_internal.chart.time.dates.${period}`);
         if (!periodDates || periodDates.length === 0) {
@@ -60,7 +59,6 @@ export default function ChartTimelineGrid(vido) {
           top += row.height;
         }
         reuseComponents(rowsComponents, rowsAndBlocks, row => row, GridRowComponent);
-        //console.profileEnd();
         update();
       },
       { bulk: true }

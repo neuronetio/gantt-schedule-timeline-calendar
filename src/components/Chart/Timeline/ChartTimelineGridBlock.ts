@@ -21,42 +21,40 @@ export default function ChartTimelineGridBlock(vido, props) {
     })
   );
 
+  const currentTime = api.time
+    .date()
+    .startOf('day')
+    .valueOf();
   let className;
   function updateClassName(time) {
     className = api.getClass(componentName);
-    if (
-      time.leftGlobal ===
-      api.time
-        .date()
-        .startOf('day')
-        .valueOf()
-    ) {
+    if (time.leftGlobal === currentTime) {
       className += ' current';
     }
   }
   updateClassName(props.time);
-
   let style = `width: ${props.time.width}px;height: 100%;margin-left:-${props.time.subPx}px;`;
   onChange(changedProps => {
     props = changedProps;
     updateClassName(props.time);
     style = `width: ${props.time.width}px; height: 100%; margin-left:-${props.time.subPx}px; `;
+    const rows = state.get('config.list.rows');
     for (const parentId of props.row._internal.parents) {
-      const parent = state.get('config.list.rows.' + parentId);
-      if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
-        if (typeof parent.style.gridBlock === 'object' && parent.style.gridBlock.constructor.name === 'Object') {
-          if (typeof parent.style.gridBlock.children === 'string') {
-            style += parent.style.gridBlock.children;
-          }
-        }
+      const parent = rows[parentId];
+      if (
+        typeof parent.style === 'object' &&
+        typeof parent.style.gridBlock === 'object' &&
+        typeof parent.style.gridBlock.children === 'string'
+      ) {
+        style += parent.style.gridBlock.children;
       }
     }
-    if (typeof props.row.style === 'object' && props.row.style.constructor.name === 'Object') {
-      if (typeof props.row.style.gridBlock === 'object' && props.row.style.gridBlock.constructor.name === 'Object') {
-        if (typeof props.row.style.gridBlock.current === 'string') {
-          style += props.row.style.gridBlock.current;
-        }
-      }
+    if (
+      typeof props.row.style === 'object' &&
+      typeof props.row.style.gridBlock === 'object' &&
+      typeof props.row.style.gridBlock.current === 'string'
+    ) {
+      style += props.row.style.gridBlock.current;
     }
     update();
   });
