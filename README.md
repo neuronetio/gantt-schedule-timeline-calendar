@@ -29,7 +29,7 @@ You can control almost everything. You can change html structure, stylize every 
 
 ## usage example
 
-[example](https://neuronet.io/gantt-schedule-timeline-calendar/scheduler.html)
+[example](https://neuronet.io/gantt-schedule-timeline-calendar/scheduler.html) or [another example](https://neuronet.io/gantt-schedule-timeline-calendar/main.html)
 
 ```javascript
 // GENERATE OR FETCH SOME DATA
