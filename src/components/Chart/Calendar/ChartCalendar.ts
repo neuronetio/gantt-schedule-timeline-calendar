@@ -8,8 +8,8 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-export default function ChartCalendar(vido) {
-  const { api, state, onDestroy, actions, update, createComponent, html, repeat } = vido;
+export default function ChartCalendar(vido, props) {
+  const { api, state, onDestroy, actions, update, reuseComponents, html, repeat } = vido;
   const componentName = 'chart-calendar';
   const componentActions = api.getActions(componentName);
 
@@ -45,30 +45,26 @@ export default function ChartCalendar(vido) {
     state.subscribe(`_internal.chart.time.dates.${period}`, value => {
       if (value) {
         periodDates = value;
-        periodDatesComponents.forEach(date => date.component.destroy());
-        periodDatesComponents = [];
-        for (const date of periodDates) {
-          periodDatesComponents.push({ id: date.id, component: createComponent(ChartCalendarDateComponent, { date }) });
-        }
+        reuseComponents(periodDatesComponents, periodDates, date => ({ date }), ChartCalendarDateComponent);
         update();
       }
     })
   );
   onDestroy(() => {
-    periodDatesComponents.forEach(date => date.component.destroy());
+    periodDatesComponents.forEach(c => c.destroy());
   });
 
   componentActions.push(element => {
     state.update('_internal.elements.calendar', element);
   });
 
-  return props =>
+  return templateProps =>
     wrapper(
       html`
         <div class=${className} data-actions=${actions(componentActions)} style=${style}>
-          ${repeat(periodDatesComponents, d => d.id, d => d.component.html())}
+          ${periodDatesComponents.map(d => d.html())}
         </div>
       `,
-      { props: {}, vido, templateProps: props }
+      { props, vido, templateProps }
     );
 }

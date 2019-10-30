@@ -8,8 +8,8 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-export default function ChartCalendarDate(vido, { date }) {
-  const { api, state, onDestroy, actions, update, html } = vido;
+export default function ChartCalendarDate(vido, props) {
+  const { api, state, onDestroy, actions, update, onChange, html } = vido;
 
   const componentName = 'chart-calendar-date';
   const componentActions = api.getActions(componentName);
@@ -23,45 +23,51 @@ export default function ChartCalendarDate(vido, { date }) {
     formattedMonthClassName,
     formattedDayClassName,
     formattedDayWordClassName;
-  onDestroy(
-    state.subscribe('config.classNames', () => {
-      className = api.getClass(componentName, { date });
-      if (api.time.date(date.leftGlobal).format('YYYY-MM-DD') === api.time.date().format('YYYY-MM-DD')) {
-        className += ' current';
-      }
-      if (
-        api.time
-          .date(date.leftGlobal)
-          .subtract(1, 'day')
-          .format('YYYY-MM-DD') === api.time.date().format('YYYY-MM-DD')
-      ) {
-        className += ' next';
-      }
-      if (
-        api.time
-          .date(date.leftGlobal)
-          .add(1, 'day')
-          .format('YYYY-MM-DD') === api.time.date().format('YYYY-MM-DD')
-      ) {
-        className += ' previous';
-      }
-      formattedClassName = api.getClass(`${componentName}-formatted`, { date });
-      formattedYearClassName = api.getClass(`${componentName}-formatted-year`, { date });
-      formattedMonthClassName = api.getClass(`${componentName}-formatted-month`, { date });
-      formattedDayClassName = api.getClass(`${componentName}-formatted-day`, { date });
-      formattedDayWordClassName = api.getClass(`${componentName}-formatted-day-word`, { date });
-      update();
-    })
-  );
+
+  const current = api.time.date().format('YYYY-MM-DD');
+
+  let classNamesSub = state.subscribe('config.classNames', () => {
+    className = api.getClass(componentName, props);
+    if (api.time.date(props.date.leftGlobal).format('YYYY-MM-DD') === api.time.date().format('YYYY-MM-DD')) {
+      className += ' current';
+    }
+    if (
+      api.time
+        .date(props.date.leftGlobal)
+        .subtract(1, 'day')
+        .format('YYYY-MM-DD') === current
+    ) {
+      className += ' next';
+    }
+    if (
+      api.time
+        .date(props.date.leftGlobal)
+        .add(1, 'day')
+        .format('YYYY-MM-DD') === current
+    ) {
+      className += ' previous';
+    }
+    formattedClassName = api.getClass(`${componentName}-formatted`, props);
+    formattedYearClassName = api.getClass(`${componentName}-formatted-year`, props);
+    formattedMonthClassName = api.getClass(`${componentName}-formatted-month`, props);
+    formattedDayClassName = api.getClass(`${componentName}-formatted-day`, props);
+    formattedDayWordClassName = api.getClass(`${componentName}-formatted-day-word`, props);
+    update();
+  });
 
   let time, small, smallFormatted, year, month, day, dayWord, style, daySize;
-  onDestroy(
-    state.subscribeAll(
+  let timeSub;
+  onChange(changedProps => {
+    props = changedProps;
+    timeSub = state.subscribeAll(
       ['_internal.chart.time', 'config.chart.calendar.vertical.smallFormat'],
       function updateDate() {
+        if (timeSub) {
+          timeSub();
+        }
         time = state.get('_internal.chart.time');
         daySize = time.zoom <= 22 ? 18 : 13;
-        const dateMod = api.time.date(date.leftGlobal);
+        const dateMod = api.time.date(props.date.leftGlobal);
         const maxWidth = time.maxWidth[time.period];
         small = maxWidth <= 40;
         const smallFormat = state.get('config.chart.calendar.vertical.smallFormat');
@@ -78,17 +84,26 @@ export default function ChartCalendarDate(vido, { date }) {
         } else if (maxWidth <= 150) {
           dayWord = dateMod.format('ddd');
         }
-        style = `width: ${date.width}px; margin-left:-${date.subPx}px; --day-size: ${daySize}px`;
+        style = `width: ${props.date.width}px; margin-left:-${props.date.subPx}px; --day-size: ${daySize}px`;
         update();
       },
       { bulk: true }
-    )
-  );
+    );
+  });
 
-  return props =>
+  onDestroy(() => {
+    classNamesSub();
+    timeSub();
+  });
+
+  return templateProps =>
     wrapper(
       html`
-        <div class=${className} style=${style} data-actions=${actions(componentActions, { date, api, state })}>
+        <div
+          class=${className}
+          style=${style}
+          data-actions=${actions(componentActions, { date: props.date, api, state })}
+        >
           ${small
             ? html`
                 <div class=${formattedClassName} style="transform: rotate(90deg);">
@@ -105,6 +120,6 @@ export default function ChartCalendarDate(vido, { date }) {
               `}
         </div>
       `,
-      { props: {}, vido, templateProps: props }
+      { props, vido, templateProps }
     );
 }

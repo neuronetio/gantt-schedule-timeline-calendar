@@ -342,11 +342,11 @@ var H=function(t){if(!Symbol.asyncIterator)throw new TypeError("Symbol.asyncIter
      * @package   gantt-schedule-timeline-calendar
      * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
-     */function Ft(t){const{api:e,state:n,onDestroy:s,actions:i,update:o,createComponent:r,html:a,repeat:l}=t,c=e.getActions("chart-calendar"),d=n.get("config.components.ChartCalendarDate");let u,h;s(n.subscribe("config.wrappers.ChartCalendar",t=>u=t)),s(n.subscribe("config.classNames",t=>{h=e.getClass("chart-calendar"),o()}));let p,f,m="";s(n.subscribe("config.headerHeight",t=>{m=`height: ${p=t}px;`,o()})),s(n.subscribe("config.chart.time.period",t=>f=t));let g,b=[];return s(n.subscribe(`_internal.chart.time.dates.${f}`,t=>{if(t){g=t,b.forEach(t=>t.component.destroy()),b=[];for(const t of g)b.push({id:t.id,component:r(d,{date:t})});o()}})),s(()=>{b.forEach(t=>t.component.destroy())}),c.push(t=>{n.update("_internal.elements.calendar",t)}),e=>u(a`
-        <div class=${h} data-actions=${i(c)} style=${m}>
-          ${l(b,t=>t.id,t=>t.component.html())}
+     */function Ft(t,e){const{api:n,state:s,onDestroy:i,actions:o,update:r,reuseComponents:a,html:l,repeat:c}=t,d=n.getActions("chart-calendar"),u=s.get("config.components.ChartCalendarDate");let h,p;i(s.subscribe("config.wrappers.ChartCalendar",t=>h=t)),i(s.subscribe("config.classNames",t=>{p=n.getClass("chart-calendar"),r()}));let f,m,g="";i(s.subscribe("config.headerHeight",t=>{g=`height: ${f=t}px;`,r()})),i(s.subscribe("config.chart.time.period",t=>m=t));let b,v=[];return i(s.subscribe(`_internal.chart.time.dates.${m}`,t=>{t&&(a(v,b=t,t=>({date:t}),u),r())})),i(()=>{v.forEach(t=>t.destroy())}),d.push(t=>{s.update("_internal.elements.calendar",t)}),n=>h(l`
+        <div class=${p} data-actions=${o(d)} style=${g}>
+          ${v.map(t=>t.html())}
         </div>
-      `,{props:{},vido:t,templateProps:e})}
+      `,{props:e,vido:t,templateProps:n})}
 /**
      * ChartCalendarDate component
      *
@@ -355,22 +355,26 @@ var H=function(t){if(!Symbol.asyncIterator)throw new TypeError("Symbol.asyncIter
      * @package   gantt-schedule-timeline-calendar
      * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
-     */function Ut(t,{date:e}){const{api:n,state:s,onDestroy:i,actions:o,update:r,html:a}=t,l="chart-calendar-date",c=n.getActions(l);let d,u,h,p,f,m,g,b,v,y,w,_,$,x,C,M;return i(s.subscribe("config.wrappers.ChartCalendarDate",t=>d=t)),i(s.subscribe("config.classNames",()=>{u=n.getClass(l,{date:e}),n.time.date(e.leftGlobal).format("YYYY-MM-DD")===n.time.date().format("YYYY-MM-DD")&&(u+=" current"),n.time.date(e.leftGlobal).subtract(1,"day").format("YYYY-MM-DD")===n.time.date().format("YYYY-MM-DD")&&(u+=" next"),n.time.date(e.leftGlobal).add(1,"day").format("YYYY-MM-DD")===n.time.date().format("YYYY-MM-DD")&&(u+=" previous"),h=n.getClass(`${l}-formatted`,{date:e}),p=n.getClass(`${l}-formatted-year`,{date:e}),f=n.getClass(`${l}-formatted-month`,{date:e}),m=n.getClass(`${l}-formatted-day`,{date:e}),g=n.getClass(`${l}-formatted-day-word`,{date:e}),r()})),i(s.subscribeAll(["_internal.chart.time","config.chart.calendar.vertical.smallFormat"],(function(){b=s.get("_internal.chart.time"),M=b.zoom<=22?18:13;const t=n.time.date(e.leftGlobal),i=b.maxWidth[b.period];v=i<=40;const o=s.get("config.chart.calendar.vertical.smallFormat");y=t.format(o),w=t.format("YYYY"),_=t.format("MMMM"),$=t.format("DD"),x=t.format("dddd"),i<=70?(w=t.format("YY"),_=t.format("MMM"),$=t.format("DD"),x=t.format("ddd")):i<=150&&(x=t.format("ddd")),C=`width: ${e.width}px; margin-left:-${e.subPx}px; --day-size: ${M}px`,r()}),{bulk:!0})),i=>d(a`
-        <div class=${u} style=${C} data-actions=${o(c,{date:e,api:n,state:s})}>
-          ${v?a`
-                <div class=${h} style="transform: rotate(90deg);">
-                  ${y}
+     */function Ut(t,e){const{api:n,state:s,onDestroy:i,actions:o,update:r,onChange:a,html:l}=t,c="chart-calendar-date",d=n.getActions(c);let u,h,p,f,m,g,b;i(s.subscribe("config.wrappers.ChartCalendarDate",t=>u=t));const v=n.time.date().format("YYYY-MM-DD");let y,w,_,$,x,C,M,P,T,A,O=s.subscribe("config.classNames",()=>{h=n.getClass(c,e),n.time.date(e.date.leftGlobal).format("YYYY-MM-DD")===n.time.date().format("YYYY-MM-DD")&&(h+=" current"),n.time.date(e.date.leftGlobal).subtract(1,"day").format("YYYY-MM-DD")===v&&(h+=" next"),n.time.date(e.date.leftGlobal).add(1,"day").format("YYYY-MM-DD")===v&&(h+=" previous"),p=n.getClass(`${c}-formatted`,e),f=n.getClass(`${c}-formatted-year`,e),m=n.getClass(`${c}-formatted-month`,e),g=n.getClass(`${c}-formatted-day`,e),b=n.getClass(`${c}-formatted-day-word`,e),r()});return a(t=>{e=t,A=s.subscribeAll(["_internal.chart.time","config.chart.calendar.vertical.smallFormat"],(function(){A&&A(),y=s.get("_internal.chart.time"),T=y.zoom<=22?18:13;const t=n.time.date(e.date.leftGlobal),i=y.maxWidth[y.period];w=i<=40;const o=s.get("config.chart.calendar.vertical.smallFormat");_=t.format(o),$=t.format("YYYY"),x=t.format("MMMM"),C=t.format("DD"),M=t.format("dddd"),i<=70?($=t.format("YY"),x=t.format("MMM"),C=t.format("DD"),M=t.format("ddd")):i<=150&&(M=t.format("ddd")),P=`width: ${e.date.width}px; margin-left:-${e.date.subPx}px; --day-size: ${T}px`,r()}),{bulk:!0})}),i(()=>{O(),A()}),i=>u(l`
+        <div
+          class=${h}
+          style=${P}
+          data-actions=${o(d,{date:e.date,api:n,state:s})}
+        >
+          ${w?l`
+                <div class=${p} style="transform: rotate(90deg);">
+                  ${_}
                 </div>
-              `:a`
-                <div class=${h}>
-                  <div class=${p}>${w}</div>
-                  <div class=${f}>${_}</div>
-                  <div class=${m}>${$}</div>
-                  <div class=${g}>${x}</div>
+              `:l`
+                <div class=${p}>
+                  <div class=${f}>${$}</div>
+                  <div class=${m}>${x}</div>
+                  <div class=${g}>${C}</div>
+                  <div class=${b}>${M}</div>
                 </div>
               `}
         </div>
-      `,{props:{},vido:t,templateProps:i})}
+      `,{props:e,vido:t,templateProps:i})}
 /**
      * ChartTimeline component
      *
