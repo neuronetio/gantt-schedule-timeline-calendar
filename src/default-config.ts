@@ -20,8 +20,8 @@ import ChartCalendar from './components/Chart/Calendar/ChartCalendar';
 import ChartCalendarDate from './components/Chart/Calendar/ChartCalendarDate';
 import ChartTimeline from './components/Chart/Timeline/ChartTimeline';
 import ChartTimelineGrid from './components/Chart/Timeline/ChartTimelineGrid';
-import ChartTimelineGridBlock from './components/Chart/Timeline/ChartTimelineGridBlock';
 import ChartTimelineGridRow from './components/Chart/Timeline/ChartTimelineGridRow';
+import ChartTimelineGridRowBlock from './components/Chart/Timeline/ChartTimelineGridRowBlock';
 import ChartTimelineItems from './components/Chart/Timeline/ChartTimelineItems';
 import ChartTimelineItemsRow from './components/Chart/Timeline/ChartTimelineItemsRow';
 import ChartTimelineItemsRowItem from './components/Chart/Timeline/ChartTimelineItemsRowItem';
@@ -41,11 +41,10 @@ export const actionNames = [
   'chart-timeline',
   'chart-timeline-grid',
   'chart-timeline-grid-row',
+  'chart-timeline-grid-row-block',
   'chart-timeline-items',
   'chart-timeline-items-row',
-  'chart-timeline-items-row-item',
-  'chart-timeline-grid-column',
-  'chart-timeline-grid-block'
+  'chart-timeline-items-row-item'
 ];
 
 function generateEmptyActions() {
@@ -74,8 +73,8 @@ function defaultConfig() {
       ChartCalendarDate,
       ChartTimeline,
       ChartTimelineGrid,
-      ChartTimelineGridBlock,
       ChartTimelineGridRow,
+      ChartTimelineGridRowBlock,
       ChartTimelineItems,
       ChartTimelineItemsRow,
       ChartTimelineItemsRowItem
@@ -120,10 +119,10 @@ function defaultConfig() {
       ChartTimelineGrid(input) {
         return input;
       },
-      ChartTimelineGridBlock(input) {
+      ChartTimelineGridRow(input) {
         return input;
       },
-      ChartTimelineGridRow(input) {
+      ChartTimelineGridRowBlock(input) {
         return input;
       },
       ChartTimelineItems(input) {

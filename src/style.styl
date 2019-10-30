@@ -186,8 +186,17 @@ $item-content-padding = 5px
           display: flex
           text-align:center
           user-select: none
-          &:nth-child(even)
-            //background: $bg-dark-2
+          &-block
+            flex-grow: 0
+            flex-shrink: 0
+            margin: auto 0
+            vertical-align: middle
+            overflow: hidden
+            border-right: 1px solid $bg-dark-2
+            border-bottom: 1px solid $bg-dark-2
+            will-change: margin-left
+            &.current
+              background: $bg-dark-2
         &-column
           overflow: hidden
           position: absolute
@@ -195,17 +204,6 @@ $item-content-padding = 5px
           top: 0px
           border-right: 1px solid $bg-dark-2
           pointer-events: none
-        &-block
-          flex-grow: 0
-          flex-shrink: 0
-          margin: auto 0
-          vertical-align: middle
-          overflow: hidden
-          border-right: 1px solid $bg-dark-2
-          border-bottom: 1px solid $bg-dark-2
-          will-change: margin-left
-          &.current
-            background: $bg-dark-2
       &-dependency-lines
         position: absolute
         left: 0

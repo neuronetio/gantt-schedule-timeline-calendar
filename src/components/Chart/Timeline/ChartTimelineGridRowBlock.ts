@@ -1,5 +1,5 @@
 /**
- * ChartTimelineGridBlock component
+ * ChartTimelineGridRowBlock component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -8,14 +8,14 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-export default function ChartTimelineGridBlock(vido, props) {
+export default function ChartTimelineGridRowBlock(vido, props) {
   const { api, state, onDestroy, actions, update, html, onChange } = vido;
-  const componentName = 'chart-timeline-grid-block';
+  const componentName = 'chart-timeline-grid-row-block';
   const componentActions = api.getActions(componentName);
 
   let wrapper;
   onDestroy(
-    state.subscribe('config.wrappers.ChartTimelineGridBlock', value => {
+    state.subscribe('config.wrappers.ChartTimelineGridRowBlock', value => {
       wrapper = value;
       update();
     })

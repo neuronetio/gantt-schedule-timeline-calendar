@@ -20,7 +20,7 @@ export default function ChartTimelineGridRow(vido, { row, blocks, top }) {
     })
   );
 
-  const GridBlockComponent = state.get('config.components.ChartTimelineGridBlock');
+  const GridBlockComponent = state.get('config.components.ChartTimelineGridRowBlock');
 
   const componentActions = api.getActions(componentName);
   let className = api.getClass(componentName);
