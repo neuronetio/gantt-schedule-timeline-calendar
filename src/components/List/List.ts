@@ -94,7 +94,7 @@ export default function List(vido) {
     };
   });
 
-  return props =>
+  return templateProps =>
     wrapper(
       list.columns.percent > 0
         ? html`
@@ -109,6 +109,6 @@ export default function List(vido) {
             </div>
           `
         : null,
-      { vido, props: {}, templateProps: props }
+      { vido, props: {}, templateProps }
     );
 }

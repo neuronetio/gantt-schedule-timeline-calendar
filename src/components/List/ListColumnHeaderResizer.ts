@@ -8,7 +8,7 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-export default function ListColumnHeaderResizer(vido, { columnId }) {
+export default function ListColumnHeaderResizer(vido, props) {
   const { api, state, onDestroy, update, html, actions } = vido;
 
   const componentName = 'list-column-header-resizer';
@@ -19,7 +19,7 @@ export default function ListColumnHeaderResizer(vido, { columnId }) {
 
   let column;
   onDestroy(
-    state.subscribe(`config.list.columns.data.${columnId}`, val => {
+    state.subscribe(`config.list.columns.data.${props.columnId}`, val => {
       column = val;
       update();
     })
@@ -111,7 +111,7 @@ export default function ListColumnHeaderResizer(vido, { columnId }) {
   document.body.addEventListener('mouseup', onMouseUp);
   onDestroy(() => document.body.removeEventListener('mouseup', onMouseUp));
 
-  return props =>
+  return templateProps =>
     wrapper(
       html`
         <div class=${className} data-actions=${actions(componentActions, { column, api, state })}>
@@ -132,6 +132,6 @@ export default function ListColumnHeaderResizer(vido, { columnId }) {
           </div>
         </div>
       `,
-      { vido, props: { columnId }, temlateProps: props }
+      { vido, props, templateProps }
     );
 }

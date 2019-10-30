@@ -8,7 +8,7 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-export default function ListColumnHeader(vido, { columnId }) {
+export default function ListColumnHeader(vido, props) {
   const { api, state, onDestroy, actions, update, createComponent, html } = vido;
 
   let wrapper;
@@ -21,7 +21,7 @@ export default function ListColumnHeader(vido, { columnId }) {
   onDestroy(
     state.subscribe('config.components.ListColumnHeaderResizer', value => (ListColumnHeaderResizerComponent = value))
   );
-  const ListColumnHeaderResizer = createComponent(ListColumnHeaderResizerComponent, { columnId });
+  const ListColumnHeaderResizer = createComponent(ListColumnHeaderResizerComponent, { columnId: props.columnId });
   onDestroy(ListColumnHeaderResizer.destroy);
 
   let ListExpanderComponent;
@@ -31,7 +31,7 @@ export default function ListColumnHeader(vido, { columnId }) {
 
   let column;
   onDestroy(
-    state.subscribe(`config.list.columns.data.${columnId}`, val => {
+    state.subscribe(`config.list.columns.data.${props.columnId}`, val => {
       column = val;
       update();
     })
@@ -64,13 +64,13 @@ export default function ListColumnHeader(vido, { columnId }) {
     `;
   }
 
-  return props =>
+  return templateProps =>
     wrapper(
       html`
         <div class=${className} style=${style} data-actions=${actions(componentActions, { column, api, state })}>
           ${typeof column.expander === 'boolean' && column.expander ? withExpander() : withoutExpander()}
         </div>
       `,
-      { vido, props: { columnId }, templateProps: props }
+      { vido, props, templateProps }
     );
 }

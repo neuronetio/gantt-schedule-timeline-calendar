@@ -199,7 +199,7 @@ var H=function(t){if(!Symbol.asyncIterator)throw new TypeError("Symbol.asyncIter
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function Ht(t,{columnId:e}){const{api:n,state:s,onDestroy:i,actions:o,update:r,createComponent:a,reuseComponents:l,html:c}=t;let d,u,h;i(s.subscribe("config.wrappers.ListColumn",t=>d=t)),i(s.subscribe("config.components.ListColumnRow",t=>u=t)),i(s.subscribe("config.components.ListColumnHeader",t=>h=t));let p,f=`config.list.columns.data.${e}`;i(s.subscribe(f,t=>{p=t,r()}));const m=n.getActions("list-column"),g=n.getActions("list-column-rows");let v,b,y,w,_,$;i(s.subscribe("config.classNames",t=>{v=n.getClass("list-column",{column:p}),b=n.getClass("list-column-rows",{column:p}),r()}));let x=[];i(s.subscribe("_internal.list.visibleRows;",t=>{l(x,t,t=>({columnId:e,rowId:t.id}),u),r()})),i(()=>{x.forEach(t=>t.destroy())}),i(s.subscribeAll(["config.list.columns.percent","config.list.columns.resizer.width",`config.list.columns.data.${p.id}.width`,"_internal.height","config.scroll.compensation"],t=>{const e=s.get("config.list"),n=s.get("config.scroll.compensation");y=e.columns.data[p.id].width*e.columns.percent*.01,w=`width: ${y+e.columns.resizer.width}px`,_=`height: ${s.get("_internal.height")}px;`,$=`margin-top:${n}px;`},{bulk:!0}));const C=a(h,{columnId:e});return i(C.destroy),i=>d(c`
+ */function Ht(t,e){const{api:n,state:s,onDestroy:i,actions:o,update:r,createComponent:a,reuseComponents:l,html:c}=t;let d,u,h;i(s.subscribe("config.wrappers.ListColumn",t=>d=t)),i(s.subscribe("config.components.ListColumnRow",t=>u=t)),i(s.subscribe("config.components.ListColumnHeader",t=>h=t));let p,f=`config.list.columns.data.${e.columnId}`;i(s.subscribe(f,t=>{p=t,r()}));const m=n.getActions("list-column"),g=n.getActions("list-column-rows");let v,b,y,w,_,$;i(s.subscribe("config.classNames",t=>{v=n.getClass("list-column",{column:p}),b=n.getClass("list-column-rows",{column:p}),r()}));let x=[];i(s.subscribe("_internal.list.visibleRows;",t=>{l(x,t,t=>({columnId:e.columnId,rowId:t.id}),u),r()})),i(()=>{x.forEach(t=>t.destroy())}),i(s.subscribeAll(["config.list.columns.percent","config.list.columns.resizer.width",`config.list.columns.data.${p.id}.width`,"_internal.height","config.scroll.compensation"],t=>{const e=s.get("config.list"),n=s.get("config.scroll.compensation");y=e.columns.data[p.id].width*e.columns.percent*.01,w=`width: ${y+e.columns.resizer.width}px`,_=`height: ${s.get("_internal.height")}px;`,$=`margin-top:${n}px;`},{bulk:!0}));const C=a(h,{columnId:e.columnId});return i(C.destroy),i=>d(c`
         <div
           class=${v}
           data-actions=${o(m,{column:p,state:s,api:n})}
@@ -212,7 +212,7 @@ var H=function(t){if(!Symbol.asyncIterator)throw new TypeError("Symbol.asyncIter
             </div>
           </div>
         </div>
-      `,{vido:t,props:{columnId:e},templateProps:i})}
+      `,{vido:t,props:e,templateProps:i})}
 /**
  * ListColumnHeader component
  *
@@ -221,7 +221,7 @@ var H=function(t){if(!Symbol.asyncIterator)throw new TypeError("Symbol.asyncIter
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function jt(t,{columnId:e}){const{api:n,state:s,onDestroy:i,actions:o,update:r,createComponent:a,html:l}=t;let c;i(s.subscribe("config.wrappers.ListColumnHeader",t=>c=t));const d=n.getActions("list-column-header");let u;i(s.subscribe("config.components.ListColumnHeaderResizer",t=>u=t));const h=a(u,{columnId:e});let p;i(h.destroy),i(s.subscribe("config.components.ListExpander",t=>p=t));const f=a(p,{});let m,g,v,b;return i(f.destroy),i(s.subscribe(`config.list.columns.data.${e}`,t=>{m=t,r()})),i(s.subscribeAll(["config.classNames","config.headerHeight"],()=>{const t=s.get("config");g=n.getClass("list-column-header",{column:m}),v=n.getClass("list-column-header-content",{column:m}),b=`--height: ${t.headerHeight}px;height:${t.headerHeight}px;`,r()})),i=>c(l`
+ */function jt(t,e){const{api:n,state:s,onDestroy:i,actions:o,update:r,createComponent:a,html:l}=t;let c;i(s.subscribe("config.wrappers.ListColumnHeader",t=>c=t));const d=n.getActions("list-column-header");let u;i(s.subscribe("config.components.ListColumnHeaderResizer",t=>u=t));const h=a(u,{columnId:e.columnId});let p;i(h.destroy),i(s.subscribe("config.components.ListExpander",t=>p=t));const f=a(p,{});let m,g,v,b;return i(f.destroy),i(s.subscribe(`config.list.columns.data.${e.columnId}`,t=>{m=t,r()})),i(s.subscribeAll(["config.classNames","config.headerHeight"],()=>{const t=s.get("config");g=n.getClass("list-column-header",{column:m}),v=n.getClass("list-column-header-content",{column:m}),b=`--height: ${t.headerHeight}px;height:${t.headerHeight}px;`,r()})),i=>c(l`
         <div class=${g} style=${b} data-actions=${o(d,{column:m,api:n,state:s})}>
           ${"boolean"==typeof m.expander&&m.expander?l`
       <div class=${v}>
@@ -233,7 +233,7 @@ var H=function(t){if(!Symbol.asyncIterator)throw new TypeError("Symbol.asyncIter
       </div>
     `}
         </div>
-      `,{vido:t,props:{columnId:e},templateProps:i})}
+      `,{vido:t,props:e,templateProps:i})}
 /**
  * ListColumnHeaderResizer component
  *
@@ -242,7 +242,7 @@ var H=function(t){if(!Symbol.asyncIterator)throw new TypeError("Symbol.asyncIter
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function Wt(t,{columnId:e}){const{api:n,state:s,onDestroy:i,update:o,html:r,actions:a}=t,l="list-column-header-resizer",c=n.getActions(l);let d,u,h,p,f,m,g,v,b;i(s.subscribe("config.wrappers.ListColumnHeaderResizer",t=>d=t)),i(s.subscribe(`config.list.columns.data.${e}`,t=>{u=t,o()}));let y=!1;i(s.subscribe("config.classNames",t=>{h=n.getClass(l,{column:u}),p=n.getClass(l+"-container",{column:u}),f=n.getClass(l+"-dots",{column:u}),m=n.getClass(l+"-dots-dot",{column:u}),g=n.getClass(l+"-line",{column:u}),o()})),i(s.subscribeAll([`config.list.columns.data.${u.id}.width`,"config.list.columns.percent","config.list.columns.resizer.width","config.list.columns.resizer.inRealTime"],(t,e)=>{const n=s.get("config.list");v=u.width*n.columns.percent*.01,b=`width: ${n.columns.resizer.width}px`,y=n.columns.resizer.inRealTime,o()}));let w=[1,2,3,4,5,6,7,8];i(s.subscribe("config.list.columns.resizer.dots",t=>{w=[];for(let e=0;e<t;e++)w.push(e);o()}));let _=!1,$=v;const x=`config.list.columns.data.${u.id}.width`;function C(t){_=!0,s.update("_internal.list.columns.resizer.active",!0)}function M(t){if(_){let e=s.get("config.list.columns.minWidth");"number"==typeof u.minWidth&&(e=u.minWidth),($+=t.movementX)<e&&($=e),y&&s.update(x,$)}}function P(t){_&&(s.update("_internal.list.columns.resizer.active",!1),s.update(x,$),_=!1)}return document.body.addEventListener("mousemove",M),i(()=>document.body.removeEventListener("mousemove",M)),document.body.addEventListener("mouseup",P),i(()=>document.body.removeEventListener("mouseup",P)),i=>d(r`
+ */function Wt(t,e){const{api:n,state:s,onDestroy:i,update:o,html:r,actions:a}=t,l="list-column-header-resizer",c=n.getActions(l);let d,u,h,p,f,m,g,v,b;i(s.subscribe("config.wrappers.ListColumnHeaderResizer",t=>d=t)),i(s.subscribe(`config.list.columns.data.${e.columnId}`,t=>{u=t,o()}));let y=!1;i(s.subscribe("config.classNames",t=>{h=n.getClass(l,{column:u}),p=n.getClass(l+"-container",{column:u}),f=n.getClass(l+"-dots",{column:u}),m=n.getClass(l+"-dots-dot",{column:u}),g=n.getClass(l+"-line",{column:u}),o()})),i(s.subscribeAll([`config.list.columns.data.${u.id}.width`,"config.list.columns.percent","config.list.columns.resizer.width","config.list.columns.resizer.inRealTime"],(t,e)=>{const n=s.get("config.list");v=u.width*n.columns.percent*.01,b=`width: ${n.columns.resizer.width}px`,y=n.columns.resizer.inRealTime,o()}));let w=[1,2,3,4,5,6,7,8];i(s.subscribe("config.list.columns.resizer.dots",t=>{w=[];for(let e=0;e<t;e++)w.push(e);o()}));let _=!1,$=v;const x=`config.list.columns.data.${u.id}.width`;function C(t){_=!0,s.update("_internal.list.columns.resizer.active",!0)}function M(t){if(_){let e=s.get("config.list.columns.minWidth");"number"==typeof u.minWidth&&(e=u.minWidth),($+=t.movementX)<e&&($=e),y&&s.update(x,$)}}function P(t){_&&(s.update("_internal.list.columns.resizer.active",!1),s.update(x,$),_=!1)}return document.body.addEventListener("mousemove",M),i(()=>document.body.removeEventListener("mousemove",M)),document.body.addEventListener("mouseup",P),i(()=>document.body.removeEventListener("mouseup",P)),i=>d(r`
         <div class=${h} data-actions=${a(c,{column:u,api:n,state:s})}>
           <div class=${p}>
             ${u.header.html?r`
@@ -255,7 +255,7 @@ var H=function(t){if(!Symbol.asyncIterator)throw new TypeError("Symbol.asyncIter
                 `)}
           </div>
         </div>
-      `,{vido:t,props:{columnId:e},temlateProps:i})}
+      `,{vido:t,props:e,templateProps:i})}
 /**
  * ListColumnRow component
  *
@@ -264,20 +264,20 @@ var H=function(t){if(!Symbol.asyncIterator)throw new TypeError("Symbol.asyncIter
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function Yt(t,{rowId:e,columnId:n}){const{api:s,state:i,onDestroy:o,actions:r,update:a,html:l,createComponent:c,onChange:d}=t;let u,h;o(i.subscribe("config.wrappers.ListColumnRow",t=>u=t)),o(i.subscribe("config.components.ListExpander",t=>h=t));let p,f,m,g,v=`_internal.flatTreeMapById.${e}`,b=i.get(v),y=`config.list.columns.data.${n}`,w=i.get(y);d(({rowId:t,columnId:e})=>{f&&f(),m&&m(),v=`_internal.flatTreeMapById.${t}`,y=`config.list.columns.data.${e}`,f=i.subscribe(v,t=>{p=`--height: ${(b=t).height}px;`;for(let t of b._internal.parents){const e=i.get(`_internal.flatTreeMapById.${t}`);"object"==typeof e.style&&"Object"===e.style.constructor.name&&"string"==typeof e.style.children&&(p+=e.style.children)}"object"==typeof b.style&&"Object"===b.style.constructor.name&&"string"==typeof b.style.current&&(p+=b.style.current),a()}),g&&g.destroy(),g=c(h,{row:b}),m=i.subscribe(y,t=>{w=t,a()})}),o(()=>{g&&g.destroy(),m(),f()});const _=s.getActions("list-column-row");let $;return o(i.subscribe("config.classNames",t=>{$=s.getClass("list-column-row"),a()})),o=>u(l`
+ */function Yt(t,e){const{api:n,state:s,onDestroy:i,actions:o,update:r,html:a,createComponent:l,onChange:c}=t;let d,u;i(s.subscribe("config.wrappers.ListColumnRow",t=>d=t)),i(s.subscribe("config.components.ListExpander",t=>u=t));let h,p,f,m,g=`_internal.flatTreeMapById.${e.rowId}`,v=s.get(g),b=`config.list.columns.data.${e.columnId}`,y=s.get(b);c(({rowId:t,columnId:e})=>{p&&p(),f&&f(),g=`_internal.flatTreeMapById.${t}`,b=`config.list.columns.data.${e}`,p=s.subscribe(g,t=>{h=`--height: ${(v=t).height}px;`;for(let t of v._internal.parents){const e=s.get(`_internal.flatTreeMapById.${t}`);"object"==typeof e.style&&"Object"===e.style.constructor.name&&"string"==typeof e.style.children&&(h+=e.style.children)}"object"==typeof v.style&&"Object"===v.style.constructor.name&&"string"==typeof v.style.current&&(h+=v.style.current),r()}),m&&m.destroy(),m=l(u,{row:v}),f=s.subscribe(b,t=>{y=t,r()})}),i(()=>{m&&m.destroy(),f(),p()});const w=n.getActions("list-column-row");let _;return i(s.subscribe("config.classNames",t=>{_=n.getClass("list-column-row"),r()})),i=>d(a`
         <div
-          class=${$}
-          style=${p}
-          data-actions=${r(_,{column:w,row:b,api:s,state:i})}
+          class=${_}
+          style=${h}
+          data-actions=${o(w,{column:y,row:v,api:n,state:s})}
         >
-          ${"boolean"==typeof w.expander&&w.expander?g.html():""}
-          ${"string"==typeof w.html?"function"==typeof w.data?l`
-        ${w.data(b)}
-      `:l`
-      ${b[w.data]}
-    `:"function"==typeof w.data?w.data(b):b[w.data]}
+          ${"boolean"==typeof y.expander&&y.expander?m.html():""}
+          ${"string"==typeof y.html?"function"==typeof y.data?a`
+        ${y.data(v)}
+      `:a`
+      ${v[y.data]}
+    `:"function"==typeof y.data?y.data(v):v[y.data]}
         </div>
-      `,{vido:t,props:{rowId:e,columnId:n},templateProps:o})}
+      `,{vido:t,props:e,templateProps:i})}
 /**
  * ListExpander component
  *
@@ -379,13 +379,13 @@ var H=function(t){if(!Symbol.asyncIterator)throw new TypeError("Symbol.asyncIter
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function Jt(t){const{api:e,state:n,onDestroy:s,actions:i,update:o,html:r,createComponent:a}=t,l=e.getActions("chart-timeline");let c;s(n.subscribe("config.wrappers.ChartTimeline",t=>c=t));const d=n.get("config.components.ChartTimelineGrid"),u=n.get("config.components.ChartTimelineItems"),h=a(d);s(h.destroy);const p=a(u);let f,m;s(p.destroy),s(n.subscribe("config.classNames",t=>{f=e.getClass("chart-timeline"),m=e.getClass("chart-timeline-inner"),o()}));let g="",v="";return s(n.subscribeAll(["_internal.height","_internal.list.rowsHeight","config.scroll.compensation"],()=>{g=`height: ${n.get("_internal.height")}px`;const t=n.get("config.scroll.compensation");v=`height: ${n.get("_internal.list.rowsHeight")}px; margin-top:${t}px;`,o()})),l.push(t=>{n.update("_internal.elements.gantt",t)}),n=>c(r`
-        <div class=${f} style=${g} data-actions=${i(l)} @wheel=${e.onScroll}>
-          <div class=${m} style=${v}>
-            ${h.html()}${p.html()}
+ */function Jt(t,e){const{api:n,state:s,onDestroy:i,actions:o,update:r,html:a,createComponent:l}=t,c=n.getActions("chart-timeline");let d;i(s.subscribe("config.wrappers.ChartTimeline",t=>d=t));const u=s.get("config.components.ChartTimelineGrid"),h=s.get("config.components.ChartTimelineItems"),p=l(u);i(p.destroy);const f=l(h);let m,g;i(f.destroy),i(s.subscribe("config.classNames",()=>{m=n.getClass("chart-timeline"),g=n.getClass("chart-timeline-inner"),r()}));let v="",b="";return i(s.subscribeAll(["_internal.height","_internal.list.rowsHeight","config.scroll.compensation"],()=>{v=`height: ${s.get("_internal.height")}px`;const t=s.get("config.scroll.compensation");b=`height: ${s.get("_internal.list.rowsHeight")}px; margin-top:${t}px;`,r()})),c.push(t=>{s.update("_internal.elements.gantt",t)}),s=>d(a`
+        <div class=${m} style=${v} data-actions=${o(c)} @wheel=${n.onScroll}>
+          <div class=${g} style=${b}>
+            ${p.html()}${f.html()}
           </div>
         </div>
-      `,{props:{},vido:t,templateProps:n})}
+      `,{props:e,vido:t,templateProps:s})}
 /**
  * ChartTimelineGrid component
  *
@@ -394,11 +394,11 @@ var H=function(t){if(!Symbol.asyncIterator)throw new TypeError("Symbol.asyncIter
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function qt(t){const{api:e,state:n,onDestroy:s,actions:i,update:o,html:r,reuseComponents:a}=t,l=e.getActions("chart-timeline-grid");let c;s(n.subscribe("config.wrappers.ChartTimelineGrid",t=>c=t));const d=n.get("config.components.ChartTimelineGridRow");let u,h,p,f;s(n.subscribe("config.classNames",()=>{u=e.getClass("chart-timeline-grid"),o()})),s(n.subscribe("_internal.height",t=>{p=`height: ${h=t}px`,o()})),s(n.subscribe("config.chart.time.period",t=>f=t));let m=[];return s(n.subscribeAll(["_internal.list.visibleRows;",`_internal.chart.time.dates.${f};`],(function(){const t=n.get("_internal.list.visibleRows"),e=n.get(`_internal.chart.time.dates.${f}`);if(!e||0===e.length)return;let s=0;const i=[];for(const n of t){const t=[];for(const i of e)t.push({time:i,row:n,top:s});i.push({row:n,blocks:t,top:s}),s+=n.height}a(m,i,t=>t,d),o()}),{bulk:!0})),l.push(t=>{n.update("_internal.elements.grid")}),s(()=>{m.forEach(t=>t.destroy())}),s=>c(r`
-        <div class=${u} data-actions=${i(l,{api:e,state:n})} style=${p}>
-          ${m.map(t=>t.html())}
+ */function qt(t,e){const{api:n,state:s,onDestroy:i,actions:o,update:r,html:a,reuseComponents:l}=t,c=n.getActions("chart-timeline-grid");let d;i(s.subscribe("config.wrappers.ChartTimelineGrid",t=>d=t));const u=s.get("config.components.ChartTimelineGridRow");let h,p,f,m;i(s.subscribe("config.classNames",()=>{h=n.getClass("chart-timeline-grid"),r()})),i(s.subscribe("_internal.height",t=>{f=`height: ${p=t}px`,r()})),i(s.subscribe("config.chart.time.period",t=>m=t));let g=[];return i(s.subscribeAll(["_internal.list.visibleRows;",`_internal.chart.time.dates.${m};`],(function(){const t=s.get("_internal.list.visibleRows"),e=s.get(`_internal.chart.time.dates.${m}`);if(!e||0===e.length)return;let n=0;const i=[];for(const s of t){const t=[];for(const i of e)t.push({time:i,row:s,top:n});i.push({row:s,blocks:t,top:n}),n+=s.height}l(g,i,t=>t,u),r()}),{bulk:!0})),c.push(t=>{s.update("_internal.elements.grid",t)}),i(()=>{g.forEach(t=>t.destroy())}),i=>d(a`
+        <div class=${h} data-actions=${o(c,{api:n,state:s})} style=${f}>
+          ${g.map(t=>t.html())}
         </div>
-      `,{props:{},vido:t,templateProps:s})}
+      `,{props:e,vido:t,templateProps:i})}
 /**
  * ChartTimelineGridRow component
  *
@@ -407,11 +407,15 @@ var H=function(t){if(!Symbol.asyncIterator)throw new TypeError("Symbol.asyncIter
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function Zt(t,{row:e,blocks:n,top:s}){const{api:i,state:o,onDestroy:r,actions:a,update:l,html:c,reuseComponents:d,onChange:u}=t;let h;r(o.subscribe("config.wrappers.ChartTimelineGridRow",t=>{h=t,l()}));const p=o.get("config.components.ChartTimelineGridRowBlock"),f=i.getActions("chart-timeline-grid-row");let m,g=i.getClass("chart-timeline-grid-row"),v=[];return u(({row:t,blocks:e,top:n})=>{d(v,e,t=>t,p),m=`height: ${t.height}px;`,l()}),r(()=>{v.forEach(t=>t.destroy())}),n=>h(c`
-        <div class=${g} data-actions=${a(f,{row:e,api:i,state:o})} style=${m}>
-          ${v.map(t=>t.html())}
+ */function Zt(t,e){const{api:n,state:s,onDestroy:i,actions:o,update:r,html:a,reuseComponents:l,onChange:c}=t;let d;i(s.subscribe("config.wrappers.ChartTimelineGridRow",t=>{d=t,r()}));const u=s.get("config.components.ChartTimelineGridRowBlock"),h=n.getActions("chart-timeline-grid-row");let p,f=n.getClass("chart-timeline-grid-row"),m=[];return c(t=>{l(m,(e=t).blocks,t=>t,u),p=`height: ${e.row.height}px;`,r()}),i(()=>{m.forEach(t=>t.destroy())}),i=>d(a`
+        <div
+          class=${f}
+          data-actions=${o(h,{row:e.row,blocks:e.blocks,top:e.top,api:n,state:s})}
+          style=${p}
+        >
+          ${m.map(t=>t.html())}
         </div>
-      `,{vido:t,props:{row:e},templateProps:n})}
+      `,{vido:t,props:e,templateProps:i})}
 /**
  * ChartTimelineGridRowBlock component
  *

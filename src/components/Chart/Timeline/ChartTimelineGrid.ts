@@ -8,7 +8,7 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-export default function ChartTimelineGrid(vido) {
+export default function ChartTimelineGrid(vido, props) {
   const { api, state, onDestroy, actions, update, html, reuseComponents } = vido;
   const componentName = 'chart-timeline-grid';
   const componentActions = api.getActions(componentName);
@@ -66,20 +66,20 @@ export default function ChartTimelineGrid(vido) {
   );
 
   componentActions.push(element => {
-    state.update('_internal.elements.grid');
+    state.update('_internal.elements.grid', element);
   });
 
   onDestroy(() => {
     rowsComponents.forEach(row => row.destroy());
   });
 
-  return props =>
+  return templateProps =>
     wrapper(
       html`
         <div class=${className} data-actions=${actions(componentActions, { api, state })} style=${style}>
           ${rowsComponents.map(r => r.html())}
         </div>
       `,
-      { props: {}, vido, templateProps: props }
+      { props, vido, templateProps }
     );
 }

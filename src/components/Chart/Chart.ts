@@ -132,7 +132,7 @@ export default function Chart(vido) {
     ro.disconnect();
   });
 
-  return props =>
+  return templateProps =>
     wrapper(
       html`
         <div class=${className} data-actions=${actions(componentActions, { api, state })} @wheel=${onScroll}>
@@ -142,6 +142,6 @@ export default function Chart(vido) {
           </div>
         </div>
       `,
-      { vido, props: {}, templateProps: props }
+      { vido, props: {}, templateProps }
     );
 }

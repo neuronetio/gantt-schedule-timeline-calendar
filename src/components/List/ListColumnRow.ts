@@ -8,7 +8,7 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-export default function ListColumnRow(vido, { rowId, columnId }) {
+export default function ListColumnRow(vido, props) {
   const { api, state, onDestroy, actions, update, html, createComponent, onChange } = vido;
 
   let wrapper;
@@ -17,9 +17,9 @@ export default function ListColumnRow(vido, { rowId, columnId }) {
   let ListExpanderComponent;
   onDestroy(state.subscribe('config.components.ListExpander', value => (ListExpanderComponent = value)));
 
-  let rowPath = `_internal.flatTreeMapById.${rowId}`,
+  let rowPath = `_internal.flatTreeMapById.${props.rowId}`,
     row = state.get(rowPath);
-  let colPath = `config.list.columns.data.${columnId}`,
+  let colPath = `config.list.columns.data.${props.columnId}`,
     column = state.get(colPath);
   let style;
   let rowSub, colSub;
@@ -95,7 +95,7 @@ export default function ListColumnRow(vido, { rowId, columnId }) {
     return row[column.data];
   }
 
-  return props =>
+  return templateProps =>
     wrapper(
       html`
         <div
@@ -112,6 +112,6 @@ export default function ListColumnRow(vido, { rowId, columnId }) {
           ${typeof column.html === 'string' ? getHtml() : getText()}
         </div>
       `,
-      { vido, props: { rowId, columnId }, templateProps: props }
+      { vido, props, templateProps }
     );
 }

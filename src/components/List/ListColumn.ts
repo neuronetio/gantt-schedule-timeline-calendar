@@ -8,7 +8,7 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-export default function ListColumn(vido, { columnId }) {
+export default function ListColumn(vido, props) {
   const { api, state, onDestroy, actions, update, createComponent, reuseComponents, html } = vido;
 
   let wrapper;
@@ -20,7 +20,7 @@ export default function ListColumn(vido, { columnId }) {
   onDestroy(state.subscribe('config.components.ListColumnHeader', value => (ListColumnHeaderComponent = value)));
 
   let column,
-    columnPath = `config.list.columns.data.${columnId}`;
+    columnPath = `config.list.columns.data.${props.columnId}`;
   onDestroy(
     state.subscribe(columnPath, val => {
       column = val;
@@ -45,7 +45,7 @@ export default function ListColumn(vido, { columnId }) {
   let visibleRows = [];
   onDestroy(
     state.subscribe('_internal.list.visibleRows;', val => {
-      reuseComponents(visibleRows, val, row => ({ columnId, rowId: row.id }), ListColumnRowComponent);
+      reuseComponents(visibleRows, val, row => ({ columnId: props.columnId, rowId: row.id }), ListColumnRowComponent);
       update();
     })
   );
@@ -75,10 +75,10 @@ export default function ListColumn(vido, { columnId }) {
     )
   );
 
-  const ListColumnHeader = createComponent(ListColumnHeaderComponent, { columnId });
+  const ListColumnHeader = createComponent(ListColumnHeaderComponent, { columnId: props.columnId });
   onDestroy(ListColumnHeader.destroy);
 
-  return props =>
+  return templateProps =>
     wrapper(
       html`
         <div
@@ -94,6 +94,6 @@ export default function ListColumn(vido, { columnId }) {
           </div>
         </div>
       `,
-      { vido, props: { columnId }, templateProps: props }
+      { vido, props, templateProps }
     );
 }

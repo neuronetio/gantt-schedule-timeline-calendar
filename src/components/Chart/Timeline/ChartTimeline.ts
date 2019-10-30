@@ -8,7 +8,7 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-export default function ChartTimeline(vido) {
+export default function ChartTimeline(vido, props) {
   const { api, state, onDestroy, actions, update, html, createComponent } = vido;
   const componentName = 'chart-timeline';
   const componentActions = api.getActions(componentName);
@@ -26,7 +26,7 @@ export default function ChartTimeline(vido) {
 
   let className, classNameInner;
   onDestroy(
-    state.subscribe('config.classNames', value => {
+    state.subscribe('config.classNames', () => {
       className = api.getClass(componentName);
       classNameInner = api.getClass(componentName + '-inner');
       update();
@@ -48,7 +48,7 @@ export default function ChartTimeline(vido) {
     state.update('_internal.elements.gantt', element);
   });
 
-  return props =>
+  return templateProps =>
     wrapper(
       html`
         <div class=${className} style=${style} data-actions=${actions(componentActions)} @wheel=${api.onScroll}>
@@ -57,6 +57,6 @@ export default function ChartTimeline(vido) {
           </div>
         </div>
       `,
-      { props: {}, vido, templateProps: props }
+      { props, vido, templateProps }
     );
 }

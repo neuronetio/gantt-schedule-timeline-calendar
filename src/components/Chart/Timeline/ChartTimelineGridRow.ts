@@ -8,10 +8,9 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-export default function ChartTimelineGridRow(vido, { row, blocks, top }) {
+export default function ChartTimelineGridRow(vido, props) {
   const { api, state, onDestroy, actions, update, html, reuseComponents, onChange } = vido;
   const componentName = 'chart-timeline-grid-row';
-
   let wrapper;
   onDestroy(
     state.subscribe('config.wrappers.ChartTimelineGridRow', value => {
@@ -27,9 +26,10 @@ export default function ChartTimelineGridRow(vido, { row, blocks, top }) {
 
   let style;
   let rowsBlocksComponents = [];
-  onChange(({ row, blocks, top }) => {
-    reuseComponents(rowsBlocksComponents, blocks, block => block, GridBlockComponent);
-    style = `height: ${row.height}px;`;
+  onChange(changedProps => {
+    props = changedProps;
+    reuseComponents(rowsBlocksComponents, props.blocks, block => block, GridBlockComponent);
+    style = `height: ${props.row.height}px;`;
     update();
   });
 
@@ -37,13 +37,23 @@ export default function ChartTimelineGridRow(vido, { row, blocks, top }) {
     rowsBlocksComponents.forEach(rowBlock => rowBlock.destroy());
   });
 
-  return props =>
+  return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, { row, api, state })} style=${style}>
+        <div
+          class=${className}
+          data-actions=${actions(componentActions, {
+            row: props.row,
+            blocks: props.blocks,
+            top: props.top,
+            api,
+            state
+          })}
+          style=${style}
+        >
           ${rowsBlocksComponents.map(r => r.html())}
         </div>
       `,
-      { vido, props: { row }, templateProps: props }
+      { vido, props, templateProps }
     );
 }
