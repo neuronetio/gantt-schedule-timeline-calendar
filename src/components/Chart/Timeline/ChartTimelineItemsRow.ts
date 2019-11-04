@@ -8,14 +8,14 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-export default function ChartTimelineItemsRow(vido, { row }) {
+export default function ChartTimelineItemsRow(vido, props) {
   const { api, state, onDestroy, actions, update, html, onChange, reuseComponents } = vido;
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRow', value => (wrapper = value)));
 
   const ItemComponent = state.get('config.components.ChartTimelineItemsRowItem');
 
-  let itemsPath = `_internal.flatTreeMapById.${row.id}._internal.items`;
+  let itemsPath = `_internal.flatTreeMapById.${props.row.id}._internal.items`;
   let rowSub, itemsSub;
 
   let element, scrollLeft, style, styleInner;
@@ -23,7 +23,7 @@ export default function ChartTimelineItemsRow(vido, { row }) {
 
   function updateDom() {
     const chart = state.get('_internal.chart');
-    style = `width:${chart.dimensions.width}px;height:${row.height}px;--row-height:${row.height}px;`;
+    style = `width:${chart.dimensions.width}px;height:${props.row.height}px;--row-height:${props.row.height}px;`;
     styleInner = `width: ${chart.time.totalViewDurationPx}px;height: 100%;`;
     if (element && scrollLeft !== chart.time.leftPx) {
       element.scrollLeft = chart.time.leftPx;
@@ -53,9 +53,9 @@ export default function ChartTimelineItemsRow(vido, { row }) {
     });
   }
 
-  onChange(props => {
-    row = props.row;
-    updateRow(row);
+  onChange(changedProps => {
+    props = changedProps;
+    updateRow(props.row);
   });
 
   onDestroy(() => {
@@ -70,13 +70,13 @@ export default function ChartTimelineItemsRow(vido, { row }) {
   let className, classNameInner;
   onDestroy(
     state.subscribe('config.classNames', () => {
-      className = api.getClass(componentName, { row });
-      classNameInner = api.getClass(componentNameInner, { row });
+      className = api.getClass(componentName, props);
+      classNameInner = api.getClass(componentNameInner, props);
       update();
     })
   );
 
-  return props =>
+  return templateProps =>
     wrapper(
       html`
         <div class=${className} data-actions=${actions(componentActions)} style=${style}>
@@ -85,6 +85,6 @@ export default function ChartTimelineItemsRow(vido, { row }) {
           </div>
         </div>
       `,
-      { props: { row }, vido, templateProps: props }
+      { props, vido, templateProps }
     );
 }

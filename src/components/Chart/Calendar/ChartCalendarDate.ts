@@ -24,9 +24,10 @@ export default function ChartCalendarDate(vido, props) {
     formattedDayClassName,
     formattedDayWordClassName;
 
-  const current = api.time.date().format('YYYY-MM-DD');
+  let current = api.time.date().format('YYYY-MM-DD');
 
-  let classNamesSub = state.subscribe('config.classNames', () => {
+  function updateClassNames() {
+    current = api.time.date().format('YYYY-MM-DD');
     className = api.getClass(componentName, props);
     if (api.time.date(props.date.leftGlobal).format('YYYY-MM-DD') === api.time.date().format('YYYY-MM-DD')) {
       className += ' current';
@@ -53,42 +54,48 @@ export default function ChartCalendarDate(vido, props) {
     formattedDayClassName = api.getClass(`${componentName}-formatted-day`, props);
     formattedDayWordClassName = api.getClass(`${componentName}-formatted-day-word`, props);
     update();
-  });
+  }
+
+  let classNamesSub = state.subscribe('config.classNames', updateClassNames);
+
+  function updateDate() {
+    time = state.get('_internal.chart.time');
+    daySize = time.zoom <= 22 ? 18 : 13;
+    const dateMod = api.time.date(props.date.leftGlobal);
+    const maxWidth = time.maxWidth[time.period];
+    small = maxWidth <= 40;
+    const smallFormat = state.get('config.chart.calendar.vertical.smallFormat');
+    smallFormatted = dateMod.format(smallFormat);
+    year = dateMod.format('YYYY');
+    month = dateMod.format('MMMM');
+    day = dateMod.format('DD');
+    dayWord = dateMod.format('dddd');
+    if (maxWidth <= 70) {
+      year = dateMod.format('YY');
+      month = dateMod.format('MMM');
+      day = dateMod.format('DD');
+      dayWord = dateMod.format('ddd');
+    } else if (maxWidth <= 150) {
+      dayWord = dateMod.format('ddd');
+    }
+    style = `width: ${props.date.width}px; margin-left:-${props.date.subPx}px; --day-size: ${daySize}px`;
+    update();
+  }
 
   let time, small, smallFormatted, year, month, day, dayWord, style, daySize;
   let timeSub;
   onChange(changedProps => {
     props = changedProps;
-    timeSub = state.subscribeAll(
-      ['_internal.chart.time', 'config.chart.calendar.vertical.smallFormat'],
-      function updateDate() {
-        if (timeSub) {
-          timeSub();
-        }
-        time = state.get('_internal.chart.time');
-        daySize = time.zoom <= 22 ? 18 : 13;
-        const dateMod = api.time.date(props.date.leftGlobal);
-        const maxWidth = time.maxWidth[time.period];
-        small = maxWidth <= 40;
-        const smallFormat = state.get('config.chart.calendar.vertical.smallFormat');
-        smallFormatted = dateMod.format(smallFormat);
-        year = dateMod.format('YYYY');
-        month = dateMod.format('MMMM');
-        day = dateMod.format('DD');
-        dayWord = dateMod.format('dddd');
-        if (maxWidth <= 70) {
-          year = dateMod.format('YY');
-          month = dateMod.format('MMM');
-          day = dateMod.format('DD');
-          dayWord = dateMod.format('ddd');
-        } else if (maxWidth <= 150) {
-          dayWord = dateMod.format('ddd');
-        }
-        style = `width: ${props.date.width}px; margin-left:-${props.date.subPx}px; --day-size: ${daySize}px`;
-        update();
-      },
-      { bulk: true }
-    );
+    if (classNamesSub) {
+      classNamesSub();
+    }
+    classNamesSub = state.subscribe('config.classNames', updateClassNames);
+    if (timeSub) {
+      timeSub();
+    }
+    timeSub = state.subscribeAll(['_internal.chart.time', 'config.chart.calendar.vertical.smallFormat'], updateDate, {
+      bulk: true
+    });
   });
 
   onDestroy(() => {
