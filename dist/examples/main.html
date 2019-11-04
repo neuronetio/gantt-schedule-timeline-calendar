@@ -41,11 +41,16 @@
         };
       }
 
+      const startDate = GSTC.api
+        .date()
+        .subtract(1, 'month')
+        .valueOf();
+
       const items = {};
       for (let i = 0; i < iterations; i++) {
         const id = i.toString();
         let startDayjs = GSTC.api
-          .date()
+          .date(startDate)
           .startOf('day')
           .add(Math.floor(Math.random() * 100), 'days');
         items[id] = {

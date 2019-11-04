@@ -31,7 +31,7 @@ export default function ChartCalendar(vido, props) {
   onDestroy(
     state.subscribe('config.headerHeight', value => {
       headerHeight = value;
-      style = `height: ${headerHeight}px;`;
+      style = `height: ${headerHeight}px;--calendar-height: ${headerHeight}px`;
       update();
     })
   );
@@ -39,19 +39,33 @@ export default function ChartCalendar(vido, props) {
   let period;
   onDestroy(state.subscribe('config.chart.time.period', value => (period = value)));
 
-  let periodDates,
-    periodDatesComponents = [];
+  let dayComponents = [],
+    monthComponents = [],
+    yearComponents = [];
   onDestroy(
-    state.subscribe(`_internal.chart.time.dates.${period}`, value => {
-      if (value) {
-        periodDates = value;
-        reuseComponents(periodDatesComponents, periodDates, date => ({ date }), ChartCalendarDateComponent);
-        update();
+    state.subscribe(`_internal.chart.time.dates`, dates => {
+      const currentDate = api.time.date().format('YYYY-MM-DD');
+      if (typeof dates.day === 'object' && Array.isArray(dates.day) && dates.day.length) {
+        reuseComponents(
+          dayComponents,
+          dates.day,
+          date => ({ period: 'day', date, currentDate }),
+          ChartCalendarDateComponent
+        );
       }
+      if (typeof dates.month === 'object' && Array.isArray(dates.month) && dates.month.length) {
+        reuseComponents(
+          monthComponents,
+          dates.month,
+          date => ({ period: 'month', date, currentDate }),
+          ChartCalendarDateComponent
+        );
+      }
+      update();
     })
   );
   onDestroy(() => {
-    periodDatesComponents.forEach(c => c.destroy());
+    dayComponents.forEach(c => c.destroy());
   });
 
   componentActions.push(element => {
@@ -62,7 +76,9 @@ export default function ChartCalendar(vido, props) {
     wrapper(
       html`
         <div class=${className} data-actions=${actions(componentActions)} style=${style}>
-          ${periodDatesComponents.map(d => d.html())}
+          <div class=${className + '-dates ' + className + '-dates--months'}>${monthComponents.map(m => m.html())}</div>
+          <div class=${className + '-dates ' + className + '-dates--days'}>${dayComponents.map(d => d.html())}</div>
+          </div>
         </div>
       `,
       { props, vido, templateProps }

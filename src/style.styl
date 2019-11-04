@@ -18,9 +18,9 @@ $item-content-padding = 5px
   display: flex
   overflow: hidden
   color: $font-color
+  font-size: 14px
 
   & *
-    font-size: 14px
     box-sizing: border-box
 
   &__helper
@@ -145,36 +145,45 @@ $item-content-padding = 5px
     &-calendar
       background: $bg-dark-1
       margin-right: -17px
-      display: flex
-      &-date
-        text-align: center
+      display: block
+      &-dates
         overflow: hidden
         color: $font-color-3;
+        user-select: none
+        display: flex
+      &-date
         flex-grow: 0
         flex-shrink: 0
-        user-select: none
-        &.current
-          box-shadow: inset 0px 0px 6px $bg-dark-5
-          & *
-            border-right: none
-        &.previous *
-          border-right: none
-        &-formatted
-          margin-top: 4px
+        border: none
+        white-space: nowrap
+        &--month
+          font-size: 14px
+          overflow: hidden
+          text-overflow: ellipsis
           white-space: nowrap
-          &-year
-            font-size: 10px
-            letter-spacing: 6px
-          &-month
-            font-size: 12px
+          height: 20px
+        &--day
+          height: calc(var(--calendar-height) - 20px)
+          text-align: center
+        &--day.current
+          box-shadow: inset 0px 0px 4px hsla(205, 8.3%, 71.8%, 0.45)
+        &-content
+          white-space: nowrap
+          &--day-small
+            font-size: 14px
+            transform: rotate(90deg)
+          &--month
+            margin: 2px 0px
             border-right: 1px solid $bg-dark-4
-          &-day
-            font-size: var(--day-size)
-            font-weight: 500;
-            line-height: 30px
-            color: $font-color-4
+          &--day
             border-right: 1px solid $bg-dark-4
-            //text-shadow: 0px 5px 3px hsla(0, 0%, 0%, 0.08)
+            font-size: 18px
+            line-height: 2em
+            &.current
+              border-right: none
+            &.previous
+              border-right: none
+
     &-timeline
       overflow: hidden
       position: relative

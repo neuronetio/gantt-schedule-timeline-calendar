@@ -174,10 +174,8 @@ export default function Main(vido) {
     let subPx = sub / timePerPixel;
     let leftPx = 0;
     let maxWidth = 0;
-    let id = 0;
     while (leftGlobal < rightGlobal) {
       const date = {
-        id: id++,
         sub,
         subPx,
         leftGlobal,
@@ -190,9 +188,6 @@ export default function Main(vido) {
         rightPx: 0
       };
       date.width = (date.rightGlobal - date.leftGlobal + sub) / timePerPixel;
-      if (date.width > chartWidth) {
-        date.width = chartWidth;
-      }
       maxWidth = date.width > maxWidth ? date.width : maxWidth;
       date.leftPx = leftPx;
       leftPx += date.width;
@@ -250,7 +245,8 @@ export default function Main(vido) {
           time.rightPx = time.rightInner / time.timePerPixel;
           time.leftPx = time.leftInner / time.timePerPixel;
         }
-        generateAndAddPeriodDates(period, time, chartWidth);
+        generateAndAddPeriodDates('day', time, chartWidth);
+        generateAndAddPeriodDates('month', time, chartWidth);
         state.update(`_internal.chart.time`, time);
         update();
       }
