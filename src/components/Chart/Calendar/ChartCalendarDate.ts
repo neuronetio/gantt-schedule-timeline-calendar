@@ -26,7 +26,7 @@ export default function ChartCalendarDate(vido, props) {
     current = '';
   }
 
-  let time, htmlFormatted, display, style;
+  let time, htmlFormatted, style;
 
   function updateDate() {
     time = state.get('_internal.chart.time');
@@ -43,16 +43,6 @@ export default function ChartCalendarDate(vido, props) {
     }
     const maxWidth = time.maxWidth[props.period];
     switch (props.period) {
-      case 'year':
-        htmlFormatted = html`
-          <div class=${className + '-content ' + className + '-content--year' + current}>${dateMod.format('YYYY')}</div>
-        `;
-        if (maxWidth <= 100) {
-          htmlFormatted = html`
-            <div class=${className + '-content ' + className + '-content--year' + current}>${dateMod.format('YY')}</div>
-          `;
-        }
-        break;
       case 'month':
         htmlFormatted = html`
           <div
@@ -72,31 +62,239 @@ export default function ChartCalendarDate(vido, props) {
         break;
       case 'day':
         htmlFormatted = html`
-          <div class=${className + '-content ' + className + '-content--day' + current}>${dateMod.format('DD')}</div>
-          <div class=${className + '-content ' + className + '-content--day-word' + current}>
-            ${dateMod.format('dddd')}
+          <div class=${className + '-content ' + className + '-content--day _0' + current}>
+            <div class=${className + '-content ' + className + '-content--day-small' + current}>
+              ${dateMod.format('DD')} ${dateMod.format('ddd')}
+            </div>
           </div>
         `;
-        if (maxWidth <= 40) {
+        if (maxWidth >= 40 && maxWidth < 50) {
           htmlFormatted = html`
-            <div class=${className + '-content ' + className + '-content--day' + current}>
-              <div class=${className + '-content ' + className + '-content--day-small' + current}>
-                ${dateMod.format('DD')} ${dateMod.format('ddd')}
-              </div>
+            <div class=${className + '-content ' + className + '-content--day _40' + current}>
+              ${dateMod.format('DD')}
             </div>
-          `;
-        } else if (maxWidth <= 50) {
-          htmlFormatted = html`
-            <div class=${className + '-content ' + className + '-content--day' + current}>${dateMod.format('DD')}</div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
               ${dateMod.format('dd')}
             </div>
           `;
-        } else if (maxWidth <= 90) {
+        }
+        if (maxWidth >= 50 && maxWidth < 90) {
           htmlFormatted = html`
-            <div class=${className + '-content ' + className + '-content--day' + current}>${dateMod.format('DD')}</div>
+            <div class=${className + '-content ' + className + '-content--day _50' + current}>
+              ${dateMod.format('DD')}
+            </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
               ${dateMod.format('ddd')}
+            </div>
+          `;
+        }
+        if (maxWidth >= 90 && maxWidth < 180) {
+          htmlFormatted = html`
+            <div class=${className + '-content ' + className + '-content--day _90' + current}>
+              ${dateMod.format('DD')}
+            </div>
+            <div class=${className + '-content ' + className + '-content--day-word' + current}>
+              ${dateMod.format('dddd')}
+            </div>
+          `;
+        }
+        if (maxWidth >= 180 && maxWidth < 400) {
+          const hours = [];
+          const start = dateMod.startOf('day');
+          for (let i = 0; i < 12; i++) {
+            const left = start.add(i * 2, 'hours');
+            const width =
+              (start
+                .add(i * 2 + 1, 'hours')
+                .endOf('hour')
+                .valueOf() -
+                left.valueOf()) /
+              time.timePerPixel;
+            hours.push({
+              width,
+              formatted: left.format('HH')
+            });
+          }
+          htmlFormatted = html`
+            <div class=${className + '-content ' + className + '-content--day _180' + current}>
+              ${dateMod.format('DD dddd')}
+            </div>
+            <div class=${className + '-content ' + className + '-content--hours' + current}>
+              ${hours.map(
+                hour =>
+                  html`
+                    <div
+                      class=${className + '-content ' + className + '-content--hours-hour' + current}
+                      style="width: ${hour.width}px;"
+                    >
+                      ${hour.formatted}
+                    </div>
+                  `
+              )}
+            </div>
+          `;
+        }
+        if (maxWidth >= 400 && maxWidth < 1000) {
+          const hours = [];
+          const start = dateMod.startOf('day');
+          for (let i = 0; i < 24; i++) {
+            const left = start.add(i, 'hours');
+            const width =
+              (start
+                .add(i, 'hours')
+                .endOf('hour')
+                .valueOf() -
+                left.valueOf()) /
+              time.timePerPixel;
+            hours.push({
+              width,
+              formatted: left.format('HH')
+            });
+          }
+          htmlFormatted = html`
+            <div class=${className + '-content ' + className + '-content--day _400' + current}>
+              ${dateMod.format('DD dddd')}
+            </div>
+            <div class=${className + '-content ' + className + '-content--hours' + current}>
+              ${hours.map(
+                hour =>
+                  html`
+                    <div
+                      class=${className + '-content ' + className + '-content--hours-hour' + current}
+                      style="width: ${hour.width}px;"
+                    >
+                      ${hour.formatted}
+                    </div>
+                  `
+              )}
+            </div>
+          `;
+        }
+        // scroll day from now on
+        const scroll = `overflow:hidden; text-align:left; margin-left: ${props.date.subPx + 8}px;`;
+        if (maxWidth >= 1000 && maxWidth < 2000) {
+          const hours = [];
+          const start = dateMod.startOf('day');
+          for (let i = 0; i < 24; i++) {
+            const left = start.add(i, 'hours');
+            const width =
+              (start
+                .add(i, 'hours')
+                .endOf('hour')
+                .valueOf() -
+                left.valueOf()) /
+              time.timePerPixel;
+            hours.push({
+              width,
+              formatted: left.format('HH:mm')
+            });
+          }
+          htmlFormatted = html`
+            <div class=${className + '-content ' + className + '-content--day _1000' + current} style=${scroll}>
+              ${dateMod.format('DD dddd')}
+            </div>
+            <div class=${className + '-content ' + className + '-content--hours' + current}>
+              ${hours.map(
+                hour =>
+                  html`
+                    <div
+                      class=${className + '-content ' + className + '-content--hours-hour' + current}
+                      style="width: ${hour.width}px;"
+                    >
+                      ${hour.formatted}
+                    </div>
+                  `
+              )}
+            </div>
+          `;
+        }
+        if (maxWidth >= 2000 && maxWidth < 5000) {
+          const hours = [];
+          const start = dateMod.startOf('day');
+          for (let i = 0; i < 24 * 2; i++) {
+            const left = start.add(i * 30, 'minutes');
+            const width = (start.add((i + 1) * 30, 'minutes').valueOf() - left.valueOf()) / time.timePerPixel;
+            hours.push({
+              width,
+              formatted: left.format('HH:mm')
+            });
+          }
+          htmlFormatted = html`
+            <div class=${className + '-content ' + className + '-content--day _2000' + current} style=${scroll}>
+              ${dateMod.format('DD dddd')}
+            </div>
+            <div class=${className + '-content ' + className + '-content--hours' + current}>
+              ${hours.map(
+                hour =>
+                  html`
+                    <div
+                      class=${className + '-content ' + className + '-content--hours-hour' + current}
+                      style="width: ${hour.width}px;"
+                    >
+                      ${hour.formatted}
+                    </div>
+                  `
+              )}
+            </div>
+          `;
+        }
+        if (maxWidth >= 5000 && maxWidth < 20000) {
+          const hours = [];
+          const start = dateMod.startOf('day');
+          for (let i = 0; i < 24 * 4; i++) {
+            const left = start.add(i * 15, 'minutes');
+            const width = (start.add((i + 1) * 15, 'minutes').valueOf() - left.valueOf()) / time.timePerPixel;
+            hours.push({
+              width,
+              formatted: left.format('HH:mm')
+            });
+          }
+          htmlFormatted = html`
+            <div class=${className + '-content ' + className + '-content--day _5000' + current} style=${scroll}>
+              ${dateMod.format('DD dddd')}
+            </div>
+            <div class=${className + '-content ' + className + '-content--hours' + current}>
+              ${hours.map(
+                hour =>
+                  html`
+                    <div
+                      class=${className + '-content ' + className + '-content--hours-hour' + current}
+                      style="width: ${hour.width}px;"
+                    >
+                      ${hour.formatted}
+                    </div>
+                  `
+              )}
+            </div>
+          `;
+        }
+        if (maxWidth >= 20000) {
+          const hours = [];
+          const start = dateMod.startOf('day');
+          for (let i = 0; i < 24 * 12; i++) {
+            const left = start.add(i * 5, 'minutes');
+            const width = (start.add((i + 1) * 5, 'minutes').valueOf() - left.valueOf()) / time.timePerPixel;
+            hours.push({
+              width,
+              formatted: left.format('HH:mm')
+            });
+          }
+          htmlFormatted = html`
+            <div class=${className + '-content ' + className + '-content--day _20000' + current} style=${scroll}>
+              ${dateMod.format('DD dddd')}
+            </div>
+            <div class=${className + '-content ' + className + '-content--hours' + current}>
+              ${hours.map(
+                hour =>
+                  html`
+                    <div
+                      class=${className + '-content ' + className + '-content--hours-hour' + current}
+                      style="width: ${hour.width}px;"
+                    >
+                      ${hour.formatted}
+                    </div>
+                  `
+              )}
             </div>
           `;
         }

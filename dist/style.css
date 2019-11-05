@@ -182,6 +182,20 @@
 .gantt-schedule-timeline-calendar__chart-calendar-date-content {
   white-space: nowrap;
 }
+.gantt-schedule-timeline-calendar__chart-calendar-date-content--hours {
+  display: flex;
+}
+.gantt-schedule-timeline-calendar__chart-calendar-date-content--hours-hour {
+  flex-grow: 1;
+  flex-shrink: 1;
+  border-right: 1px solid rgba(177,184,189,0.5);
+}
+.gantt-schedule-timeline-calendar__chart-calendar-date-content--hours-hour.current:last-child {
+  border-right: none;
+}
+.gantt-schedule-timeline-calendar__chart-calendar-date-content--hours-hour.previous:last-child {
+  border-right: none;
+}
 .gantt-schedule-timeline-calendar__chart-calendar-date-content--day-small {
   font-size: 14px;
   transform: rotate(90deg);
@@ -194,11 +208,21 @@
   border-right: 1px solid rgba(177,184,189,0.5);
   font-size: 18px;
   line-height: 2em;
+  overflow: visible;
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date-content--day.current {
   border-right: none;
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date-content--day.previous {
+  border-right: none;
+}
+.gantt-schedule-timeline-calendar__chart-calendar-date-content--day-word {
+  border-right: 1px solid rgba(177,184,189,0.5);
+}
+.gantt-schedule-timeline-calendar__chart-calendar-date-content--day-word.current {
+  border-right: none;
+}
+.gantt-schedule-timeline-calendar__chart-calendar-date-content--day-word.previous {
   border-right: none;
 }
 .gantt-schedule-timeline-calendar__chart-timeline {

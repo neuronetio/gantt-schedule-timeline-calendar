@@ -169,6 +169,16 @@ $item-content-padding = 5px
           box-shadow: inset 0px 0px 4px hsla(205, 8.3%, 71.8%, 0.45)
         &-content
           white-space: nowrap
+          &--hours
+            display: flex
+            &-hour
+              flex-grow: 1
+              flex-shrink: 1
+              border-right: 1px solid $bg-dark-4
+              &.current:last-child
+                border-right: none
+              &.previous:last-child
+                border-right: none
           &--day-small
             font-size: 14px
             transform: rotate(90deg)
@@ -179,11 +189,17 @@ $item-content-padding = 5px
             border-right: 1px solid $bg-dark-4
             font-size: 18px
             line-height: 2em
+            overflow: visible
             &.current
               border-right: none
             &.previous
               border-right: none
-
+          &--day-word
+            border-right: 1px solid $bg-dark-4
+            &.current
+              border-right: none
+            &.previous
+              border-right: none
     &-timeline
       overflow: hidden
       position: relative
