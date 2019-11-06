@@ -8,6 +8,30 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
+function bindElementAction(element, data) {
+  data.state.update('_internal.elements.chart-timeline-items-rows.' + data.row.id, { element, data }, { only: null });
+  return {
+    update(element, changedData) {
+      if (changedData.row.id !== data.row.id) {
+        data.state.update(
+          '_internal.elements.chart-timeline-items-rows.' + changedData.row.id,
+          {
+            element,
+            data: changedData
+          },
+          { only: null }
+        );
+      }
+    },
+    destroy(element, data) {
+      data.state.update('_internal.elements.chart-timeline-items-rows', gridRow => {
+        delete gridRow[data.id];
+        return gridRow;
+      });
+    }
+  };
+}
+
 export default function ChartTimelineItemsRow(vido, props) {
   const { api, state, onDestroy, actions, update, html, onChange, reuseComponents } = vido;
   let wrapper;
@@ -76,10 +100,14 @@ export default function ChartTimelineItemsRow(vido, props) {
     })
   );
 
+  if (componentActions.indexOf(bindElementAction) === -1) {
+    componentActions.push(bindElementAction);
+  }
+
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions)} style=${style}>
+        <div class=${className} data-actions=${actions(componentActions, { ...props, api, state })} style=${style}>
           <div class=${classNameInner} style=${styleInner}>
             ${itemComponents.map(i => i.html())}
           </div>

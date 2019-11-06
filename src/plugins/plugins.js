@@ -1,6 +1,6 @@
 import ItemHold from './ItemHold.plugin';
 import ItemMovement from './ItemMovement.plugin';
 import SaveAsImage from './SaveAsImage.plugin';
-import GridSelection from './GridSelection.plugin';
+import Selection from './Selection.plugin';
 
-export { ItemHold, ItemMovement, SaveAsImage, GridSelection };
+export { ItemHold, ItemMovement, SaveAsImage, Selection };

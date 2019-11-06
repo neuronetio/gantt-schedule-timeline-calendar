@@ -45,13 +45,18 @@ export default function ChartTimeline(vido, props) {
   );
 
   componentActions.push(element => {
-    state.update('_internal.elements.gantt', element);
+    state.update('_internal.elements.chart-timeline', element);
   });
 
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} style=${style} data-actions=${actions(componentActions)} @wheel=${api.onScroll}>
+        <div
+          class=${className}
+          style=${style}
+          data-actions=${actions(componentActions, { ...props, api, state })}
+          @wheel=${api.onScroll}
+        >
           <div class=${classNameInner} style=${styleInner}>
             ${Grid.html()}${Items.html()}
           </div>

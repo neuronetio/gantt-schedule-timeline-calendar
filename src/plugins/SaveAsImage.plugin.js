@@ -61,7 +61,7 @@ export default function SaveAsImage(options = {}) {
     img.src = svg64;
   }
 
-  return function initializePlugin(state, api) {
+  return function initialize(state, api) {
     state.subscribe('_internal.elements.main', main => {
       if (main) {
         main.addEventListener('save-as-image', saveAsImage);

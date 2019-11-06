@@ -124,8 +124,8 @@ export default function ChartCalendarDate(vido, props) {
                 hour =>
                   html`
                     <div
-                      class=${className + '-content ' + className + '-content--hours-hour' + current}
-                      style="width: ${hour.width}px;"
+                      class="${className + '-content ' + className + '-content--hours-hour' + current}"
+                      style="width: ${hour.width}px"
                     >
                       ${hour.formatted}
                     </div>
@@ -161,7 +161,7 @@ export default function ChartCalendarDate(vido, props) {
                   html`
                     <div
                       class=${className + '-content ' + className + '-content--hours-hour' + current}
-                      style="width: ${hour.width}px;"
+                      style="width: ${hour.width}px"
                     >
                       ${hour.formatted}
                     </div>
@@ -199,7 +199,7 @@ export default function ChartCalendarDate(vido, props) {
                   html`
                     <div
                       class=${className + '-content ' + className + '-content--hours-hour' + current}
-                      style="width: ${hour.width}px;"
+                      style="width: ${hour.width}px"
                     >
                       ${hour.formatted}
                     </div>
@@ -229,7 +229,7 @@ export default function ChartCalendarDate(vido, props) {
                   html`
                     <div
                       class=${className + '-content ' + className + '-content--hours-hour' + current}
-                      style="width: ${hour.width}px;"
+                      style="width: ${hour.width}px"
                     >
                       ${hour.formatted}
                     </div>
@@ -259,7 +259,7 @@ export default function ChartCalendarDate(vido, props) {
                   html`
                     <div
                       class=${className + '-content ' + className + '-content--hours-hour' + current}
-                      style="width: ${hour.width}px;"
+                      style="width: ${hour.width}px"
                     >
                       ${hour.formatted}
                     </div>
@@ -289,7 +289,7 @@ export default function ChartCalendarDate(vido, props) {
                   html`
                     <div
                       class=${className + '-content ' + className + '-content--hours-hour' + current}
-                      style="width: ${hour.width}px;"
+                      style="width: ${hour.width}px"
                     >
                       ${hour.formatted}
                     </div>

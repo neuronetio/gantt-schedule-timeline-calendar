@@ -50,10 +50,12 @@ export default function ChartTimelineGrid(vido, props) {
         }
         let top = 0;
         const rowsAndBlocks = [];
+        let id = 0;
         for (const row of visibleRows) {
           const blocks = [];
           for (const time of periodDates) {
-            blocks.push({ time, row, top });
+            blocks.push({ id, time, row, top });
+            id++;
           }
           rowsAndBlocks.push({ row, blocks, top });
           top += row.height;
@@ -66,7 +68,7 @@ export default function ChartTimelineGrid(vido, props) {
   );
 
   componentActions.push(element => {
-    state.update('_internal.elements.grid', element);
+    state.update('_internal.elements.chart-timeline-grid', element);
   });
 
   onDestroy(() => {

@@ -364,6 +364,20 @@ export function getInternalApi(state) {
     },
 
     /**
+     * Get grid blocks that are under specified rectangle
+     *
+     * @param {number} x beginging at chart-timeline bounding rect
+     * @param {number} y beginging at chart-timeline bounding rect
+     * @param {number} width
+     * @param {number} height
+     * @returns {array} array of {element, data}
+     */
+    getGridBlocksUnderRect(x, y, width, height) {
+      const main = state.get('_internal.elements.main');
+      if (!main) return [];
+    },
+
+    /**
      * Destroy things to release memory
      */
     destroy() {

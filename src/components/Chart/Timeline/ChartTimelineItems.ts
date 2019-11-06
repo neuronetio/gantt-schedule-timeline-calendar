@@ -8,7 +8,7 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-export default function ChartTimelineItems(vido) {
+export default function ChartTimelineItems(vido, props = {}) {
   const { api, state, onDestroy, actions, update, html, reuseComponents } = vido;
   const componentName = 'chart-timeline-items';
   const componentActions = api.getActions(componentName);

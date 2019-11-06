@@ -75,7 +75,7 @@ export default function ChartCalendar(vido, props) {
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions)} style=${style}>
+        <div class=${className} data-actions=${actions(componentActions, { ...props, api, state })} style=${style}>
           <div class=${className + '-dates ' + className + '-dates--months'}>${monthComponents.map(m => m.html())}</div>
           <div class=${className + '-dates ' + className + '-dates--days'}>${dayComponents.map(d => d.html())}</div>
           </div>

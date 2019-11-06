@@ -147,6 +147,23 @@ export default [
     ]
   },
   {
+    input: 'src/plugins/Selection.plugin.js',
+    output: {
+      sourcemap: true,
+      file: 'dist/Selection.plugin.js',
+      format: 'umd',
+      name: 'Selection'
+    },
+    plugins: [
+      resolve({
+        browser: true
+        //module: true
+      }),
+      commonjs({ extensions: ['.js'] }),
+      production && terser()
+    ]
+  },
+  {
     input: 'src/plugins/plugins.js',
     output: {
       sourcemap: true,

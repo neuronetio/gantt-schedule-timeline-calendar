@@ -8,8 +8,8 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-export default function DependencyLinesPlugin(options = {}) {
-  return function DependencyLines(state, api) {
+export default function DependencyLines(options = {}) {
+  return function initialize(state, api) {
     state.update('config.wrappers.ChartTimelineGrid', wrapper => {
       return function DependencyLinesWrapper(input, data) {
         const lines = [];

@@ -9,11 +9,10 @@
  */
 
 import ResizeObserver from 'resize-observer-polyfill';
-export default function Main(vido) {
+import schedule from 'raf-schd';
+export default function Main(vido, props = {}) {
   const { api, state, onDestroy, actions, update, createComponent, html } = vido;
   const componentName = api.name;
-
-  const periods = ['second', 'minute', 'hour', 'day', 'month', 'year'];
 
   let ListComponent;
   onDestroy(state.subscribe('config.components.List', value => (ListComponent = value)));
@@ -79,30 +78,32 @@ export default function Main(vido) {
     })
   );
 
+  function generateTree(bulk, eventInfo) {
+    if (state.get('_internal.flatTreeMap').length && eventInfo.type === 'subscribe') {
+      return;
+    }
+    const configRows = state.get('config.list.rows');
+    const rows = [];
+    for (const rowId in configRows) {
+      rows.push(configRows[rowId]);
+    }
+    api.fillEmptyRowValues(rows);
+    const configItems = state.get('config.chart.items');
+    const items = [];
+    for (const itemId in configItems) {
+      items.push(configItems[itemId]);
+    }
+    const treeMap = api.makeTreeMap(rows, items);
+    state.update('_internal.treeMap', treeMap);
+    state.update('_internal.flatTreeMapById', api.getFlatTreeMapById(treeMap));
+    state.update('_internal.flatTreeMap', api.flattenTreeMap(treeMap));
+    update();
+  }
+
   onDestroy(
     state.subscribeAll(
       ['config.list.rows;', 'config.chart.items;', 'config.list.rows.*.parentId', 'config.chart.items.*.rowId'],
-      (bulk, eventInfo) => {
-        if (state.get('_internal.flatTreeMap').length && eventInfo.type === 'subscribe') {
-          return;
-        }
-        const configRows = state.get('config.list.rows');
-        const rows = [];
-        for (const rowId in configRows) {
-          rows.push(configRows[rowId]);
-        }
-        api.fillEmptyRowValues(rows);
-        const configItems = state.get('config.chart.items');
-        const items = [];
-        for (const itemId in configItems) {
-          items.push(configItems[itemId]);
-        }
-        const treeMap = api.makeTreeMap(rows, items);
-        state.update('_internal.treeMap', treeMap);
-        state.update('_internal.flatTreeMapById', api.getFlatTreeMapById(treeMap));
-        state.update('_internal.flatTreeMap', api.flattenTreeMap(treeMap));
-        update();
-      },
+      generateTree,
       { bulk: true }
     )
   );
@@ -129,28 +130,28 @@ export default function Main(vido) {
     )
   );
 
-  onDestroy(
-    state.subscribeAll(['_internal.list.rowsWithParentsExpanded', 'config.scroll.top'], () => {
-      const { visibleRows, compensation } = api.getVisibleRowsAndCompensation(
-        state.get('_internal.list.rowsWithParentsExpanded')
-      );
-      const current = state.get('_internal.list.visibleRows');
-      let shouldUpdate = true;
-      state.update('config.scroll.compensation', -compensation);
-      if (visibleRows.length) {
-        shouldUpdate = visibleRows.some((row, index) => {
-          if (typeof current[index] === 'undefined') {
-            return true;
-          }
-          return row.id !== current[index].id;
-        });
-      }
-      if (shouldUpdate) {
-        state.update('_internal.list.visibleRows', visibleRows);
-      }
-      update();
-    })
-  );
+  function generateVisibleRows() {
+    const { visibleRows, compensation } = api.getVisibleRowsAndCompensation(
+      state.get('_internal.list.rowsWithParentsExpanded')
+    );
+    const current = state.get('_internal.list.visibleRows');
+    let shouldUpdate = true;
+    state.update('config.scroll.compensation', -compensation);
+    if (visibleRows.length) {
+      shouldUpdate = visibleRows.some((row, index) => {
+        if (typeof current[index] === 'undefined') {
+          return true;
+        }
+        return row.id !== current[index].id;
+      });
+    }
+    if (shouldUpdate) {
+      state.update('_internal.list.visibleRows', visibleRows);
+    }
+    update();
+  }
+
+  onDestroy(state.subscribeAll(['_internal.list.rowsWithParentsExpanded', 'config.scroll.top'], generateVisibleRows));
 
   let elementScrollTop = 0;
   onDestroy(
@@ -215,7 +216,6 @@ export default function Main(vido) {
         const chartWidth = state.get('_internal.chart.dimensions.width');
         let time = api.mergeDeep({}, state.get('config.chart.time'));
         time = api.time.recalculateFromTo(time);
-        const period = time.period;
         const zoomPercent = time.zoom * 0.01;
         let scrollLeft = state.get('config.scroll.left');
         time.timePerPixel = zoomPercent + Math.pow(2, time.zoom);
@@ -249,33 +249,37 @@ export default function Main(vido) {
         generateAndAddPeriodDates('month', time, chartWidth);
         state.update(`_internal.chart.time`, time);
         update();
-      }
+      },
+      { bulk: true }
     )
   );
 
   state.update('_internal.scrollBarHeight', api.getScrollBarHeight());
 
+  function handleEvent(event) {
+    const top = event.target.scrollTop;
+    if (scrollTop !== top)
+      state.update(
+        'config.scroll',
+        scroll => {
+          scroll.top = top;
+          scrollTop = scroll.top;
+          const scrollInner = state.get('_internal.elements.vertical-scroll-inner');
+          if (scrollInner) {
+            const scrollHeight = scrollInner.clientHeight;
+            scroll.percent.top = scroll.top / scrollHeight;
+          }
+          return scroll;
+        },
+        { only: ['top', 'percent.top'] }
+      );
+  }
+
   let scrollTop = 0;
   const onScroll = {
-    handleEvent(event) {
-      const top = event.target.scrollTop;
-      if (scrollTop !== top)
-        state.update(
-          'config.scroll',
-          scroll => {
-            scroll.top = top;
-            scrollTop = scroll.top;
-            const scrollInner = state.get('_internal.elements.verticalScrollInner');
-            if (scrollInner) {
-              const scrollHeight = scrollInner.clientHeight;
-              scroll.percent.top = scroll.top / scrollHeight;
-            }
-            return scroll;
-          },
-          { only: ['top', 'percent.top'] }
-        );
-    },
-    passive: true
+    handleEvent: schedule(handleEvent),
+    passive: true,
+    capture: false
   };
 
   /**
@@ -290,17 +294,19 @@ export default function Main(vido) {
   const dimensions = { width: 0, height: 0 };
   let ro;
   componentActions.push(element => {
-    ro = new ResizeObserver((entries, observer) => {
-      const width = element.clientWidth;
-      const height = element.clientHeight;
-      if (dimensions.width !== width || dimensions.height !== height) {
-        dimensions.width = width;
-        dimensions.height = height;
-        state.update('_internal.dimensions', dimensions);
-      }
-    });
-    ro.observe(element);
-    state.update('_internal.elements.main', element);
+    if (!ro) {
+      ro = new ResizeObserver((entries, observer) => {
+        const width = element.clientWidth;
+        const height = element.clientHeight;
+        if (dimensions.width !== width || dimensions.height !== height) {
+          dimensions.width = width;
+          dimensions.height = height;
+          state.update('_internal.dimensions', dimensions);
+        }
+      });
+      ro.observe(element);
+      state.update('_internal.elements.main', element);
+    }
   });
 
   onDestroy(() => {
@@ -308,11 +314,13 @@ export default function Main(vido) {
   });
 
   function bindScrollElement(element) {
-    verticalScrollBarElement = element;
-    state.update('_internal.elements.verticalScroll', element);
+    if (!verticalScrollBarElement) {
+      verticalScrollBarElement = element;
+      state.update('_internal.elements.vertical-scroll', element);
+    }
   }
   function bindScrollInnerElement(element) {
-    state.update('_internal.elements.verticalScrollInner', element);
+    state.update('_internal.elements.vertical-scroll-inner', element);
   }
 
   return props =>
@@ -323,7 +331,7 @@ export default function Main(vido) {
           style=${style}
           @scroll=${onScrollStop}
           @wheel=${onScrollStop}
-          data-actions=${actions(componentActions)}
+          data-actions=${actions(componentActions, { ...props, api, state })}
         >
           ${List.html()}${Chart.html()}
           <div

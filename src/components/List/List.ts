@@ -8,7 +8,7 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-export default function List(vido) {
+export default function List(vido, props = {}) {
   const { api, state, onDestroy, actions, update, reuseComponents, html } = vido;
 
   const componentName = 'list';
@@ -100,7 +100,7 @@ export default function List(vido) {
         ? html`
             <div
               class=${className}
-              data-actions=${actions(componentActions)}
+              data-actions=${actions(componentActions, { ...props, api, state })}
               style=${style}
               @scroll=${onScroll}
               @wheel=${onScroll}

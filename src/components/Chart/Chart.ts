@@ -9,7 +9,8 @@
  */
 
 import ResizeObserver from 'resize-observer-polyfill';
-export default function Chart(vido) {
+import schedule from 'raf-schd';
+export default function Chart(vido, props = {}) {
   const { api, state, onDestroy, actions, update, html, createComponent } = vido;
   const componentName = 'chart';
 
@@ -60,72 +61,81 @@ export default function Chart(vido) {
     )
   );
 
-  const onScroll = {
-    handleEvent(event) {
-      let scrollLeft, scrollTop;
-      if (event.type === 'scroll') {
-        state.update('config.scroll.left', event.target.scrollLeft);
-        scrollLeft = event.target.scrollLeft;
+  function handleEvent(event) {
+    let scrollLeft, scrollTop;
+    if (event.type === 'scroll') {
+      state.update('config.scroll.left', event.target.scrollLeft);
+      scrollLeft = event.target.scrollLeft;
+    } else {
+      const wheel = api.normalizeMouseWheelEvent(event);
+      const xMultiplier = state.get('config.scroll.xMultiplier');
+      const yMultiplier = state.get('config.scroll.yMultiplier');
+      if (event.shiftKey && wheel.y) {
+        state.update('config.scroll.left', left => {
+          return (scrollLeft = api.limitScroll('left', (left += wheel.y * xMultiplier)));
+        });
+      } else if (wheel.x) {
+        state.update('config.scroll.left', left => {
+          return (scrollLeft = api.limitScroll('left', (left += wheel.x * xMultiplier)));
+        });
       } else {
-        const wheel = api.normalizeMouseWheelEvent(event);
-        const xMultiplier = state.get('config.scroll.xMultiplier');
-        const yMultiplier = state.get('config.scroll.yMultiplier');
-        if (event.shiftKey && wheel.y) {
-          state.update('config.scroll.left', left => {
-            return (scrollLeft = api.limitScroll('left', (left += wheel.y * xMultiplier)));
-          });
-        } else if (wheel.x) {
-          state.update('config.scroll.left', left => {
-            return (scrollLeft = api.limitScroll('left', (left += wheel.x * xMultiplier)));
-          });
-        } else {
-          state.update('config.scroll.top', top => {
-            return (scrollTop = api.limitScroll('top', (top += wheel.y * yMultiplier)));
-          });
-        }
+        state.update('config.scroll.top', top => {
+          return (scrollTop = api.limitScroll('top', (top += wheel.y * yMultiplier)));
+        });
       }
-      const chart = state.get('_internal.elements.chart');
-      const scrollInner = state.get('_internal.elements.horizontalScrollInner');
-      if (chart) {
-        const scrollLeft = state.get('config.scroll.left');
-        let percent = 0;
-        if (scrollLeft) {
-          percent = Math.round((scrollLeft / (scrollInner.clientWidth - chart.clientWidth)) * 100);
-          if (percent > 100) percent = 100;
-        }
-        state.update('config.scroll.percent.left', percent);
+    }
+    const chart = state.get('_internal.elements.chart');
+    const scrollInner = state.get('_internal.elements.horizontal-scroll-inner');
+    if (chart) {
+      const scrollLeft = state.get('config.scroll.left');
+      let percent = 0;
+      if (scrollLeft) {
+        percent = Math.round((scrollLeft / (scrollInner.clientWidth - chart.clientWidth)) * 100);
+        if (percent > 100) percent = 100;
       }
-    },
-    passive: true
+      state.update('config.scroll.percent.left', percent);
+    }
+  }
+
+  const onScroll = {
+    handleEvent: schedule(handleEvent),
+    passive: true,
+    capture: false
+  };
+
+  const onWheel = {
+    handleEvent,
+    passive: true,
+    capture: false
   };
 
   function bindElement(element) {
-    scrollElement = element;
-    state.update('_internal.elements.horizontalScroll', element);
+    if (!scrollElement) {
+      scrollElement = element;
+      state.update('_internal.elements.horizontal-scroll', element);
+    }
   }
 
   function bindInnerScroll(element) {
-    state.update('_internal.elements.horizontalScrollInner', element);
+    state.update('_internal.elements.horizontal-scroll-inner', element);
   }
-
-  componentActions.push(element => {
-    state.update('_internal.elements.chart', element);
-  });
 
   let chartWidth = 0;
   let ro;
   componentActions.push(element => {
-    ro = new ResizeObserver((entries, observer) => {
-      const width = element.clientWidth;
-      const height = element.clientHeight;
-      const innerWidth = width - state.get('_internal.scrollBarHeight');
-      if (chartWidth !== width) {
-        chartWidth = width;
-        state.update('_internal.chart.dimensions', { width, innerWidth, height });
-      }
-    });
-    ro.observe(element);
-    state.update('_internal.elements.main', element);
+    if (!ro) {
+      ro = new ResizeObserver((entries, observer) => {
+        const width = element.clientWidth;
+        const height = element.clientHeight;
+        const innerWidth = width - state.get('_internal.scrollBarHeight');
+        if (chartWidth !== width) {
+          chartWidth = width;
+          state.update('_internal.chart.dimensions', { width, innerWidth, height });
+        }
+      });
+      ro.observe(element);
+      state.update('_internal.elements.chart', element);
+    }
   });
 
   onDestroy(() => {
@@ -135,7 +145,7 @@ export default function Chart(vido) {
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, { api, state })} @wheel=${onScroll}>
+        <div class=${className} data-actions=${actions(componentActions, { api, state })} @wheel=${onWheel}>
           ${Calendar.html()}${Timeline.html()}
           <div class=${classNameScroll} style=${styleScroll} data-actions=${actions([bindElement])} @scroll=${onScroll}>
             <div class=${classNameScrollInner} style=${styleScrollInner} data-actions=${actions([bindInnerScroll])} />

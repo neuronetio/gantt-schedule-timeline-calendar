@@ -83,7 +83,7 @@ export default function ItemMovement(options = {}) {
       ghost.style.height = height;
       ghost.style['line-height'] = height;
       ghost.style.opacity = '0.75';
-      state.get('_internal.elements.gantt').appendChild(ghost);
+      state.get('_internal.elements.chart-timeline').appendChild(ghost);
       movement.ghost = ghost;
       return ghost;
     }
@@ -103,7 +103,7 @@ export default function ItemMovement(options = {}) {
         return;
       }
       if (typeof movementState[itemId] !== 'undefined' && typeof movementState[itemId].ghost !== 'undefined') {
-        state.get('_internal.elements.gantt').removeChild(movementState[itemId].ghost);
+        state.get('_internal.elements.chart-timeline').removeChild(movementState[itemId].ghost);
         delete movementState[itemId].ghost;
       }
       element.style.opacity = '1';
@@ -154,7 +154,7 @@ export default function ItemMovement(options = {}) {
       const item = state.get(`config.chart.items.${data.item.id}`);
       const chartLeftTime = state.get('_internal.chart.time.leftGlobal');
       const timePerPixel = state.get('_internal.chart.time.timePerPixel');
-      const ganttRect = state.get('_internal.elements.gantt').getBoundingClientRect();
+      const ganttRect = state.get('_internal.elements.chart-timeline').getBoundingClientRect();
       movement.ganttTop = ganttRect.top;
       movement.ganttLeft = ganttRect.left;
       movement.itemX = Math.round((item.time.start - chartLeftTime) / timePerPixel);
@@ -172,7 +172,7 @@ export default function ItemMovement(options = {}) {
       const item = state.get(`config.chart.items.${data.item.id}`);
       const chartLeftTime = state.get('_internal.chart.time.leftGlobal');
       const timePerPixel = state.get('_internal.chart.time.timePerPixel');
-      const ganttRect = state.get('_internal.elements.gantt').getBoundingClientRect();
+      const ganttRect = state.get('_internal.elements.chart-timeline').getBoundingClientRect();
       movement.ganttTop = ganttRect.top;
       movement.ganttLeft = ganttRect.left;
       movement.itemX = (item.time.end - chartLeftTime) / timePerPixel;
