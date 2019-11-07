@@ -37,6 +37,8 @@ export default function ChartTimelineGrid(vido, props) {
 
   let period;
   onDestroy(state.subscribe('config.chart.time.period', value => (period = value)));
+  let onBlockCreate;
+  onDestroy(state.subscribe('config.chart.grid.block.onCreate', onCreate => (onBlockCreate = onCreate)));
 
   let rowsComponents = [];
   onDestroy(
@@ -49,22 +51,34 @@ export default function ChartTimelineGrid(vido, props) {
           return;
         }
         let top = 0;
-        const rowsAndBlocks = [];
-        let id = 0;
+        const rowsWithBlocks = [];
         for (const row of visibleRows) {
+          let id = 0;
           const blocks = [];
           for (const time of periodDates) {
-            blocks.push({ id, time, row, top });
+            let block = { id: row.id + ':' + id, time, row, top };
+            for (const onCreate of onBlockCreate) {
+              block = onCreate(block);
+            }
+            blocks.push(block);
             id++;
           }
-          rowsAndBlocks.push({ row, blocks, top });
+          rowsWithBlocks.push({ row, blocks, top });
           top += row.height;
         }
-        reuseComponents(rowsComponents, rowsAndBlocks, row => row, GridRowComponent);
-        update();
+        state.update('_internal.chart.grid.rowsWithBlocks', rowsWithBlocks);
       },
       { bulk: true }
     )
+  );
+
+  onDestroy(
+    state.subscribe('_internal.chart.grid.rowsWithBlocks', rowsWithBlocks => {
+      if (rowsWithBlocks) {
+        reuseComponents(rowsComponents, rowsWithBlocks, row => row, GridRowComponent);
+        update();
+      }
+    })
   );
 
   componentActions.push(element => {

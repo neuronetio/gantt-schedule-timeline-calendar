@@ -82,8 +82,8 @@ export default function ItemHold(options = {}) {
     };
   }
 
-  return function initialize(state, api) {
-    state.update('config.actions.chart-timeline-items-row-item', actions => {
+  return function initialize(vido) {
+    vido.state.update('config.actions.chart-timeline-items-row-item', actions => {
       actions.push(action);
       return actions;
     });

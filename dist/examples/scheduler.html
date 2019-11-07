@@ -60,10 +60,10 @@
           expanded: false,
           style: {
             current: i === 1 ? 'background: gray; color:white; font-weight:bold;' : '',
-            children: i === 1 ? 'background: lightgray; border-bottom:none;' : '',
+            children: i === 1 ? 'background: lightgray; border-bottom: 1px solid transparent;' : '',
             gridBlock: {
-              current: i === 1 ? 'background: lightgray; border-bottom:none;' : '',
-              children: i === 1 ? 'background: lightgray; border-bottom:none;' : ''
+              current: i === 1 ? 'background: lightgray; border-bottom: 1px solid transparent;' : '',
+              children: i === 1 ? 'background: lightgray; border-bottom: 1px solid transparent;' : ''
             }
           }
         };
@@ -257,10 +257,17 @@
             }
           ],
           'chart-timeline-grid-row-block': [
+            /**
+             * Grid block action - add dolar to apartaments
+             * @param {Element} element
+             * @param {object} data
+             * @returns {object} with update and destroy functions
+             */
             function gridBlockAction(element, data) {
+              const content = element.firstElementChild;
               // on create
-              element.insertAdjacentHTML('beforeend', '<div class="dolar-bg-content">$</div>');
-              let bg = element.querySelector('.dolar-bg-content');
+              content.insertAdjacentHTML('beforeend', '<div class="dolar-bg-content">$</div>');
+              let bg = content.querySelector('.dolar-bg-content');
               bg.onclick = ev => alert('dolar clicked!');
               if (data.row.id === '1') {
                 bg.style['line-height'] = data.row.height + 'px';

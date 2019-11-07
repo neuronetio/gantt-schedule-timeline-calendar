@@ -7,5 +7,5 @@
    * @package   gantt-schedule-timeline-calendar
    * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
    * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
-   */return function(e={}){return function(e,n){e.update("config.wrappers.ChartTimelineGrid",t=>(function(i,o){e.get("config.chart.items");const c=o.vido.html`${i}<div class=${n.getClass("chart-timeline-dependency-lines")}>${[]}</div>`;return t(c,o)}))}}}));
+   */return function(e={}){return function(e){const n=e.state,t=e.api;n.update("config.wrappers.ChartTimelineGrid",e=>(function(i,o){n.get("config.chart.items");const c=o.vido.html`${i}<div class=${t.getClass("chart-timeline-dependency-lines")}>${[]}</div>`;return e(c,o)}))}}}));
 //# sourceMappingURL=DependencyLines.plugin.js.map

@@ -28,7 +28,7 @@ export default function Main(vido, props = {}) {
     state.subscribe('config.plugins', plugins => {
       if (typeof plugins !== 'undefined' && Array.isArray(plugins)) {
         for (const plugin of plugins) {
-          plugin(state, api);
+          plugin(vido);
         }
       }
     })
@@ -351,6 +351,6 @@ export default function Main(vido, props = {}) {
           </div>
         </div>
       `,
-      { props: {}, vido, templateProps: props }
+      { props, vido, templateProps }
     );
 }

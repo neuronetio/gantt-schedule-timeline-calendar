@@ -46,9 +46,10 @@ export default function ChartTimelineGridRowBlock(vido, props) {
     .date()
     .startOf('day')
     .valueOf();
-  let className;
+  let className, classNameContent;
   function updateClassName(time) {
     className = api.getClass(componentName);
+    classNameContent = className + '-content';
     if (time.leftGlobal === currentTime) {
       className += ' current';
     }
@@ -87,7 +88,9 @@ export default function ChartTimelineGridRowBlock(vido, props) {
   return () =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, { ...props, api, state })} style=${style} />
+        <div class=${className} data-actions=${actions(componentActions, { ...props, api, state })} style=${style}>
+          <div class=${classNameContent} />
+        </div>
       `,
       { props, vido, templateProps: props }
     );

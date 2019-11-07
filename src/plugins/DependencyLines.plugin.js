@@ -9,7 +9,9 @@
  */
 
 export default function DependencyLines(options = {}) {
-  return function initialize(state, api) {
+  return function initialize(vido) {
+    const state = vido.state;
+    const api = vido.api;
     state.update('config.wrappers.ChartTimelineGrid', wrapper => {
       return function DependencyLinesWrapper(input, data) {
         const lines = [];

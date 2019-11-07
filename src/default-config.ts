@@ -57,6 +57,8 @@ function generateEmptyActions() {
 function defaultConfig() {
   const actions = generateEmptyActions();
   return {
+    plugins: [],
+    plugin: {},
     height: 740,
     headerHeight: 86,
     components: {
@@ -183,7 +185,11 @@ function defaultConfig() {
           smallFormat: 'YYYY-MM-DD'
         }
       },
-      grid: {},
+      grid: {
+        block: {
+          onCreate: []
+        }
+      },
       items: {}
     },
     classNames: {},
