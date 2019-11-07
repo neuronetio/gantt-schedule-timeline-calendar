@@ -9,23 +9,21 @@
  */
 
 function bindElementAction(element, data) {
-  data.state.update('_internal.elements.chart-timeline-grid-rows.' + data.row.id, { element, data }, { only: null });
-  return {
-    update(element, changedData) {
-      if (changedData.row.id !== data.row.id)
-        data.state.update(
-          '_internal.elements.chart-timeline-grid-rows.' + changedData.row.id,
-          {
-            element,
-            data: changedData
-          },
-          { only: null }
-        );
+  data.state.update(
+    '_internal.elements.chart-timeline-grid-rows',
+    rows => {
+      if (typeof rows === 'undefined') {
+        rows = [];
+      }
+      rows.push(element);
+      return rows;
     },
-    destroy(element, data) {
-      data.state.update('_internal.elements.chart-timeline-grid-rows', gridRow => {
-        delete gridRow[data.id];
-        return gridRow;
+    { only: null }
+  );
+  return {
+    destroy(element) {
+      data.state.update('_internal.elements.chart-timeline-grid-rows', rows => {
+        return rows.filter(el => el !== element);
       });
     }
   };

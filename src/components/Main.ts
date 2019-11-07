@@ -147,6 +147,13 @@ export default function Main(vido, props = {}) {
     }
     if (shouldUpdate) {
       state.update('_internal.list.visibleRows', visibleRows);
+      const visibleItems = [];
+      for (const row of visibleRows) {
+        for (const item of row._internal.items) {
+          visibleItems.push(item);
+        }
+      }
+      state.update('_internal.chart.visibleItems', visibleItems);
     }
     update();
   }
@@ -323,7 +330,7 @@ export default function Main(vido, props = {}) {
     state.update('_internal.elements.vertical-scroll-inner', element);
   }
 
-  return props =>
+  return templateProps =>
     wrapper(
       html`
         <div

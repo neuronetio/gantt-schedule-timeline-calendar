@@ -19,7 +19,7 @@ export default function Selection(options = {}) {
   options = { ...options, ...defaultOptions };
   let state, api;
   let chartTimeline, top, left;
-  let selecting = { fromX: -1, fromY: -1, toX: -1, toY: -1, startX: -1, startY: -1, data: [], elements: [] };
+  let selecting = { fromX: -1, fromY: -1, toX: -1, toY: -1, startX: -1, startY: -1 };
   const path = 'config.plugins.selection';
   const rectClassName = 'gantt-schedule-timeline-caledar__plugin-selection-rect';
   const rect = document.createElement('div');
@@ -101,10 +101,8 @@ export default function Selection(options = {}) {
       selecting.fromY = -1;
       selecting.startX = -1;
       selecting.startY = -1;
-      selecting.data = [];
-      selecting.elements = [];
       rect.style.visibility = 'hidden';
-      state.update(`${path}.selecting`, false);
+      if (state.get(`${path}.selecting`)) state.update(`${path}.selecting`, false);
     }
 
     element.addEventListener('mousedown', mouseDown);
@@ -126,7 +124,15 @@ export default function Selection(options = {}) {
     state = State;
     api = Api;
     if (typeof state.get(path) === 'undefined') {
-      state.update(path, { selecting: false, selected: [] });
+      state.update(path, {
+        selecting: false,
+        selected: {
+          'chart-timeline-grid-rows': [],
+          'chart-timeline-grid-row-blocks': [],
+          'chart-timeline-items-rows': [],
+          'chart-timeline-items-row-items': []
+        }
+      });
     }
     state.update('config.actions.chart-timeline', actions => {
       actions.push(rectSelectionAction);
