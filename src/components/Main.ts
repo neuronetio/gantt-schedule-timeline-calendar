@@ -43,41 +43,54 @@ export default function Main(vido, props = {}) {
   let rowsHeight = 0;
   let resizerActive = false;
 
-  onDestroy(
-    state.subscribe('config.classNames', classNames => {
-      const config = state.get('config');
-      className = api.getClass(componentName, { config });
-      if (resizerActive) {
-        className += ` ${componentName}__list-column-header-resizer--active`;
-      }
-      classNameVerticalScroll = api.getClass('vertical-scroll', { config });
-      update();
-    })
-  );
+  /**
+   * Update class names
+   * @param {object} classNames
+   */
+  function updateClassNames(classNames) {
+    const config = state.get('config');
+    className = api.getClass(componentName, { config });
+    if (resizerActive) {
+      className += ` ${componentName}__list-column-header-resizer--active`;
+    }
+    classNameVerticalScroll = api.getClass('vertical-scroll', { config });
+    update();
+  }
+  onDestroy(state.subscribe('config.classNames', updateClassNames));
 
-  onDestroy(
-    state.subscribeAll(['config.height', 'config.headerHeight', '_internal.scrollBarHeight'], () => {
-      const config = state.get('config');
-      const scrollBarHeight = state.get('_internal.scrollBarHeight');
-      const height = config.height - config.headerHeight - scrollBarHeight;
-      state.update('_internal.height', height);
-      style = `--height: ${config.height}px`;
-      styleVerticalScroll = `height: ${height}px; width: ${scrollBarHeight}px; margin-top: ${config.headerHeight}px;`;
-      update();
-    })
-  );
+  /**
+   * Height change
+   */
+  function heightChange() {
+    const config = state.get('config');
+    const scrollBarHeight = state.get('_internal.scrollBarHeight');
+    const height = config.height - config.headerHeight - scrollBarHeight;
+    state.update('_internal.height', height);
+    style = `--height: ${config.height}px`;
+    styleVerticalScroll = `height: ${height}px; width: ${scrollBarHeight}px; margin-top: ${config.headerHeight}px;`;
+    update();
+  }
+  onDestroy(state.subscribeAll(['config.height', 'config.headerHeight', '_internal.scrollBarHeight'], heightChange));
 
-  onDestroy(
-    state.subscribe('_internal.list.columns.resizer.active', active => {
-      resizerActive = active;
-      className = api.getClass(api.name);
-      if (resizerActive) {
-        className += ` ${api.name}__list-column-header-resizer--active`;
-      }
-      update();
-    })
-  );
+  /**
+   * Resizer active change
+   * @param {boolean} active
+   */
+  function resizerActiveChange(active) {
+    resizerActive = active;
+    className = api.getClass(api.name);
+    if (resizerActive) {
+      className += ` ${api.name}__list-column-header-resizer--active`;
+    }
+    update();
+  }
+  onDestroy(state.subscribe('_internal.list.columns.resizer.active', resizerActiveChange));
 
+  /**
+   * Generate tree
+   * @param {object} bulk
+   * @param {object} eventInfo
+   */
   function generateTree(bulk, eventInfo) {
     if (state.get('_internal.flatTreeMap').length && eventInfo.type === 'subscribe') {
       return;
@@ -108,28 +121,29 @@ export default function Main(vido, props = {}) {
     )
   );
 
-  onDestroy(
-    state.subscribeAll(
-      ['config.list.rows.*.expanded', '_internal.treeMap;'],
-      bulk => {
-        const configRows = state.get('config.list.rows');
-        const rowsWithParentsExpanded = api.getRowsFromIds(
-          api.getRowsWithParentsExpanded(
-            state.get('_internal.flatTreeMap'),
-            state.get('_internal.flatTreeMapById'),
-            configRows
-          ),
-          configRows
-        );
-        rowsHeight = api.getRowsHeight(rowsWithParentsExpanded);
-        state.update('_internal.list.rowsHeight', rowsHeight);
-        state.update('_internal.list.rowsWithParentsExpanded', rowsWithParentsExpanded);
-        update();
-      },
-      { bulk: true }
-    )
-  );
+  /**
+   * Prepare expanded
+   */
+  function prepareExpanded() {
+    const configRows = state.get('config.list.rows');
+    const rowsWithParentsExpanded = api.getRowsFromIds(
+      api.getRowsWithParentsExpanded(
+        state.get('_internal.flatTreeMap'),
+        state.get('_internal.flatTreeMapById'),
+        configRows
+      ),
+      configRows
+    );
+    rowsHeight = api.getRowsHeight(rowsWithParentsExpanded);
+    state.update('_internal.list.rowsHeight', rowsHeight);
+    state.update('_internal.list.rowsWithParentsExpanded', rowsWithParentsExpanded);
+    update();
+  }
+  onDestroy(state.subscribeAll(['config.list.rows.*.expanded', '_internal.treeMap;'], prepareExpanded, { bulk: true }));
 
+  /**
+   * Generate visible rows
+   */
   function generateVisibleRows() {
     const { visibleRows, compensation } = api.getVisibleRowsAndCompensation(
       state.get('_internal.list.rowsWithParentsExpanded')
@@ -157,23 +171,29 @@ export default function Main(vido, props = {}) {
     }
     update();
   }
-
   onDestroy(state.subscribeAll(['_internal.list.rowsWithParentsExpanded', 'config.scroll.top'], generateVisibleRows));
 
   let elementScrollTop = 0;
-  onDestroy(
-    state.subscribe('_internal.list.visibleRows;', () => {
-      const top = state.get('config.scroll.top');
-      styleVerticalScrollArea = `height: ${rowsHeight}px; width: 1px`;
-      if (elementScrollTop !== top && verticalScrollBarElement) {
-        elementScrollTop = top;
-        verticalScrollBarElement.scrollTop = top;
-      }
-      update();
-    })
-  );
+  /**
+   * On visible rows change
+   */
+  function onVisibleRowsChange() {
+    const top = state.get('config.scroll.top');
+    styleVerticalScrollArea = `height: ${rowsHeight}px; width: 1px`;
+    if (elementScrollTop !== top && verticalScrollBarElement) {
+      elementScrollTop = top;
+      verticalScrollBarElement.scrollTop = top;
+    }
+    update();
+  }
+  onDestroy(state.subscribe('_internal.list.visibleRows;', onVisibleRowsChange));
 
-  function generateAndAddPeriodDates(period, internalTime, chartWidth) {
+  /**
+   * Generate and add period dates
+   * @param {string} period
+   * @param {object} internalTime
+   */
+  function generateAndAddPeriodDates(period, internalTime) {
     const dates = [];
     let leftGlobal = internalTime.leftGlobal;
     const rightGlobal = internalTime.rightGlobal;
@@ -209,6 +229,47 @@ export default function Main(vido, props = {}) {
     internalTime.dates[period] = dates;
   }
 
+  /**
+   * Recalculate times action
+   */
+  function recalculateTimes() {
+    const chartWidth = state.get('_internal.chart.dimensions.width');
+    let time = api.mergeDeep({}, state.get('config.chart.time'));
+    time = api.time.recalculateFromTo(time);
+    const zoomPercent = time.zoom * 0.01;
+    let scrollLeft = state.get('config.scroll.left');
+    time.timePerPixel = zoomPercent + Math.pow(2, time.zoom);
+    time.totalViewDurationMs = api.time.date(time.to).diff(time.from, 'milliseconds');
+    time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
+    if (scrollLeft > time.totalViewDurationPx) {
+      scrollLeft = time.totalViewDurationPx - chartWidth;
+    }
+    time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
+    time.rightGlobal = time.leftGlobal + chartWidth * time.timePerPixel;
+    time.leftInner = time.leftGlobal - time.from;
+    time.rightInner = time.rightGlobal - time.from;
+    time.leftPx = time.leftInner / time.timePerPixel;
+    time.rightPx = time.rightInner / time.timePerPixel;
+    const pixelGlobal = Math.round(time.rightGlobal / time.timePerPixel);
+    const pixelTo = Math.round(time.to / time.timePerPixel);
+    if (pixelGlobal > pixelTo) {
+      const diff = time.rightGlobal - time.to;
+      const diffPercent = diff / (time.rightGlobal - time.from);
+      time.timePerPixel = time.timePerPixel - time.timePerPixel * diffPercent;
+      time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
+      time.rightGlobal = time.to;
+      time.rightInner = time.rightGlobal - time.from;
+      time.totalViewDurationMs = time.to - time.from;
+      time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
+      time.rightInner = time.rightGlobal - time.from;
+      time.rightPx = time.rightInner / time.timePerPixel;
+      time.leftPx = time.leftInner / time.timePerPixel;
+    }
+    generateAndAddPeriodDates('day', time);
+    generateAndAddPeriodDates('month', time);
+    state.update(`_internal.chart.time`, time);
+    update();
+  }
   onDestroy(
     state.subscribeAll(
       [
@@ -219,70 +280,43 @@ export default function Main(vido, props = {}) {
         '_internal.list.width',
         '_internal.chart.dimensions'
       ],
-      function recalculateTimesAction() {
-        const chartWidth = state.get('_internal.chart.dimensions.width');
-        let time = api.mergeDeep({}, state.get('config.chart.time'));
-        time = api.time.recalculateFromTo(time);
-        const zoomPercent = time.zoom * 0.01;
-        let scrollLeft = state.get('config.scroll.left');
-        time.timePerPixel = zoomPercent + Math.pow(2, time.zoom);
-        time.totalViewDurationMs = api.time.date(time.to).diff(time.from, 'milliseconds');
-        time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
-        if (scrollLeft > time.totalViewDurationPx) {
-          scrollLeft = time.totalViewDurationPx - chartWidth;
-        }
-        time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
-        time.rightGlobal = time.leftGlobal + chartWidth * time.timePerPixel;
-        time.leftInner = time.leftGlobal - time.from;
-        time.rightInner = time.rightGlobal - time.from;
-        time.leftPx = time.leftInner / time.timePerPixel;
-        time.rightPx = time.rightInner / time.timePerPixel;
-        const pixelGlobal = Math.round(time.rightGlobal / time.timePerPixel);
-        const pixelTo = Math.round(time.to / time.timePerPixel);
-        if (pixelGlobal > pixelTo) {
-          const diff = time.rightGlobal - time.to;
-          const diffPercent = diff / (time.rightGlobal - time.from);
-          time.timePerPixel = time.timePerPixel - time.timePerPixel * diffPercent;
-          time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
-          time.rightGlobal = time.to;
-          time.rightInner = time.rightGlobal - time.from;
-          time.totalViewDurationMs = time.to - time.from;
-          time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
-          time.rightInner = time.rightGlobal - time.from;
-          time.rightPx = time.rightInner / time.timePerPixel;
-          time.leftPx = time.leftInner / time.timePerPixel;
-        }
-        generateAndAddPeriodDates('day', time, chartWidth);
-        generateAndAddPeriodDates('month', time, chartWidth);
-        state.update(`_internal.chart.time`, time);
-        update();
-      },
+      recalculateTimes,
       { bulk: true }
     )
   );
 
   state.update('_internal.scrollBarHeight', api.getScrollBarHeight());
 
-  function handleEvent(event) {
+  let scrollTop = 0;
+
+  /**
+   * Handle scroll Event
+   * @param {MouseEvent} event
+   */
+  function handleEvent(event: MouseEvent) {
+    // @ts-ignore
     const top = event.target.scrollTop;
+    /**
+     * Handle on scroll event
+     * @param {object} scroll
+     * @returns {object} scroll
+     */
+    function handleOnScroll(scroll) {
+      scroll.top = top;
+      scrollTop = scroll.top;
+      const scrollInner = state.get('_internal.elements.vertical-scroll-inner');
+      if (scrollInner) {
+        const scrollHeight = scrollInner.clientHeight;
+        scroll.percent.top = scroll.top / scrollHeight;
+      }
+      return scroll;
+    }
     if (scrollTop !== top)
-      state.update(
-        'config.scroll',
-        scroll => {
-          scroll.top = top;
-          scrollTop = scroll.top;
-          const scrollInner = state.get('_internal.elements.vertical-scroll-inner');
-          if (scrollInner) {
-            const scrollHeight = scrollInner.clientHeight;
-            scroll.percent.top = scroll.top / scrollHeight;
-          }
-          return scroll;
-        },
-        { only: ['top', 'percent.top'] }
-      );
+      state.update('config.scroll', handleOnScroll, {
+        only: ['top', 'percent.top']
+      });
   }
 
-  let scrollTop = 0;
   const onScroll = {
     handleEvent: schedule(handleEvent),
     passive: true,
@@ -291,16 +325,20 @@ export default function Main(vido, props = {}) {
 
   /**
    * Stop scroll / wheel to sink into parent elements
-   * @param Event event
+   * @param {Event} event
    */
-  function onScrollStop(event) {
+  function onScrollStop(event: Event) {
     event.stopPropagation();
     event.preventDefault();
   }
 
   const dimensions = { width: 0, height: 0 };
   let ro;
-  componentActions.push(element => {
+  /**
+   * Resize action
+   * @param {Element} element
+   */
+  function resizeAction(element: Element) {
     if (!ro) {
       ro = new ResizeObserver((entries, observer) => {
         const width = element.clientWidth;
@@ -314,24 +352,36 @@ export default function Main(vido, props = {}) {
       ro.observe(element);
       state.update('_internal.elements.main', element);
     }
-  });
+  }
+  if (!componentActions.includes(resizeAction)) {
+    componentActions.push(resizeAction);
+  }
 
   onDestroy(() => {
     ro.disconnect();
   });
 
-  function bindScrollElement(element) {
+  /**
+   * Bind scroll element
+   * @param {Element} element
+   */
+  function bindScrollElement(element: Element) {
     if (!verticalScrollBarElement) {
       verticalScrollBarElement = element;
       state.update('_internal.elements.vertical-scroll', element);
     }
   }
-  function bindScrollInnerElement(element) {
+
+  /**
+   * Bind scroll inner element
+   * @param {Element} element
+   */
+  function bindScrollInnerElement(element: Element) {
     state.update('_internal.elements.vertical-scroll-inner', element);
   }
 
-  return templateProps =>
-    wrapper(
+  return function renderTemplate(templateProps) {
+    return wrapper(
       html`
         <div
           class=${className}
@@ -353,4 +403,5 @@ export default function Main(vido, props = {}) {
       `,
       { props, vido, templateProps }
     );
+  };
 }

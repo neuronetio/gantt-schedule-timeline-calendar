@@ -8,6 +8,12 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
+/**
+ * Bind element action
+ * @param {Element} element
+ * @param {any} data
+ * @returns {object} with update and destroy
+ */
 function bindElementAction(element, data) {
   data.state.update(
     '_internal.elements.chart-timeline-grid-row-blocks',
@@ -21,6 +27,7 @@ function bindElementAction(element, data) {
     { only: null }
   );
   return {
+    update() {},
     destroy(element) {
       data.state.update('_internal.elements.chart-timeline-grid-row-blocks', blocks => {
         return blocks.filter(el => el !== element);

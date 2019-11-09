@@ -53,15 +53,14 @@ export default function ChartTimelineGrid(vido, props) {
         let top = 0;
         const rowsWithBlocks = [];
         for (const row of visibleRows) {
-          let id = 0;
           const blocks = [];
           for (const time of periodDates) {
-            let block = { id: row.id + ':' + id, time, row, top };
+            let id = row.id + ':' + api.time.date(time.leftGlobal).format('YYYY-MM-DD');
+            let block = { id, time, row, top };
             for (const onCreate of onBlockCreate) {
               block = onCreate(block);
             }
             blocks.push(block);
-            id++;
           }
           rowsWithBlocks.push({ row, blocks, top });
           top += row.height;

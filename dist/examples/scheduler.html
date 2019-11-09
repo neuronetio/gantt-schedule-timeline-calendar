@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf8" />
     <meta name="viewport" content="width=device-width" />
@@ -225,7 +225,21 @@
             snapEnd
           }),
           SaveAsImage(),
-          Selection()
+          Selection({
+            rectStyle: { opacity: '0.0' },
+            selecting(data, type) {
+              console.log(`selecting ${type} ${data.id}`);
+            },
+            deselecting(data, type) {
+              console.log(`deselecting ${type} ${data.id}`);
+            },
+            selected(data, type) {
+              console.log(`selected ${type} ${data.id}`);
+            },
+            deselected(data, type) {
+              console.log(`deselected ${type} ${data.id}`);
+            }
+          })
         ],
         height: 40 * 12 + 94,
         list: {

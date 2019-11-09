@@ -7,7 +7,89 @@
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
-function t(t={}){t={...{time:1e3,movementThreshold:2,action(t,e){}},...t};const e={},i={x:0,y:0};function n(t){void 0!==e[t]&&delete e[t]}function o(o,s){function r(n){!function(n,o,s){void 0===e[n.id]&&(e[n.id]={x:s.x,y:s.y},setTimeout(()=>{if(void 0!==e[n.id]){let s=!0,r=e[n.id].x-i.x;-1===Math.sign(r)&&(r=-r);let l=e[n.id].y-i.y;-1===Math.sign(l)&&(l=-l),r>t.movementThreshold&&(s=!1),l>t.movementThreshold&&(s=!1),delete e[n.id],s&&t.action(o,n)}},t.time))}(s.item,o,n)}function l(t){i.x=t.x,i.y=t.y}return o.addEventListener("mousedown",r),document.addEventListener("mouseup",(function(){n(s.item.id)})),document.addEventListener("mousemove",l),{update(t,e){s=e},destroy(t,e){document.removeEventListener("mouseup",n),document.removeEventListener("mousemove",l),t.removeEventListener("mousedown",r)}}}return function(t){t.state.update("config.actions.chart-timeline-items-row-item",t=>(t.push(o),t))}}
+
+function ItemHold(options = {}) {
+  const defaultOptions = {
+    time: 1000,
+    movementThreshold: 2,
+    action(element, data) {}
+  };
+  options = { ...defaultOptions, ...options };
+
+  const holding = {};
+  const mouse = { x: 0, y: 0 };
+
+  function onMouseDown(item, element, event) {
+    if (typeof holding[item.id] === 'undefined') {
+      holding[item.id] = { x: event.x, y: event.y };
+      setTimeout(() => {
+        if (typeof holding[item.id] !== 'undefined') {
+          let exec = true;
+          let xMovement = holding[item.id].x - mouse.x;
+          if (Math.sign(xMovement) === -1) {
+            xMovement = -xMovement;
+          }
+          let yMovement = holding[item.id].y - mouse.y;
+          if (Math.sign(yMovement) === -1) {
+            yMovement = -yMovement;
+          }
+          if (xMovement > options.movementThreshold) {
+            exec = false;
+          }
+          if (yMovement > options.movementThreshold) {
+            exec = false;
+          }
+          delete holding[item.id];
+          if (exec) {
+            options.action(element, item);
+          }
+        }
+      }, options.time);
+    }
+  }
+
+  function onMouseUp(itemId) {
+    if (typeof holding[itemId] !== 'undefined') {
+      delete holding[itemId];
+    }
+  }
+
+  function action(element, data) {
+    function elementMouseDown(event) {
+      onMouseDown(data.item, element, event);
+    }
+    element.addEventListener('mousedown', elementMouseDown);
+    function mouseUp() {
+      onMouseUp(data.item.id);
+    }
+
+    document.addEventListener('mouseup', mouseUp);
+    function onMouseMove(event) {
+      mouse.x = event.x;
+      mouse.y = event.y;
+    }
+
+    document.addEventListener('mousemove', onMouseMove);
+    return {
+      update(element, changedData) {
+        data = changedData;
+      },
+      destroy(element, data) {
+        document.removeEventListener('mouseup', onMouseUp);
+        document.removeEventListener('mousemove', onMouseMove);
+        element.removeEventListener('mousedown', elementMouseDown);
+      }
+    };
+  }
+
+  return function initialize(vido) {
+    vido.state.update('config.actions.chart-timeline-items-row-item', actions => {
+      actions.push(action);
+      return actions;
+    });
+  };
+}
+
 /**
  * ItemMovement plugin
  *
@@ -16,7 +98,364 @@ function t(t={}){t={...{time:1e3,movementThreshold:2,action(t,e){}},...t};const 
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function e(t={}){t={moveable:!0,resizeable:!0,resizerContent:"",collisionDetection:!0,outOfBorders:!1,snapStart:(t,e)=>t+e,snapEnd:(t,e)=>t+e,ghostNode:!0,...t};const e={};function i(i,n){let o,s,r=i.querySelector(".gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content");if(!t.moveable&&!t.resizeable)return;function l(e){let i=t.resizeable&&(!e.item.hasOwnProperty("resizeable")||!0===e.item.resizeable);return e.row.hasOwnProperty("resizeable")&&i&&(i=e.row.resizeable),i}function c(t){const i=t.item.id;return void 0===e[i]&&(e[i]={moving:!1,resizing:!1}),e[i]}function a(e,i){if(t.ghostNode){const t=c(e),n=i.x-t.ganttLeft-t.itemLeftCompensation,s=o.get("config.scroll.compensation");t.ghost.style.left=n+"px",t.ghost.style.top=i.y-t.ganttTop-t.itemTop+s+"px"}}function m(i){t.ghostNode&&(void 0!==e[i]&&void 0!==e[i].ghost&&(o.get("_internal.elements.chart-timeline").removeChild(e[i].ghost),delete e[i].ghost),r.style.opacity="1")}function d(e){let i=t.snapStart;return"function"==typeof e.item.snapStart&&(i=e.item.snapStart),i}function u(e){let i=t.snapEnd;return"function"==typeof e.item.snapEnd&&(i=e.item.snapEnd),i}o=n.state;const g=`<div class="${(s=n.api).getClass("chart-timeline-items-row-item-content-resizer")}">${t.resizerContent}</div>`;r.insertAdjacentHTML("beforeend",g);const f=r.querySelector(".gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content-resizer");function h(e){if(e.stopPropagation(),0!==e.button)return;r=i.querySelector(".gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content");const s=c(n);s.moving=!0;const l=o.get(`config.chart.items.${n.item.id}`),a=o.get("_internal.chart.time.leftGlobal"),m=o.get("_internal.chart.time.timePerPixel"),d=o.get("_internal.elements.chart-timeline").getBoundingClientRect();s.ganttTop=d.top,s.ganttLeft=d.left,s.itemX=Math.round((l.time.start-a)/m),s.itemLeftCompensation=e.x-s.ganttLeft-s.itemX,function(e,i,n,s){const l=c(e);if(!t.ghostNode||void 0!==l.ghost)return;const a=r.cloneNode(!0),m=getComputedStyle(r);a.style.position="absolute",a.style.left=i.x-n-l.itemLeftCompensation+"px";const d=i.y-s-e.row.top-r.offsetTop;l.itemTop=d,a.style.top=i.y-s-d+"px",a.style.width=m.width,a.style["box-shadow"]="10px 10px 6px #00000020";const u=r.clientHeight+"px";a.style.height=u,a.style["line-height"]=u,a.style.opacity="0.75",o.get("_internal.elements.chart-timeline").appendChild(a),l.ghost=a}(n,e,d.left,d.top)}function p(t){if(t.stopPropagation(),0!==t.button)return;const e=c(n);e.resizing=!0;const i=o.get(`config.chart.items.${n.item.id}`),s=o.get("_internal.chart.time.leftGlobal"),r=o.get("_internal.chart.time.timePerPixel"),l=o.get("_internal.elements.chart-timeline").getBoundingClientRect();e.ganttTop=l.top,e.ganttLeft=l.left,e.itemX=(i.time.end-s)/r,e.itemLeftCompensation=t.x-e.ganttLeft-e.itemX}function v(e,i,n,r){if(!t.collisionDetection)return!1;const l=o.get("_internal.chart.time");if(t.outOfBorders&&(n<l.from||r>l.to))return!0;let c=s.time.date(r).diff(n,"milliseconds");if(-1===Math.sign(c)&&(c=-c),c<=1)return!0;const a=o.get("config.list.rows."+e);for(const t of a._internal.items)if(t.id!==i){if(n>=t.time.start&&n<=t.time.end)return!0;if(r>=t.time.start&&r<=t.time.end)return!0;if(n<=t.time.start&&r>=t.time.end)return!0}return!1}function y(e){const i=c(n);let s,r,m,g,f;(i.moving||i.resizing)&&(e.stopPropagation(),s=o.get(`config.chart.items.${n.item.id}`),r=o.get(`config.chart.items.${n.item.id}.rowId`),m=o.get(`config.list.rows.${r}`),g=o.get("config.chart.time.zoom"),f=o.get("_internal.chart.time.timePerPixel"));const h=function(e){let i=t.moveable;return e.item.hasOwnProperty("moveable")&&i&&(i=e.item.moveable),e.row.hasOwnProperty("moveable")&&i&&(i=e.row.moveable),i}(n);if(i.moving){if((!0===h||"x"===h||Array.isArray(h)&&h.includes(r))&&function(t,e,i,s,r){t.stopPropagation();const l=c(n),m=t.x-l.ganttLeft-l.itemLeftCompensation;a(n,t);const g=o.get("_internal.chart.time.leftGlobal")+m*r-i.time.start,f=i.time.start,h=d(n)(i.time.start,g,i)-f,p=v(e.id,i.id,i.time.start+h,i.time.end+h);h&&!p&&o.update(`config.chart.items.${n.item.id}.time`,(function(t){return t.start+=h,t.end=u(n)(t.end,h,i)-1,t}))}(e,m,s,0,f),!h||"x"===h)return;let t=function(t,e,i,s,r){t.stopPropagation(),a(n,t);const l=c(n),m=t.y-l.ganttTop,d=o.get("_internal.list.visibleRows"),u=o.get("config.scroll.compensation");let g=0;for(const t of d){if(t.top+u>m)return g>0?g-1:0;g++}return g}(e);const i=o.get("_internal.list.visibleRows");void 0===i[t]&&(t>0?t=i.length-1:t<0&&(t=0));const l=i[t],g=l.id,p=v(g,s.id,s.time.start,s.time.end);g===s.rowId||p||Array.isArray(h)&&!h.includes(g)||l.hasOwnProperty("moveable")&&!l.moveable||o.update(`config.chart.items.${s.id}.rowId`,g)}else!i.resizing||void 0!==s.resizeable&&!0!==s.resizeable||function(t,e,i,s,r){if(t.stopPropagation(),!l(n))return;const a=o.get("_internal.chart.time"),m=c(n),g=t.x-m.ganttLeft-m.itemLeftCompensation,f=a.leftGlobal+g*r-i.time.end;if(i.time.end+f<i.time.start)return;const h=i.time.end,p=u(n)(i.time.end,f,i)-1-h,y=v(e.id,i.id,i.time.start,i.time.end+p);p&&!y&&o.update(`config.chart.items.${n.item.id}.time`,t=>(t.start=d(n)(t.start,0,i),t.end=u(n)(t.end,p,i)-1,t))}(e,m,s,0,f)}function w(t){const i=c(n);(i.moving||i.resizing)&&t.stopPropagation(),i.moving=!1,i.resizing=!1;for(const t in e)e[t].moving=!1,e[t].resizing=!1,m(t)}return l(n)?f.style.visibility="visible":f.style.visibility="hidden",r.addEventListener("mousedown",h),f.addEventListener("mousedown",p,{capture:!0}),document.addEventListener("mousemove",y,{capture:!0,passive:!0}),document.addEventListener("mouseup",w,{capture:!0,passive:!0}),{update(t,e){l(n=e)?f.style.visibility="visible":f.style.visibility="hidden"},destroy(t,e){r.removeEventListener("mousedown",h),f.removeEventListener("mousedown",p),document.removeEventListener("mousemove",y),document.removeEventListener("mouseup",w),f.remove()}}}return function(t){t.state.update("config.actions.chart-timeline-items-row-item",t=>(t.push(i),t))}}
+ */
+
+function ItemMovement(options = {}) {
+  const defaultOptions = {
+    moveable: true,
+    resizeable: true,
+    resizerContent: '',
+    collisionDetection: true,
+    outOfBorders: false,
+    snapStart: (timeStart, startDiff) => timeStart + startDiff,
+    snapEnd: (timeEnd, endDiff) => timeEnd + endDiff,
+    ghostNode: true
+  };
+  options = { ...defaultOptions, ...options };
+
+  const movementState = {};
+
+  /**
+   * Add moving functionality to items as action
+   *
+   * @param {Node} node DOM Node
+   * @param {Object} data
+   */
+  function action(node, data) {
+    // @ts-ignore
+    let element = node.querySelector('.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content');
+    if (!options.moveable && !options.resizeable) {
+      return;
+    }
+    let state;
+    let api;
+
+    function isMoveable(data) {
+      let moveable = options.moveable;
+      if (data.item.hasOwnProperty('moveable') && moveable) {
+        moveable = data.item.moveable;
+      }
+      if (data.row.hasOwnProperty('moveable') && moveable) {
+        moveable = data.row.moveable;
+      }
+      return moveable;
+    }
+
+    function isResizeable(data) {
+      let resizeable = options.resizeable && (!data.item.hasOwnProperty('resizeable') || data.item.resizeable === true);
+      if (data.row.hasOwnProperty('resizeable') && resizeable) {
+        resizeable = data.row.resizeable;
+      }
+      return resizeable;
+    }
+
+    function getMovement(data) {
+      const itemId = data.item.id;
+      if (typeof movementState[itemId] === 'undefined') {
+        movementState[itemId] = { moving: false, resizing: false };
+      }
+      return movementState[itemId];
+    }
+
+    function createGhost(data, ev, ganttLeft, ganttTop) {
+      const movement = getMovement(data);
+      if (!options.ghostNode || typeof movement.ghost !== 'undefined') {
+        return;
+      }
+      const ghost = element.cloneNode(true);
+      const style = getComputedStyle(element);
+      ghost.style.position = 'absolute';
+      ghost.style.left = ev.x - ganttLeft - movement.itemLeftCompensation + 'px';
+      const itemTop = ev.y - ganttTop - data.row.top - element.offsetTop;
+      movement.itemTop = itemTop;
+      ghost.style.top = ev.y - ganttTop - itemTop + 'px';
+      ghost.style.width = style.width;
+      ghost.style['box-shadow'] = '10px 10px 6px #00000020';
+      const height = element.clientHeight + 'px';
+      ghost.style.height = height;
+      ghost.style['line-height'] = height;
+      ghost.style.opacity = '0.75';
+      state.get('_internal.elements.chart-timeline').appendChild(ghost);
+      movement.ghost = ghost;
+      return ghost;
+    }
+
+    function moveGhost(data, ev) {
+      if (options.ghostNode) {
+        const movement = getMovement(data);
+        const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
+        const compensation = state.get('config.scroll.compensation');
+        movement.ghost.style.left = left + 'px';
+        movement.ghost.style.top = ev.y - movement.ganttTop - movement.itemTop + compensation + 'px';
+      }
+    }
+
+    function destroyGhost(itemId) {
+      if (!options.ghostNode) {
+        return;
+      }
+      if (typeof movementState[itemId] !== 'undefined' && typeof movementState[itemId].ghost !== 'undefined') {
+        state.get('_internal.elements.chart-timeline').removeChild(movementState[itemId].ghost);
+        delete movementState[itemId].ghost;
+      }
+      element.style.opacity = '1';
+    }
+
+    function getSnapStart(data) {
+      let snapStart = options.snapStart;
+      if (typeof data.item.snapStart === 'function') {
+        snapStart = data.item.snapStart;
+      }
+      return snapStart;
+    }
+
+    function getSnapEnd(data) {
+      let snapEnd = options.snapEnd;
+      if (typeof data.item.snapEnd === 'function') {
+        snapEnd = data.item.snapEnd;
+      }
+      return snapEnd;
+    }
+
+    state = data.state;
+    api = data.api;
+
+    const resizerHTML = `<div class="${api.getClass('chart-timeline-items-row-item-content-resizer')}">${
+      options.resizerContent
+    }</div>`;
+    // @ts-ignore
+    element.insertAdjacentHTML('beforeend', resizerHTML);
+    const resizerEl = element.querySelector(
+      '.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content-resizer'
+    );
+    if (!isResizeable(data)) {
+      resizerEl.style.visibility = 'hidden';
+    } else {
+      resizerEl.style.visibility = 'visible';
+    }
+
+    function labelMouseDown(ev) {
+      ev.stopPropagation();
+      if (ev.button !== 0) {
+        return;
+      }
+      // @ts-ignore
+      element = node.querySelector('.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content');
+      const movement = getMovement(data);
+      movement.moving = true;
+      const item = state.get(`config.chart.items.${data.item.id}`);
+      const chartLeftTime = state.get('_internal.chart.time.leftGlobal');
+      const timePerPixel = state.get('_internal.chart.time.timePerPixel');
+      const ganttRect = state.get('_internal.elements.chart-timeline').getBoundingClientRect();
+      movement.ganttTop = ganttRect.top;
+      movement.ganttLeft = ganttRect.left;
+      movement.itemX = Math.round((item.time.start - chartLeftTime) / timePerPixel);
+      movement.itemLeftCompensation = ev.x - movement.ganttLeft - movement.itemX;
+      createGhost(data, ev, ganttRect.left, ganttRect.top);
+    }
+
+    function resizerMouseDown(ev) {
+      ev.stopPropagation();
+      if (ev.button !== 0) {
+        return;
+      }
+      const movement = getMovement(data);
+      movement.resizing = true;
+      const item = state.get(`config.chart.items.${data.item.id}`);
+      const chartLeftTime = state.get('_internal.chart.time.leftGlobal');
+      const timePerPixel = state.get('_internal.chart.time.timePerPixel');
+      const ganttRect = state.get('_internal.elements.chart-timeline').getBoundingClientRect();
+      movement.ganttTop = ganttRect.top;
+      movement.ganttLeft = ganttRect.left;
+      movement.itemX = (item.time.end - chartLeftTime) / timePerPixel;
+      movement.itemLeftCompensation = ev.x - movement.ganttLeft - movement.itemX;
+    }
+
+    function isCollision(rowId, itemId, start, end) {
+      if (!options.collisionDetection) {
+        return false;
+      }
+      const time = state.get('_internal.chart.time');
+      if (options.outOfBorders && (start < time.from || end > time.to)) {
+        return true;
+      }
+      let diff = api.time.date(end).diff(start, 'milliseconds');
+      if (Math.sign(diff) === -1) {
+        diff = -diff;
+      }
+      if (diff <= 1) {
+        return true;
+      }
+      const row = state.get('config.list.rows.' + rowId);
+      for (const rowItem of row._internal.items) {
+        if (rowItem.id !== itemId) {
+          if (start >= rowItem.time.start && start <= rowItem.time.end) {
+            return true;
+          }
+          if (end >= rowItem.time.start && end <= rowItem.time.end) {
+            return true;
+          }
+          if (start <= rowItem.time.start && end >= rowItem.time.end) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    function movementX(ev, row, item, zoom, timePerPixel) {
+      ev.stopPropagation();
+      const movement = getMovement(data);
+      const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
+      moveGhost(data, ev);
+      const leftMs = state.get('_internal.chart.time.leftGlobal') + left * timePerPixel;
+      const add = leftMs - item.time.start;
+      const originalStart = item.time.start;
+      const finalStartTime = getSnapStart(data)(item.time.start, add, item);
+      const finalAdd = finalStartTime - originalStart;
+      const collision = isCollision(row.id, item.id, item.time.start + finalAdd, item.time.end + finalAdd);
+      if (finalAdd && !collision) {
+        state.update(`config.chart.items.${data.item.id}.time`, function moveItem(time) {
+          time.start += finalAdd;
+          time.end = getSnapEnd(data)(time.end, finalAdd, item) - 1;
+          return time;
+        });
+      }
+    }
+
+    function resizeX(ev, row, item, zoom, timePerPixel) {
+      ev.stopPropagation();
+      if (!isResizeable(data)) {
+        return;
+      }
+      const time = state.get('_internal.chart.time');
+      const movement = getMovement(data);
+      const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
+      const leftMs = time.leftGlobal + left * timePerPixel;
+      const add = leftMs - item.time.end;
+      if (item.time.end + add < item.time.start) {
+        return;
+      }
+      const originalEnd = item.time.end;
+      const finalEndTime = getSnapEnd(data)(item.time.end, add, item) - 1;
+      const finalAdd = finalEndTime - originalEnd;
+      const collision = isCollision(row.id, item.id, item.time.start, item.time.end + finalAdd);
+      if (finalAdd && !collision) {
+        state.update(`config.chart.items.${data.item.id}.time`, time => {
+          time.start = getSnapStart(data)(time.start, 0, item);
+          time.end = getSnapEnd(data)(time.end, finalAdd, item) - 1;
+          return time;
+        });
+      }
+    }
+
+    function movementY(ev, row, item, zoom, timePerPixel) {
+      ev.stopPropagation();
+      moveGhost(data, ev);
+      const movement = getMovement(data);
+      const top = ev.y - movement.ganttTop;
+      const visibleRows = state.get('_internal.list.visibleRows');
+      const compensation = state.get('config.scroll.compensation');
+      let index = 0;
+      for (const currentRow of visibleRows) {
+        if (currentRow.top + compensation > top) {
+          if (index > 0) {
+            return index - 1;
+          }
+          return 0;
+        }
+        index++;
+      }
+      return index;
+    }
+
+    function documentMouseMove(ev) {
+      const movement = getMovement(data);
+      let item, rowId, row, zoom, timePerPixel;
+      if (movement.moving || movement.resizing) {
+        ev.stopPropagation();
+        item = state.get(`config.chart.items.${data.item.id}`);
+        rowId = state.get(`config.chart.items.${data.item.id}.rowId`);
+        row = state.get(`config.list.rows.${rowId}`);
+        zoom = state.get('config.chart.time.zoom');
+        timePerPixel = state.get('_internal.chart.time.timePerPixel');
+      }
+      const moveable = isMoveable(data);
+      if (movement.moving) {
+        if (moveable === true || moveable === 'x' || (Array.isArray(moveable) && moveable.includes(rowId))) {
+          movementX(ev, row, item, zoom, timePerPixel);
+        }
+        if (!moveable || moveable === 'x') {
+          return;
+        }
+        let visibleRowsIndex = movementY(ev);
+        const visibleRows = state.get('_internal.list.visibleRows');
+        if (typeof visibleRows[visibleRowsIndex] === 'undefined') {
+          if (visibleRowsIndex > 0) {
+            visibleRowsIndex = visibleRows.length - 1;
+          } else if (visibleRowsIndex < 0) {
+            visibleRowsIndex = 0;
+          }
+        }
+        const newRow = visibleRows[visibleRowsIndex];
+        const newRowId = newRow.id;
+        const collision = isCollision(newRowId, item.id, item.time.start, item.time.end);
+        if (newRowId !== item.rowId && !collision) {
+          if (!Array.isArray(moveable) || moveable.includes(newRowId)) {
+            if (!newRow.hasOwnProperty('moveable') || newRow.moveable) {
+              state.update(`config.chart.items.${item.id}.rowId`, newRowId);
+            }
+          }
+        }
+      } else if (movement.resizing && (typeof item.resizeable === 'undefined' || item.resizeable === true)) {
+        resizeX(ev, row, item, zoom, timePerPixel);
+      }
+    }
+
+    function documentMouseUp(ev) {
+      const movement = getMovement(data);
+      if (movement.moving || movement.resizing) {
+        ev.stopPropagation();
+      }
+      movement.moving = false;
+      movement.resizing = false;
+      for (const itemId in movementState) {
+        movementState[itemId].moving = false;
+        movementState[itemId].resizing = false;
+        destroyGhost(itemId);
+      }
+    }
+    element.addEventListener('mousedown', labelMouseDown);
+    resizerEl.addEventListener('mousedown', resizerMouseDown, { capture: true });
+    document.addEventListener('mousemove', documentMouseMove, { capture: true, passive: true });
+    document.addEventListener('mouseup', documentMouseUp, { capture: true, passive: true });
+    return {
+      update(node, changedData) {
+        data = changedData;
+        if (!isResizeable(data)) {
+          resizerEl.style.visibility = 'hidden';
+        } else {
+          resizerEl.style.visibility = 'visible';
+        }
+      },
+      destroy(node, data) {
+        element.removeEventListener('mousedown', labelMouseDown);
+        resizerEl.removeEventListener('mousedown', resizerMouseDown);
+        document.removeEventListener('mousemove', documentMouseMove);
+        document.removeEventListener('mouseup', documentMouseUp);
+        resizerEl.remove();
+      }
+    };
+  }
+
+  return function initialize(vido) {
+    vido.state.update('config.actions.chart-timeline-items-row-item', actions => {
+      actions.push(action);
+      return actions;
+    });
+  };
+}
+
 /**
  * SaveAsImage plugin
  *
@@ -25,7 +464,103 @@ function t(t={}){t={...{time:1e3,movementThreshold:2,action(t,e){}},...t};const 
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function i(t={}){function e(e){const i=e.target,n=i.clientWidth,o=i.clientHeight,s=unescape(encodeURIComponent(i.outerHTML));let r="";for(const t of document.styleSheets)if("gstc"===t.title)for(const e of t.rules)r+=e.cssText;const l=`<svg xmlns="http://www.w3.org/2000/svg" width="${n}" height="${o}" viewBox="0 0 ${n} ${o}">\n      <foreignObject x="0" y="0" width="${n}" height="${o}">\n        <div xmlns="http://www.w3.org/1999/xhtml">\n          ${r=`<style>* {${t.style}} ${r}</style>`}\n          ${s}\n        </div>\n      </foreignObject>\n    </svg>`,c=document.createElement("canvas");c.width=n,c.height=o;const a=c.getContext("2d");a.fillStyle="white",a.fillRect(0,0,n,o);const m="data:image/svg+xml;base64,"+btoa(l),d=new Image;d.onload=function(){a.drawImage(d,0,0),function(t,e){const i=document.createElement("a");i.href=t,i.download=e,document.body.appendChild(i),i.click()}(c.toDataURL("image/jpeg",1),t.filename)},d.src=m}return t={style:"font-family: sans-serif;",filename:"gantt-schedule-timeline-calendar.jpeg",options:t},function(t){t.state.subscribe("_internal.elements.main",t=>{t&&t.addEventListener("save-as-image",e)})}}var n=function(t){var e=[],i=null,n=function(){for(var n=arguments.length,o=new Array(n),s=0;s<n;s++)o[s]=arguments[s];e=o,i||(i=requestAnimationFrame((function(){i=null,t.apply(void 0,e)})))};return n.cancel=function(){i&&(cancelAnimationFrame(i),i=null)},n};
+ */
+
+// @ts-nocheck
+function SaveAsImage(options = {}) {
+  const defaultOptions = {
+    style: 'font-family: sans-serif;',
+    filename: 'gantt-schedule-timeline-calendar.jpeg'
+  };
+  options = { ...defaultOptions, options };
+  function downloadImage(data, filename) {
+    const a = document.createElement('a');
+    a.href = data;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+  }
+
+  function saveAsImage(ev) {
+    const element = ev.target;
+    const width = element.clientWidth;
+    const height = element.clientHeight;
+    const html = unescape(encodeURIComponent(element.outerHTML));
+    let style = '';
+    for (const styleSheet of document.styleSheets) {
+      if (styleSheet.title === 'gstc') {
+        for (const rule of styleSheet.rules) {
+          style += rule.cssText;
+        }
+      }
+    }
+    style = `<style>* {${options.style}} ${style}</style>`;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+      <foreignObject x="0" y="0" width="${width}" height="${height}">
+        <div xmlns="http://www.w3.org/1999/xhtml">
+          ${style}
+          ${html}
+        </div>
+      </foreignObject>
+    </svg>`;
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, width, height);
+    const svg64 = 'data:image/svg+xml;base64,' + btoa(svg);
+    const img = new Image();
+    img.onload = function onLoad() {
+      ctx.drawImage(img, 0, 0);
+      const jpeg = canvas.toDataURL('image/jpeg', 1.0);
+      downloadImage(jpeg, options.filename);
+    };
+    img.src = svg64;
+  }
+
+  return function initialize(vido) {
+    vido.state.subscribe('_internal.elements.main', main => {
+      if (main) {
+        main.addEventListener('save-as-image', saveAsImage);
+      }
+    });
+  };
+}
+
+var rafSchd = function rafSchd(fn) {
+  var lastArgs = [];
+  var frameId = null;
+
+  var wrapperFn = function wrapperFn() {
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    lastArgs = args;
+
+    if (frameId) {
+      return;
+    }
+
+    frameId = requestAnimationFrame(function () {
+      frameId = null;
+      fn.apply(void 0, lastArgs);
+    });
+  };
+
+  wrapperFn.cancel = function () {
+    if (!frameId) {
+      return;
+    }
+
+    cancelAnimationFrame(frameId);
+    frameId = null;
+  };
+
+  return wrapperFn;
+};
+
 /**
  * Selection plugin
  *
@@ -34,5 +569,402 @@ function t(t={}){t={...{time:1e3,movementThreshold:2,action(t,e){}},...t};const 
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function o(t={}){let e,i,o;const s={style:{},grid:!1,items:!0,rows:!1,horizontal:!0,vertical:!0,selected(){},deselected(){}};let r,l,c;t={...t,...s};let a={fromX:-1,fromY:-1,toX:-1,toY:-1,startX:-1,startY:-1,selecting:!1};const m="config.plugin.selection",d="gantt-schedule-timeline-caledar__plugin-selection-rect",u=document.createElement("div");u.classList.add(d),u.style.visibility="hidden",u.style.left="0px",u.style.top="0px",u.style.width="0px",u.style.height="0px",u.style.background="rgba(0, 119, 192, 0.2)",u.style.border="2px dashed rgba(0, 119, 192, 0.75)",u.style.position="absolute",u.style["user-select"]="none",u.style["pointer-events"]="none";for(const e in t.style)u.style[e]=t.style[e];function g(t,o){if(!(r=i.get("_internal.elements.chart-timeline")).querySelector("."+d)){r.insertAdjacentElement("beforeend",u);const t=r.getBoundingClientRect();c=t.left,l=t.top}function s(t){0===t.button&&(a.selecting=!0,a.fromX=t.x-c,a.fromY=t.y-l,a.startX=a.fromX,a.startY=a.fromY,i.update(m,{selecting:{"chart-timeline-grid-rows":[],"chart-timeline-grid-row-blocks":[],"chart-timeline-items-rows":[],"chart-timeline-items-row-items":[]},selcted:{"chart-timeline-grid-rows":[],"chart-timeline-grid-row-blocks":[],"chart-timeline-items-rows":[],"chart-timeline-items-row-items":[]}}),i.update("_internal.chart.grid.rowsWithBlocks",t=>{for(const e of t)for(const t of e.blocks)t.selected=!1,t.selecting=!1;return t}),e.update())}function g(t,e){let i=!1,n=!1;return(t.left>=e.left&&t.left<=e.right||t.right>=e.left&&t.right<=e.right||t.left<=e.left&&t.right>=e.right)&&(i=!0),(t.top>=e.top&&t.top<=e.bottom||t.bottom>=e.top&&t.bottom<=e.bottom||t.top<=e.top&&t.bottom>=e.bottom)&&(n=!0),i&&n}function f(t){if(!a.selecting)return;if(t.x-c===a.fromX||t.y-l===a.fromY)return;t.stopPropagation(),function(t){const e=t.x-c,i=t.y-l;e<=a.startX?(a.fromX=e,a.toX=a.startX):(a.fromX=a.startX,a.toX=e),i<=a.startY?(a.fromY=i,a.toY=a.startY):(a.fromY=a.startY,a.toY=i)}(t),u.style.left=a.fromX+"px",u.style.top=a.fromY+"px",u.style.visibility="visible",u.style.width=a.toX-a.fromX+"px",u.style.height=a.toY-a.fromY+"px";const e=function(t,e,n){const o=[],s=e[n+"s"];for(const e of s){g(e.getBoundingClientRect(),t)&&o.push(e.vido.id)}const r=i.get(`${m}.selecting.${n}s`);for(const t of r);return o}(u.getBoundingClientRect(),i.get("_internal.elements"),"chart-timeline-grid-row-block");i.update(`${m}.selecting`,{"chart-timeline-grid-rows":[],"chart-timeline-grid-row-blocks":e,"chart-timeline-items-rows":[],"chart-timeline-items-row-items":[]}),i.update("_internal.chart.grid.rowsWithBlocks",t=>{for(const i of t)for(const t of i.blocks)e.includes(t.id)?t.selecting=!0:t.selecting=!1;return t})}function h(t){if(!a.selecting)return;t.stopPropagation(),a.selecting=!1,u.style.visibility="hidden";const e={};i.update(m,t=>(e.selected={...t.selecting},e.selecting={"chart-timeline-grid-rows":[],"chart-timeline-grid-row-blocks":[],"chart-timeline-items-rows":[],"chart-timeline-items-row-items":[]},e));const n=e.selected;i.update("_internal.chart.grid.rowsWithBlocks",t=>{for(const e of t)for(const t of e.blocks)n["chart-timeline-grid-row-blocks"].includes(t.id)?t.selected=!0:t.selected=!1;return t})}return t.addEventListener("mousedown",s),t.addEventListener("mousemove",n(f)),document.body.addEventListener("mouseup",h),{destroy(){document.body.removeEventListener("mouseup",h),t.removeEventListener("mousemove",f),t.removeEventListener("mousedown",s)}}}function f(t,e){const i=o.getClass("chart-timeline-grid-row-block")+"--selecting",n=o.getClass("chart-timeline-grid-row-block")+"--selected";return e.selecting?t.classList.add(i):t.classList.remove(i),e.selected?t.classList.add(n):t.classList.remove(n),{update(t,e){e.selecting?t.classList.add(i):t.classList.remove(i),e.selected?t.classList.add(n):t.classList.remove(n)},destroy(t,e){t.classList.remove(i),t.classList.remove(n)}}}function h(t){return i.get("config.plugin.selection").selected["chart-timeline-grid-row-blocks"].find(e=>e===t.id)?t.selected=!0:t.selected=!1,t}return function(t){i=(e=t).state,o=e.api,void 0===i.get(m)&&i.update(m,{selecting:{"chart-timeline-grid-rows":[],"chart-timeline-grid-row-blocks":[],"chart-timeline-items-rows":[],"chart-timeline-items-row-items":[]},selected:{"chart-timeline-grid-rows":[],"chart-timeline-grid-row-blocks":[],"chart-timeline-items-rows":[],"chart-timeline-items-row-items":[]}}),i.update("config.actions.chart-timeline",t=>(t.push(g),t)),i.update("config.actions.chart-timeline-grid-row-block",t=>(t.push(f),t)),i.update("config.chart.grid.block.onCreate",t=>(t.push(h),t))}}export{t as ItemHold,e as ItemMovement,i as SaveAsImage,o as Selection};
+ */
+function Selection(options = {}) {
+  let vido, state, api;
+  const defaultOptions = {
+    grid: false,
+    items: true,
+    rows: false,
+    horizontal: true,
+    vertical: true,
+    selecting() {},
+    deselecting() {},
+    selected() {},
+    deselected() {}
+  };
+  options = { ...defaultOptions, ...options };
+  let chartTimeline, top, left;
+  let selecting = { fromX: -1, fromY: -1, toX: -1, toY: -1, startX: -1, startY: -1, selecting: false };
+  const path = 'config.plugin.selection';
+  const rectClassName = 'gantt-schedule-timeline-caledar__plugin-selection-rect';
+  const rect = document.createElement('div');
+  rect.classList.add(rectClassName);
+  rect.style.visibility = 'hidden';
+  rect.style.left = '0px';
+  rect.style.top = '0px';
+  rect.style.width = '0px';
+  rect.style.height = '0px';
+  rect.style.background = 'rgba(0, 119, 192, 0.2)';
+  rect.style.border = '2px dashed rgba(0, 119, 192, 0.75)';
+  rect.style.position = 'absolute';
+  rect.style['user-select'] = 'none';
+  rect.style['pointer-events'] = 'none';
+  if (options.rectStyle) {
+    for (const styleProp in options.rectStyle) {
+      rect.style[styleProp] = options.rectStyle[styleProp];
+    }
+  }
+
+  /**
+   * Rect selection action
+   * @param {Element} element
+   * @param {object|any} data
+   * @returns {object} with update and destroy
+   */
+  function rectSelectionAction(element, data) {
+    let previousSelect;
+    chartTimeline = state.get('_internal.elements.chart-timeline');
+    if (!chartTimeline.querySelector('.' + rectClassName)) {
+      chartTimeline.insertAdjacentElement('beforeend', rect);
+      const bounding = chartTimeline.getBoundingClientRect();
+      left = bounding.left;
+      top = bounding.top;
+    }
+
+    /**
+     * Clear selection
+     */
+    function clearSelection() {
+      state.update(path, {
+        selecting: {
+          'chart-timeline-grid-rows': [],
+          'chart-timeline-grid-row-blocks': [],
+          'chart-timeline-items-rows': [],
+          'chart-timeline-items-row-items': []
+        },
+        selected: {
+          'chart-timeline-grid-rows': [],
+          'chart-timeline-grid-row-blocks': [],
+          'chart-timeline-items-rows': [],
+          'chart-timeline-items-row-items': []
+        }
+      });
+      state.update('_internal.chart.grid.rowsWithBlocks', rowsWithBlocks => {
+        for (const row of rowsWithBlocks) {
+          for (const block of row.blocks) {
+            block.selected = false;
+            block.selecting = false;
+          }
+        }
+        return rowsWithBlocks;
+      });
+    }
+
+    /**
+     * Clone current selection state
+     * @param {object} currentSelect
+     * @returns {object} currentSelect cloned
+     */
+    function cloneSelection(currentSelect) {
+      const result = {};
+      result.selecting = { ...currentSelect.selecting };
+      result.selecting['chart-timeline-grid-rows'] = currentSelect.selecting['chart-timeline-grid-rows'].slice();
+      result.selecting['chart-timeline-grid-row-blocks'] = currentSelect.selecting[
+        'chart-timeline-grid-row-blocks'
+      ].slice();
+      result.selecting['chart-timeline-items-rows'] = currentSelect.selecting['chart-timeline-items-rows'].slice();
+      result.selecting['chart-timeline-items-row-items'] = currentSelect.selecting[
+        'chart-timeline-items-row-items'
+      ].slice();
+      result.selected = { ...currentSelect.selected };
+      result.selected['chart-timeline-grid-rows'] = currentSelect.selected['chart-timeline-grid-rows'].slice();
+      result.selected['chart-timeline-grid-row-blocks'] = currentSelect.selected[
+        'chart-timeline-grid-row-blocks'
+      ].slice();
+      result.selected['chart-timeline-items-rows'] = currentSelect.selected['chart-timeline-items-rows'].slice();
+      result.selected['chart-timeline-items-row-items'] = currentSelect.selected[
+        'chart-timeline-items-row-items'
+      ].slice();
+      return result;
+    }
+
+    /**
+     * Mouse down event handler
+     * @param {MouseEvent} ev
+     */
+    function mouseDown(ev) {
+      if (ev.button !== 0) {
+        return;
+      }
+      selecting.selecting = true;
+      selecting.fromX = ev.x - left;
+      selecting.fromY = ev.y - top;
+      selecting.startX = selecting.fromX;
+      selecting.startY = selecting.fromY;
+      previousSelect = cloneSelection(state.get(path));
+      clearSelection();
+    }
+
+    /**
+     * Save and swap coordinates if needed
+     * @param {MouseEvent} ev
+     */
+    function saveAndSwapIfNeeded(ev) {
+      const currentX = ev.x - left;
+      const currentY = ev.y - top;
+      if (currentX <= selecting.startX) {
+        selecting.fromX = currentX;
+        selecting.toX = selecting.startX;
+      } else {
+        selecting.fromX = selecting.startX;
+        selecting.toX = currentX;
+      }
+      if (currentY <= selecting.startY) {
+        selecting.fromY = currentY;
+        selecting.toY = selecting.startY;
+      } else {
+        selecting.fromY = selecting.startY;
+        selecting.toY = currentY;
+      }
+    }
+
+    /**
+     * Is rectangle inside other rectangle ?
+     * @param {DOMRect} boundingRect
+     * @param {DOMRect} rectBoundingRect
+     * @returns {boolean}
+     */
+    function isInside(boundingRect, rectBoundingRect) {
+      let horizontal = false;
+      let vertical = false;
+      if (
+        (boundingRect.left >= rectBoundingRect.left && boundingRect.left <= rectBoundingRect.right) ||
+        (boundingRect.right >= rectBoundingRect.left && boundingRect.right <= rectBoundingRect.right) ||
+        (boundingRect.left <= rectBoundingRect.left && boundingRect.right >= rectBoundingRect.right)
+      ) {
+        horizontal = true;
+      }
+      if (
+        (boundingRect.top >= rectBoundingRect.top && boundingRect.top <= rectBoundingRect.bottom) ||
+        (boundingRect.bottom >= rectBoundingRect.top && boundingRect.bottom <= rectBoundingRect.bottom) ||
+        (boundingRect.top <= rectBoundingRect.top && boundingRect.bottom >= rectBoundingRect.bottom)
+      ) {
+        vertical = true;
+      }
+      return horizontal && vertical;
+    }
+
+    /**
+     * Get selecting elements
+     * @param {DOMRect} rectBoundingRect
+     * @param {Element[]} elements
+     * @param {string} type
+     * @returns {string[]}
+     */
+    function getSelecting(rectBoundingRect, elements, type) {
+      const selectingResult = [];
+      const all = elements[type + 's'];
+      const currentSelecting = state.get(`${path}.selecting.${type}s`);
+      for (const element of all) {
+        const boundingRect = element.getBoundingClientRect();
+        if (isInside(boundingRect, rectBoundingRect)) {
+          selectingResult.push(element.vido.id);
+          if (!currentSelecting.includes(element.vido.id)) {
+            options.selecting(element.vido, type);
+          }
+        } else {
+          if (currentSelecting.includes(element.vido.id)) {
+            options.deselecting(element.vido, type);
+          }
+        }
+      }
+      return selectingResult;
+    }
+
+    /**
+     * Mouse move event handler
+     * @param {MouseEvent} ev
+     */
+    function mouseMove(ev) {
+      if (!selecting.selecting) {
+        return;
+      }
+      if (ev.x - left === selecting.fromX || ev.y - top === selecting.fromY) {
+        return;
+      }
+      ev.stopPropagation();
+      saveAndSwapIfNeeded(ev);
+      rect.style.left = selecting.fromX + 'px';
+      rect.style.top = selecting.fromY + 'px';
+      rect.style.visibility = 'visible';
+      rect.style.width = selecting.toX - selecting.fromX + 'px';
+      rect.style.height = selecting.toY - selecting.fromY + 'px';
+      const rectBoundingRect = rect.getBoundingClientRect();
+      const elements = state.get('_internal.elements');
+      const selectingGridRowBlocks = getSelecting(rectBoundingRect, elements, 'chart-timeline-grid-row-block');
+      state.update(`${path}.selecting`, {
+        'chart-timeline-grid-rows': [],
+        'chart-timeline-grid-row-blocks': selectingGridRowBlocks,
+        'chart-timeline-items-rows': [],
+        'chart-timeline-items-row-items': []
+      });
+      state.update('_internal.chart.grid.rowsWithBlocks', function updateRowsWithBlocks(rowsWithBlocks) {
+        for (const row of rowsWithBlocks) {
+          for (const block of row.blocks) {
+            // @ts-ignore
+            if (selectingGridRowBlocks.includes(block.id)) {
+              block.selecting = true;
+            } else {
+              block.selecting = false;
+            }
+          }
+        }
+        return rowsWithBlocks;
+      });
+    }
+
+    /**
+     * Mouse up event handler
+     * @param {MouseEvent} ev
+     */
+    function mouseUp(ev) {
+      if (selecting.selecting) {
+        ev.stopPropagation();
+      } else {
+        return;
+      }
+      selecting.selecting = false;
+      rect.style.visibility = 'hidden';
+      const currentSelect = state.get(path);
+      const select = {};
+      state.update(path, value => {
+        select.selected = { ...value.selecting };
+        select.selecting = {
+          'chart-timeline-grid-rows': [],
+          'chart-timeline-grid-row-blocks': [],
+          'chart-timeline-items-rows': [],
+          'chart-timeline-items-row-items': []
+        };
+        return select;
+      });
+      const elements = state.get('_internal.elements');
+      for (const element of elements['chart-timeline-grid-row-blocks']) {
+        if (currentSelect.selecting['chart-timeline-grid-row-blocks'].includes(element.vido.id)) {
+          options.deselecting(element.vido, 'chart-timeline-grid-row-block');
+        }
+      }
+      state.update('_internal.chart.grid.rowsWithBlocks', function updateRowsWithBlocks(rowsWithBlocks) {
+        for (const row of rowsWithBlocks) {
+          for (const block of row.blocks) {
+            if (currentSelect.selecting['chart-timeline-grid-row-blocks'].includes(block.id)) {
+              if (typeof block.selected === 'undefined' || !block.selected) {
+                options.selected(block, 'chart-timeline-grid-row-block');
+              }
+              block.selected = true;
+            } else {
+              if (previousSelect.selected['chart-timeline-grid-row-blocks'].includes(block.id)) {
+                options.deselected(block, 'chart-timeline-grid-row-block');
+              }
+              block.selected = false;
+            }
+          }
+        }
+        return rowsWithBlocks;
+      });
+    }
+
+    element.addEventListener('mousedown', mouseDown);
+    document.addEventListener('mousemove', rafSchd(mouseMove));
+    document.body.addEventListener('mouseup', mouseUp);
+    return {
+      update() {},
+      destroy() {
+        document.body.removeEventListener('mouseup', mouseUp);
+        document.removeEventListener('mousemove', mouseMove);
+        element.removeEventListener('mousedown', mouseDown);
+      }
+    };
+  }
+
+  /**
+   * Grid row block action
+   * @param {Element} element
+   * @param {object} data
+   * @returns {object} with update and destroy functions
+   */
+  function gridBlockAction(element, data) {
+    const classNameSelecting = api.getClass('chart-timeline-grid-row-block') + '--selecting';
+    const classNameSelected = api.getClass('chart-timeline-grid-row-block') + '--selected';
+    if (data.selecting) {
+      element.classList.add(classNameSelecting);
+    } else {
+      element.classList.remove(classNameSelecting);
+    }
+    if (data.selected) {
+      element.classList.add(classNameSelected);
+    } else {
+      element.classList.remove(classNameSelected);
+    }
+    return {
+      update(element, data) {
+        if (data.selecting) {
+          element.classList.add(classNameSelecting);
+        } else {
+          element.classList.remove(classNameSelecting);
+        }
+        if (data.selected) {
+          element.classList.add(classNameSelected);
+        } else {
+          element.classList.remove(classNameSelected);
+        }
+      },
+      destroy(element, changedData) {
+        element.classList.remove(classNameSelecting);
+        element.classList.remove(classNameSelected);
+      }
+    };
+  }
+
+  /**
+   * On block create handler
+   * @param {object} block
+   * @returns {object} block
+   */
+  function onBlockCreate(block) {
+    const select = state.get('config.plugin.selection');
+    if (select.selected['chart-timeline-grid-row-blocks'].find(id => id === block.id)) {
+      block.selected = true;
+    } else {
+      block.selected = false;
+    }
+    return block;
+  }
+
+  return function initialize(mainVido) {
+    vido = mainVido;
+    state = vido.state;
+    api = vido.api;
+    if (typeof state.get(path) === 'undefined') {
+      state.update(path, {
+        selecting: {
+          'chart-timeline-grid-rows': [],
+          'chart-timeline-grid-row-blocks': [],
+          'chart-timeline-items-rows': [],
+          'chart-timeline-items-row-items': []
+        },
+        selected: {
+          'chart-timeline-grid-rows': [],
+          'chart-timeline-grid-row-blocks': [],
+          'chart-timeline-items-rows': [],
+          'chart-timeline-items-row-items': []
+        }
+      });
+    }
+    state.update('config.actions.chart-timeline', actions => {
+      actions.push(rectSelectionAction);
+      return actions;
+    });
+    state.update('config.actions.chart-timeline-grid-row-block', actions => {
+      actions.push(gridBlockAction);
+      return actions;
+    });
+    state.update('config.chart.grid.block.onCreate', onCreate => {
+      onCreate.push(onBlockCreate);
+      return onCreate;
+    });
+  };
+}
+
+export { ItemHold, ItemMovement, SaveAsImage, Selection };
 //# sourceMappingURL=plugins.js.map

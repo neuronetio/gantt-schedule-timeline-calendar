@@ -24,6 +24,7 @@
     </div>
     <div id="app"></div>
     <script src="../ItemMovement.plugin.js"></script>
+    <script src="../Selection.plugin.js"></script>
     <script src="../index.umd.js"></script>
     <script>
       const iterations = 1000;
@@ -109,7 +110,8 @@
             moveable: true,
             resizeable: true,
             collisionDetection: true
-          })
+          }),
+          Selection()
         ],
         height: 40 * 12 + 94,
         list: {

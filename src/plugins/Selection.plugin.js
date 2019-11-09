@@ -12,16 +12,17 @@ import schedule from 'raf-schd';
 export default function Selection(options = {}) {
   let vido, state, api;
   const defaultOptions = {
-    style: {},
     grid: false,
     items: true,
     rows: false,
     horizontal: true,
     vertical: true,
+    selecting() {},
+    deselecting() {},
     selected() {},
     deselected() {}
   };
-  options = { ...options, ...defaultOptions };
+  options = { ...defaultOptions, ...options };
   let chartTimeline, top, left;
   let selecting = { fromX: -1, fromY: -1, toX: -1, toY: -1, startX: -1, startY: -1, selecting: false };
   const path = 'config.plugin.selection';
@@ -38,11 +39,20 @@ export default function Selection(options = {}) {
   rect.style.position = 'absolute';
   rect.style['user-select'] = 'none';
   rect.style['pointer-events'] = 'none';
-  for (const styleProp in options.style) {
-    rect.style[styleProp] = options.style[styleProp];
+  if (options.rectStyle) {
+    for (const styleProp in options.rectStyle) {
+      rect.style[styleProp] = options.rectStyle[styleProp];
+    }
   }
 
+  /**
+   * Rect selection action
+   * @param {Element} element
+   * @param {object|any} data
+   * @returns {object} with update and destroy
+   */
   function rectSelectionAction(element, data) {
+    let previousSelect;
     chartTimeline = state.get('_internal.elements.chart-timeline');
     if (!chartTimeline.querySelector('.' + rectClassName)) {
       chartTimeline.insertAdjacentElement('beforeend', rect);
@@ -62,7 +72,7 @@ export default function Selection(options = {}) {
           'chart-timeline-items-rows': [],
           'chart-timeline-items-row-items': []
         },
-        selcted: {
+        selected: {
           'chart-timeline-grid-rows': [],
           'chart-timeline-grid-row-blocks': [],
           'chart-timeline-items-rows': [],
@@ -81,6 +91,34 @@ export default function Selection(options = {}) {
     }
 
     /**
+     * Clone current selection state
+     * @param {object} currentSelect
+     * @returns {object} currentSelect cloned
+     */
+    function cloneSelection(currentSelect) {
+      const result = {};
+      result.selecting = { ...currentSelect.selecting };
+      result.selecting['chart-timeline-grid-rows'] = currentSelect.selecting['chart-timeline-grid-rows'].slice();
+      result.selecting['chart-timeline-grid-row-blocks'] = currentSelect.selecting[
+        'chart-timeline-grid-row-blocks'
+      ].slice();
+      result.selecting['chart-timeline-items-rows'] = currentSelect.selecting['chart-timeline-items-rows'].slice();
+      result.selecting['chart-timeline-items-row-items'] = currentSelect.selecting[
+        'chart-timeline-items-row-items'
+      ].slice();
+      result.selected = { ...currentSelect.selected };
+      result.selected['chart-timeline-grid-rows'] = currentSelect.selected['chart-timeline-grid-rows'].slice();
+      result.selected['chart-timeline-grid-row-blocks'] = currentSelect.selected[
+        'chart-timeline-grid-row-blocks'
+      ].slice();
+      result.selected['chart-timeline-items-rows'] = currentSelect.selected['chart-timeline-items-rows'].slice();
+      result.selected['chart-timeline-items-row-items'] = currentSelect.selected[
+        'chart-timeline-items-row-items'
+      ].slice();
+      return result;
+    }
+
+    /**
      * Mouse down event handler
      * @param {MouseEvent} ev
      */
@@ -93,8 +131,8 @@ export default function Selection(options = {}) {
       selecting.fromY = ev.y - top;
       selecting.startX = selecting.fromX;
       selecting.startY = selecting.fromY;
+      previousSelect = cloneSelection(state.get(path));
       clearSelection();
-      vido.update();
     }
 
     /**
@@ -151,20 +189,23 @@ export default function Selection(options = {}) {
      * @param {DOMRect} rectBoundingRect
      * @param {Element[]} elements
      * @param {string} type
-     * @returns {Element[]}
+     * @returns {string[]}
      */
     function getSelecting(rectBoundingRect, elements, type) {
       const selectingResult = [];
       const all = elements[type + 's'];
+      const currentSelecting = state.get(`${path}.selecting.${type}s`);
       for (const element of all) {
         const boundingRect = element.getBoundingClientRect();
         if (isInside(boundingRect, rectBoundingRect)) {
           selectingResult.push(element.vido.id);
-        }
-      }
-      const currentSelecting = state.get(`${path}.selecting.${type}s`);
-      for (const id of currentSelecting) {
-        if (!selectingResult.includes(id)) {
+          if (!currentSelecting.includes(element.vido.id)) {
+            options.selecting(element.vido, type);
+          }
+        } else {
+          if (currentSelecting.includes(element.vido.id)) {
+            options.deselecting(element.vido, type);
+          }
         }
       }
       return selectingResult;
@@ -197,7 +238,7 @@ export default function Selection(options = {}) {
         'chart-timeline-items-rows': [],
         'chart-timeline-items-row-items': []
       });
-      state.update('_internal.chart.grid.rowsWithBlocks', rowsWithBlocks => {
+      state.update('_internal.chart.grid.rowsWithBlocks', function updateRowsWithBlocks(rowsWithBlocks) {
         for (const row of rowsWithBlocks) {
           for (const block of row.blocks) {
             // @ts-ignore
@@ -224,6 +265,7 @@ export default function Selection(options = {}) {
       }
       selecting.selecting = false;
       rect.style.visibility = 'hidden';
+      const currentSelect = state.get(path);
       const select = {};
       state.update(path, value => {
         select.selected = { ...value.selecting };
@@ -235,13 +277,24 @@ export default function Selection(options = {}) {
         };
         return select;
       });
-      const currentSelected = select.selected;
-      state.update('_internal.chart.grid.rowsWithBlocks', rowsWithBlocks => {
+      const elements = state.get('_internal.elements');
+      for (const element of elements['chart-timeline-grid-row-blocks']) {
+        if (currentSelect.selecting['chart-timeline-grid-row-blocks'].includes(element.vido.id)) {
+          options.deselecting(element.vido, 'chart-timeline-grid-row-block');
+        }
+      }
+      state.update('_internal.chart.grid.rowsWithBlocks', function updateRowsWithBlocks(rowsWithBlocks) {
         for (const row of rowsWithBlocks) {
           for (const block of row.blocks) {
-            if (currentSelected['chart-timeline-grid-row-blocks'].includes(block.id)) {
+            if (currentSelect.selecting['chart-timeline-grid-row-blocks'].includes(block.id)) {
+              if (typeof block.selected === 'undefined' || !block.selected) {
+                options.selected(block, 'chart-timeline-grid-row-block');
+              }
               block.selected = true;
             } else {
+              if (previousSelect.selected['chart-timeline-grid-row-blocks'].includes(block.id)) {
+                options.deselected(block, 'chart-timeline-grid-row-block');
+              }
               block.selected = false;
             }
           }
@@ -251,12 +304,13 @@ export default function Selection(options = {}) {
     }
 
     element.addEventListener('mousedown', mouseDown);
-    element.addEventListener('mousemove', schedule(mouseMove));
+    document.addEventListener('mousemove', schedule(mouseMove));
     document.body.addEventListener('mouseup', mouseUp);
     return {
+      update() {},
       destroy() {
         document.body.removeEventListener('mouseup', mouseUp);
-        element.removeEventListener('mousemove', mouseMove);
+        document.removeEventListener('mousemove', mouseMove);
         element.removeEventListener('mousedown', mouseDown);
       }
     };
