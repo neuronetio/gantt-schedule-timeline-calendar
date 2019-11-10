@@ -296,6 +296,7 @@
   height: 100%;
 }
 .gantt-schedule-timeline-calendar__chart-timeline-items-row-item {
+  position: absolute;
   pointer-events: all;
   padding: 4px 0px;
   height: 100%;
