@@ -302,6 +302,12 @@
   height: 100%;
   user-select: none;
 }
+.gantt-schedule-timeline-calendar__chart-timeline-items-row-item--selecting {
+  border: 1px solid #0077c0;
+}
+.gantt-schedule-timeline-calendar__chart-timeline-items-row-item--selected {
+  border: 1px solid #0077c0;
+}
 .gantt-schedule-timeline-calendar__chart-timeline-items-row-item--moving {
   opacity: 0.5;
 }

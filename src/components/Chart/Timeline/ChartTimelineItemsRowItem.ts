@@ -87,8 +87,8 @@ export default function ChartTimelineItemsRowItem(vido, props) {
     componentActions.push(bindElementAction);
   }
 
-  return templateProps =>
-    wrapper(
+  return function updateTemplate(templateProps) {
+    return wrapper(
       html`
         <div
           class=${className}
@@ -109,4 +109,5 @@ export default function ChartTimelineItemsRowItem(vido, props) {
       `,
       { vido, props, templateProps }
     );
+  };
 }

@@ -54,12 +54,17 @@ export default function ChartTimelineGridRow(vido, props) {
 
   let style;
   let rowsBlocksComponents = [];
-  onChange(changedProps => {
+  function onPropsChange(changedProps) {
     props = changedProps;
     reuseComponents(rowsBlocksComponents, props.blocks, block => block, GridBlockComponent);
-    style = `height: ${props.row.height}px;`;
+    let compensation = 0;
+    if (props.blocks.length) {
+      compensation = props.blocks[0].time.subPx;
+    }
+    style = `height: ${props.row.height}px; transform: translate(-${compensation}px, 0px)`;
     update();
-  });
+  }
+  onChange(onPropsChange);
 
   onDestroy(() => {
     rowsBlocksComponents.forEach(rowBlock => rowBlock.destroy());
@@ -69,8 +74,8 @@ export default function ChartTimelineGridRow(vido, props) {
     componentActions.push(bindElementAction);
   }
 
-  return templateProps =>
-    wrapper(
+  return function updateTemplate(templateProps) {
+    return wrapper(
       html`
         <div
           class=${className}
@@ -88,4 +93,5 @@ export default function ChartTimelineGridRow(vido, props) {
       `,
       { vido, props, templateProps }
     );
+  };
 }

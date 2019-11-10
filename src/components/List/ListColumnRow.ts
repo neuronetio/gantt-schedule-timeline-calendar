@@ -24,7 +24,8 @@ export default function ListColumnRow(vido, props) {
   let style;
   let rowSub, colSub;
   let ListExpander;
-  onChange(({ rowId, columnId }) => {
+
+  function onPropsChange({ rowId, columnId }) {
     if (rowSub) {
       rowSub();
     }
@@ -63,7 +64,8 @@ export default function ListColumnRow(vido, props) {
       column = val;
       update();
     });
-  });
+  }
+  onChange(onPropsChange);
 
   onDestroy(() => {
     if (ListExpander) ListExpander.destroy();
@@ -95,23 +97,15 @@ export default function ListColumnRow(vido, props) {
     return row[column.data];
   }
 
-  return templateProps =>
-    wrapper(
+  return function updateTemplate(templateProps) {
+    return wrapper(
       html`
-        <div
-          class=${className}
-          style=${style}
-          data-actions=${actions(componentActions, {
-            column,
-            row,
-            api,
-            state
-          })}
-        >
+        <div class=${className} style=${style} data-actions=${actions(componentActions, { column, row, api, state })}>
           ${typeof column.expander === 'boolean' && column.expander ? ListExpander.html() : ''}
           ${typeof column.html === 'string' ? getHtml() : getText()}
         </div>
       `,
       { vido, props, templateProps }
     );
+  };
 }

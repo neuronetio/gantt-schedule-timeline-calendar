@@ -28,7 +28,10 @@ export default function Main(vido, props = {}) {
     state.subscribe('config.plugins', plugins => {
       if (typeof plugins !== 'undefined' && Array.isArray(plugins)) {
         for (const plugin of plugins) {
-          plugin(vido);
+          const destroyPlugin = plugin(vido);
+          if (typeof destroyPlugin === 'function') {
+            onDestroy(destroyPlugin);
+          }
         }
       }
     })
@@ -380,7 +383,7 @@ export default function Main(vido, props = {}) {
     state.update('_internal.elements.vertical-scroll-inner', element);
   }
 
-  return function renderTemplate(templateProps) {
+  return function updateTemplate(templateProps) {
     return wrapper(
       html`
         <div

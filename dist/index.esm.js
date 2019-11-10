@@ -3582,7 +3582,10 @@ function Main(vido, props = {}) {
     onDestroy(state.subscribe('config.plugins', plugins => {
         if (typeof plugins !== 'undefined' && Array.isArray(plugins)) {
             for (const plugin of plugins) {
-                plugin(vido);
+                const destroyPlugin = plugin(vido);
+                if (typeof destroyPlugin === 'function') {
+                    onDestroy(destroyPlugin);
+                }
             }
         }
     }));
@@ -3890,7 +3893,7 @@ function Main(vido, props = {}) {
     function bindScrollInnerElement(element) {
         state.update('_internal.elements.vertical-scroll-inner', element);
     }
-    return function renderTemplate(templateProps) {
+    return function updateTemplate(templateProps) {
         return wrapper(html `
         <div
           class=${className}
@@ -3912,6 +3915,7 @@ function Main(vido, props = {}) {
       `, { props, vido, templateProps });
     };
 }
+//# sourceMappingURL=Main.js.map
 
 /**
  * List component
@@ -3932,20 +3936,22 @@ function List(vido, props = {}) {
     onDestroy(state.subscribe('config.components.ListColumn', value => (ListColumnComponent = value)));
     let className;
     let list, percent;
-    onDestroy(state.subscribe('config.list', () => {
+    function onListChange() {
         list = state.get('config.list');
         percent = list.columns.percent;
         update();
-    }));
+    }
+    onDestroy(state.subscribe('config.list', onListChange));
     onDestroy(state.subscribe('config.classNames', () => {
         className = api.getClass(componentName, { list });
         update();
     }));
     let listColumns = [];
-    onDestroy(state.subscribe('config.list.columns.data;', data => {
+    function onListColumnsDataChange(data) {
         reuseComponents(listColumns, Object.values(data), column => ({ columnId: column.id }), ListColumnComponent);
         update();
-    }));
+    }
+    onDestroy(state.subscribe('config.list.columns.data;', onListColumnsDataChange));
     onDestroy(() => {
         listColumns.forEach(c => c.destroy());
     });
@@ -3954,22 +3960,22 @@ function List(vido, props = {}) {
         style = `height: ${height}px`;
         update();
     }));
+    function onScrollHandler(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.type === 'scroll') {
+            state.update('config.scroll.top', event.target.scrollTop);
+        }
+        else {
+            const wheel = api.normalizeMouseWheelEvent(event);
+            state.update('config.scroll.top', top => {
+                return api.limitScroll('top', (top += wheel.y * state.get('config.scroll.yMultiplier')));
+            });
+        }
+    }
     const onScroll = {
-        handleEvent(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            if (event.type === 'scroll') {
-                state.update('config.scroll.top', event.target.scrollTop);
-            }
-            else {
-                const wheel = api.normalizeMouseWheelEvent(event);
-                state.update('config.scroll.top', top => {
-                    return api.limitScroll('top', (top += wheel.y * state.get('config.scroll.yMultiplier')));
-                });
-            }
-        },
-        passive: false,
-        capture: true
+        handleEvent: rafSchd(onScrollHandler),
+        passive: false
     };
     let width;
     function getWidth(element) {
@@ -4038,30 +4044,36 @@ function ListColumn(vido, props) {
         update();
     }));
     let visibleRows = [];
-    onDestroy(state.subscribe('_internal.list.visibleRows;', val => {
+    function visibleRowsChange(val) {
         reuseComponents(visibleRows, val, row => ({ columnId: props.columnId, rowId: row.id }), ListColumnRowComponent);
         update();
-    }));
+    }
+    onDestroy(state.subscribe('_internal.list.visibleRows;', visibleRowsChange));
     onDestroy(() => {
         visibleRows.forEach(row => row.destroy());
     });
+    function calculateStyle() {
+        const list = state.get('config.list');
+        const compensation = state.get('config.scroll.compensation');
+        calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
+        width = `width: ${calculatedWidth + list.columns.resizer.width}px`;
+        styleContainer = `height: ${state.get('_internal.height')}px;`;
+        styleScrollCompensation = `transform: translate(0px, ${compensation}px);`;
+    }
     onDestroy(state.subscribeAll([
         'config.list.columns.percent',
         'config.list.columns.resizer.width',
         `config.list.columns.data.${column.id}.width`,
         '_internal.height',
         'config.scroll.compensation'
-    ], bulk => {
-        const list = state.get('config.list');
-        const compensation = state.get('config.scroll.compensation');
-        calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
-        width = `width: ${calculatedWidth + list.columns.resizer.width}px`;
-        styleContainer = `height: ${state.get('_internal.height')}px;`;
-        styleScrollCompensation = `margin-top:${compensation}px;`;
-    }, { bulk: true }));
+    ], calculateStyle, { bulk: true }));
     const ListColumnHeader = createComponent(ListColumnHeaderComponent, { columnId: props.columnId });
     onDestroy(ListColumnHeader.destroy);
-    return templateProps => wrapper(html `
+    function getRowHtml(row) {
+        return row.html();
+    }
+    return function updateTemplate(templateProps) {
+        return wrapper(html `
         <div
           class=${className}
           data-actions=${actions(componentActions, { column, state: state, api: api })}
@@ -4070,13 +4082,13 @@ function ListColumn(vido, props) {
           ${ListColumnHeader.html()}
           <div class=${classNameContainer} style=${styleContainer} data-actions=${actions(rowsActions, { api, state })}>
             <div class=${classNameContainer + '--scroll-compensation'} style=${styleScrollCompensation}>
-              ${visibleRows.map(row => row.html())}
+              ${visibleRows.map(getRowHtml)}
             </div>
           </div>
         </div>
       `, { vido, props, templateProps });
+    };
 }
-//# sourceMappingURL=ListColumn.js.map
 
 /**
  * ListColumnHeader component
@@ -4258,7 +4270,7 @@ function ListColumnRow(vido, props) {
     let style;
     let rowSub, colSub;
     let ListExpander;
-    onChange(({ rowId, columnId }) => {
+    function onPropsChange({ rowId, columnId }) {
         if (rowSub) {
             rowSub();
         }
@@ -4293,7 +4305,8 @@ function ListColumnRow(vido, props) {
             column = val;
             update();
         });
-    });
+    }
+    onChange(onPropsChange);
     onDestroy(() => {
         if (ListExpander)
             ListExpander.destroy();
@@ -4321,21 +4334,14 @@ function ListColumnRow(vido, props) {
             return column.data(row);
         return row[column.data];
     }
-    return templateProps => wrapper(html `
-        <div
-          class=${className}
-          style=${style}
-          data-actions=${actions(componentActions, {
-        column,
-        row,
-        api,
-        state
-    })}
-        >
+    return function updateTemplate(templateProps) {
+        return wrapper(html `
+        <div class=${className} style=${style} data-actions=${actions(componentActions, { column, row, api, state })}>
           ${typeof column.expander === 'boolean' && column.expander ? ListExpander.html() : ''}
           ${typeof column.html === 'string' ? getHtml() : getText()}
         </div>
       `, { vido, props, templateProps });
+    };
 }
 //# sourceMappingURL=ListColumnRow.js.map
 
@@ -4434,13 +4440,14 @@ function ListToggle(vido, props) {
         update();
     }));
     if (props.row) {
-        onDestroy(state.subscribe(`config.list.rows.${props.row.id}.expanded`, isExpanded => {
+        function expandedChange(isExpanded) {
             expanded = isExpanded;
             update();
-        }));
+        }
+        onDestroy(state.subscribe(`config.list.rows.${props.row.id}.expanded`, expandedChange));
     }
     else {
-        onDestroy(state.subscribe('config.list.rows.*.expanded', bulk => {
+        function expandedChange(bulk) {
             for (const rowExpanded of bulk) {
                 if (rowExpanded.value) {
                     expanded = true;
@@ -4448,7 +4455,8 @@ function ListToggle(vido, props) {
                 }
             }
             update();
-        }, { bulk: true }));
+        }
+        onDestroy(state.subscribe('config.list.rows.*.expanded', expandedChange, { bulk: true }));
     }
     function toggle() {
         expanded = !expanded;
@@ -4464,7 +4472,8 @@ function ListToggle(vido, props) {
             }, { only: ['*.expanded'] });
         }
     }
-    return templateProps => wrapper(html `
+    return function updateTemplate(templateProps) {
+        return wrapper(html `
         <div
           class=${className}
           data-actions=${actions(componentActions, { row: props.row, api, state })}
@@ -4472,18 +4481,19 @@ function ListToggle(vido, props) {
           @click=${toggle}
         >
           ${expanded
-        ? html `
+            ? html `
                 <div class=${classNameOpen}>
                   ${unsafeHTML(iconOpen)}
                 </div>
               `
-        : html `
+            : html `
                 <div class=${classNameClosed}>
                   ${unsafeHTML(iconClosed)}
                 </div>
               `}
         </div>
       `, { vido, props, templateProps });
+    };
 }
 //# sourceMappingURL=ListToggle.js.map
 
@@ -4603,7 +4613,8 @@ function Chart(vido, props = {}) {
     onDestroy(() => {
         ro.disconnect();
     });
-    return templateProps => wrapper(html `
+    return function updateTemplate(templateProps) {
+        return wrapper(html `
         <div class=${className} data-actions=${actions(componentActions, { api, state })} @wheel=${onWheel}>
           ${Calendar.html()}${Timeline.html()}
           <div class=${classNameScroll} style=${styleScroll} data-actions=${actions([bindElement])} @scroll=${onScroll}>
@@ -4611,6 +4622,7 @@ function Chart(vido, props = {}) {
           </div>
         </div>
       `, { vido, props: {}, templateProps });
+    };
 }
 //# sourceMappingURL=Chart.js.map
 
@@ -5003,12 +5015,13 @@ function ChartTimeline(vido, props) {
         update();
     }));
     let style = '', styleInner = '';
-    onDestroy(state.subscribeAll(['_internal.height', '_internal.list.rowsHeight', 'config.scroll.compensation'], () => {
+    function calculateStyle() {
         style = `height: ${state.get('_internal.height')}px`;
         const compensation = state.get('config.scroll.compensation');
-        styleInner = `height: ${state.get('_internal.list.rowsHeight')}px; margin-top:${compensation}px;`;
+        styleInner = `height: ${state.get('_internal.list.rowsHeight')}px; transform: translate(0px, ${compensation}px);`;
         update();
-    }));
+    }
+    onDestroy(state.subscribeAll(['_internal.height', '_internal.list.rowsHeight', 'config.scroll.compensation'], calculateStyle));
     componentActions.push(element => {
         state.update('_internal.elements.chart-timeline', element);
     });
@@ -5059,7 +5072,10 @@ function ChartTimelineGrid(vido, props) {
     let onBlockCreate;
     onDestroy(state.subscribe('config.chart.grid.block.onCreate', onCreate => (onBlockCreate = onCreate)));
     let rowsComponents = [];
-    onDestroy(state.subscribeAll(['_internal.list.visibleRows;', `_internal.chart.time.dates.${period};`], function generateBlocks() {
+    /**
+     * Generate blocks
+     */
+    function generateBlocks() {
         const visibleRows = state.get('_internal.list.visibleRows');
         const periodDates = state.get(`_internal.chart.time.dates.${period}`);
         if (!periodDates || periodDates.length === 0) {
@@ -5081,24 +5097,41 @@ function ChartTimelineGrid(vido, props) {
             top += row.height;
         }
         state.update('_internal.chart.grid.rowsWithBlocks', rowsWithBlocks);
-    }, { bulk: true }));
-    onDestroy(state.subscribe('_internal.chart.grid.rowsWithBlocks', rowsWithBlocks => {
+    }
+    onDestroy(state.subscribeAll(['_internal.list.visibleRows;', `_internal.chart.time.dates.${period};`], generateBlocks, {
+        bulk: true
+    }));
+    /**
+     * Generate rows components
+     * @param {array} rowsWithBlocks
+     */
+    function generateRowsComponents(rowsWithBlocks) {
         if (rowsWithBlocks) {
             reuseComponents(rowsComponents, rowsWithBlocks, row => row, GridRowComponent);
             update();
         }
-    }));
-    componentActions.push(element => {
+    }
+    onDestroy(state.subscribe('_internal.chart.grid.rowsWithBlocks', generateRowsComponents));
+    /**
+     * Bind element
+     * @param {Element} element
+     */
+    function bindElement(element) {
         state.update('_internal.elements.chart-timeline-grid', element);
-    });
+    }
+    if (!componentActions.includes(bindElement)) {
+        componentActions.push();
+    }
     onDestroy(() => {
         rowsComponents.forEach(row => row.destroy());
     });
-    return templateProps => wrapper(html `
+    return function updateTemplate(templateProps) {
+        return wrapper(html `
         <div class=${className} data-actions=${actions(componentActions, { api, state })} style=${style}>
           ${rowsComponents.map(r => r.html())}
         </div>
       `, { props, vido, templateProps });
+    };
 }
 //# sourceMappingURL=ChartTimelineGrid.js.map
 
@@ -5147,33 +5180,40 @@ function ChartTimelineGridRow(vido, props) {
     let className = api.getClass(componentName);
     let style;
     let rowsBlocksComponents = [];
-    onChange(changedProps => {
+    function onPropsChange(changedProps) {
         props = changedProps;
         reuseComponents(rowsBlocksComponents, props.blocks, block => block, GridBlockComponent);
-        style = `height: ${props.row.height}px;`;
+        let compensation = 0;
+        if (props.blocks.length) {
+            compensation = props.blocks[0].time.subPx;
+        }
+        style = `height: ${props.row.height}px; transform: translate(-${compensation}px, 0px)`;
         update();
-    });
+    }
+    onChange(onPropsChange);
     onDestroy(() => {
         rowsBlocksComponents.forEach(rowBlock => rowBlock.destroy());
     });
     if (componentActions.indexOf(bindElementAction) === -1) {
         componentActions.push(bindElementAction);
     }
-    return templateProps => wrapper(html `
+    return function updateTemplate(templateProps) {
+        return wrapper(html `
         <div
           class=${className}
           data-actions=${actions(componentActions, {
-        row: props.row,
-        blocks: props.blocks,
-        top: props.top,
-        api,
-        state
-    })}
+            row: props.row,
+            blocks: props.blocks,
+            top: props.top,
+            api,
+            state
+        })}
           style=${style}
         >
           ${rowsBlocksComponents.map(r => r.html())}
         </div>
       `, { vido, props, templateProps });
+    };
 }
 //# sourceMappingURL=ChartTimelineGridRow.js.map
 
@@ -5231,11 +5271,15 @@ function ChartTimelineGridRowBlock(vido, props) {
         }
     }
     updateClassName(props.time);
-    let style = `width: ${props.time.width}px;height: 100%;margin-left:-${props.time.subPx}px;`;
-    onChange(changedProps => {
+    let style = `width: ${props.time.width}px;height: 100%;`;
+    /**
+     * On props change
+     * @param {any} changedProps
+     */
+    function onPropsChange(changedProps) {
         props = changedProps;
         updateClassName(props.time);
-        style = `width: ${props.time.width}px; height: 100%; margin-left:-${props.time.subPx}px; `;
+        style = `width: ${props.time.width}px; height: 100%;`;
         const rows = state.get('config.list.rows');
         for (const parentId of props.row._internal.parents) {
             const parent = rows[parentId];
@@ -5251,7 +5295,8 @@ function ChartTimelineGridRowBlock(vido, props) {
             style += props.row.style.gridBlock.current;
         }
         update();
-    });
+    }
+    onChange(onPropsChange);
     if (componentActions.indexOf(bindElementAction$1) === -1) {
         componentActions.push(bindElementAction$1);
     }
@@ -5285,20 +5330,19 @@ function ChartTimelineItems(vido, props = {}) {
         update();
     }));
     let rowsComponents = [];
-    onDestroy(state.subscribeAll(['_internal.list.visibleRows', 'config.chart.items', 'config.list.rows'], () => {
+    function createRowComponents() {
         const visibleRows = state.get('_internal.list.visibleRows');
         rowsComponents = reuseComponents(rowsComponents, visibleRows, row => ({ row }), ItemsRowComponent);
         update();
-    }, { bulk: true }));
-    let style = 'top:0px;';
-    onDestroy(state.subscribe('config.scroll.compensation', compensation => {
-        style = `top: ${compensation}px;`;
+    }
+    onDestroy(state.subscribeAll(['_internal.list.visibleRows', 'config.chart.items', 'config.list.rows'], createRowComponents, {
+        bulk: true
     }));
     onDestroy(() => {
         rowsComponents.forEach(row => row.destroy());
     });
     return templateProps => wrapper(html `
-        <div class=${className} style=${style} data-actions=${actions(componentActions, { api, state })}>
+        <div class=${className} data-actions=${actions(componentActions, { api, state })}>
           ${rowsComponents.map(r => r.html())}
         </div>
       `, { props, vido, templateProps });
@@ -5369,10 +5413,15 @@ function ChartTimelineItemsRow(vido, props) {
             update();
         });
     }
-    onChange(changedProps => {
+    /**
+     * On props change
+     * @param {any} changedProps
+     */
+    function onPropsChange(changedProps) {
         props = changedProps;
         updateRow(props.row);
-    });
+    }
+    onChange(onPropsChange);
     onDestroy(() => {
         itemsSub();
         rowSub();
@@ -5390,13 +5439,15 @@ function ChartTimelineItemsRow(vido, props) {
     if (componentActions.indexOf(bindElementAction$2) === -1) {
         componentActions.push(bindElementAction$2);
     }
-    return templateProps => wrapper(html `
+    return function updateTemplate(templateProps) {
+        return wrapper(html `
         <div class=${className} data-actions=${actions(componentActions, Object.assign(Object.assign({}, props), { api, state }))} style=${style}>
           <div class=${classNameInner} style=${styleInner}>
             ${itemComponents.map(i => i.html())}
           </div>
         </div>
       `, { props, vido, templateProps });
+    };
 }
 //# sourceMappingURL=ChartTimelineItemsRow.js.map
 
@@ -5470,17 +5521,18 @@ function ChartTimelineItemsRowItem(vido, props) {
     if (componentActions.indexOf(bindElementAction$3) === -1) {
         componentActions.push(bindElementAction$3);
     }
-    return templateProps => wrapper(html `
+    return function updateTemplate(templateProps) {
+        return wrapper(html `
         <div
           class=${className}
           data-actions=${actions(componentActions, {
-        item: props.item,
-        row: props.row,
-        left: itemLeftPx,
-        width: itemWidthPx,
-        api,
-        state
-    })}
+            item: props.item,
+            row: props.row,
+            left: itemLeftPx,
+            width: itemWidthPx,
+            api,
+            state
+        })}
           style=${style}
         >
           <div class=${contentClassName} style=${contentStyle}>
@@ -5488,6 +5540,7 @@ function ChartTimelineItemsRowItem(vido, props) {
           </div>
         </div>
       `, { vido, props, templateProps });
+    };
 }
 //# sourceMappingURL=ChartTimelineItemsRowItem.js.map
 
@@ -5990,7 +6043,7 @@ const defaultListenerOptions = { bulk: false, debug: false, source: '', data: un
 const defaultUpdateOptions = { only: [], source: '', debug: false, data: undefined };
 class DeepState {
     constructor(data = {}, options = defaultOptions) {
-        this.listeners = {};
+        this.listeners = new Map();
         this.data = data;
         this.options = Object.assign(Object.assign({}, defaultOptions), options);
         this.id = 0;
@@ -6003,7 +6056,7 @@ class DeepState {
     }
     destroy() {
         this.data = undefined;
-        this.listeners = {};
+        this.listeners = new Map();
     }
     match(first, second) {
         if (first === second)
@@ -6138,17 +6191,18 @@ class DeepState {
     }
     getListenerCollectionMatch(listenerPath, isRecursive, isWildcard) {
         listenerPath = this.cleanNotRecursivePath(listenerPath);
-        return (path) => {
+        const self = this;
+        return function listenerCollectionMatch(path) {
             if (isRecursive)
-                path = this.cutPath(path, listenerPath);
-            if (isWildcard && this.match(listenerPath, path))
+                path = self.cutPath(path, listenerPath);
+            if (isWildcard && self.match(listenerPath, path))
                 return true;
             return listenerPath === path;
         };
     }
     getListenersCollection(listenerPath, listener) {
-        if (typeof this.listeners[listenerPath] !== 'undefined') {
-            let listenersCollection = this.listeners[listenerPath];
+        if (this.listeners.has(listenerPath)) {
+            let listenersCollection = this.listeners.get(listenerPath);
             this.id++;
             listenersCollection.listeners[this.id] = listener;
             return listenersCollection;
@@ -6170,9 +6224,10 @@ class DeepState {
         if (this.isNotRecursive(collCfg.path)) {
             collCfg.isRecursive = false;
         }
-        let listenersCollection = (this.listeners[collCfg.path] = this.getCleanListenersCollection(Object.assign(Object.assign({}, collCfg), { match: this.getListenerCollectionMatch(collCfg.path, collCfg.isRecursive, collCfg.isWildcard) })));
+        let listenersCollection = this.getCleanListenersCollection(Object.assign(Object.assign({}, collCfg), { match: this.getListenerCollectionMatch(collCfg.path, collCfg.isRecursive, collCfg.isWildcard) }));
         this.id++;
         listenersCollection.listeners[this.id] = listener;
+        this.listeners.set(collCfg.path, listenersCollection);
         return listenersCollection;
     }
     subscribe(listenerPath, fn, options = defaultListenerOptions, type = 'subscribe') {
@@ -6240,12 +6295,12 @@ class DeepState {
     }
     unsubscribe(path, id) {
         const listeners = this.listeners;
-        const listenersCollection = listeners[path];
+        const listenersCollection = listeners.get(path);
         return function unsub() {
             delete listenersCollection.listeners[id];
             listenersCollection.count--;
             if (listenersCollection.count === 0) {
-                delete listeners[path];
+                listeners.delete(path);
             }
         };
     }
@@ -6282,8 +6337,7 @@ class DeepState {
     getSubscribedListeners(updatePath, newValue, options, type = 'update', originalPath = null) {
         options = Object.assign(Object.assign({}, defaultUpdateOptions), options);
         const listeners = {};
-        for (let listenerPath in this.listeners) {
-            const listenersCollection = this.listeners[listenerPath];
+        for (let [listenerPath, listenersCollection] of this.listeners) {
             listeners[listenerPath] = { single: [], bulk: [], bulkData: [] };
             if (listenersCollection.match(updatePath)) {
                 const params = listenersCollection.paramsInfo
@@ -6341,9 +6395,8 @@ class DeepState {
     }
     getNestedListeners(updatePath, newValue, options, type = 'update', originalPath = null) {
         const listeners = {};
-        for (let listenerPath in this.listeners) {
+        for (let [listenerPath, listenersCollection] of this.listeners) {
             listeners[listenerPath] = { single: [], bulk: [] };
-            const listenersCollection = this.listeners[listenerPath];
             const currentCuttedPath = this.cutPath(listenerPath, updatePath);
             if (this.match(currentCuttedPath, updatePath)) {
                 const restPath = this.trimPath(listenerPath.substr(currentCuttedPath.length));
@@ -6415,8 +6468,7 @@ class DeepState {
             listeners[notifyPath] = { bulk: [], single: [] };
             for (const wildcardPath in wildcardScan) {
                 const fullPath = updatePath + this.options.delimeter + wildcardPath;
-                for (const listenerPath in this.listeners) {
-                    const listenersCollection = this.listeners[listenerPath];
+                for (const [listenerPath, listenersCollection] of this.listeners) {
                     const params = listenersCollection.paramsInfo
                         ? this.getParams(listenersCollection.paramsInfo, fullPath)
                         : undefined;

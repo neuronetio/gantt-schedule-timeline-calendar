@@ -46,28 +46,22 @@ export default function ListToggle(vido, props) {
   );
 
   if (props.row) {
-    onDestroy(
-      state.subscribe(`config.list.rows.${props.row.id}.expanded`, isExpanded => {
-        expanded = isExpanded;
-        update();
-      })
-    );
+    function expandedChange(isExpanded) {
+      expanded = isExpanded;
+      update();
+    }
+    onDestroy(state.subscribe(`config.list.rows.${props.row.id}.expanded`, expandedChange));
   } else {
-    onDestroy(
-      state.subscribe(
-        'config.list.rows.*.expanded',
-        bulk => {
-          for (const rowExpanded of bulk) {
-            if (rowExpanded.value) {
-              expanded = true;
-              break;
-            }
-          }
-          update();
-        },
-        { bulk: true }
-      )
-    );
+    function expandedChange(bulk) {
+      for (const rowExpanded of bulk) {
+        if (rowExpanded.value) {
+          expanded = true;
+          break;
+        }
+      }
+      update();
+    }
+    onDestroy(state.subscribe('config.list.rows.*.expanded', expandedChange, { bulk: true }));
   }
 
   function toggle() {
@@ -88,8 +82,8 @@ export default function ListToggle(vido, props) {
     }
   }
 
-  return templateProps =>
-    wrapper(
+  return function updateTemplate(templateProps) {
+    return wrapper(
       html`
         <div
           class=${className}
@@ -112,4 +106,5 @@ export default function ListToggle(vido, props) {
       `,
       { vido, props, templateProps }
     );
+  };
 }

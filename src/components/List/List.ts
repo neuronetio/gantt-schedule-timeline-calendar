@@ -8,6 +8,8 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
+import schedule from 'raf-schd';
+
 export default function List(vido, props = {}) {
   const { api, state, onDestroy, actions, update, reuseComponents, html } = vido;
 
@@ -22,13 +24,12 @@ export default function List(vido, props = {}) {
 
   let className;
   let list, percent;
-  onDestroy(
-    state.subscribe('config.list', () => {
-      list = state.get('config.list');
-      percent = list.columns.percent;
-      update();
-    })
-  );
+  function onListChange() {
+    list = state.get('config.list');
+    percent = list.columns.percent;
+    update();
+  }
+  onDestroy(state.subscribe('config.list', onListChange));
 
   onDestroy(
     state.subscribe('config.classNames', () => {
@@ -38,12 +39,11 @@ export default function List(vido, props = {}) {
   );
 
   let listColumns = [];
-  onDestroy(
-    state.subscribe('config.list.columns.data;', data => {
-      reuseComponents(listColumns, Object.values(data), column => ({ columnId: column.id }), ListColumnComponent);
-      update();
-    })
-  );
+  function onListColumnsDataChange(data) {
+    reuseComponents(listColumns, Object.values(data), column => ({ columnId: column.id }), ListColumnComponent);
+    update();
+  }
+  onDestroy(state.subscribe('config.list.columns.data;', onListColumnsDataChange));
 
   onDestroy(() => {
     listColumns.forEach(c => c.destroy());
@@ -57,21 +57,22 @@ export default function List(vido, props = {}) {
     })
   );
 
+  function onScrollHandler(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    if (event.type === 'scroll') {
+      state.update('config.scroll.top', event.target.scrollTop);
+    } else {
+      const wheel = api.normalizeMouseWheelEvent(event);
+      state.update('config.scroll.top', top => {
+        return api.limitScroll('top', (top += wheel.y * state.get('config.scroll.yMultiplier')));
+      });
+    }
+  }
+
   const onScroll = {
-    handleEvent(event) {
-      event.stopPropagation();
-      event.preventDefault();
-      if (event.type === 'scroll') {
-        state.update('config.scroll.top', event.target.scrollTop);
-      } else {
-        const wheel = api.normalizeMouseWheelEvent(event);
-        state.update('config.scroll.top', top => {
-          return api.limitScroll('top', (top += wheel.y * state.get('config.scroll.yMultiplier')));
-        });
-      }
-    },
-    passive: false,
-    capture: true
+    handleEvent: schedule(onScrollHandler),
+    passive: false
   };
 
   let width;

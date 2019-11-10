@@ -48,7 +48,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="https://cdn.jsdelivr.net/npm/quasar@^1.1.6/dist/quasar.umd.min.js"></script>
     <script>
-      const iterations = 100;
+      const iterations = 400;
       const rows = {};
       for (let i = 0; i < iterations; i++) {
         const withParent = i > 0 && i % 2 === 0;
@@ -228,16 +228,16 @@
           Selection({
             rectStyle: { opacity: '0.0' },
             selecting(data, type) {
-              console.log(`selecting ${type} ${data.id}`);
+              console.log(`selecting ${type}`, data);
             },
             deselecting(data, type) {
-              console.log(`deselecting ${type} ${data.id}`);
+              console.log(`deselecting ${type}`, data);
             },
             selected(data, type) {
-              console.log(`selected ${type} ${data.id}`);
+              console.log(`selected ${type}`, data);
             },
             deselected(data, type) {
-              console.log(`deselected ${type} ${data.id}`);
+              console.log(`deselected ${type}`, data);
             }
           })
         ],

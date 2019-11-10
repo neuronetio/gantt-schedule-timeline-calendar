@@ -142,8 +142,8 @@ export default function Chart(vido, props = {}) {
     ro.disconnect();
   });
 
-  return templateProps =>
-    wrapper(
+  return function updateTemplate(templateProps) {
+    return wrapper(
       html`
         <div class=${className} data-actions=${actions(componentActions, { api, state })} @wheel=${onWheel}>
           ${Calendar.html()}${Timeline.html()}
@@ -154,4 +154,5 @@ export default function Chart(vido, props = {}) {
       `,
       { vido, props: {}, templateProps }
     );
+  };
 }

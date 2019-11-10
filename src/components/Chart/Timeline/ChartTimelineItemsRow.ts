@@ -81,10 +81,15 @@ export default function ChartTimelineItemsRow(vido, props) {
     });
   }
 
-  onChange(changedProps => {
+  /**
+   * On props change
+   * @param {any} changedProps
+   */
+  function onPropsChange(changedProps) {
     props = changedProps;
     updateRow(props.row);
-  });
+  }
+  onChange(onPropsChange);
 
   onDestroy(() => {
     itemsSub();
@@ -108,8 +113,8 @@ export default function ChartTimelineItemsRow(vido, props) {
     componentActions.push(bindElementAction);
   }
 
-  return templateProps =>
-    wrapper(
+  return function updateTemplate(templateProps) {
+    return wrapper(
       html`
         <div class=${className} data-actions=${actions(componentActions, { ...props, api, state })} style=${style}>
           <div class=${classNameInner} style=${styleInner}>
@@ -119,4 +124,5 @@ export default function ChartTimelineItemsRow(vido, props) {
       `,
       { props, vido, templateProps }
     );
+  };
 }

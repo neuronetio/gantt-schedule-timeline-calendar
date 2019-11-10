@@ -26,22 +26,14 @@ export default function ChartTimelineItems(vido, props = {}) {
   );
 
   let rowsComponents = [];
+  function createRowComponents() {
+    const visibleRows = state.get('_internal.list.visibleRows');
+    rowsComponents = reuseComponents(rowsComponents, visibleRows, row => ({ row }), ItemsRowComponent);
+    update();
+  }
   onDestroy(
-    state.subscribeAll(
-      ['_internal.list.visibleRows', 'config.chart.items', 'config.list.rows'],
-      () => {
-        const visibleRows = state.get('_internal.list.visibleRows');
-        rowsComponents = reuseComponents(rowsComponents, visibleRows, row => ({ row }), ItemsRowComponent);
-        update();
-      },
-      { bulk: true }
-    )
-  );
-
-  let style = 'top:0px;';
-  onDestroy(
-    state.subscribe('config.scroll.compensation', compensation => {
-      style = `top: ${compensation}px;`;
+    state.subscribeAll(['_internal.list.visibleRows', 'config.chart.items', 'config.list.rows'], createRowComponents, {
+      bulk: true
     })
   );
 
@@ -52,7 +44,7 @@ export default function ChartTimelineItems(vido, props = {}) {
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} style=${style} data-actions=${actions(componentActions, { api, state })}>
+        <div class=${className} data-actions=${actions(componentActions, { api, state })}>
           ${rowsComponents.map(r => r.html())}
         </div>
       `,

@@ -43,17 +43,24 @@ export default function ListColumn(vido, props) {
   );
 
   let visibleRows = [];
-  onDestroy(
-    state.subscribe('_internal.list.visibleRows;', val => {
-      reuseComponents(visibleRows, val, row => ({ columnId: props.columnId, rowId: row.id }), ListColumnRowComponent);
-      update();
-    })
-  );
+  function visibleRowsChange(val) {
+    reuseComponents(visibleRows, val, row => ({ columnId: props.columnId, rowId: row.id }), ListColumnRowComponent);
+    update();
+  }
+  onDestroy(state.subscribe('_internal.list.visibleRows;', visibleRowsChange));
 
   onDestroy(() => {
     visibleRows.forEach(row => row.destroy());
   });
 
+  function calculateStyle() {
+    const list = state.get('config.list');
+    const compensation = state.get('config.scroll.compensation');
+    calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
+    width = `width: ${calculatedWidth + list.columns.resizer.width}px`;
+    styleContainer = `height: ${state.get('_internal.height')}px;`;
+    styleScrollCompensation = `transform: translate(0px, ${compensation}px);`;
+  }
   onDestroy(
     state.subscribeAll(
       [
@@ -63,14 +70,7 @@ export default function ListColumn(vido, props) {
         '_internal.height',
         'config.scroll.compensation'
       ],
-      bulk => {
-        const list = state.get('config.list');
-        const compensation = state.get('config.scroll.compensation');
-        calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
-        width = `width: ${calculatedWidth + list.columns.resizer.width}px`;
-        styleContainer = `height: ${state.get('_internal.height')}px;`;
-        styleScrollCompensation = `margin-top:${compensation}px;`;
-      },
+      calculateStyle,
       { bulk: true }
     )
   );
@@ -78,8 +78,11 @@ export default function ListColumn(vido, props) {
   const ListColumnHeader = createComponent(ListColumnHeaderComponent, { columnId: props.columnId });
   onDestroy(ListColumnHeader.destroy);
 
-  return templateProps =>
-    wrapper(
+  function getRowHtml(row) {
+    return row.html();
+  }
+  return function updateTemplate(templateProps) {
+    return wrapper(
       html`
         <div
           class=${className}
@@ -89,11 +92,12 @@ export default function ListColumn(vido, props) {
           ${ListColumnHeader.html()}
           <div class=${classNameContainer} style=${styleContainer} data-actions=${actions(rowsActions, { api, state })}>
             <div class=${classNameContainer + '--scroll-compensation'} style=${styleScrollCompensation}>
-              ${visibleRows.map(row => row.html())}
+              ${visibleRows.map(getRowHtml)}
             </div>
           </div>
         </div>
       `,
       { vido, props, templateProps }
     );
+  };
 }

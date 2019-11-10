@@ -57,8 +57,28 @@ export default [
         //module: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
-      !production && livereload('dist'),
-      production && terser()
+      !production && livereload('dist')
+    ]
+  },
+  {
+    input: 'src/index.ts',
+    output: {
+      sourcemap: true,
+      file: 'dist/index.umd.min.js',
+      format: 'umd',
+      name: 'GSTC'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+        //module: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] }),
+      terser({
+        keep_classnames: true,
+        keep_fnames: true
+      })
     ]
   },
   {
@@ -75,7 +95,31 @@ export default [
         //module: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
-      production && terser()
+      production &&
+        terser({
+          keep_classnames: true,
+          keep_fnames: true
+        })
+    ]
+  },
+  {
+    input: 'src/index.ts',
+    output: {
+      sourcemap: true,
+      file: 'dist/index.esm.min.js',
+      format: 'esm'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+        //module: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] }),
+      terser({
+        keep_classnames: true,
+        keep_fnames: true
+      })
     ]
   },
   {
@@ -91,8 +135,28 @@ export default [
         browser: true
         //module: true
       }),
+      commonjs({ extensions: ['.js'] })
+    ]
+  },
+  {
+    input: 'src/plugins/ItemMovement.plugin.js',
+    output: {
+      sourcemap: true,
+      file: 'dist/ItemMovement.plugin.min.js',
+      format: 'umd',
+      name: 'ItemMovement'
+    },
+    plugins: [
+      resolve({
+        browser: true
+        //module: true
+      }),
       commonjs({ extensions: ['.js'] }),
-      production && terser()
+      production &&
+        terser({
+          keep_classnames: true,
+          keep_fnames: true
+        })
     ]
   },
   {
@@ -108,8 +172,28 @@ export default [
         browser: true
         //module: true
       }),
+      commonjs({ extensions: ['.js'] })
+    ]
+  },
+  {
+    input: 'src/plugins/DependencyLines.plugin.js',
+    output: {
+      sourcemap: true,
+      file: 'dist/DependencyLines.plugin.min.js',
+      format: 'umd',
+      name: 'DependencyLines'
+    },
+    plugins: [
+      resolve({
+        browser: true
+        //module: true
+      }),
       commonjs({ extensions: ['.js'] }),
-      production && terser()
+      production &&
+        terser({
+          keep_classnames: true,
+          keep_fnames: true
+        })
     ]
   },
   {
@@ -125,8 +209,28 @@ export default [
         browser: true
         //module: true
       }),
+      commonjs({ extensions: ['.js'] })
+    ]
+  },
+  {
+    input: 'src/plugins/ItemHold.plugin.js',
+    output: {
+      sourcemap: true,
+      file: 'dist/ItemHold.plugin.min.js',
+      format: 'umd',
+      name: 'ItemHold'
+    },
+    plugins: [
+      resolve({
+        browser: true
+        //module: true
+      }),
       commonjs({ extensions: ['.js'] }),
-      production && terser()
+      production &&
+        terser({
+          keep_classnames: true,
+          keep_fnames: true
+        })
     ]
   },
   {
@@ -142,8 +246,28 @@ export default [
         browser: true
         //module: true
       }),
+      commonjs({ extensions: ['.js'] })
+    ]
+  },
+  {
+    input: 'src/plugins/SaveAsImage.plugin.js',
+    output: {
+      sourcemap: true,
+      file: 'dist/SaveAsImage.plugin.min.js',
+      format: 'umd',
+      name: 'SaveAsImage'
+    },
+    plugins: [
+      resolve({
+        browser: true
+        //module: true
+      }),
       commonjs({ extensions: ['.js'] }),
-      production && terser()
+      production &&
+        terser({
+          keep_classnames: true,
+          keep_fnames: true
+        })
     ]
   },
   {
@@ -159,8 +283,28 @@ export default [
         browser: true
         //module: true
       }),
+      commonjs({ extensions: ['.js'] })
+    ]
+  },
+  {
+    input: 'src/plugins/Selection.plugin.js',
+    output: {
+      sourcemap: true,
+      file: 'dist/Selection.plugin.min.js',
+      format: 'umd',
+      name: 'Selection'
+    },
+    plugins: [
+      resolve({
+        browser: true
+        //module: true
+      }),
       commonjs({ extensions: ['.js'] }),
-      production && terser()
+      production &&
+        terser({
+          keep_classnames: true,
+          keep_fnames: true
+        })
     ]
   },
   {
@@ -176,8 +320,28 @@ export default [
         browser: true
         //module: true
       }),
+      commonjs({ extensions: ['.js'] })
+    ]
+  },
+  {
+    input: 'src/plugins/plugins.js',
+    output: {
+      sourcemap: true,
+      file: 'dist/plugins.min.js',
+      format: 'esm',
+      name: 'plugins'
+    },
+    plugins: [
+      resolve({
+        browser: true
+        //module: true
+      }),
       commonjs({ extensions: ['.js'] }),
-      production && terser()
+      production &&
+        terser({
+          keep_classnames: true,
+          keep_fnames: true
+        })
     ]
   },
   {

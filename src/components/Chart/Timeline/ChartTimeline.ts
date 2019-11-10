@@ -35,13 +35,14 @@ export default function ChartTimeline(vido, props) {
 
   let style = '',
     styleInner = '';
+  function calculateStyle() {
+    style = `height: ${state.get('_internal.height')}px`;
+    const compensation = state.get('config.scroll.compensation');
+    styleInner = `height: ${state.get('_internal.list.rowsHeight')}px; transform: translate(0px, ${compensation}px);`;
+    update();
+  }
   onDestroy(
-    state.subscribeAll(['_internal.height', '_internal.list.rowsHeight', 'config.scroll.compensation'], () => {
-      style = `height: ${state.get('_internal.height')}px`;
-      const compensation = state.get('config.scroll.compensation');
-      styleInner = `height: ${state.get('_internal.list.rowsHeight')}px; margin-top:${compensation}px;`;
-      update();
-    })
+    state.subscribeAll(['_internal.height', '_internal.list.rowsHeight', 'config.scroll.compensation'], calculateStyle)
   );
 
   componentActions.push(element => {

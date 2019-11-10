@@ -20,7 +20,7 @@
   "dependencies": {
     "@neuronet.io/vido": "^1.2.1",
     "dayjs": "^1.8.17",
-    "deep-state-observer": "^3.0.34",
+    "deep-state-observer": "^3.0.36",
     "lit-html": "^1.1.2",
     "raf-schd": "^4.0.2",
     "resize-observer-polyfill": "^1.5.1",
