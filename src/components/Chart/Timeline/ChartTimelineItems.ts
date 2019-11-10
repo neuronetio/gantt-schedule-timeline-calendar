@@ -24,7 +24,13 @@ export default function ChartTimelineItems(vido, props = {}) {
       update();
     })
   );
-
+  let style;
+  function calculateStyle() {
+    const width = state.get('_internal.chart.dimensions.width');
+    const height = state.get('_internal.height');
+    style = `width: ${width}px; height: ${height}px;`;
+  }
+  onDestroy(state.subscribeAll(['_internal.height', '_internal.chart.dimensions.width'], calculateStyle));
   let rowsComponents = [];
   function createRowComponents() {
     const visibleRows = state.get('_internal.list.visibleRows');
@@ -37,14 +43,14 @@ export default function ChartTimelineItems(vido, props = {}) {
     })
   );
 
-  onDestroy(() => {
+  onDestroy(function destroyRows() {
     rowsComponents.forEach(row => row.destroy());
   });
 
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, { api, state })}>
+        <div class=${className} style=${style} data-actions=${actions(componentActions, { api, state })}>
           ${rowsComponents.map(r => r.html())}
         </div>
       `,

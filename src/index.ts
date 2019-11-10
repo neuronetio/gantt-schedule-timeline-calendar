@@ -12,7 +12,7 @@ import Vido from '@neuronet.io/vido';
 import publicApi, { getInternalApi } from './api/Api';
 import Main from './components/Main';
 
-const GSTC = options => {
+function GSTC(options) {
   const state = options.state;
   const api = getInternalApi(state);
   const _internal = {
@@ -73,7 +73,7 @@ const GSTC = options => {
   const vido = Vido(state, api);
   const app = vido.createApp({ component: Main, props: vido, element: options.element });
   return { state, app };
-};
+}
 
 GSTC.api = publicApi;
 export default GSTC;

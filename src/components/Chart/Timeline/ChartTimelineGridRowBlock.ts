@@ -67,7 +67,7 @@ export default function ChartTimelineGridRowBlock(vido, props: Props) {
     }
   }
   updateClassName(props.time);
-  let style = `width: ${props.time.width}px;height: 100%;`;
+  let style = `width: ${props.time.width}px;height: ${props.row.height}px;`;
   /**
    * On props change
    * @param {any} changedProps
@@ -75,7 +75,7 @@ export default function ChartTimelineGridRowBlock(vido, props: Props) {
   function onPropsChange(changedProps) {
     props = changedProps;
     updateClassName(props.time);
-    style = `width: ${props.time.width}px; height: 100%;`;
+    style = `width: ${props.time.width}px; height: ${props.row.height}px;`;
     const rows = state.get('config.list.rows');
     for (const parentId of props.row._internal.parents) {
       const parent = rows[parentId];

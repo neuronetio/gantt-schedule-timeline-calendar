@@ -4098,36 +4098,39 @@
         const rowsComponentName = componentName + '-rows';
         const componentActions = api.getActions(componentName);
         const rowsActions = api.getActions(rowsComponentName);
-        let className, classNameContainer, calculatedWidth, width, styleContainer, styleScrollCompensation;
+        let className, classNameContainer, calculatedWidth, widthStyle, styleContainer, styleScrollCompensation;
         onDestroy(state.subscribe('config.classNames', value => {
             className = api.getClass(componentName, { column });
             classNameContainer = api.getClass(rowsComponentName, { column });
             update();
         }));
-        let visibleRows = [];
-        function visibleRowsChange(val) {
-            reuseComponents(visibleRows, val, row => ({ columnId: props.columnId, rowId: row.id }), ListColumnRowComponent);
-            update();
-        }
-        onDestroy(state.subscribe('_internal.list.visibleRows;', visibleRowsChange));
-        onDestroy(() => {
-            visibleRows.forEach(row => row.destroy());
-        });
+        let width;
         function calculateStyle() {
             const list = state.get('config.list');
             const compensation = state.get('config.scroll.compensation');
             calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
-            width = `width: ${calculatedWidth + list.columns.resizer.width}px`;
-            styleContainer = `height: ${state.get('_internal.height')}px;`;
-            styleScrollCompensation = `transform: translate(0px, ${compensation}px);`;
+            width = calculatedWidth + list.columns.resizer.width;
+            widthStyle = `width: ${width}px;`;
+            styleContainer = `${widthStyle} height: ${state.get('_internal.height')}px;`;
+            styleScrollCompensation = `${styleContainer} transform: translate(0px, ${compensation}px);`;
         }
         onDestroy(state.subscribeAll([
             'config.list.columns.percent',
             'config.list.columns.resizer.width',
             `config.list.columns.data.${column.id}.width`,
+            '_internal.chart.dimensions.width',
             '_internal.height',
             'config.scroll.compensation'
         ], calculateStyle, { bulk: true }));
+        let visibleRows = [];
+        function visibleRowsChange(val) {
+            reuseComponents(visibleRows, val, row => ({ columnId: props.columnId, rowId: row.id, width }), ListColumnRowComponent);
+            update();
+        }
+        onDestroy(state.subscribe('_internal.list.visibleRows;', visibleRowsChange));
+        onDestroy(function rowsDestroy() {
+            visibleRows.forEach(row => row.destroy());
+        });
         const ListColumnHeader = createComponent(ListColumnHeaderComponent, { columnId: props.columnId });
         onDestroy(ListColumnHeader.destroy);
         function getRowHtml(row) {
@@ -4138,7 +4141,7 @@
         <div
           class=${className}
           data-actions=${actions(componentActions, { column, state: state, api: api })}
-          style=${width}
+          style=${widthStyle}
         >
           ${ListColumnHeader.html()}
           <div class=${classNameContainer} style=${styleContainer} data-actions=${actions(rowsActions, { api, state })}>
@@ -4340,7 +4343,7 @@
             colPath = `config.list.columns.data.${columnId}`;
             rowSub = state.subscribe(rowPath, value => {
                 row = value;
-                style = `--height: ${row.height}px;`;
+                style = `--height: ${row.height}px; width: ${props.width}px; height:${row.height}px;`;
                 for (let parentId of row._internal.parents) {
                     const parent = state.get(`_internal.flatTreeMapById.${parentId}`);
                     if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
@@ -5069,12 +5072,20 @@
         }));
         let style = '', styleInner = '';
         function calculateStyle() {
-            style = `height: ${state.get('_internal.height')}px`;
             const compensation = state.get('config.scroll.compensation');
-            styleInner = `height: ${state.get('_internal.list.rowsHeight')}px; transform: translate(0px, ${compensation}px);`;
+            const width = state.get('_internal.chart.dimensions.width');
+            const height = state.get('_internal.list.rowsHeight');
+            const widthStyle = width ? `width: ${width}px;` : '';
+            style = `height: ${state.get('_internal.height')}px; ${widthStyle}`;
+            styleInner = `height: ${height}px; ${widthStyle} transform: translate(0px, ${compensation}px);`;
             update();
         }
-        onDestroy(state.subscribeAll(['_internal.height', '_internal.list.rowsHeight', 'config.scroll.compensation'], calculateStyle));
+        onDestroy(state.subscribeAll([
+            '_internal.height',
+            '_internal.chart.dimensions.width',
+            '_internal.list.rowsHeight',
+            'config.scroll.compensation'
+        ], calculateStyle));
         componentActions.push(element => {
             state.update('_internal.elements.chart-timeline', element);
         });
@@ -5113,10 +5124,11 @@
             className = api.getClass(componentName);
             update();
         }));
-        let height, style;
-        onDestroy(state.subscribe('_internal.height', h => {
-            height = h;
-            style = `height: ${height}px`;
+        let style, width;
+        onDestroy(state.subscribeAll(['_internal.height', '_internal.chart.dimensions.width'], function widthHeightChange() {
+            width = state.get('_internal.chart.dimensions.width');
+            const height = state.get('_internal.height');
+            style = `height: ${height}px; width: ${width}px;`;
             update();
         }));
         let period;
@@ -5124,6 +5136,7 @@
         let onBlockCreate;
         onDestroy(state.subscribe('config.chart.grid.block.onCreate', onCreate => (onBlockCreate = onCreate)));
         let rowsComponents = [];
+        const rowsWithBlocks = [];
         /**
          * Generate blocks
          */
@@ -5134,7 +5147,7 @@
                 return;
             }
             let top = 0;
-            const rowsWithBlocks = [];
+            rowsWithBlocks.length = 0;
             for (const row of visibleRows) {
                 const blocks = [];
                 for (const time of periodDates) {
@@ -5145,7 +5158,7 @@
                     }
                     blocks.push(block);
                 }
-                rowsWithBlocks.push({ row, blocks, top });
+                rowsWithBlocks.push({ row, blocks, top, width });
                 top += row.height;
             }
             state.update('_internal.chart.grid.rowsWithBlocks', rowsWithBlocks);
@@ -5234,15 +5247,11 @@
         function onPropsChange(changedProps) {
             props = changedProps;
             reuseComponents(rowsBlocksComponents, props.blocks, block => block, GridBlockComponent);
-            let compensation = 0;
-            if (props.blocks.length) {
-                compensation = props.blocks[0].time.subPx;
-            }
-            style = `height: ${props.row.height}px; transform: translate(-${compensation}px, 0px)`;
+            style = `height: ${props.row.height}px; width: ${props.width}px;`;
             update();
         }
         onChange(onPropsChange);
-        onDestroy(() => {
+        onDestroy(function rowDestroy() {
             rowsBlocksComponents.forEach(rowBlock => rowBlock.destroy());
         });
         if (componentActions.indexOf(bindElementAction) === -1) {
@@ -5321,7 +5330,7 @@
             }
         }
         updateClassName(props.time);
-        let style = `width: ${props.time.width}px;height: 100%;`;
+        let style = `width: ${props.time.width}px;height: ${props.row.height}px;`;
         /**
          * On props change
          * @param {any} changedProps
@@ -5329,7 +5338,7 @@
         function onPropsChange(changedProps) {
             props = changedProps;
             updateClassName(props.time);
-            style = `width: ${props.time.width}px; height: 100%;`;
+            style = `width: ${props.time.width}px; height: ${props.row.height}px;`;
             const rows = state.get('config.list.rows');
             for (const parentId of props.row._internal.parents) {
                 const parent = rows[parentId];
@@ -5378,6 +5387,13 @@
             className = api.getClass(componentName);
             update();
         }));
+        let style;
+        function calculateStyle() {
+            const width = state.get('_internal.chart.dimensions.width');
+            const height = state.get('_internal.height');
+            style = `width: ${width}px; height: ${height}px;`;
+        }
+        onDestroy(state.subscribeAll(['_internal.height', '_internal.chart.dimensions.width'], calculateStyle));
         let rowsComponents = [];
         function createRowComponents() {
             const visibleRows = state.get('_internal.list.visibleRows');
@@ -5387,11 +5403,11 @@
         onDestroy(state.subscribeAll(['_internal.list.visibleRows', 'config.chart.items', 'config.list.rows'], createRowComponents, {
             bulk: true
         }));
-        onDestroy(() => {
+        onDestroy(function destroyRows() {
             rowsComponents.forEach(row => row.destroy());
         });
         return templateProps => wrapper(html `
-        <div class=${className} data-actions=${actions(componentActions, { api, state })}>
+        <div class=${className} style=${style} data-actions=${actions(componentActions, { api, state })}>
           ${rowsComponents.map(r => r.html())}
         </div>
       `, { props, vido, templateProps });
@@ -5440,8 +5456,8 @@
         let itemComponents = [];
         function updateDom() {
             const chart = state.get('_internal.chart');
-            style = `width:${chart.dimensions.width}px;height:${props.row.height}px;--row-height:${props.row.height}px;`;
-            styleInner = `width: ${chart.time.totalViewDurationPx}px;height: 100%;`;
+            style = `width:${chart.dimensions.width}px; height:${props.row.height}px; --row-height:${props.row.height}px;`;
+            styleInner = `width: ${chart.time.totalViewDurationPx}px; height: ${props.row.height}px;`;
         }
         function updateRow(row) {
             itemsPath = `_internal.flatTreeMapById.${row.id}._internal.items`;
@@ -5541,7 +5557,7 @@
             itemLeftPx = (props.item.time.start - time.leftGlobal) / time.timePerPixel;
             itemWidthPx = (props.item.time.end - props.item.time.start) / time.timePerPixel;
             itemWidthPx -= state.get('config.chart.spacing') || 0;
-            style = `left:${itemLeftPx}px; width:${itemWidthPx}px; `;
+            style = `transform: translate(${itemLeftPx}px, 0px); width:${itemWidthPx}px; `;
             if (typeof props.item.style === 'object' && props.item.style.constructor.name === 'Object') {
                 if (typeof props.item.style.current === 'string') {
                     contentStyle += props.item.style.current;
@@ -7048,7 +7064,7 @@
      * @package   gantt-schedule-timeline-calendar
      * @license   GPL-3.0
      */
-    const GSTC = options => {
+    function GSTC(options) {
         const state = options.state;
         const api = getInternalApi(state);
         const _internal = {
@@ -7108,7 +7124,7 @@
         const vido = Vido(state, api);
         const app = vido.createApp({ component: Main, props: vido, element: options.element });
         return { state, app };
-    };
+    }
     GSTC.api = publicApi;
 
     return GSTC;

@@ -32,7 +32,7 @@ export default function ListColumn(vido, props) {
   const rowsComponentName = componentName + '-rows';
   const componentActions = api.getActions(componentName);
   const rowsActions = api.getActions(rowsComponentName);
-  let className, classNameContainer, calculatedWidth, width, styleContainer, styleScrollCompensation;
+  let className, classNameContainer, calculatedWidth, widthStyle, styleContainer, styleScrollCompensation;
 
   onDestroy(
     state.subscribe('config.classNames', value => {
@@ -41,25 +41,15 @@ export default function ListColumn(vido, props) {
       update();
     })
   );
-
-  let visibleRows = [];
-  function visibleRowsChange(val) {
-    reuseComponents(visibleRows, val, row => ({ columnId: props.columnId, rowId: row.id }), ListColumnRowComponent);
-    update();
-  }
-  onDestroy(state.subscribe('_internal.list.visibleRows;', visibleRowsChange));
-
-  onDestroy(() => {
-    visibleRows.forEach(row => row.destroy());
-  });
-
+  let width;
   function calculateStyle() {
     const list = state.get('config.list');
     const compensation = state.get('config.scroll.compensation');
     calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
-    width = `width: ${calculatedWidth + list.columns.resizer.width}px`;
-    styleContainer = `height: ${state.get('_internal.height')}px;`;
-    styleScrollCompensation = `transform: translate(0px, ${compensation}px);`;
+    width = calculatedWidth + list.columns.resizer.width;
+    widthStyle = `width: ${width}px;`;
+    styleContainer = `${widthStyle} height: ${state.get('_internal.height')}px;`;
+    styleScrollCompensation = `${styleContainer} transform: translate(0px, ${compensation}px);`;
   }
   onDestroy(
     state.subscribeAll(
@@ -67,6 +57,7 @@ export default function ListColumn(vido, props) {
         'config.list.columns.percent',
         'config.list.columns.resizer.width',
         `config.list.columns.data.${column.id}.width`,
+        '_internal.chart.dimensions.width',
         '_internal.height',
         'config.scroll.compensation'
       ],
@@ -74,6 +65,22 @@ export default function ListColumn(vido, props) {
       { bulk: true }
     )
   );
+
+  let visibleRows = [];
+  function visibleRowsChange(val) {
+    reuseComponents(
+      visibleRows,
+      val,
+      row => ({ columnId: props.columnId, rowId: row.id, width }),
+      ListColumnRowComponent
+    );
+    update();
+  }
+  onDestroy(state.subscribe('_internal.list.visibleRows;', visibleRowsChange));
+
+  onDestroy(function rowsDestroy() {
+    visibleRows.forEach(row => row.destroy());
+  });
 
   const ListColumnHeader = createComponent(ListColumnHeaderComponent, { columnId: props.columnId });
   onDestroy(ListColumnHeader.destroy);
@@ -87,7 +94,7 @@ export default function ListColumn(vido, props) {
         <div
           class=${className}
           data-actions=${actions(componentActions, { column, state: state, api: api })}
-          style=${width}
+          style=${widthStyle}
         >
           ${ListColumnHeader.html()}
           <div class=${classNameContainer} style=${styleContainer} data-actions=${actions(rowsActions, { api, state })}>

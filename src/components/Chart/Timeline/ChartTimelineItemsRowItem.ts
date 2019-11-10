@@ -51,7 +51,7 @@ export default function ChartTimelineItemsRowItem(vido, props) {
     itemLeftPx = (props.item.time.start - time.leftGlobal) / time.timePerPixel;
     itemWidthPx = (props.item.time.end - props.item.time.start) / time.timePerPixel;
     itemWidthPx -= state.get('config.chart.spacing') || 0;
-    style = `left:${itemLeftPx}px; width:${itemWidthPx}px; `;
+    style = `transform: translate(${itemLeftPx}px, 0px); width:${itemWidthPx}px; `;
     if (typeof props.item.style === 'object' && props.item.style.constructor.name === 'Object') {
       if (typeof props.item.style.current === 'string') {
         contentStyle += props.item.style.current;

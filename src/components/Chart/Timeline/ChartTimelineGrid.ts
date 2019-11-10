@@ -26,11 +26,12 @@ export default function ChartTimelineGrid(vido, props) {
     })
   );
 
-  let height, style;
+  let style, width;
   onDestroy(
-    state.subscribe('_internal.height', h => {
-      height = h;
-      style = `height: ${height}px`;
+    state.subscribeAll(['_internal.height', '_internal.chart.dimensions.width'], function widthHeightChange() {
+      width = state.get('_internal.chart.dimensions.width');
+      const height = state.get('_internal.height');
+      style = `height: ${height}px; width: ${width}px;`;
       update();
     })
   );
@@ -41,6 +42,7 @@ export default function ChartTimelineGrid(vido, props) {
   onDestroy(state.subscribe('config.chart.grid.block.onCreate', onCreate => (onBlockCreate = onCreate)));
 
   let rowsComponents = [];
+  const rowsWithBlocks = [];
   /**
    * Generate blocks
    */
@@ -51,7 +53,7 @@ export default function ChartTimelineGrid(vido, props) {
       return;
     }
     let top = 0;
-    const rowsWithBlocks = [];
+    rowsWithBlocks.length = 0;
     for (const row of visibleRows) {
       const blocks = [];
       for (const time of periodDates) {
@@ -62,7 +64,7 @@ export default function ChartTimelineGrid(vido, props) {
         }
         blocks.push(block);
       }
-      rowsWithBlocks.push({ row, blocks, top });
+      rowsWithBlocks.push({ row, blocks, top, width });
       top += row.height;
     }
     state.update('_internal.chart.grid.rowsWithBlocks', rowsWithBlocks);

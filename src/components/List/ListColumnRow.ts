@@ -36,7 +36,7 @@ export default function ListColumnRow(vido, props) {
     colPath = `config.list.columns.data.${columnId}`;
     rowSub = state.subscribe(rowPath, value => {
       row = value;
-      style = `--height: ${row.height}px;`;
+      style = `--height: ${row.height}px; width: ${props.width}px; height:${row.height}px;`;
       for (let parentId of row._internal.parents) {
         const parent = state.get(`_internal.flatTreeMapById.${parentId}`);
         if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {

@@ -51,8 +51,8 @@ export default function ChartTimelineItemsRow(vido, props) {
 
   function updateDom() {
     const chart = state.get('_internal.chart');
-    style = `width:${chart.dimensions.width}px;height:${props.row.height}px;--row-height:${props.row.height}px;`;
-    styleInner = `width: ${chart.time.totalViewDurationPx}px;height: 100%;`;
+    style = `width:${chart.dimensions.width}px; height:${props.row.height}px; --row-height:${props.row.height}px;`;
+    styleInner = `width: ${chart.time.totalViewDurationPx}px; height: ${props.row.height}px;`;
     if (element && scrollLeft !== chart.time.leftPx) {
       element.scrollLeft = chart.time.leftPx;
       scrollLeft = chart.time.leftPx;
