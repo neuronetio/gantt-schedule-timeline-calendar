@@ -36,7 +36,12 @@ function bindElementAction(element, data) {
   };
 }
 
-export default function ChartTimelineGridRowBlock(vido, props) {
+interface Props {
+  row: any;
+  time: any;
+}
+
+export default function ChartTimelineGridRowBlock(vido, props: Props) {
   const { api, state, onDestroy, actions, update, html, onChange } = vido;
   const componentName = 'chart-timeline-grid-row-block';
   const componentActions = api.getActions(componentName);

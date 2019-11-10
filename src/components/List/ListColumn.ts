@@ -22,7 +22,7 @@ export default function ListColumn(vido, props) {
   let column,
     columnPath = `config.list.columns.data.${props.columnId}`;
   onDestroy(
-    state.subscribe(columnPath, val => {
+    state.subscribe(columnPath, function columnChanged(val) {
       column = val;
       update();
     })

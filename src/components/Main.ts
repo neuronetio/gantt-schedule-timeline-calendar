@@ -9,9 +9,9 @@
  */
 
 import ResizeObserver from 'resize-observer-polyfill';
-import schedule from 'raf-schd';
+
 export default function Main(vido, props = {}) {
-  const { api, state, onDestroy, actions, update, createComponent, html } = vido;
+  const { api, state, onDestroy, actions, update, schedule, createComponent, html } = vido;
   const componentName = api.name;
 
   let ListComponent;

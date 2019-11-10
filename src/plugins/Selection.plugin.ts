@@ -8,23 +8,61 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-import schedule from 'raf-schd';
-export default function Selection(options = {}) {
-  let vido, state, api;
-  const defaultOptions = {
+export interface RectStyle {
+  [key: string]: any;
+}
+
+export interface Options {
+  grid?: boolean;
+  items?: boolean;
+  rows?: boolean;
+  horizontal?: boolean;
+  vertical?: boolean;
+  rectStyle?: RectStyle;
+  selecting?: (data, type: string) => void;
+  deselecting?: (data, type: string) => void;
+  selected?: (data, type) => void;
+  deselected?: (data, type) => void;
+}
+
+export interface Items {
+  [key: string]: string[];
+}
+
+interface SelectingData {
+  fromX?: number;
+  fromY?: number;
+  toX?: number;
+  toY?: number;
+  startX?: number;
+  startY?: number;
+  startCell?: any;
+  selecting?: boolean;
+  selected?: Items;
+}
+
+export interface SelectState {
+  selecting?: Items;
+  selected?: Items;
+}
+
+export default function Selection(options: Options = {}) {
+  let vido, state, api, schedule;
+  const defaultOptions: Options = {
     grid: false,
     items: true,
     rows: false,
     horizontal: true,
     vertical: true,
+    rectStyle: {},
     selecting() {},
     deselecting() {},
     selected() {},
     deselected() {}
   };
-  options = { ...defaultOptions, ...options };
+  options = { ...defaultOptions, ...options } as Options;
   let chartTimeline, top, left;
-  let selecting = {
+  let selecting: SelectingData = {
     fromX: -1,
     fromY: -1,
     toX: -1,
@@ -54,10 +92,8 @@ export default function Selection(options = {}) {
   rect.style.position = 'absolute';
   rect.style['user-select'] = 'none';
   rect.style['pointer-events'] = 'none';
-  if (options.rectStyle) {
-    for (const styleProp in options.rectStyle) {
-      rect.style[styleProp] = options.rectStyle[styleProp];
-    }
+  for (const styleProp in options.rectStyle) {
+    rect.style[styleProp] = options.rectStyle[styleProp];
   }
 
   /**
@@ -111,7 +147,7 @@ export default function Selection(options = {}) {
      * @returns {object} currentSelect cloned
      */
     function cloneSelection(currentSelect) {
-      const result = {};
+      const result: SelectingData = {};
       result.selecting = { ...currentSelect.selecting };
       result.selecting['chart-timeline-grid-rows'] = currentSelect.selecting['chart-timeline-grid-rows'].slice();
       result.selecting['chart-timeline-grid-row-blocks'] = currentSelect.selecting[
@@ -279,7 +315,7 @@ export default function Selection(options = {}) {
       selecting.selecting = false;
       rect.style.visibility = 'hidden';
       const currentSelect = state.get(path);
-      const select = {};
+      const select: SelectState = {};
       state.update(path, value => {
         select.selected = { ...value.selecting };
         select.selecting = {
@@ -287,7 +323,7 @@ export default function Selection(options = {}) {
           'chart-timeline-grid-row-blocks': [],
           'chart-timeline-items-rows': [],
           'chart-timeline-items-row-items': []
-        };
+        } as Items;
         return select;
       });
       const elements = state.get('_internal.elements');
@@ -426,25 +462,25 @@ export default function Selection(options = {}) {
     const classNameSelecting = api.getClass('chart-timeline-items-row-item') + '--selecting';
     const classNameSelected = api.getClass('chart-timeline-items-row-item') + '--selected';
     if (data.item.selecting) {
-      element.classList.add(classNameSelecting);
-    } else {
+      if (!element.classList.contains(classNameSelecting)) element.classList.add(classNameSelecting);
+    } else if (element.classList.contains(classNameSelecting)) {
       element.classList.remove(classNameSelecting);
     }
     if (data.item.selected) {
-      element.classList.add(classNameSelected);
-    } else {
+      if (!element.classList.contains(classNameSelected)) element.classList.add(classNameSelected);
+    } else if (element.classList.contains(classNameSelected)) {
       element.classList.remove(classNameSelected);
     }
     return {
       update(element, data) {
         if (data.item.selecting) {
-          element.classList.add(classNameSelecting);
-        } else {
+          if (!element.classList.contains(classNameSelecting)) element.classList.add(classNameSelecting);
+        } else if (element.classList.contains(classNameSelecting)) {
           element.classList.remove(classNameSelecting);
         }
         if (data.item.selected) {
-          element.classList.add(classNameSelected);
-        } else {
+          if (!element.classList.contains(classNameSelected)) element.classList.add(classNameSelected);
+        } else if (element.classList.contains(classNameSelected)) {
           element.classList.remove(classNameSelected);
         }
       },
@@ -474,6 +510,7 @@ export default function Selection(options = {}) {
     vido = mainVido;
     state = vido.state;
     api = vido.api;
+    schedule = vido.schedule;
     if (typeof state.get(path) === 'undefined') {
       state.update(path, {
         selecting: {

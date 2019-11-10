@@ -9,9 +9,9 @@
  */
 
 import ResizeObserver from 'resize-observer-polyfill';
-import schedule from 'raf-schd';
+
 export default function Chart(vido, props = {}) {
-  const { api, state, onDestroy, actions, update, html, createComponent } = vido;
+  const { api, state, onDestroy, actions, update, html, schedule, createComponent } = vido;
   const componentName = 'chart';
 
   const ChartCalendarComponent = state.get('config.components.ChartCalendar');

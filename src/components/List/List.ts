@@ -8,10 +8,8 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-import schedule from 'raf-schd';
-
 export default function List(vido, props = {}) {
-  const { api, state, onDestroy, actions, update, reuseComponents, html } = vido;
+  const { api, state, onDestroy, actions, update, reuseComponents, html, schedule } = vido;
 
   const componentName = 'list';
   const componentActions = api.getActions(componentName);

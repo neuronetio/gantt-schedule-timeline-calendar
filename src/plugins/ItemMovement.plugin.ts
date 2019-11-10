@@ -15,8 +15,12 @@ export default function ItemMovement(options = {}) {
     resizerContent: '',
     collisionDetection: true,
     outOfBorders: false,
-    snapStart: (timeStart, startDiff) => timeStart + startDiff,
-    snapEnd: (timeEnd, endDiff) => timeEnd + endDiff,
+    snapStart(timeStart, startDiff) {
+      return timeStart + startDiff;
+    },
+    snapEnd(timeEnd, endDiff) {
+      return timeEnd + endDiff;
+    },
     ghostNode: true
   };
   options = { ...defaultOptions, ...options };
@@ -26,11 +30,10 @@ export default function ItemMovement(options = {}) {
   /**
    * Add moving functionality to items as action
    *
-   * @param {Node} node DOM Node
+   * @param {Element} node DOM Node
    * @param {Object} data
    */
   function action(node, data) {
-    // @ts-ignore
     let element = node.querySelector('.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content');
     if (!options.moveable && !options.resizeable) {
       return;

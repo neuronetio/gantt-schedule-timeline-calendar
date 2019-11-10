@@ -17,7 +17,7 @@
 function bindElementAction(element, data) {
   data.state.update(
     '_internal.elements.chart-timeline-grid-rows',
-    rows => {
+    function updateGridRows(rows) {
       if (typeof rows === 'undefined') {
         rows = [];
       }

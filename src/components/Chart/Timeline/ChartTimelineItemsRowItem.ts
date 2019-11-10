@@ -17,7 +17,7 @@
 function bindElementAction(element, data) {
   data.state.update(
     '_internal.elements.chart-timeline-items-row-items',
-    items => {
+    function updateRowItems(items) {
       if (typeof items === 'undefined') {
         items = [];
       }
@@ -50,7 +50,7 @@ export default function ChartTimelineItemsRowItem(vido, props) {
     let time = state.get('_internal.chart.time');
     itemLeftPx = (props.item.time.start - time.leftGlobal) / time.timePerPixel;
     itemWidthPx = (props.item.time.end - props.item.time.start) / time.timePerPixel;
-    itemWidthPx -= state.get('config.chart.spacing');
+    itemWidthPx -= state.get('config.chart.spacing') || 0;
     style = `left:${itemLeftPx}px; width:${itemWidthPx}px; `;
     if (typeof props.item.style === 'object' && props.item.style.constructor.name === 'Object') {
       if (typeof props.item.style.current === 'string') {

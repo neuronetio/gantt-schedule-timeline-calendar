@@ -123,7 +123,7 @@ export default [
     ]
   },
   {
-    input: 'src/plugins/ItemMovement.plugin.js',
+    input: 'src/plugins/ItemMovement.plugin.ts',
     output: {
       sourcemap: true,
       file: 'dist/ItemMovement.plugin.js',
@@ -131,15 +131,16 @@ export default [
       name: 'ItemMovement'
     },
     plugins: [
+      typescript({ target: 'es6' }),
       resolve({
         browser: true
         //module: true
       }),
-      commonjs({ extensions: ['.js'] })
+      commonjs({ extensions: ['.js', '.ts'] })
     ]
   },
   {
-    input: 'src/plugins/ItemMovement.plugin.js',
+    input: 'src/plugins/ItemMovement.plugin.ts',
     output: {
       sourcemap: true,
       file: 'dist/ItemMovement.plugin.min.js',
@@ -147,11 +148,12 @@ export default [
       name: 'ItemMovement'
     },
     plugins: [
+      typescript({ target: 'es6' }),
       resolve({
         browser: true
         //module: true
       }),
-      commonjs({ extensions: ['.js'] }),
+      commonjs({ extensions: ['.js', '.ts'] }),
       production &&
         terser({
           keep_classnames: true,
@@ -160,7 +162,7 @@ export default [
     ]
   },
   {
-    input: 'src/plugins/DependencyLines.plugin.js',
+    input: 'src/plugins/DependencyLines.plugin.ts',
     output: {
       sourcemap: true,
       file: 'dist/DependencyLines.plugin.js',
@@ -168,15 +170,16 @@ export default [
       name: 'DependencyLines'
     },
     plugins: [
+      typescript({ target: 'es6' }),
       resolve({
         browser: true
         //module: true
       }),
-      commonjs({ extensions: ['.js'] })
+      commonjs({ extensions: ['.js', '.ts'] })
     ]
   },
   {
-    input: 'src/plugins/DependencyLines.plugin.js',
+    input: 'src/plugins/DependencyLines.plugin.ts',
     output: {
       sourcemap: true,
       file: 'dist/DependencyLines.plugin.min.js',
@@ -184,11 +187,12 @@ export default [
       name: 'DependencyLines'
     },
     plugins: [
+      typescript({ target: 'es6' }),
       resolve({
         browser: true
         //module: true
       }),
-      commonjs({ extensions: ['.js'] }),
+      commonjs({ extensions: ['.js', '.ts'] }),
       production &&
         terser({
           keep_classnames: true,
@@ -197,7 +201,7 @@ export default [
     ]
   },
   {
-    input: 'src/plugins/ItemHold.plugin.js',
+    input: 'src/plugins/ItemHold.plugin.ts',
     output: {
       sourcemap: true,
       file: 'dist/ItemHold.plugin.js',
@@ -205,15 +209,16 @@ export default [
       name: 'ItemHold'
     },
     plugins: [
+      typescript({ target: 'es6' }),
       resolve({
         browser: true
         //module: true
       }),
-      commonjs({ extensions: ['.js'] })
+      commonjs({ extensions: ['.js', '.ts'] })
     ]
   },
   {
-    input: 'src/plugins/ItemHold.plugin.js',
+    input: 'src/plugins/ItemHold.plugin.ts',
     output: {
       sourcemap: true,
       file: 'dist/ItemHold.plugin.min.js',
@@ -221,11 +226,12 @@ export default [
       name: 'ItemHold'
     },
     plugins: [
+      typescript({ target: 'es6' }),
       resolve({
         browser: true
         //module: true
       }),
-      commonjs({ extensions: ['.js'] }),
+      commonjs({ extensions: ['.js', '.ts'] }),
       production &&
         terser({
           keep_classnames: true,
@@ -234,7 +240,7 @@ export default [
     ]
   },
   {
-    input: 'src/plugins/SaveAsImage.plugin.js',
+    input: 'src/plugins/SaveAsImage.plugin.ts',
     output: {
       sourcemap: true,
       file: 'dist/SaveAsImage.plugin.js',
@@ -242,15 +248,16 @@ export default [
       name: 'SaveAsImage'
     },
     plugins: [
+      typescript({ target: 'es6' }),
       resolve({
         browser: true
         //module: true
       }),
-      commonjs({ extensions: ['.js'] })
+      commonjs({ extensions: ['.js', '.ts'] })
     ]
   },
   {
-    input: 'src/plugins/SaveAsImage.plugin.js',
+    input: 'src/plugins/SaveAsImage.plugin.ts',
     output: {
       sourcemap: true,
       file: 'dist/SaveAsImage.plugin.min.js',
@@ -258,11 +265,12 @@ export default [
       name: 'SaveAsImage'
     },
     plugins: [
+      typescript({ target: 'es6' }),
       resolve({
         browser: true
         //module: true
       }),
-      commonjs({ extensions: ['.js'] }),
+      commonjs({ extensions: ['.js', '.ts'] }),
       production &&
         terser({
           keep_classnames: true,
@@ -271,7 +279,7 @@ export default [
     ]
   },
   {
-    input: 'src/plugins/Selection.plugin.js',
+    input: 'src/plugins/Selection.plugin.ts',
     output: {
       sourcemap: true,
       file: 'dist/Selection.plugin.js',
@@ -279,15 +287,16 @@ export default [
       name: 'Selection'
     },
     plugins: [
+      typescript({ target: 'es6' }),
       resolve({
         browser: true
         //module: true
       }),
-      commonjs({ extensions: ['.js'] })
+      commonjs({ extensions: ['.js', '.ts'] })
     ]
   },
   {
-    input: 'src/plugins/Selection.plugin.js',
+    input: 'src/plugins/Selection.plugin.ts',
     output: {
       sourcemap: true,
       file: 'dist/Selection.plugin.min.js',
@@ -295,11 +304,12 @@ export default [
       name: 'Selection'
     },
     plugins: [
+      typescript({ target: 'es6' }),
       resolve({
         browser: true
         //module: true
       }),
-      commonjs({ extensions: ['.js'] }),
+      commonjs({ extensions: ['.js', '.ts'] }),
       production &&
         terser({
           keep_classnames: true,
@@ -308,7 +318,7 @@ export default [
     ]
   },
   {
-    input: 'src/plugins/plugins.js',
+    input: 'src/plugins/plugins.ts',
     output: {
       sourcemap: true,
       file: 'dist/plugins.js',
@@ -316,15 +326,16 @@ export default [
       name: 'plugins'
     },
     plugins: [
+      typescript({ target: 'es6' }),
       resolve({
         browser: true
         //module: true
       }),
-      commonjs({ extensions: ['.js'] })
+      commonjs({ extensions: ['.js', '.ts'] })
     ]
   },
   {
-    input: 'src/plugins/plugins.js',
+    input: 'src/plugins/plugins.ts',
     output: {
       sourcemap: true,
       file: 'dist/plugins.min.js',
@@ -332,11 +343,12 @@ export default [
       name: 'plugins'
     },
     plugins: [
+      typescript({ target: 'es6' }),
       resolve({
         browser: true
         //module: true
       }),
-      commonjs({ extensions: ['.js'] }),
+      commonjs({ extensions: ['.js', '.ts'] }),
       production &&
         terser({
           keep_classnames: true,

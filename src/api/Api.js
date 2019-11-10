@@ -116,14 +116,6 @@ export function getInternalApi(state) {
 
     mergeDeep,
 
-    getComponentData(componentName, attrs) {
-      const componentData = {};
-      componentData.componentName = componentName;
-      componentData.className = this.getClass(componentName, attrs);
-      componentData.action = this.getAction(componentName);
-      return componentData;
-    },
-
     getClass(name) {
       let simple = `${lib}__${name}`;
       if (name === this.name) {
@@ -340,7 +332,9 @@ export function getInternalApi(state) {
       }
     },
 
-    time: timeApi(state, () => api),
+    time: timeApi(state, function getApi() {
+      return api;
+    }),
 
     /**
      * Get scrollbar height - compute it from element

@@ -1,5 +1,3 @@
-
-(function(l, r) { if (l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (window.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.head.appendChild(r) })(window.document);
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
     typeof define === 'function' && define.amd ? define(factory) :
@@ -2239,21 +2237,39 @@
     });
 
     /**
-     * Helper function to determine if specified variable is an object
+     * Schedule - a throttle function that uses requestAnimationFrame to limit the rate at which a function is called.
+     *
+     * @param {function} fn
+     * @returns {function}
+     */
+    function schedule(fn) {
+        let frameId = 0;
+        function wrapperFn(argument) {
+            if (frameId) {
+                return;
+            }
+            function executeFrame() {
+                frameId = 0;
+                fn.apply(undefined, [argument]);
+            }
+            frameId = requestAnimationFrame(executeFrame);
+        }
+        return wrapperFn;
+    }
+    /**
+     * Is object - helper function to determine if specified variable is an object
      *
      * @param {any} item
-     *
      * @returns {boolean}
      */
     function isObject(item) {
         return item && typeof item === 'object' && !Array.isArray(item);
     }
     /**
-     * Helper function which will merge objects recursively - creating brand new one - like clone
+     * Merge deep - helper function which will merge objects recursively - creating brand new one - like clone
      *
      * @param {object} target
      * @params {object} sources
-     *
      * @returns {object}
      */
     function mergeDeep(target, ...sources) {
@@ -2286,6 +2302,12 @@
         }
         return mergeDeep(target, ...sources);
     }
+    /**
+     * Clone helper function
+     *
+     * @param source
+     * @returns {object} cloned source
+     */
     function clone(source) {
         if (typeof source.actions !== 'undefined') {
             const actns = source.actions.map(action => {
@@ -2301,6 +2323,13 @@
         }
         return mergeDeep({}, source);
     }
+    /**
+     * Vido library
+     *
+     * @param {any} state - state management for the view (can be anything)
+     * @param {any} api - some api's or other globally available services
+     * @returns {object} vido instance
+     */
     function Vido(state, api) {
         let componentId = 0;
         const components = new Map();
@@ -2308,6 +2337,12 @@
         let app, element;
         let shouldUpdateCount = 0;
         const resolved = Promise.resolve();
+        /**
+         * Get actions for component instance as directives
+         *
+         * @param {string} instance
+         * @returns {function} directive that will execute actions
+         */
         function getActions(instance) {
             return directive(function actionsByInstanceDirective(createFunctions, props = {}) {
                 return function partial(part) {
@@ -2343,6 +2378,7 @@
                 };
             });
         }
+        /** vido instance */
         const vido = {
             debug: false,
             state,
@@ -2360,6 +2396,7 @@
             styleMap,
             unsafeHTML,
             until,
+            schedule,
             lastProps: {},
             actionsByInstance(componentActions, props) { },
             onDestroy() { },
@@ -2405,6 +2442,13 @@
                 }
                 return currentComponents;
             },
+            /**
+             * Create component
+             *
+             * @param {function} component
+             * @param {any} props
+             * @returns {object} component instance methods
+             */
             createComponent(component, props = {}) {
                 const instance = component.name + ':' + componentId++;
                 let vidoInstance;
@@ -2474,6 +2518,12 @@
                 }
                 return componentInstanceMethods;
             },
+            /**
+             * Destroy component
+             *
+             * @param {string} instance
+             * @param {object} vidoInstance
+             */
             destroyComponent(instance, vidoInstance) {
                 if (vidoInstance.debug) {
                     console.groupCollapsed(`destroying component ${instance}...`);
@@ -2498,6 +2548,10 @@
                     console.groupEnd();
                 }
             },
+            /**
+             * Update template - trigger render proccess
+             * @param {object} vidoInstance
+             */
             updateTemplate(vidoInstance) {
                 shouldUpdateCount++;
                 const currentShouldUpdateCount = shouldUpdateCount;
@@ -2514,6 +2568,12 @@
                     }
                 });
             },
+            /**
+             * Create app
+             *
+             * @param config
+             * @returns {object} component instance methods
+             */
             createApp(config) {
                 element = config.element;
                 const App = this.createComponent(config.component, config.props);
@@ -2521,6 +2581,9 @@
                 this.render();
                 return App;
             },
+            /**
+             * Execute actions
+             */
             executeActions() {
                 for (const actions of actionsByInstance.values()) {
                     for (const action of actions) {
@@ -2561,16 +2624,30 @@
                     }
                 }
             },
+            /**
+             * Render view
+             */
             render() {
                 render(components.get(app).update(), element);
                 vido.executeActions();
             }
         };
+        /**
+         * Get component instance methods
+         *
+         * @param {string} instance
+         * @param {object} vidoInstance
+         * @param {any} props
+         * @returns {object} component instance methods
+         */
         function getComponentInstanceMethods(instance, vidoInstance, props = {}) {
             return {
                 instance,
                 vidoInstance,
                 props,
+                /**
+                 * Destroy component
+                 */
                 destroy() {
                     if (vidoInstance.debug) {
                         console.groupCollapsed(`destroying component ${instance}`);
@@ -2580,6 +2657,9 @@
                     }
                     return vido.destroyComponent(instance, vidoInstance);
                 },
+                /**
+                 * Update template - trigger rendering process
+                 */
                 update() {
                     if (vidoInstance.debug) {
                         console.groupCollapsed(`updating component ${instance}`);
@@ -2589,23 +2669,31 @@
                     }
                     return vido.updateTemplate(vidoInstance);
                 },
-                change(_props) {
+                /**
+                 * Change component input properties
+                 *
+                 * @param {any} newProps
+                 */
+                change(newProps) {
                     if (vidoInstance.debug) {
                         console.groupCollapsed(`changing component ${instance}`);
-                        console.log(clone({ props, _props, components: components.keys(), actionsByInstance }));
+                        console.log(clone({ props, newProps: newProps, components: components.keys(), actionsByInstance }));
                         console.trace();
                         console.groupEnd();
                     }
-                    components.get(instance).change(_props, vidoInstance);
+                    components.get(instance).change(newProps, vidoInstance);
                 },
-                html(props = {}) {
-                    return components.get(instance).update(props, vidoInstance);
+                /**
+                 * Get component lit-html template
+                 * @param {} templateProps
+                 */
+                html(templateProps = {}) {
+                    return components.get(instance).update(templateProps, vidoInstance);
                 }
             };
         }
         return vido;
     }
-    //# sourceMappingURL=vido.esm.js.map
 
     /**
      * A collection of shims that provide minimal functionality of the ES6 collections.
@@ -3534,39 +3622,6 @@
         return ResizeObserver;
     })();
 
-    var rafSchd = function rafSchd(fn) {
-      var lastArgs = [];
-      var frameId = null;
-
-      var wrapperFn = function wrapperFn() {
-        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-          args[_key] = arguments[_key];
-        }
-
-        lastArgs = args;
-
-        if (frameId) {
-          return;
-        }
-
-        frameId = requestAnimationFrame(function () {
-          frameId = null;
-          fn.apply(void 0, lastArgs);
-        });
-      };
-
-      wrapperFn.cancel = function () {
-        if (!frameId) {
-          return;
-        }
-
-        cancelAnimationFrame(frameId);
-        frameId = null;
-      };
-
-      return wrapperFn;
-    };
-
     /**
      * Main component
      *
@@ -3577,7 +3632,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function Main(vido, props = {}) {
-        const { api, state, onDestroy, actions, update, createComponent, html } = vido;
+        const { api, state, onDestroy, actions, update, schedule, createComponent, html } = vido;
         const componentName = api.name;
         let ListComponent;
         onDestroy(state.subscribe('config.components.List', value => (ListComponent = value)));
@@ -3845,7 +3900,7 @@
                 });
         }
         const onScroll = {
-            handleEvent: rafSchd(handleEvent),
+            handleEvent: schedule(handleEvent),
             passive: true,
             capture: false
         };
@@ -3923,7 +3978,6 @@
       `, { props, vido, templateProps });
         };
     }
-    //# sourceMappingURL=Main.js.map
 
     /**
      * List component
@@ -3935,7 +3989,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function List(vido, props = {}) {
-        const { api, state, onDestroy, actions, update, reuseComponents, html } = vido;
+        const { api, state, onDestroy, actions, update, reuseComponents, html, schedule } = vido;
         const componentName = 'list';
         const componentActions = api.getActions(componentName);
         let wrapper;
@@ -3982,7 +4036,7 @@
             }
         }
         const onScroll = {
-            handleEvent: rafSchd(onScrollHandler),
+            handleEvent: schedule(onScrollHandler),
             passive: false
         };
         let width;
@@ -4017,7 +4071,6 @@
           `
             : null, { vido, props: {}, templateProps });
     }
-    //# sourceMappingURL=List.js.map
 
     /**
      * ListColumn component
@@ -4037,7 +4090,7 @@
         let ListColumnHeaderComponent;
         onDestroy(state.subscribe('config.components.ListColumnHeader', value => (ListColumnHeaderComponent = value)));
         let column, columnPath = `config.list.columns.data.${props.columnId}`;
-        onDestroy(state.subscribe(columnPath, val => {
+        onDestroy(state.subscribe(columnPath, function columnChanged(val) {
             column = val;
             update();
         }));
@@ -4154,7 +4207,6 @@
         </div>
       `, { vido, props, templateProps });
     }
-    //# sourceMappingURL=ListColumnHeader.js.map
 
     /**
      * ListColumnHeaderResizer component
@@ -4256,7 +4308,6 @@
         </div>
       `, { vido, props, templateProps });
     }
-    //# sourceMappingURL=ListColumnHeaderResizer.js.map
 
     /**
      * ListColumnRow component
@@ -4351,7 +4402,6 @@
       `, { vido, props, templateProps });
         };
     }
-    //# sourceMappingURL=ListColumnRow.js.map
 
     /**
      * ListExpander component
@@ -4406,7 +4456,6 @@
         </div>
       `, { vido, props, templateProps });
     }
-    //# sourceMappingURL=ListExpander.js.map
 
     /**
      * ListToggle component
@@ -4503,7 +4552,6 @@
       `, { vido, props, templateProps });
         };
     }
-    //# sourceMappingURL=ListToggle.js.map
 
     /**
      * Chart component
@@ -4515,7 +4563,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function Chart(vido, props = {}) {
-        const { api, state, onDestroy, actions, update, html, createComponent } = vido;
+        const { api, state, onDestroy, actions, update, html, schedule, createComponent } = vido;
         const componentName = 'chart';
         const ChartCalendarComponent = state.get('config.components.ChartCalendar');
         const ChartTimelineComponent = state.get('config.components.ChartTimeline');
@@ -4583,7 +4631,7 @@
             }
         }
         const onScroll = {
-            handleEvent: rafSchd(handleEvent),
+            handleEvent: schedule(handleEvent),
             passive: true,
             capture: false
         };
@@ -4632,7 +4680,6 @@
       `, { vido, props: {}, templateProps });
         };
     }
-    //# sourceMappingURL=Chart.js.map
 
     /**
      * ChartCalendar component
@@ -4688,7 +4735,6 @@
         </div>
       `, { props, vido, templateProps });
     }
-    //# sourceMappingURL=ChartCalendar.js.map
 
     /**
      * ChartCalendarDate component
@@ -4993,7 +5039,6 @@
         </div>
       `, { props, vido, templateProps });
     }
-    //# sourceMappingURL=ChartCalendarDate.js.map
 
     /**
      * ChartTimeline component
@@ -5046,7 +5091,6 @@
         </div>
       `, { props, vido, templateProps });
     }
-    //# sourceMappingURL=ChartTimeline.js.map
 
     /**
      * ChartTimelineGrid component
@@ -5141,7 +5185,6 @@
       `, { props, vido, templateProps });
         };
     }
-    //# sourceMappingURL=ChartTimelineGrid.js.map
 
     /**
      * ChartTimelineGridRow component
@@ -5159,7 +5202,7 @@
      * @returns {object} with update and destroy
      */
     function bindElementAction(element, data) {
-        data.state.update('_internal.elements.chart-timeline-grid-rows', rows => {
+        data.state.update('_internal.elements.chart-timeline-grid-rows', function updateGridRows(rows) {
             if (typeof rows === 'undefined') {
                 rows = [];
             }
@@ -5223,7 +5266,6 @@
       `, { vido, props, templateProps });
         };
     }
-    //# sourceMappingURL=ChartTimelineGridRow.js.map
 
     /**
      * ChartTimelineGridRowBlock component
@@ -5314,7 +5356,6 @@
         </div>
       `, { props, vido, templateProps: props });
     }
-    //# sourceMappingURL=ChartTimelineGridRowBlock.js.map
 
     /**
      * ChartTimelineItems component
@@ -5355,7 +5396,6 @@
         </div>
       `, { props, vido, templateProps });
     }
-    //# sourceMappingURL=ChartTimelineItems.js.map
 
     /**
      * ChartTimelineItemsRow component
@@ -5457,7 +5497,6 @@
       `, { props, vido, templateProps });
         };
     }
-    //# sourceMappingURL=ChartTimelineItemsRow.js.map
 
     /**
      * ChartTimelineItemsRowItem component
@@ -5475,7 +5514,7 @@
      * @returns {object} with update and destroy
      */
     function bindElementAction$3(element, data) {
-        data.state.update('_internal.elements.chart-timeline-items-row-items', items => {
+        data.state.update('_internal.elements.chart-timeline-items-row-items', function updateRowItems(items) {
             if (typeof items === 'undefined') {
                 items = [];
             }
@@ -5501,7 +5540,7 @@
             let time = state.get('_internal.chart.time');
             itemLeftPx = (props.item.time.start - time.leftGlobal) / time.timePerPixel;
             itemWidthPx = (props.item.time.end - props.item.time.start) / time.timePerPixel;
-            itemWidthPx -= state.get('config.chart.spacing');
+            itemWidthPx -= state.get('config.chart.spacing') || 0;
             style = `left:${itemLeftPx}px; width:${itemWidthPx}px; `;
             if (typeof props.item.style === 'object' && props.item.style.constructor.name === 'Object') {
                 if (typeof props.item.style.current === 'string') {
@@ -5550,7 +5589,6 @@
       `, { vido, props, templateProps });
         };
     }
-    //# sourceMappingURL=ChartTimelineItemsRowItem.js.map
 
     /**
      * Gantt-Schedule-Timeline-Calendar
@@ -5720,7 +5758,8 @@
                         onCreate: []
                     }
                 },
-                items: {}
+                items: {},
+                spacing: 1
             },
             classNames: {},
             actions,
@@ -5763,7 +5802,6 @@
             }
         };
     }
-    //# sourceMappingURL=default-config.js.map
 
     var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -5913,7 +5951,6 @@
             return true;
         }
     }
-    //# sourceMappingURL=stringMatcher.js.map
 
     class WildcardObject {
         constructor(obj, delimeter, wildcard) {
@@ -5998,7 +6035,6 @@
             return this.goFurther(wildcard, this.obj, 0, '');
         }
     }
-    //# sourceMappingURL=wildcard-object-scan.js.map
 
     class ObjectPath {
         static get(path, obj, copiedPath = null) {
@@ -6041,7 +6077,6 @@
             ObjectPath.set(path, newValue, obj[currentPath], copiedPath);
         }
     }
-    //# sourceMappingURL=ObjectPath.js.map
 
     function log(message, info) {
         console.debug(message, info);
@@ -6613,7 +6648,6 @@
             return groupedListener.listener.options.debug || groupedListener.eventInfo.options.debug ? Date.now() : 0;
         }
     }
-    //# sourceMappingURL=index.js.map
 
     /**
      * Api functions
@@ -6726,14 +6760,6 @@
         },
 
         mergeDeep: mergeDeep$1,
-
-        getComponentData(componentName, attrs) {
-          const componentData = {};
-          componentData.componentName = componentName;
-          componentData.className = this.getClass(componentName, attrs);
-          componentData.action = this.getAction(componentName);
-          return componentData;
-        },
 
         getClass(name) {
           let simple = `${lib}__${name}`;
@@ -7084,7 +7110,6 @@
         return { state, app };
     };
     GSTC.api = publicApi;
-    //# sourceMappingURL=index.js.map
 
     return GSTC;
 

@@ -190,7 +190,8 @@ function defaultConfig() {
           onCreate: []
         }
       },
-      items: {}
+      items: {},
+      spacing: 1
     },
     classNames: {},
     actions,
