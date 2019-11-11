@@ -2417,14 +2417,14 @@
              *
              * @param {any} newProps
              */
-            change(newProps) {
+            change(newProps, options) {
                 if (this.vidoInstance.debug) {
                     console.groupCollapsed(`changing component ${this.instance}`);
                     console.log(clone({ props: this.props, newProps: newProps, components: components.keys(), actionsByInstance }));
                     console.trace();
                     console.groupEnd();
                 }
-                components.get(this.instance).change(newProps, this.vidoInstance);
+                components.get(this.instance).change(newProps, options);
             }
             /**
              * Get component lit-html template
@@ -2488,6 +2488,7 @@
             const currentLen = currentComponents.length;
             const dataLen = dataArray.length;
             let leave = false;
+            let leaveStartingAt = 0;
             if (currentComponents.length < dataArray.length) {
                 let diff = dataLen - currentLen;
                 while (diff) {
@@ -2502,12 +2503,13 @@
                 let diff = currentLen - dataLen;
                 while (diff) {
                     const index = currentLen - diff;
-                    modified.push(currentComponents[index].instance);
                     if (!leaveTail) {
+                        modified.push(currentComponents[index].instance);
                         currentComponents[index].destroy();
                     }
                     else {
                         leave = true;
+                        leaveStartingAt = index;
                     }
                     diff--;
                 }
@@ -2519,7 +2521,7 @@
             for (const component of currentComponents) {
                 const item = dataArray[index];
                 if (!modified.includes(component.instance)) {
-                    component.change(getProps(item), { leave });
+                    component.change(getProps(item), { leave: leave && index >= leaveStartingAt });
                 }
                 index++;
             }
@@ -4131,7 +4133,7 @@
             update();
         }));
         let width;
-        function calculateStyle() {
+        const calculateStyle = () => {
             const list = state.get('config.list');
             const compensation = state.get('config.scroll.compensation');
             calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
@@ -4139,7 +4141,7 @@
             widthStyle = `width: ${width}px;`;
             styleContainer = `${widthStyle} height: ${state.get('_internal.height')}px;`;
             styleScrollCompensation = `${styleContainer} transform: translate(0px, ${compensation}px);`;
-        }
+        };
         onDestroy(state.subscribeAll([
             'config.list.columns.percent',
             'config.list.columns.resizer.width',
@@ -4149,10 +4151,10 @@
             'config.scroll.compensation'
         ], calculateStyle, { bulk: true }));
         let visibleRows = [];
-        function visibleRowsChange(val) {
-            reuseComponents(visibleRows, val, row => ({ columnId: props.columnId, rowId: row.id, width }), ListColumnRowComponent);
+        const visibleRowsChange = val => {
+            reuseComponents(visibleRows, val, row => row && { columnId: props.columnId, rowId: row.id, width }, ListColumnRowComponent);
             update();
-        }
+        };
         onDestroy(state.subscribe('_internal.list.visibleRows;', visibleRowsChange));
         onDestroy(function rowsDestroy() {
             visibleRows.forEach(row => row.destroy());
@@ -4162,8 +4164,7 @@
         function getRowHtml(row) {
             return row.html();
         }
-        return function updateTemplate(templateProps) {
-            return wrapper(html `
+        return templateProps => wrapper(html `
         <div
           class=${className}
           data-actions=${actions(componentActions, { column, state: state, api: api })}
@@ -4177,7 +4178,6 @@
           </div>
         </div>
       `, { vido, props, templateProps });
-        };
     }
 
     /**
@@ -4358,7 +4358,12 @@
         let style;
         let rowSub, colSub;
         const ListExpander = createComponent(ListExpanderComponent, { row });
-        function onPropsChange(changedProps) {
+        const onPropsChange = (changedProps, options) => {
+            if (options.leave) {
+                style = 'visibility: hidden';
+                update();
+                return;
+            }
             props = changedProps;
             const rowId = props.rowId;
             const columnId = props.columnId;
@@ -4395,7 +4400,7 @@
                 column = val;
                 update();
             });
-        }
+        };
         onChange(onPropsChange);
         onDestroy(() => {
             if (ListExpander)
@@ -5291,11 +5296,14 @@
         let style;
         let rowsBlocksComponents = [];
         const onPropsChange = (changedProps, options) => {
+            if (options.leave) {
+                style = 'visibility: hidden;';
+                update();
+                return;
+            }
             props = changedProps;
             reuseComponents(rowsBlocksComponents, props.blocks, block => block, GridBlockComponent);
             style = `height: ${props.row.height}px; width: ${props.width}px;`;
-            if (options.leave)
-                style += 'visibility: hidden;';
             update();
         };
         onChange(onPropsChange);
@@ -5498,11 +5506,19 @@
         let style, styleInner;
         let itemComponents = [];
         function updateDom() {
+            if (!props) {
+                style = 'visibility: hidden;';
+                return;
+            }
             const chart = state.get('_internal.chart');
             style = `width:${chart.dimensions.width}px; height:${props.row.height}px; --row-height:${props.row.height}px;`;
             styleInner = `width: ${chart.time.totalViewDurationPx}px; height: ${props.row.height}px;`;
         }
-        const updateRow = row => {
+        const updateRow = (row, options) => {
+            if (options.leave) {
+                updateDom();
+                return update();
+            }
             itemsPath = `_internal.flatTreeMapById.${row.id}._internal.items`;
             if (typeof rowSub === 'function') {
                 rowSub();
@@ -5524,9 +5540,13 @@
          * On props change
          * @param {any} changedProps
          */
-        const onPropsChange = changedProps => {
+        const onPropsChange = (changedProps, options) => {
+            if (options.leave) {
+                style = 'visibility: hidden;';
+                return update();
+            }
             props = changedProps;
-            updateRow(props.row);
+            updateRow(props.row, options);
         };
         onChange(onPropsChange);
         onDestroy(() => {
@@ -5592,7 +5612,7 @@
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
         let style, contentStyle, itemLeftPx = 0, itemWidthPx = 0;
-        const updateItem = () => {
+        const updateItem = options => {
             contentStyle = '';
             let time = state.get('_internal.chart.time');
             itemLeftPx = (props.item.time.start - time.leftGlobal) / time.timePerPixel;
@@ -5606,7 +5626,11 @@
             }
             update();
         };
-        const onPropsChange = changedProps => {
+        const onPropsChange = (changedProps, options) => {
+            if (options.leave) {
+                style += 'visibility: hidden;';
+                return update();
+            }
             props = changedProps;
             updateItem();
         };

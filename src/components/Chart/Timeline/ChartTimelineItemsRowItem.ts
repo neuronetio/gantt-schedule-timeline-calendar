@@ -45,7 +45,7 @@ const ChartTimelineItemsRowItem = (vido, props) => {
     itemLeftPx = 0,
     itemWidthPx = 0;
 
-  const updateItem = () => {
+  const updateItem = options => {
     contentStyle = '';
     let time = state.get('_internal.chart.time');
     itemLeftPx = (props.item.time.start - time.leftGlobal) / time.timePerPixel;
@@ -60,9 +60,13 @@ const ChartTimelineItemsRowItem = (vido, props) => {
     update();
   };
 
-  const onPropsChange = changedProps => {
+  const onPropsChange = (changedProps, options) => {
+    if (options.leave) {
+      style += 'visibility: hidden;';
+      return update();
+    }
     props = changedProps;
-    updateItem();
+    updateItem(options);
   };
   onChange(onPropsChange);
 
@@ -80,7 +84,7 @@ const ChartTimelineItemsRowItem = (vido, props) => {
 
   onDestroy(
     state.subscribe('_internal.chart.time', bulk => {
-      updateItem();
+      updateItem({ leave: false });
     })
   );
 

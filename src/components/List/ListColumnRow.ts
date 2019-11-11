@@ -25,7 +25,12 @@ export default function ListColumnRow(vido, props) {
   let rowSub, colSub;
   const ListExpander = createComponent(ListExpanderComponent, { row });
 
-  function onPropsChange(changedProps) {
+  const onPropsChange = (changedProps, options) => {
+    if (options.leave) {
+      style = 'visibility: hidden';
+      update();
+      return;
+    }
     props = changedProps;
     const rowId = props.rowId;
     const columnId = props.columnId;
@@ -66,7 +71,7 @@ export default function ListColumnRow(vido, props) {
       column = val;
       update();
     });
-  }
+  };
   onChange(onPropsChange);
 
   onDestroy(() => {

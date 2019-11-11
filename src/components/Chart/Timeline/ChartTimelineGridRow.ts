@@ -55,10 +55,14 @@ export default function ChartTimelineGridRow(vido, props) {
   let style;
   let rowsBlocksComponents = [];
   const onPropsChange = (changedProps, options) => {
+    if (options.leave) {
+      style = 'visibility: hidden;';
+      update();
+      return;
+    }
     props = changedProps;
     reuseComponents(rowsBlocksComponents, props.blocks, block => block, GridBlockComponent);
     style = `height: ${props.row.height}px; width: ${props.width}px;`;
-    if (options.leave) style += 'visibility: hidden;';
     update();
   };
   onChange(onPropsChange);

@@ -50,6 +50,10 @@ const ChartTimelineItemsRow = (vido, props) => {
   let itemComponents = [];
 
   function updateDom() {
+    if (!props) {
+      style = 'visibility: hidden;';
+      return;
+    }
     const chart = state.get('_internal.chart');
     style = `width:${chart.dimensions.width}px; height:${props.row.height}px; --row-height:${props.row.height}px;`;
     styleInner = `width: ${chart.time.totalViewDurationPx}px; height: ${props.row.height}px;`;
@@ -59,21 +63,22 @@ const ChartTimelineItemsRow = (vido, props) => {
     }
   }
 
-  const updateRow = row => {
+  const updateRow = (row, options) => {
+    if (options.leave) {
+      updateDom();
+      return update();
+    }
     itemsPath = `_internal.flatTreeMapById.${row.id}._internal.items`;
-
     if (typeof rowSub === 'function') {
       rowSub();
     }
     if (typeof itemsSub === 'function') {
       itemsSub();
     }
-
     rowSub = state.subscribe('_internal.chart', (bulk, eventInfo) => {
       updateDom();
       update();
     });
-
     itemsSub = state.subscribe(itemsPath, value => {
       itemComponents = reuseComponents(itemComponents, value, item => ({ row, item }), ItemComponent);
       updateDom();
@@ -85,9 +90,13 @@ const ChartTimelineItemsRow = (vido, props) => {
    * On props change
    * @param {any} changedProps
    */
-  const onPropsChange = changedProps => {
+  const onPropsChange = (changedProps, options) => {
+    if (options.leave) {
+      style = 'visibility: hidden;';
+      return update();
+    }
     props = changedProps;
-    updateRow(props.row);
+    updateRow(props.row, options);
   };
   onChange(onPropsChange);
 
