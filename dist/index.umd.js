@@ -2378,321 +2378,321 @@
                 };
             });
         }
-        /** vido instance */
-        const vido = {
-            debug: false,
-            state,
-            api,
-            html,
-            svg,
-            directive,
-            asyncAppend,
-            asyncReplace,
-            cache,
-            classMap,
-            guard,
-            ifDefined,
-            repeat,
-            styleMap,
-            unsafeHTML,
-            until,
-            schedule,
-            lastProps: {},
-            actionsByInstance(componentActions, props) { },
-            onDestroy() { },
-            onChange(props) { },
-            /**
-             * Reuse existing components when your data was changed
-             *
-             * @param {array} currentComponents - array of components
-             * @param {array} dataArray  - any data as array for each component
-             * @param {function} getProps - you can pass params to component from array item ( example: item=>({id:item.id}) )
-             * @param {function} component - what kind of components do you want to create?
-             * @returns {array} of components (with updated/destroyed/created ones)
-             */
-            reuseComponents(currentComponents, dataArray, getProps, component) {
-                const modified = [];
-                if (currentComponents.length < dataArray.length) {
-                    let diff = dataArray.length - currentComponents.length;
-                    while (diff) {
-                        const item = dataArray[dataArray.length - diff];
-                        const newComponent = vido.createComponent(component, getProps(item));
-                        currentComponents.push(newComponent);
-                        modified.push(newComponent.instance);
-                        diff--;
-                    }
-                }
-                else if (currentComponents.length > dataArray.length) {
-                    let diff = currentComponents.length - dataArray.length;
-                    while (diff) {
-                        const index = currentComponents.length - diff;
-                        modified.push(currentComponents[index].instance);
-                        currentComponents[index].destroy();
-                        diff--;
-                    }
-                    currentComponents.length = dataArray.length;
-                }
-                let index = 0;
-                for (const component of currentComponents) {
-                    const item = dataArray[index];
-                    if (!modified.includes(component.instance)) {
-                        component.change(getProps(item));
-                    }
-                    index++;
-                }
-                return currentComponents;
-            },
-            /**
-             * Create component
-             *
-             * @param {function} component
-             * @param {any} props
-             * @returns {object} component instance methods
-             */
-            createComponent(component, props = {}) {
-                const instance = component.name + ':' + componentId++;
-                let vidoInstance;
-                function update() {
-                    vido.updateTemplate(vidoInstance);
-                }
-                let destroyable = [];
-                function onDestroy(fn) {
-                    destroyable.push(fn);
-                }
-                let onChangeFunctions = [];
-                function onChange(fn) {
-                    onChangeFunctions.push(fn);
-                }
-                vidoInstance = Object.assign(Object.assign({}, vido), { update,
-                    onDestroy,
-                    onChange,
-                    instance, actions: getActions(instance), lastProps: props });
-                const componentInstanceMethods = getComponentInstanceMethods(instance, vidoInstance, props);
-                const upd = component(vidoInstance, props);
-                const methods = {
-                    instance,
-                    vidoInstance,
-                    lastProps: props,
-                    destroy() {
-                        if (vidoInstance.debug) {
-                            console.groupCollapsed(`component destroy method fired ${instance}`);
-                            console.log(clone({ props, components: components.keys(), destroyable, actionsByInstance }));
-                            console.trace();
-                            console.groupEnd();
-                        }
-                        for (const d of destroyable) {
-                            d();
-                        }
-                        onChangeFunctions = [];
-                        destroyable = [];
-                    },
-                    update(props = {}) {
-                        if (vidoInstance.debug) {
-                            console.groupCollapsed(`component update method fired ${instance}`);
-                            console.log(clone({ components: components.keys(), actionsByInstance }));
-                            console.trace();
-                            console.groupEnd();
-                        }
-                        return upd(props);
-                    },
-                    change(changedProps = {}) {
-                        props = changedProps;
-                        if (vidoInstance.debug) {
-                            console.groupCollapsed(`component change method fired ${instance}`);
-                            console.log(clone({ props, components: components.keys(), onChangeFunctions, changedProps, actionsByInstance }));
-                            console.trace();
-                            console.groupEnd();
-                        }
-                        for (const fn of onChangeFunctions) {
-                            fn(changedProps);
-                        }
-                    }
-                };
-                components.set(instance, methods);
-                components.get(instance).change(props);
-                if (vidoInstance.debug) {
-                    console.groupCollapsed(`component created ${instance}`);
-                    console.log(clone({ props, components: components.keys(), actionsByInstance }));
-                    console.trace();
-                    console.groupEnd();
-                }
-                return componentInstanceMethods;
-            },
+        class ComponentMethods {
+            constructor(instance, vidoInstance, props = {}) {
+                this.instance = instance;
+                this.vidoInstance = vidoInstance;
+                this.props = props;
+                this.destroy = this.destroy.bind(this);
+                this.update = this.update.bind(this);
+                this.change = this.change.bind(this);
+                this.html = this.html.bind(this);
+            }
             /**
              * Destroy component
-             *
-             * @param {string} instance
-             * @param {object} vidoInstance
              */
-            destroyComponent(instance, vidoInstance) {
-                if (vidoInstance.debug) {
-                    console.groupCollapsed(`destroying component ${instance}...`);
+            destroy() {
+                if (this.vidoInstance.debug) {
+                    console.groupCollapsed(`destroying component ${this.instance}`);
                     console.log(clone({ components: components.keys(), actionsByInstance }));
                     console.trace();
                     console.groupEnd();
                 }
-                if (actionsByInstance.has(instance)) {
-                    for (const action of actionsByInstance.get(instance)) {
-                        if (typeof action.componentAction.destroy === 'function') {
-                            action.componentAction.destroy(action.element, action.props);
-                        }
-                    }
-                }
-                actionsByInstance.delete(instance);
-                components.get(instance).destroy();
-                components.delete(instance);
-                if (vidoInstance.debug) {
-                    console.groupCollapsed(`component destroyed ${instance}`);
-                    console.log(clone({ components: components.keys(), actionsByInstance }));
-                    console.trace();
-                    console.groupEnd();
-                }
-            },
-            /**
-             * Update template - trigger render proccess
-             * @param {object} vidoInstance
-             */
-            updateTemplate(vidoInstance) {
-                shouldUpdateCount++;
-                const currentShouldUpdateCount = shouldUpdateCount;
-                const self = this;
-                resolved.then(function flush() {
-                    if (currentShouldUpdateCount === shouldUpdateCount) {
-                        self.render();
-                        shouldUpdateCount = 0;
-                        if (vidoInstance.debug) {
-                            console.groupCollapsed('templates updated');
-                            console.trace();
-                            console.groupEnd();
-                        }
-                    }
-                });
-            },
-            /**
-             * Create app
-             *
-             * @param config
-             * @returns {object} component instance methods
-             */
-            createApp(config) {
-                element = config.element;
-                const App = this.createComponent(config.component, config.props);
-                app = App.instance;
-                this.render();
-                return App;
-            },
-            /**
-             * Execute actions
-             */
-            executeActions() {
-                for (const actions of actionsByInstance.values()) {
-                    for (const action of actions) {
-                        if (typeof action.element.vido === 'undefined') {
-                            if (typeof action.componentAction.create === 'function') {
-                                const result = action.componentAction.create(action.element, action.props);
-                                if (vido.debug) {
-                                    console.groupCollapsed(`create action executed ${action.instance}`);
-                                    console.log(clone({ components: components.keys(), action, actionsByInstance }));
-                                    console.trace();
-                                    console.groupEnd();
-                                }
-                                if (typeof result !== 'undefined') {
-                                    if (typeof result.update === 'function') {
-                                        action.componentAction.update = result.update;
-                                    }
-                                    if (typeof result.destroy === 'function') {
-                                        action.componentAction.destroy = result.destroy;
-                                    }
-                                }
-                            }
-                        }
-                        else {
-                            action.element.vido = action.props;
-                            if (typeof action.componentAction.update === 'function') {
-                                action.componentAction.update(action.element, action.props);
-                                if (vido.debug) {
-                                    console.groupCollapsed(`update action executed ${action.instance}`);
-                                    console.log(clone({ components: components.keys(), action, actionsByInstance }));
-                                    console.trace();
-                                    console.groupEnd();
-                                }
-                            }
-                        }
-                    }
-                    for (const action of actions) {
-                        action.element.vido = action.props;
-                    }
-                }
-            },
-            /**
-             * Render view
-             */
-            render() {
-                render(components.get(app).update(), element);
-                vido.executeActions();
+                return this.vidoInstance.destroyComponent(this.instance, this.vidoInstance);
             }
+            /**
+             * Update template - trigger rendering process
+             */
+            update() {
+                if (this.vidoInstance.debug) {
+                    console.groupCollapsed(`updating component ${this.instance}`);
+                    console.log(clone({ components: components.keys(), actionsByInstance }));
+                    console.trace();
+                    console.groupEnd();
+                }
+                return this.vidoInstance.updateTemplate(this.vidoInstance);
+            }
+            /**
+             * Change component input properties
+             *
+             * @param {any} newProps
+             */
+            change(newProps) {
+                if (this.vidoInstance.debug) {
+                    console.groupCollapsed(`changing component ${this.instance}`);
+                    console.log(clone({ props: this.props, newProps: newProps, components: components.keys(), actionsByInstance }));
+                    console.trace();
+                    console.groupEnd();
+                }
+                components.get(this.instance).change(newProps, this.vidoInstance);
+            }
+            /**
+             * Get component lit-html template
+             * @param {} templateProps
+             */
+            html(templateProps = {}) {
+                return components.get(this.instance).update(templateProps, this.vidoInstance);
+            }
+        }
+        function vido() {
+            this.debug = false;
+            this.state = state;
+            this.api = api;
+            this.lastProps = {};
+            this.reuseComponents = this.reuseComponents.bind(this);
+        }
+        vido.prototype.html = html;
+        vido.prototype.svg = svg;
+        vido.prototype.directive = directive;
+        vido.prototype.asyncAppend = asyncAppend;
+        vido.prototype.asyncReplace = asyncReplace;
+        vido.prototype.cache = cache;
+        vido.prototype.classMap = classMap;
+        vido.prototype.guard = guard;
+        vido.prototype.ifDefined = ifDefined;
+        vido.prototype.repeat = repeat;
+        vido.prototype.styleMap = styleMap;
+        vido.prototype.unsafeHTML = unsafeHTML;
+        vido.prototype.until = until;
+        vido.prototype.schedule = schedule;
+        vido.prototype.actionsByInstance = function actionsByInstance(componentActions, props) { };
+        vido.prototype.onDestroy = function onDestroy() { };
+        vido.prototype.onChange = function onChange(props) { };
+        /**
+         * Reuse existing components when your data was changed
+         *
+         * @param {array} currentComponents - array of components
+         * @param {array} dataArray  - any data as array for each component
+         * @param {function} getProps - you can pass params to component from array item ( example: item=>({id:item.id}) )
+         * @param {function} component - what kind of components do you want to create?
+         * @returns {array} of components (with updated/destroyed/created ones)
+         */
+        vido.prototype.reuseComponents = function reuseComponents(currentComponents, dataArray, getProps, component) {
+            const modified = [];
+            if (currentComponents.length < dataArray.length) {
+                let diff = dataArray.length - currentComponents.length;
+                while (diff) {
+                    const item = dataArray[dataArray.length - diff];
+                    const newComponent = this.createComponent(component, getProps(item));
+                    currentComponents.push(newComponent);
+                    modified.push(newComponent.instance);
+                    diff--;
+                }
+            }
+            else if (currentComponents.length > dataArray.length) {
+                let diff = currentComponents.length - dataArray.length;
+                while (diff) {
+                    const index = currentComponents.length - diff;
+                    modified.push(currentComponents[index].instance);
+                    currentComponents[index].destroy();
+                    diff--;
+                }
+                currentComponents.length = dataArray.length;
+            }
+            let index = 0;
+            for (const component of currentComponents) {
+                const item = dataArray[index];
+                if (!modified.includes(component.instance)) {
+                    component.change(getProps(item));
+                }
+                index++;
+            }
+            return currentComponents;
         };
         /**
-         * Get component instance methods
+         * Create component
          *
-         * @param {string} instance
-         * @param {object} vidoInstance
+         * @param {function} component
          * @param {any} props
          * @returns {object} component instance methods
          */
-        function getComponentInstanceMethods(instance, vidoInstance, props = {}) {
-            return {
-                instance,
-                vidoInstance,
-                props,
-                /**
-                 * Destroy component
-                 */
-                destroy() {
-                    if (vidoInstance.debug) {
-                        console.groupCollapsed(`destroying component ${instance}`);
-                        console.log(clone({ components: components.keys(), actionsByInstance }));
-                        console.trace();
-                        console.groupEnd();
-                    }
-                    return vido.destroyComponent(instance, vidoInstance);
-                },
-                /**
-                 * Update template - trigger rendering process
-                 */
-                update() {
-                    if (vidoInstance.debug) {
-                        console.groupCollapsed(`updating component ${instance}`);
-                        console.log(clone({ components: components.keys(), actionsByInstance }));
-                        console.trace();
-                        console.groupEnd();
-                    }
-                    return vido.updateTemplate(vidoInstance);
-                },
-                /**
-                 * Change component input properties
-                 *
-                 * @param {any} newProps
-                 */
-                change(newProps) {
-                    if (vidoInstance.debug) {
-                        console.groupCollapsed(`changing component ${instance}`);
-                        console.log(clone({ props, newProps: newProps, components: components.keys(), actionsByInstance }));
-                        console.trace();
-                        console.groupEnd();
-                    }
-                    components.get(instance).change(newProps, vidoInstance);
-                },
-                /**
-                 * Get component lit-html template
-                 * @param {} templateProps
-                 */
-                html(templateProps = {}) {
-                    return components.get(instance).update(templateProps, vidoInstance);
+        vido.prototype.createComponent = function createComponent(component, props = {}) {
+            const instance = component.name + ':' + componentId++;
+            let vidoInstance;
+            function update() {
+                vidoInstance.updateTemplate();
+            }
+            let destroyable = [];
+            function onDestroy(fn) {
+                destroyable.push(fn);
+            }
+            let onChangeFunctions = [];
+            function onChange(fn) {
+                onChangeFunctions.push(fn);
+            }
+            vidoInstance = new vido();
+            vidoInstance.instance = instance;
+            vidoInstance.update = update;
+            vidoInstance.onDestroy = onDestroy;
+            vidoInstance.onChange = onChange;
+            vidoInstance.actions = getActions(instance);
+            vidoInstance.lastProps = props;
+            const componentInstanceMethods = new ComponentMethods(instance, vidoInstance, props);
+            const upd = component(vidoInstance, props);
+            function publicComponentMethods() {
+                this.instance = instance;
+                this.vidoInstance = vidoInstance;
+                this.lastProps = props;
+            }
+            publicComponentMethods.prototype.destroy = function methodDestroy() {
+                if (vidoInstance.debug) {
+                    console.groupCollapsed(`component destroy method fired ${instance}`);
+                    console.log(clone({ props, components: components.keys(), destroyable, actionsByInstance }));
+                    console.trace();
+                    console.groupEnd();
+                }
+                for (const d of destroyable) {
+                    d();
+                }
+                onChangeFunctions = [];
+                destroyable = [];
+            };
+            publicComponentMethods.prototype.update = function methodUpdate(props = {}) {
+                if (vidoInstance.debug) {
+                    console.groupCollapsed(`component update method fired ${instance}`);
+                    console.log(clone({ components: components.keys(), actionsByInstance }));
+                    console.trace();
+                    console.groupEnd();
+                }
+                return upd(props);
+            };
+            publicComponentMethods.prototype.change = function methodChange(changedProps = {}) {
+                props = changedProps;
+                if (vidoInstance.debug) {
+                    console.groupCollapsed(`component change method fired ${instance}`);
+                    console.log(clone({ props, components: components.keys(), onChangeFunctions, changedProps, actionsByInstance }));
+                    console.trace();
+                    console.groupEnd();
+                }
+                for (const fn of onChangeFunctions) {
+                    fn(changedProps);
                 }
             };
-        }
-        return vido;
+            const methods = new publicComponentMethods();
+            components.set(instance, methods);
+            components.get(instance).change(props);
+            if (vidoInstance.debug) {
+                console.groupCollapsed(`component created ${instance}`);
+                console.log(clone({ props, components: components.keys(), actionsByInstance }));
+                console.trace();
+                console.groupEnd();
+            }
+            return componentInstanceMethods;
+        };
+        /**
+         * Destroy component
+         *
+         * @param {string} instance
+         * @param {object} vidoInstance
+         */
+        vido.prototype.destroyComponent = function destroyComponent(instance, vidoInstance) {
+            if (vidoInstance.debug) {
+                console.groupCollapsed(`destroying component ${instance}...`);
+                console.log(clone({ components: components.keys(), actionsByInstance }));
+                console.trace();
+                console.groupEnd();
+            }
+            if (actionsByInstance.has(instance)) {
+                for (const action of actionsByInstance.get(instance)) {
+                    if (typeof action.componentAction.destroy === 'function') {
+                        action.componentAction.destroy(action.element, action.props);
+                    }
+                }
+            }
+            actionsByInstance.delete(instance);
+            components.get(instance).destroy();
+            components.delete(instance);
+            if (vidoInstance.debug) {
+                console.groupCollapsed(`component destroyed ${instance}`);
+                console.log(clone({ components: components.keys(), actionsByInstance }));
+                console.trace();
+                console.groupEnd();
+            }
+        };
+        /**
+         * Update template - trigger render proccess
+         * @param {object} vidoInstance
+         */
+        vido.prototype.updateTemplate = function updateTemplate() {
+            shouldUpdateCount++;
+            const currentShouldUpdateCount = shouldUpdateCount;
+            const self = this;
+            resolved.then(function flush() {
+                if (currentShouldUpdateCount === shouldUpdateCount) {
+                    self.render();
+                    shouldUpdateCount = 0;
+                    if (self.debug) {
+                        console.groupCollapsed('templates updated');
+                        console.trace();
+                        console.groupEnd();
+                    }
+                }
+            });
+        };
+        /**
+         * Create app
+         *
+         * @param config
+         * @returns {object} component instance methods
+         */
+        vido.prototype.createApp = function createApp(config) {
+            element = config.element;
+            const App = this.createComponent(config.component, config.props);
+            app = App.instance;
+            this.render();
+            return App;
+        };
+        /**
+         * Execute actions
+         */
+        vido.prototype.executeActions = function executeActions() {
+            for (const actions of actionsByInstance.values()) {
+                for (const action of actions) {
+                    if (typeof action.element.vido === 'undefined') {
+                        if (typeof action.componentAction.create === 'function') {
+                            const result = action.componentAction.create(action.element, action.props);
+                            if (this.debug) {
+                                console.groupCollapsed(`create action executed ${action.instance}`);
+                                console.log(clone({ components: components.keys(), action, actionsByInstance }));
+                                console.trace();
+                                console.groupEnd();
+                            }
+                            if (typeof result !== 'undefined') {
+                                if (typeof result.update === 'function') {
+                                    action.componentAction.update = result.update;
+                                }
+                                if (typeof result.destroy === 'function') {
+                                    action.componentAction.destroy = result.destroy;
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        action.element.vido = action.props;
+                        if (typeof action.componentAction.update === 'function') {
+                            action.componentAction.update(action.element, action.props);
+                            if (this.debug) {
+                                console.groupCollapsed(`update action executed ${action.instance}`);
+                                console.log(clone({ components: components.keys(), action, actionsByInstance }));
+                                console.trace();
+                                console.groupEnd();
+                            }
+                        }
+                    }
+                }
+                for (const action of actions) {
+                    action.element.vido = action.props;
+                }
+            }
+        };
+        /**
+         * Render view
+         */
+        vido.prototype.render = function renderView() {
+            render(components.get(app).update(), element);
+            this.executeActions();
+        };
+        return new vido();
     }
 
     /**
