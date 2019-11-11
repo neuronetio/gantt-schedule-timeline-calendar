@@ -39,7 +39,7 @@ function stylus() {
 
 const production = !process.env.ROLLUP_WATCH;
 
-export default [
+const devFiles = [
   {
     input: 'src/index.ts',
     output: {
@@ -60,6 +60,132 @@ export default [
       !production && livereload('dist')
     ]
   },
+  {
+    input: 'src/index.ts',
+    output: {
+      sourcemap: true,
+      file: 'dist/index.esm.js',
+      format: 'esm'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+        //module: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] }),
+      production &&
+        terser({
+          keep_classnames: true,
+          keep_fnames: true
+        })
+    ]
+  },
+  {
+    input: 'src/plugins/ItemMovement.plugin.ts',
+    output: {
+      sourcemap: true,
+      file: 'dist/ItemMovement.plugin.js',
+      format: 'umd',
+      name: 'ItemMovement'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+        //module: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] })
+    ]
+  },
+  {
+    input: 'src/plugins/DependencyLines.plugin.ts',
+    output: {
+      sourcemap: true,
+      file: 'dist/DependencyLines.plugin.js',
+      format: 'umd',
+      name: 'DependencyLines'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+        //module: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] })
+    ]
+  },
+  {
+    input: 'src/plugins/ItemHold.plugin.ts',
+    output: {
+      sourcemap: true,
+      file: 'dist/ItemHold.plugin.js',
+      format: 'umd',
+      name: 'ItemHold'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+        //module: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] })
+    ]
+  },
+  {
+    input: 'src/plugins/SaveAsImage.plugin.ts',
+    output: {
+      sourcemap: true,
+      file: 'dist/SaveAsImage.plugin.js',
+      format: 'umd',
+      name: 'SaveAsImage'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+        //module: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] })
+    ]
+  },
+  {
+    input: 'src/plugins/Selection.plugin.ts',
+    output: {
+      sourcemap: true,
+      file: 'dist/Selection.plugin.js',
+      format: 'umd',
+      name: 'Selection'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+        //module: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] })
+    ]
+  },
+  {
+    input: 'src/plugins/plugins.ts',
+    output: {
+      sourcemap: true,
+      file: 'dist/plugins.js',
+      format: 'esm',
+      name: 'plugins'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+        //module: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] })
+    ]
+  }
+];
+
+const prodFiles = Array.prototype.concat(devFiles, [
   {
     input: 'src/index.ts',
     output: {
@@ -85,27 +211,6 @@ export default [
     input: 'src/index.ts',
     output: {
       sourcemap: true,
-      file: 'dist/index.esm.js',
-      format: 'esm'
-    },
-    plugins: [
-      typescript({ target: 'es6' }),
-      resolve({
-        browser: true
-        //module: true
-      }),
-      commonjs({ extensions: ['.js', '.ts'] }),
-      production &&
-        terser({
-          keep_classnames: true,
-          keep_fnames: true
-        })
-    ]
-  },
-  {
-    input: 'src/index.ts',
-    output: {
-      sourcemap: true,
       file: 'dist/index.esm.min.js',
       format: 'esm'
     },
@@ -122,23 +227,7 @@ export default [
       })
     ]
   },
-  {
-    input: 'src/plugins/ItemMovement.plugin.ts',
-    output: {
-      sourcemap: true,
-      file: 'dist/ItemMovement.plugin.js',
-      format: 'umd',
-      name: 'ItemMovement'
-    },
-    plugins: [
-      typescript({ target: 'es6' }),
-      resolve({
-        browser: true
-        //module: true
-      }),
-      commonjs({ extensions: ['.js', '.ts'] })
-    ]
-  },
+
   {
     input: 'src/plugins/ItemMovement.plugin.ts',
     output: {
@@ -161,23 +250,7 @@ export default [
         })
     ]
   },
-  {
-    input: 'src/plugins/DependencyLines.plugin.ts',
-    output: {
-      sourcemap: true,
-      file: 'dist/DependencyLines.plugin.js',
-      format: 'umd',
-      name: 'DependencyLines'
-    },
-    plugins: [
-      typescript({ target: 'es6' }),
-      resolve({
-        browser: true
-        //module: true
-      }),
-      commonjs({ extensions: ['.js', '.ts'] })
-    ]
-  },
+
   {
     input: 'src/plugins/DependencyLines.plugin.ts',
     output: {
@@ -200,23 +273,7 @@ export default [
         })
     ]
   },
-  {
-    input: 'src/plugins/ItemHold.plugin.ts',
-    output: {
-      sourcemap: true,
-      file: 'dist/ItemHold.plugin.js',
-      format: 'umd',
-      name: 'ItemHold'
-    },
-    plugins: [
-      typescript({ target: 'es6' }),
-      resolve({
-        browser: true
-        //module: true
-      }),
-      commonjs({ extensions: ['.js', '.ts'] })
-    ]
-  },
+
   {
     input: 'src/plugins/ItemHold.plugin.ts',
     output: {
@@ -239,23 +296,7 @@ export default [
         })
     ]
   },
-  {
-    input: 'src/plugins/SaveAsImage.plugin.ts',
-    output: {
-      sourcemap: true,
-      file: 'dist/SaveAsImage.plugin.js',
-      format: 'umd',
-      name: 'SaveAsImage'
-    },
-    plugins: [
-      typescript({ target: 'es6' }),
-      resolve({
-        browser: true
-        //module: true
-      }),
-      commonjs({ extensions: ['.js', '.ts'] })
-    ]
-  },
+
   {
     input: 'src/plugins/SaveAsImage.plugin.ts',
     output: {
@@ -278,23 +319,7 @@ export default [
         })
     ]
   },
-  {
-    input: 'src/plugins/Selection.plugin.ts',
-    output: {
-      sourcemap: true,
-      file: 'dist/Selection.plugin.js',
-      format: 'umd',
-      name: 'Selection'
-    },
-    plugins: [
-      typescript({ target: 'es6' }),
-      resolve({
-        browser: true
-        //module: true
-      }),
-      commonjs({ extensions: ['.js', '.ts'] })
-    ]
-  },
+
   {
     input: 'src/plugins/Selection.plugin.ts',
     output: {
@@ -317,23 +342,7 @@ export default [
         })
     ]
   },
-  {
-    input: 'src/plugins/plugins.ts',
-    output: {
-      sourcemap: true,
-      file: 'dist/plugins.js',
-      format: 'esm',
-      name: 'plugins'
-    },
-    plugins: [
-      typescript({ target: 'es6' }),
-      resolve({
-        browser: true
-        //module: true
-      }),
-      commonjs({ extensions: ['.js', '.ts'] })
-    ]
-  },
+
   {
     input: 'src/plugins/plugins.ts',
     output: {
@@ -361,4 +370,6 @@ export default [
     output: { format: 'esm', file: 'dist/style.css' },
     plugins: [stylus()]
   }
-];
+]);
+const files = production ? prodFiles : devFiles;
+export default files;
