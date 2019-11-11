@@ -23,9 +23,12 @@ export default function ListColumnRow(vido, props) {
     column = state.get(colPath);
   let style;
   let rowSub, colSub;
-  let ListExpander;
+  const ListExpander = createComponent(ListExpanderComponent, { row });
 
-  function onPropsChange({ rowId, columnId }) {
+  function onPropsChange(changedProps) {
+    props = changedProps;
+    const rowId = props.rowId;
+    const columnId = props.columnId;
     if (rowSub) {
       rowSub();
     }
@@ -56,9 +59,8 @@ export default function ListColumnRow(vido, props) {
     });
 
     if (ListExpander) {
-      ListExpander.destroy();
+      ListExpander.change({ row });
     }
-    ListExpander = createComponent(ListExpanderComponent, { row });
 
     colSub = state.subscribe(colPath, val => {
       column = val;

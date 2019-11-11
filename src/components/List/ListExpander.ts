@@ -9,7 +9,7 @@
  */
 
 export default function ListExpander(vido, props) {
-  const { api, state, onDestroy, actions, update, html, createComponent } = vido;
+  const { api, state, onDestroy, actions, update, html, createComponent, onChange } = vido;
   const componentName = 'list-expander';
   const componentActions = api.getActions(componentName);
   let className,
@@ -28,13 +28,8 @@ export default function ListExpander(vido, props) {
 
   onDestroy(
     state.subscribe('config.classNames', value => {
-      if (props.row) {
-        className = api.getClass(componentName, { row: props.row });
-        paddingClass = api.getClass(componentName + '-padding', { row: props.row });
-      } else {
-        className = api.getClass(componentName);
-        paddingClass = api.getClass(componentName + '-padding');
-      }
+      className = api.getClass(componentName);
+      paddingClass = api.getClass(componentName + '-padding');
       update();
     })
   );
@@ -46,20 +41,28 @@ export default function ListExpander(vido, props) {
     })
   );
   if (props.row) {
-    onDestroy(
-      state.subscribe(`_internal.list.rows.${props.row.id}.parentId`, parentId => {
+    let parentSub;
+    function onPropsChange(changedProps) {
+      props = changedProps;
+      if (parentSub) parentSub();
+      parentSub = state.subscribe(`_internal.list.rows.${props.row.id}.parentId`, function parentChanged(parentId) {
         width = 'width:' + props.row._internal.parents.length * padding + 'px';
         children = props.row._internal.children;
         update();
-      })
-    );
+      });
+      ListToggle.change(props);
+    }
+    onChange(onPropsChange);
+    onDestroy(function listExpanderDestroy() {
+      if (parentSub) parentSub();
+    });
   } else {
     width = 'width:0px';
     children = [];
   }
 
-  return templateProps =>
-    wrapper(
+  return function updateTemplate(templateProps) {
+    return wrapper(
       html`
         <div class=${className} data-action=${actions(componentActions, { row: props.row, api, state })}>
           <div class=${paddingClass} style=${width}></div>
@@ -68,4 +71,5 @@ export default function ListExpander(vido, props) {
       `,
       { vido, props, templateProps }
     );
+  };
 }

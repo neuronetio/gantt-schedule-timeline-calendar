@@ -60,10 +60,11 @@ export default function ChartTimelineItemsRowItem(vido, props) {
     update();
   }
 
-  onChange(changedProps => {
+  function onPropsChange(changedProps) {
     props = changedProps;
     updateItem();
-  });
+  }
+  onChange(onPropsChange);
 
   const componentName = 'chart-timeline-items-row-item';
   const componentActions = api.getActions(componentName);

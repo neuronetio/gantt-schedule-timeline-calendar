@@ -91,7 +91,7 @@ export default function ChartTimelineItemsRow(vido, props) {
   }
   onChange(onPropsChange);
 
-  onDestroy(() => {
+  onDestroy(function destroyRow() {
     itemsSub();
     rowSub();
     itemComponents.forEach(item => item.destroy());
@@ -109,7 +109,7 @@ export default function ChartTimelineItemsRow(vido, props) {
     })
   );
 
-  if (componentActions.indexOf(bindElementAction) === -1) {
+  if (!componentActions.includes(bindElementAction)) {
     componentActions.push(bindElementAction);
   }
 

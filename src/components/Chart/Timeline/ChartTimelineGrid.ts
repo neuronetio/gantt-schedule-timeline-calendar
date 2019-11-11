@@ -43,6 +43,7 @@ export default function ChartTimelineGrid(vido, props) {
 
   let rowsComponents = [];
   const rowsWithBlocks = [];
+  const formatCache = new Map();
   /**
    * Generate blocks
    */
@@ -57,7 +58,14 @@ export default function ChartTimelineGrid(vido, props) {
     for (const row of visibleRows) {
       const blocks = [];
       for (const time of periodDates) {
-        let id = row.id + ':' + api.time.date(time.leftGlobal).format('YYYY-MM-DD');
+        let format;
+        if (formatCache.has(time.leftGlobal)) {
+          format = formatCache.get(time.leftGlobal);
+        } else {
+          format = api.time.date(time.leftGlobal).format('YYYY-MM-DD');
+          formatCache.set(time.leftGlobal, format);
+        }
+        let id = row.id + ':' + format;
         let block = { id, time, row, top };
         for (const onCreate of onBlockCreate) {
           block = onCreate(block);

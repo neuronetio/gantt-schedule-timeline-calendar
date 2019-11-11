@@ -9,7 +9,7 @@
  */
 
 export default function ListToggle(vido, props) {
-  const { api, state, onDestroy, actions, update, html, unsafeHTML } = vido;
+  const { api, state, onDestroy, actions, update, html, unsafeHTML, onChange } = vido;
   const componentName = 'list-expander-toggle';
 
   let wrapper;
@@ -22,16 +22,9 @@ export default function ListToggle(vido, props) {
   let iconOpen, iconClosed;
   onDestroy(
     state.subscribe('config.classNames', value => {
-      if (props.row) {
-        className = api.getClass(componentName, { row: props.row });
-        classNameOpen = api.getClass(componentName + '-open', { row: props.row });
-        classNameClosed = api.getClass(componentName + '-closed', { row: props.row });
-      } else {
-        className = api.getClass(componentName);
-        classNameOpen = api.getClass(componentName + '-open');
-        classNameClosed = api.getClass(componentName + '-closed');
-      }
-
+      className = api.getClass(componentName);
+      classNameOpen = api.getClass(componentName + '-open');
+      classNameClosed = api.getClass(componentName + '-closed');
       update();
     })
   );
@@ -50,7 +43,16 @@ export default function ListToggle(vido, props) {
       expanded = isExpanded;
       update();
     }
-    onDestroy(state.subscribe(`config.list.rows.${props.row.id}.expanded`, expandedChange));
+    let expandedSub;
+    function onPropsChange(changedProps) {
+      props = changedProps;
+      if (expandedSub) expandedSub();
+      expandedSub = state.subscribe(`config.list.rows.${props.row.id}.expanded`, expandedChange);
+    }
+    onChange(onPropsChange);
+    onDestroy(function listToggleDestroy() {
+      if (expandedSub) expandedSub();
+    });
   } else {
     function expandedChange(bulk) {
       for (const rowExpanded of bulk) {
