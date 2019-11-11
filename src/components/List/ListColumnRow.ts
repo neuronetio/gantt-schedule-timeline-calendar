@@ -9,7 +9,7 @@
  */
 
 export default function ListColumnRow(vido, props) {
-  const { api, state, onDestroy, actions, update, html, createComponent, onChange } = vido;
+  const { api, state, onDestroy, actions, update, html, createComponent, onChange, styleMap } = vido;
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListColumnRow', value => (wrapper = value)));
@@ -21,13 +21,13 @@ export default function ListColumnRow(vido, props) {
     row = state.get(rowPath);
   let colPath = `config.list.columns.data.${props.columnId}`,
     column = state.get(colPath);
-  let style;
+  let style = { width: '', height: '', visibility: '', '--height': '' };
   let rowSub, colSub;
   const ListExpander = createComponent(ListExpanderComponent, { row });
 
   const onPropsChange = (changedProps, options) => {
     if (options.leave) {
-      style = 'visibility: hidden';
+      style.visibility = 'hidden';
       update();
       return;
     }
@@ -44,7 +44,9 @@ export default function ListColumnRow(vido, props) {
     colPath = `config.list.columns.data.${columnId}`;
     rowSub = state.subscribe(rowPath, value => {
       row = value;
-      style = `--height: ${row.height}px; width: ${props.width}px; height:${row.height}px;`;
+      style['--height'] = row.height + 'px';
+      style.width = props.width + 'px';
+      style.height = row.height + 'px';
       for (let parentId of row._internal.parents) {
         const parent = state.get(`_internal.flatTreeMapById.${parentId}`);
         if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
@@ -107,7 +109,11 @@ export default function ListColumnRow(vido, props) {
   return function updateTemplate(templateProps) {
     return wrapper(
       html`
-        <div class=${className} style=${style} data-actions=${actions(componentActions, { column, row, api, state })}>
+        <div
+          class=${className}
+          style=${styleMap(style)}
+          data-actions=${actions(componentActions, { column, row, api, state })}
+        >
           ${typeof column.expander === 'boolean' && column.expander ? ListExpander.html() : ''}
           ${typeof column.html === 'string' ? getHtml() : getText()}
         </div>

@@ -4110,7 +4110,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumn(vido, props) {
-        const { api, state, onDestroy, actions, update, createComponent, reuseComponents, html } = vido;
+        const { api, state, onDestroy, actions, update, createComponent, reuseComponents, html, styleMap } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListColumn', value => (wrapper = value)));
         let ListColumnRowComponent;
@@ -4126,7 +4126,7 @@
         const rowsComponentName = componentName + '-rows';
         const componentActions = api.getActions(componentName);
         const rowsActions = api.getActions(rowsComponentName);
-        let className, classNameContainer, calculatedWidth, widthStyle, styleContainer, styleScrollCompensation;
+        let className, classNameContainer, calculatedWidth, widthStyle = { width: '' }, styleContainer = { width: '', height: '' }, styleScrollCompensation = { width: '', height: '', transform: '' };
         onDestroy(state.subscribe('config.classNames', value => {
             className = api.getClass(componentName, { column });
             classNameContainer = api.getClass(rowsComponentName, { column });
@@ -4138,9 +4138,13 @@
             const compensation = state.get('config.scroll.compensation');
             calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
             width = calculatedWidth + list.columns.resizer.width;
-            widthStyle = `width: ${width}px;`;
-            styleContainer = `${widthStyle} height: ${state.get('_internal.height')}px;`;
-            styleScrollCompensation = `${styleContainer} transform: translate(0px, ${compensation}px);`;
+            const height = state.get('_internal.height');
+            widthStyle.width = width + 'px';
+            styleContainer.width = width + 'px';
+            styleContainer.height = height + 'px';
+            styleScrollCompensation.width = width + 'px';
+            styleScrollCompensation.height = height + 'px';
+            styleScrollCompensation.transform = ` translate(0px, ${compensation}px)`;
         };
         onDestroy(state.subscribeAll([
             'config.list.columns.percent',
@@ -4168,11 +4172,15 @@
         <div
           class=${className}
           data-actions=${actions(componentActions, { column, state: state, api: api })}
-          style=${widthStyle}
+          style=${styleMap(widthStyle)}
         >
           ${ListColumnHeader.html()}
-          <div class=${classNameContainer} style=${styleContainer} data-actions=${actions(rowsActions, { api, state })}>
-            <div class=${classNameContainer + '--scroll-compensation'} style=${styleScrollCompensation}>
+          <div
+            class=${classNameContainer}
+            style=${styleMap(styleContainer)}
+            data-actions=${actions(rowsActions, { api, state })}
+          >
+            <div class=${classNameContainer + '--scroll-compensation'} style=${styleMap(styleScrollCompensation)}>
               ${visibleRows.map(getRowHtml)}
             </div>
           </div>
@@ -4348,19 +4356,19 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnRow(vido, props) {
-        const { api, state, onDestroy, actions, update, html, createComponent, onChange } = vido;
+        const { api, state, onDestroy, actions, update, html, createComponent, onChange, styleMap } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListColumnRow', value => (wrapper = value)));
         let ListExpanderComponent;
         onDestroy(state.subscribe('config.components.ListExpander', value => (ListExpanderComponent = value)));
         let rowPath = `_internal.flatTreeMapById.${props.rowId}`, row = state.get(rowPath);
         let colPath = `config.list.columns.data.${props.columnId}`, column = state.get(colPath);
-        let style;
+        let style = { width: '', height: '', visibility: '', '--height': '' };
         let rowSub, colSub;
         const ListExpander = createComponent(ListExpanderComponent, { row });
         const onPropsChange = (changedProps, options) => {
             if (options.leave) {
-                style = 'visibility: hidden';
+                style.visibility = 'hidden';
                 update();
                 return;
             }
@@ -4377,7 +4385,9 @@
             colPath = `config.list.columns.data.${columnId}`;
             rowSub = state.subscribe(rowPath, value => {
                 row = value;
-                style = `--height: ${row.height}px; width: ${props.width}px; height:${row.height}px;`;
+                style['--height'] = row.height + 'px';
+                style.width = props.width + 'px';
+                style.height = row.height + 'px';
                 for (let parentId of row._internal.parents) {
                     const parent = state.get(`_internal.flatTreeMapById.${parentId}`);
                     if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
@@ -4431,7 +4441,11 @@
         }
         return function updateTemplate(templateProps) {
             return wrapper(html `
-        <div class=${className} style=${style} data-actions=${actions(componentActions, { column, row, api, state })}>
+        <div
+          class=${className}
+          style=${styleMap(style)}
+          data-actions=${actions(componentActions, { column, row, api, state })}
+        >
           ${typeof column.expander === 'boolean' && column.expander ? ListExpander.html() : ''}
           ${typeof column.html === 'string' ? getHtml() : getText()}
         </div>
@@ -5289,7 +5303,7 @@
         };
     }
     function ChartTimelineGridRow(vido, props) {
-        const { api, state, onDestroy, actions, update, html, reuseComponents, onChange } = vido;
+        const { api, state, onDestroy, actions, update, html, reuseComponents, onChange, styleMap } = vido;
         const componentName = 'chart-timeline-grid-row';
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineGridRow', value => {
@@ -5299,17 +5313,19 @@
         const GridBlockComponent = state.get('config.components.ChartTimelineGridRowBlock');
         const componentActions = api.getActions(componentName);
         let className = api.getClass(componentName);
-        let style;
+        let style = { width: '', height: '', visibility: '', overflow: 'hidden' };
         let rowsBlocksComponents = [];
         const onPropsChange = (changedProps, options) => {
             if (options.leave) {
-                style = 'visibility: hidden;';
+                style.visibility = 'hidden';
                 update();
                 return;
             }
             props = changedProps;
             reuseComponents(rowsBlocksComponents, props.blocks, block => block, GridBlockComponent);
-            style = `height: ${props.row.height}px; width: ${props.width}px;`;
+            style.visibility = 'visible';
+            style.height = props.row.height + 'px';
+            style.width = props.width + 'px';
             update();
         };
         onChange(onPropsChange);
@@ -5329,7 +5345,7 @@
         api,
         state
     })}
-          style=${style}
+          style=${styleMap(style)}
         >
           ${rowsBlocksComponents.map(r => r.html())}
         </div>
@@ -5507,22 +5523,26 @@
         };
     };
     const ChartTimelineItemsRow = (vido, props) => {
-        const { api, state, onDestroy, actions, update, html, onChange, reuseComponents } = vido;
+        const { api, state, onDestroy, actions, update, html, onChange, reuseComponents, styleMap } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRow', value => (wrapper = value)));
         const ItemComponent = state.get('config.components.ChartTimelineItemsRowItem');
         let itemsPath = `_internal.flatTreeMapById.${props.row.id}._internal.items`;
         let rowSub, itemsSub;
-        let style, styleInner;
+        let style = { visibility: '', width: '', height: '', overflow: 'hidden' }, styleInner = { width: '', height: '', overflow: 'hidden' };
         let itemComponents = [];
         function updateDom() {
             if (!props) {
-                style = 'visibility: hidden;';
+                style.visibility = 'hidden';
                 return;
             }
             const chart = state.get('_internal.chart');
-            style = `width:${chart.dimensions.width}px; height:${props.row.height}px; --row-height:${props.row.height}px;`;
-            styleInner = `width: ${chart.time.totalViewDurationPx}px; height: ${props.row.height}px;`;
+            style.visibility = 'visible';
+            style.width = chart.dimensions.width + 'px';
+            style.height = props.row.height + 'px';
+            style['--row-height'] = props.row.height + 'px';
+            styleInner.width = chart.time.totalViewDurationPx + 'px';
+            styleInner.height = props.row.height + 'px';
         }
         const updateRow = (row, options) => {
             if (options.leave) {
@@ -5552,7 +5572,7 @@
          */
         const onPropsChange = (changedProps, options) => {
             if (options.leave) {
-                style = 'visibility: hidden;';
+                style.visibility = 'hidden';
                 return update();
             }
             props = changedProps;
@@ -5577,8 +5597,12 @@
             componentActions.push(bindElementAction$2);
         }
         return templateProps => wrapper(html `
-        <div class=${className} data-actions=${actions(componentActions, Object.assign(Object.assign({}, props), { api, state }))} style=${style}>
-          <div class=${classNameInner} style=${styleInner}>
+        <div
+          class=${className}
+          data-actions=${actions(componentActions, Object.assign(Object.assign({}, props), { api, state }))}
+          style=${styleMap(style)}
+        >
+          <div class=${classNameInner} style=${styleMap(styleInner)}>
             ${itemComponents.map(i => i.html())}
           </div>
         </div>

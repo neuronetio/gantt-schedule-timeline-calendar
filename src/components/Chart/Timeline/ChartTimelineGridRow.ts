@@ -37,7 +37,7 @@ function bindElementAction(element, data) {
 }
 
 export default function ChartTimelineGridRow(vido, props) {
-  const { api, state, onDestroy, actions, update, html, reuseComponents, onChange } = vido;
+  const { api, state, onDestroy, actions, update, html, reuseComponents, onChange, styleMap } = vido;
   const componentName = 'chart-timeline-grid-row';
   let wrapper;
   onDestroy(
@@ -52,17 +52,19 @@ export default function ChartTimelineGridRow(vido, props) {
   const componentActions = api.getActions(componentName);
   let className = api.getClass(componentName);
 
-  let style;
+  let style = { width: '', height: '', visibility: '', overflow: 'hidden' };
   let rowsBlocksComponents = [];
   const onPropsChange = (changedProps, options) => {
     if (options.leave) {
-      style = 'visibility: hidden;';
+      style.visibility = 'hidden';
       update();
       return;
     }
     props = changedProps;
     reuseComponents(rowsBlocksComponents, props.blocks, block => block, GridBlockComponent);
-    style = `height: ${props.row.height}px; width: ${props.width}px;`;
+    style.visibility = 'visible';
+    style.height = props.row.height + 'px';
+    style.width = props.width + 'px';
     update();
   };
   onChange(onPropsChange);
@@ -87,7 +89,7 @@ export default function ChartTimelineGridRow(vido, props) {
             api,
             state
           })}
-          style=${style}
+          style=${styleMap(style)}
         >
           ${rowsBlocksComponents.map(r => r.html())}
         </div>

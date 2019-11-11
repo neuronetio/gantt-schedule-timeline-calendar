@@ -9,7 +9,7 @@
  */
 
 export default function ListColumn(vido, props) {
-  const { api, state, onDestroy, actions, update, createComponent, reuseComponents, html } = vido;
+  const { api, state, onDestroy, actions, update, createComponent, reuseComponents, html, styleMap } = vido;
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListColumn', value => (wrapper = value)));
@@ -32,7 +32,12 @@ export default function ListColumn(vido, props) {
   const rowsComponentName = componentName + '-rows';
   const componentActions = api.getActions(componentName);
   const rowsActions = api.getActions(rowsComponentName);
-  let className, classNameContainer, calculatedWidth, widthStyle, styleContainer, styleScrollCompensation;
+  let className,
+    classNameContainer,
+    calculatedWidth,
+    widthStyle = { width: '' },
+    styleContainer = { width: '', height: '' },
+    styleScrollCompensation = { width: '', height: '', transform: '' };
 
   onDestroy(
     state.subscribe('config.classNames', value => {
@@ -47,9 +52,13 @@ export default function ListColumn(vido, props) {
     const compensation = state.get('config.scroll.compensation');
     calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
     width = calculatedWidth + list.columns.resizer.width;
-    widthStyle = `width: ${width}px;`;
-    styleContainer = `${widthStyle} height: ${state.get('_internal.height')}px;`;
-    styleScrollCompensation = `${styleContainer} transform: translate(0px, ${compensation}px);`;
+    const height = state.get('_internal.height');
+    widthStyle.width = width + 'px';
+    styleContainer.width = width + 'px';
+    styleContainer.height = height + 'px';
+    styleScrollCompensation.width = width + 'px';
+    styleScrollCompensation.height = height + 'px';
+    styleScrollCompensation.transform = ` translate(0px, ${compensation}px)`;
   };
   onDestroy(
     state.subscribeAll(
@@ -94,11 +103,15 @@ export default function ListColumn(vido, props) {
         <div
           class=${className}
           data-actions=${actions(componentActions, { column, state: state, api: api })}
-          style=${widthStyle}
+          style=${styleMap(widthStyle)}
         >
           ${ListColumnHeader.html()}
-          <div class=${classNameContainer} style=${styleContainer} data-actions=${actions(rowsActions, { api, state })}>
-            <div class=${classNameContainer + '--scroll-compensation'} style=${styleScrollCompensation}>
+          <div
+            class=${classNameContainer}
+            style=${styleMap(styleContainer)}
+            data-actions=${actions(rowsActions, { api, state })}
+          >
+            <div class=${classNameContainer + '--scroll-compensation'} style=${styleMap(styleScrollCompensation)}>
               ${visibleRows.map(getRowHtml)}
             </div>
           </div>

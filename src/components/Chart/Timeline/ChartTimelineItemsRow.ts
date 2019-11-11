@@ -37,7 +37,7 @@ const bindElementAction = (element, data) => {
 };
 
 const ChartTimelineItemsRow = (vido, props) => {
-  const { api, state, onDestroy, actions, update, html, onChange, reuseComponents } = vido;
+  const { api, state, onDestroy, actions, update, html, onChange, reuseComponents, styleMap } = vido;
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRow', value => (wrapper = value)));
 
@@ -46,17 +46,24 @@ const ChartTimelineItemsRow = (vido, props) => {
   let itemsPath = `_internal.flatTreeMapById.${props.row.id}._internal.items`;
   let rowSub, itemsSub;
 
-  let element, scrollLeft, style, styleInner;
+  let element,
+    scrollLeft,
+    style = { visibility: '', width: '', height: '', overflow: 'hidden' },
+    styleInner = { width: '', height: '', overflow: 'hidden' };
   let itemComponents = [];
 
   function updateDom() {
     if (!props) {
-      style = 'visibility: hidden;';
+      style.visibility = 'hidden';
       return;
     }
     const chart = state.get('_internal.chart');
-    style = `width:${chart.dimensions.width}px; height:${props.row.height}px; --row-height:${props.row.height}px;`;
-    styleInner = `width: ${chart.time.totalViewDurationPx}px; height: ${props.row.height}px;`;
+    style.visibility = 'visible';
+    style.width = chart.dimensions.width + 'px';
+    style.height = props.row.height + 'px';
+    style['--row-height'] = props.row.height + 'px';
+    styleInner.width = chart.time.totalViewDurationPx + 'px';
+    styleInner.height = props.row.height + 'px';
     if (element && scrollLeft !== chart.time.leftPx) {
       element.scrollLeft = chart.time.leftPx;
       scrollLeft = chart.time.leftPx;
@@ -92,7 +99,7 @@ const ChartTimelineItemsRow = (vido, props) => {
    */
   const onPropsChange = (changedProps, options) => {
     if (options.leave) {
-      style = 'visibility: hidden;';
+      style.visibility = 'hidden';
       return update();
     }
     props = changedProps;
@@ -125,8 +132,12 @@ const ChartTimelineItemsRow = (vido, props) => {
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, { ...props, api, state })} style=${style}>
-          <div class=${classNameInner} style=${styleInner}>
+        <div
+          class=${className}
+          data-actions=${actions(componentActions, { ...props, api, state })}
+          style=${styleMap(style)}
+        >
+          <div class=${classNameInner} style=${styleMap(styleInner)}>
             ${itemComponents.map(i => i.html())}
           </div>
         </div>
