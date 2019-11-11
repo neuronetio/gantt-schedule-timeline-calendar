@@ -257,7 +257,7 @@ export function getInternalApi(state) {
      */
     getVisibleRowsAndCompensation(rowsWithParentsExpanded) {
       const visibleRows = [];
-      let currentChartOffset = 0;
+      let currentRowsOffset = 0;
       let rowOffset = 0;
       const scrollTop = state.get('config.scroll.top');
       const height = state.get('_internal.height');
@@ -265,14 +265,14 @@ export function getInternalApi(state) {
       let compensation = 0;
       for (const row of rowsWithParentsExpanded) {
         chartViewBottom = scrollTop + height;
-        if (currentChartOffset + row.height > scrollTop && currentChartOffset < chartViewBottom) {
+        if (currentRowsOffset + row.height >= scrollTop && currentRowsOffset <= chartViewBottom) {
           row.top = rowOffset;
-          compensation = row.top + scrollTop - currentChartOffset;
+          compensation = row.top + scrollTop - currentRowsOffset;
           rowOffset += row.height;
           visibleRows.push(row);
         }
-        currentChartOffset += row.height;
-        if (currentChartOffset >= chartViewBottom) {
+        currentRowsOffset += row.height;
+        if (currentRowsOffset >= chartViewBottom) {
           break;
         }
       }

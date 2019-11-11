@@ -14,7 +14,7 @@
  * @param {any} data
  * @returns {object} with update and destroy
  */
-function bindElementAction(element, data) {
+const bindElementAction = (element, data) => {
   data.state.update(
     '_internal.elements.chart-timeline-items-row-items',
     function updateRowItems(items) {
@@ -34,9 +34,9 @@ function bindElementAction(element, data) {
       });
     }
   };
-}
+};
 
-export default function ChartTimelineItemsRowItem(vido, props) {
+const ChartTimelineItemsRowItem = (vido, props) => {
   const { api, state, onDestroy, actions, update, html, onChange } = vido;
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
@@ -45,7 +45,7 @@ export default function ChartTimelineItemsRowItem(vido, props) {
     itemLeftPx = 0,
     itemWidthPx = 0;
 
-  function updateItem() {
+  const updateItem = () => {
     contentStyle = '';
     let time = state.get('_internal.chart.time');
     itemLeftPx = (props.item.time.start - time.leftGlobal) / time.timePerPixel;
@@ -58,12 +58,12 @@ export default function ChartTimelineItemsRowItem(vido, props) {
       }
     }
     update();
-  }
+  };
 
-  function onPropsChange(changedProps) {
+  const onPropsChange = changedProps => {
     props = changedProps;
     updateItem();
-  }
+  };
   onChange(onPropsChange);
 
   const componentName = 'chart-timeline-items-row-item';
@@ -111,4 +111,5 @@ export default function ChartTimelineItemsRowItem(vido, props) {
       { vido, props, templateProps }
     );
   };
-}
+};
+export default ChartTimelineItemsRowItem;

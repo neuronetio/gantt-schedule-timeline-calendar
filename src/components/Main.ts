@@ -50,7 +50,7 @@ export default function Main(vido, props = {}) {
    * Update class names
    * @param {object} classNames
    */
-  function updateClassNames(classNames) {
+  const updateClassNames = classNames => {
     const config = state.get('config');
     className = api.getClass(componentName, { config });
     if (resizerActive) {
@@ -58,13 +58,13 @@ export default function Main(vido, props = {}) {
     }
     classNameVerticalScroll = api.getClass('vertical-scroll', { config });
     update();
-  }
+  };
   onDestroy(state.subscribe('config.classNames', updateClassNames));
 
   /**
    * Height change
    */
-  function heightChange() {
+  const heightChange = () => {
     const config = state.get('config');
     const scrollBarHeight = state.get('_internal.scrollBarHeight');
     const height = config.height - config.headerHeight - scrollBarHeight;
@@ -72,21 +72,21 @@ export default function Main(vido, props = {}) {
     style = `--height: ${config.height}px`;
     styleVerticalScroll = `height: ${height}px; width: ${scrollBarHeight}px; margin-top: ${config.headerHeight}px;`;
     update();
-  }
+  };
   onDestroy(state.subscribeAll(['config.height', 'config.headerHeight', '_internal.scrollBarHeight'], heightChange));
 
   /**
    * Resizer active change
    * @param {boolean} active
    */
-  function resizerActiveChange(active) {
+  const resizerActiveChange = active => {
     resizerActive = active;
     className = api.getClass(api.name);
     if (resizerActive) {
       className += ` ${api.name}__list-column-header-resizer--active`;
     }
     update();
-  }
+  };
   onDestroy(state.subscribe('_internal.list.columns.resizer.active', resizerActiveChange));
 
   /**
@@ -94,7 +94,7 @@ export default function Main(vido, props = {}) {
    * @param {object} bulk
    * @param {object} eventInfo
    */
-  function generateTree(bulk, eventInfo) {
+  const generateTree = (bulk, eventInfo) => {
     if (state.get('_internal.flatTreeMap').length && eventInfo.type === 'subscribe') {
       return;
     }
@@ -114,7 +114,7 @@ export default function Main(vido, props = {}) {
     state.update('_internal.flatTreeMapById', api.getFlatTreeMapById(treeMap));
     state.update('_internal.flatTreeMap', api.flattenTreeMap(treeMap));
     update();
-  }
+  };
 
   onDestroy(
     state.subscribeAll(
@@ -127,7 +127,7 @@ export default function Main(vido, props = {}) {
   /**
    * Prepare expanded
    */
-  function prepareExpanded() {
+  const prepareExpanded = () => {
     const configRows = state.get('config.list.rows');
     const rowsWithParentsExpanded = api.getRowsFromIds(
       api.getRowsWithParentsExpanded(
@@ -141,13 +141,13 @@ export default function Main(vido, props = {}) {
     state.update('_internal.list.rowsHeight', rowsHeight);
     state.update('_internal.list.rowsWithParentsExpanded', rowsWithParentsExpanded);
     update();
-  }
+  };
   onDestroy(state.subscribeAll(['config.list.rows.*.expanded', '_internal.treeMap;'], prepareExpanded, { bulk: true }));
 
   /**
    * Generate visible rows
    */
-  function generateVisibleRows() {
+  const generateVisibleRows = () => {
     const { visibleRows, compensation } = api.getVisibleRowsAndCompensation(
       state.get('_internal.list.rowsWithParentsExpanded')
     );
@@ -173,14 +173,14 @@ export default function Main(vido, props = {}) {
       state.update('_internal.chart.visibleItems', visibleItems);
     }
     update();
-  }
+  };
   onDestroy(state.subscribeAll(['_internal.list.rowsWithParentsExpanded', 'config.scroll.top'], generateVisibleRows));
 
   let elementScrollTop = 0;
   /**
    * On visible rows change
    */
-  function onVisibleRowsChange() {
+  const onVisibleRowsChange = () => {
     const top = state.get('config.scroll.top');
     styleVerticalScrollArea = `height: ${rowsHeight}px; width: 1px`;
     if (elementScrollTop !== top && verticalScrollBarElement) {
@@ -188,7 +188,7 @@ export default function Main(vido, props = {}) {
       verticalScrollBarElement.scrollTop = top;
     }
     update();
-  }
+  };
   onDestroy(state.subscribe('_internal.list.visibleRows;', onVisibleRowsChange));
 
   /**
@@ -196,7 +196,7 @@ export default function Main(vido, props = {}) {
    * @param {string} period
    * @param {object} internalTime
    */
-  function generateAndAddPeriodDates(period, internalTime) {
+  const generateAndAddPeriodDates = (period, internalTime) => {
     const dates = [];
     let leftGlobal = internalTime.leftGlobal;
     const rightGlobal = internalTime.rightGlobal;
@@ -230,12 +230,12 @@ export default function Main(vido, props = {}) {
     }
     internalTime.maxWidth[period] = maxWidth;
     internalTime.dates[period] = dates;
-  }
+  };
 
   /**
    * Recalculate times action
    */
-  function recalculateTimes() {
+  const recalculateTimes = () => {
     const chartWidth = state.get('_internal.chart.dimensions.width');
     let time = api.mergeDeep({}, state.get('config.chart.time'));
     time = api.time.recalculateFromTo(time);
@@ -272,7 +272,7 @@ export default function Main(vido, props = {}) {
     generateAndAddPeriodDates('month', time);
     state.update(`_internal.chart.time`, time);
     update();
-  }
+  };
   onDestroy(
     state.subscribeAll(
       [
@@ -296,7 +296,7 @@ export default function Main(vido, props = {}) {
    * Handle scroll Event
    * @param {MouseEvent} event
    */
-  function handleEvent(event: MouseEvent) {
+  const handleEvent = (event: MouseEvent) => {
     // @ts-ignore
     const top = event.target.scrollTop;
     /**
@@ -304,7 +304,7 @@ export default function Main(vido, props = {}) {
      * @param {object} scroll
      * @returns {object} scroll
      */
-    function handleOnScroll(scroll) {
+    const handleOnScroll = scroll => {
       scroll.top = top;
       scrollTop = scroll.top;
       const scrollInner = state.get('_internal.elements.vertical-scroll-inner');
@@ -313,12 +313,12 @@ export default function Main(vido, props = {}) {
         scroll.percent.top = scroll.top / scrollHeight;
       }
       return scroll;
-    }
+    };
     if (scrollTop !== top)
       state.update('config.scroll', handleOnScroll, {
         only: ['top', 'percent.top']
       });
-  }
+  };
 
   const onScroll = {
     handleEvent: schedule(handleEvent),
@@ -330,10 +330,10 @@ export default function Main(vido, props = {}) {
    * Stop scroll / wheel to sink into parent elements
    * @param {Event} event
    */
-  function onScrollStop(event: Event) {
+  const onScrollStop = (event: Event) => {
     event.stopPropagation();
     event.preventDefault();
-  }
+  };
 
   const dimensions = { width: 0, height: 0 };
   let ro;
@@ -341,7 +341,7 @@ export default function Main(vido, props = {}) {
    * Resize action
    * @param {Element} element
    */
-  function resizeAction(element: Element) {
+  const resizeAction = (element: Element) => {
     if (!ro) {
       ro = new ResizeObserver((entries, observer) => {
         const width = element.clientWidth;
@@ -355,7 +355,7 @@ export default function Main(vido, props = {}) {
       ro.observe(element);
       state.update('_internal.elements.main', element);
     }
-  }
+  };
   if (!componentActions.includes(resizeAction)) {
     componentActions.push(resizeAction);
   }
@@ -368,23 +368,23 @@ export default function Main(vido, props = {}) {
    * Bind scroll element
    * @param {Element} element
    */
-  function bindScrollElement(element: Element) {
+  const bindScrollElement = (element: Element) => {
     if (!verticalScrollBarElement) {
       verticalScrollBarElement = element;
       state.update('_internal.elements.vertical-scroll', element);
     }
-  }
+  };
 
   /**
    * Bind scroll inner element
    * @param {Element} element
    */
-  function bindScrollInnerElement(element: Element) {
+  const bindScrollInnerElement = (element: Element) => {
     state.update('_internal.elements.vertical-scroll-inner', element);
-  }
+  };
 
-  return function updateTemplate(templateProps) {
-    return wrapper(
+  return templateProps =>
+    wrapper(
       html`
         <div
           class=${className}
@@ -406,5 +406,4 @@ export default function Main(vido, props = {}) {
       `,
       { props, vido, templateProps }
     );
-  };
 }

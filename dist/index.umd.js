@@ -2378,7 +2378,7 @@
                 };
             });
         }
-        class ComponentMethods {
+        class PublicComponentMethods {
             constructor(instance, vidoInstance, props = {}) {
                 this.instance = instance;
                 this.vidoInstance = vidoInstance;
@@ -2434,12 +2434,20 @@
                 return components.get(this.instance).update(templateProps, this.vidoInstance);
             }
         }
+        /**
+         * Create vido instance for component
+         */
         function vido() {
+            this.destroyable = [];
+            this.onChangeFunctions = [];
             this.debug = false;
             this.state = state;
             this.api = api;
             this.lastProps = {};
             this.reuseComponents = this.reuseComponents.bind(this);
+            this.onDestroy = this.onDestroy.bind(this);
+            this.onChange = this.onChange.bind(this);
+            this.update = this.update.bind(this);
         }
         vido.prototype.html = html;
         vido.prototype.svg = svg;
@@ -2455,9 +2463,16 @@
         vido.prototype.unsafeHTML = unsafeHTML;
         vido.prototype.until = until;
         vido.prototype.schedule = schedule;
-        vido.prototype.actionsByInstance = function actionsByInstance(componentActions, props) { };
-        vido.prototype.onDestroy = function onDestroy() { };
-        vido.prototype.onChange = function onChange(props) { };
+        vido.prototype.actionsByInstance = (componentActions, props) => { };
+        vido.prototype.onDestroy = function onDestroy(fn) {
+            this.destroyable.push(fn);
+        };
+        vido.prototype.onChange = function onChange(fn) {
+            this.onChangeFunctions.push(fn);
+        };
+        vido.prototype.update = function update() {
+            this.updateTemplate();
+        };
         /**
          * Reuse existing components when your data was changed
          *
@@ -2465,40 +2480,103 @@
          * @param {array} dataArray  - any data as array for each component
          * @param {function} getProps - you can pass params to component from array item ( example: item=>({id:item.id}) )
          * @param {function} component - what kind of components do you want to create?
+         * @param {boolean} leaveTail - leave last elements and do not destroy corresponding components
          * @returns {array} of components (with updated/destroyed/created ones)
          */
-        vido.prototype.reuseComponents = function reuseComponents(currentComponents, dataArray, getProps, component) {
+        vido.prototype.reuseComponents = function reuseComponents(currentComponents, dataArray, getProps, component, leaveTail = true) {
             const modified = [];
+            const currentLen = currentComponents.length;
+            const dataLen = dataArray.length;
+            let leave = false;
             if (currentComponents.length < dataArray.length) {
-                let diff = dataArray.length - currentComponents.length;
+                let diff = dataLen - currentLen;
                 while (diff) {
-                    const item = dataArray[dataArray.length - diff];
+                    const item = dataArray[dataLen - diff];
                     const newComponent = this.createComponent(component, getProps(item));
                     currentComponents.push(newComponent);
                     modified.push(newComponent.instance);
                     diff--;
                 }
             }
-            else if (currentComponents.length > dataArray.length) {
-                let diff = currentComponents.length - dataArray.length;
+            else if (currentLen > dataLen) {
+                let diff = currentLen - dataLen;
                 while (diff) {
-                    const index = currentComponents.length - diff;
+                    const index = currentLen - diff;
                     modified.push(currentComponents[index].instance);
-                    currentComponents[index].destroy();
+                    if (!leaveTail) {
+                        currentComponents[index].destroy();
+                    }
+                    else {
+                        leave = true;
+                    }
                     diff--;
                 }
-                currentComponents.length = dataArray.length;
+                if (!leaveTail) {
+                    currentComponents.length = dataLen;
+                }
             }
             let index = 0;
             for (const component of currentComponents) {
                 const item = dataArray[index];
                 if (!modified.includes(component.instance)) {
-                    component.change(getProps(item));
+                    component.change(getProps(item), { leave });
                 }
                 index++;
             }
             return currentComponents;
         };
+        class InternalComponentMethods {
+            constructor(instance, vidoInstance, updateFunction) {
+                this.instance = instance;
+                this.vidoInstance = vidoInstance;
+                this.updateFunction = updateFunction;
+            }
+            destroy() {
+                if (this.vidoInstance.debug) {
+                    console.groupCollapsed(`component destroy method fired ${this.instance}`);
+                    console.log(clone({
+                        props: this.vidoInstance.props,
+                        components: components.keys(),
+                        destroyable: this.vidoInstance.destroyable,
+                        actionsByInstance
+                    }));
+                    console.trace();
+                    console.groupEnd();
+                }
+                for (const d of this.vidoInstance.destroyable) {
+                    d();
+                }
+                this.vidoInstance.onChangeFunctions = [];
+                this.vidoInstance.destroyable = [];
+            }
+            update(props = {}) {
+                if (this.vidoInstance.debug) {
+                    console.groupCollapsed(`component update method fired ${this.instance}`);
+                    console.log(clone({ components: components.keys(), actionsByInstance }));
+                    console.trace();
+                    console.groupEnd();
+                }
+                return this.updateFunction(props);
+            }
+            change(changedProps = {}, options = { leave: false }) {
+                const props = changedProps;
+                if (this.vidoInstance.debug) {
+                    console.groupCollapsed(`component change method fired ${this.instance}`);
+                    console.log(clone({
+                        props,
+                        components: components.keys(),
+                        onChangeFunctions: this.vidoInstance.onChangeFunctions,
+                        changedProps,
+                        actionsByInstance
+                    }));
+                    console.trace();
+                    console.groupEnd();
+                }
+                for (const fn of this.vidoInstance.onChangeFunctions) {
+                    fn(changedProps, options);
+                }
+            }
+        }
         /**
          * Create component
          *
@@ -2509,67 +2587,12 @@
         vido.prototype.createComponent = function createComponent(component, props = {}) {
             const instance = component.name + ':' + componentId++;
             let vidoInstance;
-            function update() {
-                vidoInstance.updateTemplate();
-            }
-            let destroyable = [];
-            function onDestroy(fn) {
-                destroyable.push(fn);
-            }
-            let onChangeFunctions = [];
-            function onChange(fn) {
-                onChangeFunctions.push(fn);
-            }
             vidoInstance = new vido();
             vidoInstance.instance = instance;
-            vidoInstance.update = update;
-            vidoInstance.onDestroy = onDestroy;
-            vidoInstance.onChange = onChange;
             vidoInstance.actions = getActions(instance);
-            vidoInstance.lastProps = props;
-            const componentInstanceMethods = new ComponentMethods(instance, vidoInstance, props);
-            const upd = component(vidoInstance, props);
-            function publicComponentMethods() {
-                this.instance = instance;
-                this.vidoInstance = vidoInstance;
-                this.lastProps = props;
-            }
-            publicComponentMethods.prototype.destroy = function methodDestroy() {
-                if (vidoInstance.debug) {
-                    console.groupCollapsed(`component destroy method fired ${instance}`);
-                    console.log(clone({ props, components: components.keys(), destroyable, actionsByInstance }));
-                    console.trace();
-                    console.groupEnd();
-                }
-                for (const d of destroyable) {
-                    d();
-                }
-                onChangeFunctions = [];
-                destroyable = [];
-            };
-            publicComponentMethods.prototype.update = function methodUpdate(props = {}) {
-                if (vidoInstance.debug) {
-                    console.groupCollapsed(`component update method fired ${instance}`);
-                    console.log(clone({ components: components.keys(), actionsByInstance }));
-                    console.trace();
-                    console.groupEnd();
-                }
-                return upd(props);
-            };
-            publicComponentMethods.prototype.change = function methodChange(changedProps = {}) {
-                props = changedProps;
-                if (vidoInstance.debug) {
-                    console.groupCollapsed(`component change method fired ${instance}`);
-                    console.log(clone({ props, components: components.keys(), onChangeFunctions, changedProps, actionsByInstance }));
-                    console.trace();
-                    console.groupEnd();
-                }
-                for (const fn of onChangeFunctions) {
-                    fn(changedProps);
-                }
-            };
-            const methods = new publicComponentMethods();
-            components.set(instance, methods);
+            const publicMethods = new PublicComponentMethods(instance, vidoInstance, props);
+            const internalMethods = new InternalComponentMethods(instance, vidoInstance, component(vidoInstance, props));
+            components.set(instance, internalMethods);
             components.get(instance).change(props);
             if (vidoInstance.debug) {
                 console.groupCollapsed(`component created ${instance}`);
@@ -2577,7 +2600,7 @@
                 console.trace();
                 console.groupEnd();
             }
-            return componentInstanceMethods;
+            return publicMethods;
         };
         /**
          * Destroy component
@@ -2658,11 +2681,16 @@
                                 console.groupEnd();
                             }
                             if (typeof result !== 'undefined') {
-                                if (typeof result.update === 'function') {
-                                    action.componentAction.update = result.update;
+                                if (typeof result === 'function') {
+                                    action.componentAction.destroy = result;
                                 }
-                                if (typeof result.destroy === 'function') {
-                                    action.componentAction.destroy = result.destroy;
+                                else {
+                                    if (typeof result.update === 'function') {
+                                        action.componentAction.update = result.update;
+                                    }
+                                    if (typeof result.destroy === 'function') {
+                                        action.componentAction.destroy = result.destroy;
+                                    }
                                 }
                             }
                         }
@@ -3663,7 +3691,7 @@
          * Update class names
          * @param {object} classNames
          */
-        function updateClassNames(classNames) {
+        const updateClassNames = classNames => {
             const config = state.get('config');
             className = api.getClass(componentName, { config });
             if (resizerActive) {
@@ -3671,12 +3699,12 @@
             }
             classNameVerticalScroll = api.getClass('vertical-scroll', { config });
             update();
-        }
+        };
         onDestroy(state.subscribe('config.classNames', updateClassNames));
         /**
          * Height change
          */
-        function heightChange() {
+        const heightChange = () => {
             const config = state.get('config');
             const scrollBarHeight = state.get('_internal.scrollBarHeight');
             const height = config.height - config.headerHeight - scrollBarHeight;
@@ -3684,27 +3712,27 @@
             style = `--height: ${config.height}px`;
             styleVerticalScroll = `height: ${height}px; width: ${scrollBarHeight}px; margin-top: ${config.headerHeight}px;`;
             update();
-        }
+        };
         onDestroy(state.subscribeAll(['config.height', 'config.headerHeight', '_internal.scrollBarHeight'], heightChange));
         /**
          * Resizer active change
          * @param {boolean} active
          */
-        function resizerActiveChange(active) {
+        const resizerActiveChange = active => {
             resizerActive = active;
             className = api.getClass(api.name);
             if (resizerActive) {
                 className += ` ${api.name}__list-column-header-resizer--active`;
             }
             update();
-        }
+        };
         onDestroy(state.subscribe('_internal.list.columns.resizer.active', resizerActiveChange));
         /**
          * Generate tree
          * @param {object} bulk
          * @param {object} eventInfo
          */
-        function generateTree(bulk, eventInfo) {
+        const generateTree = (bulk, eventInfo) => {
             if (state.get('_internal.flatTreeMap').length && eventInfo.type === 'subscribe') {
                 return;
             }
@@ -3724,24 +3752,24 @@
             state.update('_internal.flatTreeMapById', api.getFlatTreeMapById(treeMap));
             state.update('_internal.flatTreeMap', api.flattenTreeMap(treeMap));
             update();
-        }
+        };
         onDestroy(state.subscribeAll(['config.list.rows;', 'config.chart.items;', 'config.list.rows.*.parentId', 'config.chart.items.*.rowId'], generateTree, { bulk: true }));
         /**
          * Prepare expanded
          */
-        function prepareExpanded() {
+        const prepareExpanded = () => {
             const configRows = state.get('config.list.rows');
             const rowsWithParentsExpanded = api.getRowsFromIds(api.getRowsWithParentsExpanded(state.get('_internal.flatTreeMap'), state.get('_internal.flatTreeMapById'), configRows), configRows);
             rowsHeight = api.getRowsHeight(rowsWithParentsExpanded);
             state.update('_internal.list.rowsHeight', rowsHeight);
             state.update('_internal.list.rowsWithParentsExpanded', rowsWithParentsExpanded);
             update();
-        }
+        };
         onDestroy(state.subscribeAll(['config.list.rows.*.expanded', '_internal.treeMap;'], prepareExpanded, { bulk: true }));
         /**
          * Generate visible rows
          */
-        function generateVisibleRows() {
+        const generateVisibleRows = () => {
             const { visibleRows, compensation } = api.getVisibleRowsAndCompensation(state.get('_internal.list.rowsWithParentsExpanded'));
             const current = state.get('_internal.list.visibleRows');
             let shouldUpdate = true;
@@ -3765,13 +3793,13 @@
                 state.update('_internal.chart.visibleItems', visibleItems);
             }
             update();
-        }
+        };
         onDestroy(state.subscribeAll(['_internal.list.rowsWithParentsExpanded', 'config.scroll.top'], generateVisibleRows));
         let elementScrollTop = 0;
         /**
          * On visible rows change
          */
-        function onVisibleRowsChange() {
+        const onVisibleRowsChange = () => {
             const top = state.get('config.scroll.top');
             styleVerticalScrollArea = `height: ${rowsHeight}px; width: 1px`;
             if (elementScrollTop !== top && verticalScrollBarElement) {
@@ -3779,14 +3807,14 @@
                 verticalScrollBarElement.scrollTop = top;
             }
             update();
-        }
+        };
         onDestroy(state.subscribe('_internal.list.visibleRows;', onVisibleRowsChange));
         /**
          * Generate and add period dates
          * @param {string} period
          * @param {object} internalTime
          */
-        function generateAndAddPeriodDates(period, internalTime) {
+        const generateAndAddPeriodDates = (period, internalTime) => {
             const dates = [];
             let leftGlobal = internalTime.leftGlobal;
             const rightGlobal = internalTime.rightGlobal;
@@ -3820,11 +3848,11 @@
             }
             internalTime.maxWidth[period] = maxWidth;
             internalTime.dates[period] = dates;
-        }
+        };
         /**
          * Recalculate times action
          */
-        function recalculateTimes() {
+        const recalculateTimes = () => {
             const chartWidth = state.get('_internal.chart.dimensions.width');
             let time = api.mergeDeep({}, state.get('config.chart.time'));
             time = api.time.recalculateFromTo(time);
@@ -3861,7 +3889,7 @@
             generateAndAddPeriodDates('month', time);
             state.update(`_internal.chart.time`, time);
             update();
-        }
+        };
         onDestroy(state.subscribeAll([
             'config.chart.time',
             '_internal.dimensions.width',
@@ -3876,7 +3904,7 @@
          * Handle scroll Event
          * @param {MouseEvent} event
          */
-        function handleEvent(event) {
+        const handleEvent = (event) => {
             // @ts-ignore
             const top = event.target.scrollTop;
             /**
@@ -3884,7 +3912,7 @@
              * @param {object} scroll
              * @returns {object} scroll
              */
-            function handleOnScroll(scroll) {
+            const handleOnScroll = scroll => {
                 scroll.top = top;
                 scrollTop = scroll.top;
                 const scrollInner = state.get('_internal.elements.vertical-scroll-inner');
@@ -3893,12 +3921,12 @@
                     scroll.percent.top = scroll.top / scrollHeight;
                 }
                 return scroll;
-            }
+            };
             if (scrollTop !== top)
                 state.update('config.scroll', handleOnScroll, {
                     only: ['top', 'percent.top']
                 });
-        }
+        };
         const onScroll = {
             handleEvent: schedule(handleEvent),
             passive: true,
@@ -3908,17 +3936,17 @@
          * Stop scroll / wheel to sink into parent elements
          * @param {Event} event
          */
-        function onScrollStop(event) {
+        const onScrollStop = (event) => {
             event.stopPropagation();
             event.preventDefault();
-        }
+        };
         const dimensions = { width: 0, height: 0 };
         let ro;
         /**
          * Resize action
          * @param {Element} element
          */
-        function resizeAction(element) {
+        const resizeAction = (element) => {
             if (!ro) {
                 ro = new index((entries, observer) => {
                     const width = element.clientWidth;
@@ -3932,7 +3960,7 @@
                 ro.observe(element);
                 state.update('_internal.elements.main', element);
             }
-        }
+        };
         if (!componentActions.includes(resizeAction)) {
             componentActions.push(resizeAction);
         }
@@ -3943,21 +3971,20 @@
          * Bind scroll element
          * @param {Element} element
          */
-        function bindScrollElement(element) {
+        const bindScrollElement = (element) => {
             if (!verticalScrollBarElement) {
                 verticalScrollBarElement = element;
                 state.update('_internal.elements.vertical-scroll', element);
             }
-        }
+        };
         /**
          * Bind scroll inner element
          * @param {Element} element
          */
-        function bindScrollInnerElement(element) {
+        const bindScrollInnerElement = (element) => {
             state.update('_internal.elements.vertical-scroll-inner', element);
-        }
-        return function updateTemplate(templateProps) {
-            return wrapper(html `
+        };
+        return templateProps => wrapper(html `
         <div
           class=${className}
           style=${style}
@@ -3976,7 +4003,6 @@
           </div>
         </div>
       `, { props, vido, templateProps });
-        };
     }
 
     /**
@@ -4439,7 +4465,7 @@
         }));
         if (props.row) {
             let parentSub;
-            function onPropsChange(changedProps) {
+            const onPropsChange = changedProps => {
                 props = changedProps;
                 if (parentSub)
                     parentSub();
@@ -4449,7 +4475,7 @@
                     update();
                 });
                 ListToggle.change(props);
-            }
+            };
             onChange(onPropsChange);
             onDestroy(function listExpanderDestroy() {
                 if (parentSub)
@@ -4460,14 +4486,12 @@
             width = 'width:0px';
             children = [];
         }
-        return function updateTemplate(templateProps) {
-            return wrapper(html `
+        return templateProps => wrapper(html `
         <div class=${className} data-action=${actions(componentActions, { row: props.row, api, state })}>
           <div class=${paddingClass} style=${width}></div>
           ${children.length || !props.row ? ListToggle.html() : ''}
         </div>
       `, { vido, props, templateProps });
-        };
     }
 
     /**
@@ -4608,7 +4632,7 @@
             styleScrollInner = `width: ${state.get('_internal.chart.time.totalViewDurationPx')}px; height:1px`;
             update();
         }));
-        function handleEvent(event) {
+        const handleEvent = event => {
             let scrollLeft, scrollTop;
             if (event.type === 'scroll') {
                 state.update('config.scroll.left', event.target.scrollLeft);
@@ -4646,7 +4670,7 @@
                 }
                 state.update('config.scroll.percent.left', percent);
             }
-        }
+        };
         const onScroll = {
             handleEvent: schedule(handleEvent),
             passive: true,
@@ -4657,15 +4681,15 @@
             passive: true,
             capture: false
         };
-        function bindElement(element) {
+        const bindElement = element => {
             if (!scrollElement) {
                 scrollElement = element;
                 state.update('_internal.elements.horizontal-scroll', element);
             }
-        }
-        function bindInnerScroll(element) {
+        };
+        const bindInnerScroll = element => {
             state.update('_internal.elements.horizontal-scroll-inner', element);
-        }
+        };
         let chartWidth = 0;
         let ro;
         componentActions.push(element => {
@@ -4686,8 +4710,7 @@
         onDestroy(() => {
             ro.disconnect();
         });
-        return function updateTemplate(templateProps) {
-            return wrapper(html `
+        return templateProps => wrapper(html `
         <div class=${className} data-actions=${actions(componentActions, { api, state })} @wheel=${onWheel}>
           ${Calendar.html()}${Timeline.html()}
           <div class=${classNameScroll} style=${styleScroll} data-actions=${actions([bindElement])} @scroll=${onScroll}>
@@ -4695,7 +4718,6 @@
           </div>
         </div>
       `, { vido, props: {}, templateProps });
-        };
     }
 
     /**
@@ -5138,13 +5160,6 @@
             className = api.getClass(componentName);
             update();
         }));
-        let style, width;
-        onDestroy(state.subscribeAll(['_internal.height', '_internal.chart.dimensions.width'], function widthHeightChange() {
-            width = state.get('_internal.chart.dimensions.width');
-            const height = state.get('_internal.height');
-            style = `height: ${height}px; width: ${width}px;`;
-            update();
-        }));
         let period;
         onDestroy(state.subscribe('config.chart.time.period', value => (period = value)));
         let onBlockCreate;
@@ -5152,15 +5167,20 @@
         let rowsComponents = [];
         const rowsWithBlocks = [];
         const formatCache = new Map();
+        let style;
         /**
          * Generate blocks
          */
-        function generateBlocks() {
-            const visibleRows = state.get('_internal.list.visibleRows');
+        const generateBlocks = () => {
+            const width = state.get('_internal.chart.dimensions.width');
+            const height = state.get('_internal.height');
             const periodDates = state.get(`_internal.chart.time.dates.${period}`);
+            const visibleRows = state.get('_internal.list.visibleRows');
             if (!periodDates || periodDates.length === 0) {
                 return;
             }
+            const compensation = periodDates[0].subPx;
+            style = `height: ${height}px; width: ${width}px; transform: translate(-${compensation}px, 0px);`;
             let top = 0;
             rowsWithBlocks.length = 0;
             for (const row of visibleRows) {
@@ -5185,20 +5205,25 @@
                 top += row.height;
             }
             state.update('_internal.chart.grid.rowsWithBlocks', rowsWithBlocks);
-        }
-        onDestroy(state.subscribeAll(['_internal.list.visibleRows;', `_internal.chart.time.dates.${period};`], generateBlocks, {
+        };
+        onDestroy(state.subscribeAll([
+            '_internal.list.visibleRows;',
+            `_internal.chart.time.dates.${period};`,
+            '_internal.height',
+            '_internal.chart.dimensions.width'
+        ], generateBlocks, {
             bulk: true
         }));
         /**
          * Generate rows components
          * @param {array} rowsWithBlocks
          */
-        function generateRowsComponents(rowsWithBlocks) {
+        const generateRowsComponents = rowsWithBlocks => {
             if (rowsWithBlocks) {
                 reuseComponents(rowsComponents, rowsWithBlocks, row => row, GridRowComponent);
                 update();
             }
-        }
+        };
         onDestroy(state.subscribe('_internal.chart.grid.rowsWithBlocks', generateRowsComponents));
         /**
          * Bind element
@@ -5213,13 +5238,11 @@
         onDestroy(() => {
             rowsComponents.forEach(row => row.destroy());
         });
-        return function updateTemplate(templateProps) {
-            return wrapper(html `
+        return templateProps => wrapper(html `
         <div class=${className} data-actions=${actions(componentActions, { api, state })} style=${style}>
           ${rowsComponents.map(r => r.html())}
         </div>
       `, { props, vido, templateProps });
-        };
     }
 
     /**
@@ -5267,40 +5290,36 @@
         let className = api.getClass(componentName);
         let style;
         let rowsBlocksComponents = [];
-        function onPropsChange(changedProps) {
+        const onPropsChange = (changedProps, options) => {
             props = changedProps;
             reuseComponents(rowsBlocksComponents, props.blocks, block => block, GridBlockComponent);
-            let compensation = 0;
-            if (props.blocks.length) {
-                compensation = props.blocks[0].time.subPx;
-            }
-            style = `height: ${props.row.height}px; width: ${props.width}px; transform: translate(-${compensation}px, 0px)`;
+            style = `height: ${props.row.height}px; width: ${props.width}px;`;
+            if (options.leave)
+                style += 'visibility: hidden;';
             update();
-        }
+        };
         onChange(onPropsChange);
-        onDestroy(function rowDestroy() {
+        onDestroy(() => {
             rowsBlocksComponents.forEach(rowBlock => rowBlock.destroy());
         });
         if (componentActions.indexOf(bindElementAction) === -1) {
             componentActions.push(bindElementAction);
         }
-        return function updateTemplate(templateProps) {
-            return wrapper(html `
+        return templateProps => wrapper(html `
         <div
           class=${className}
           data-actions=${actions(componentActions, {
-            row: props.row,
-            blocks: props.blocks,
-            top: props.top,
-            api,
-            state
-        })}
+        row: props.row,
+        blocks: props.blocks,
+        top: props.top,
+        api,
+        state
+    })}
           style=${style}
         >
           ${rowsBlocksComponents.map(r => r.html())}
         </div>
       `, { vido, props, templateProps });
-        };
     }
 
     /**
@@ -5318,7 +5337,7 @@
      * @param {any} data
      * @returns {object} with update and destroy
      */
-    function bindElementAction$1(element, data) {
+    const bindElementAction$1 = (element, data) => {
         data.state.update('_internal.elements.chart-timeline-grid-row-blocks', blocks => {
             if (typeof blocks === 'undefined') {
                 blocks = [];
@@ -5326,16 +5345,13 @@
             blocks.push(element);
             return blocks;
         }, { only: null });
-        return {
-            update() { },
-            destroy(element) {
-                data.state.update('_internal.elements.chart-timeline-grid-row-blocks', blocks => {
-                    return blocks.filter(el => el !== element);
-                });
-            }
+        return element => {
+            data.state.update('_internal.elements.chart-timeline-grid-row-blocks', blocks => {
+                return blocks.filter(el => el !== element);
+            }, { only: [''] });
         };
-    }
-    function ChartTimelineGridRowBlock(vido, props) {
+    };
+    const ChartTimelineGridRowBlock = (vido, props) => {
         const { api, state, onDestroy, actions, update, html, onChange } = vido;
         const componentName = 'chart-timeline-grid-row-block';
         const componentActions = api.getActions(componentName);
@@ -5349,20 +5365,20 @@
             .startOf('day')
             .valueOf();
         let className, classNameContent;
-        function updateClassName(time) {
+        const updateClassName = time => {
             className = api.getClass(componentName);
             classNameContent = className + '-content';
             if (time.leftGlobal === currentTime) {
                 className += ' current';
             }
-        }
+        };
         updateClassName(props.time);
         let style = `width: ${props.time.width}px;height: ${props.row.height}px;`;
         /**
          * On props change
          * @param {any} changedProps
          */
-        function onPropsChange(changedProps) {
+        const onPropsChange = changedProps => {
             props = changedProps;
             updateClassName(props.time);
             style = `width: ${props.time.width}px; height: ${props.row.height}px;`;
@@ -5381,17 +5397,17 @@
                 style += props.row.style.gridBlock.current;
             }
             update();
-        }
+        };
         onChange(onPropsChange);
         if (componentActions.indexOf(bindElementAction$1) === -1) {
             componentActions.push(bindElementAction$1);
         }
-        return () => wrapper(html `
+        return templateProps => wrapper(html `
         <div class=${className} data-actions=${actions(componentActions, Object.assign(Object.assign({}, props), { api, state }))} style=${style}>
           <div class=${classNameContent} />
         </div>
-      `, { props, vido, templateProps: props });
-    }
+      `, { props, vido, templateProps });
+    };
 
     /**
      * ChartTimelineItems component
@@ -5415,31 +5431,29 @@
             update();
         }));
         let style;
-        function calculateStyle() {
+        const calculateStyle = () => {
             const width = state.get('_internal.chart.dimensions.width');
             const height = state.get('_internal.height');
             style = `width: ${width}px; height: ${height}px;`;
-        }
+        };
         onDestroy(state.subscribeAll(['_internal.height', '_internal.chart.dimensions.width'], calculateStyle));
         let rowsComponents = [];
-        function createRowComponents() {
+        const createRowComponents = () => {
             const visibleRows = state.get('_internal.list.visibleRows');
             rowsComponents = reuseComponents(rowsComponents, visibleRows, row => ({ row }), ItemsRowComponent);
             update();
-        }
+        };
         onDestroy(state.subscribeAll(['_internal.list.visibleRows', 'config.chart.items', 'config.list.rows'], createRowComponents, {
             bulk: true
         }));
         onDestroy(function destroyRows() {
             rowsComponents.forEach(row => row.destroy());
         });
-        return function updateTemplate(templateProps) {
-            return wrapper(html `
+        return templateProps => wrapper(html `
         <div class=${className} style=${style} data-actions=${actions(componentActions, { api, state })}>
           ${rowsComponents.map(r => r.html())}
         </div>
       `, { props, vido, templateProps });
-        };
     }
 
     /**
@@ -5457,7 +5471,7 @@
      * @param {any} data
      * @returns {object} with update and destroy
      */
-    function bindElementAction$2(element, data) {
+    const bindElementAction$2 = (element, data) => {
         data.state.update('_internal.elements.chart-timeline-items-rows', rows => {
             if (typeof rows === 'undefined') {
                 rows = [];
@@ -5473,8 +5487,8 @@
                 });
             }
         };
-    }
-    function ChartTimelineItemsRow(vido, props) {
+    };
+    const ChartTimelineItemsRow = (vido, props) => {
         const { api, state, onDestroy, actions, update, html, onChange, reuseComponents } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRow', value => (wrapper = value)));
@@ -5488,7 +5502,7 @@
             style = `width:${chart.dimensions.width}px; height:${props.row.height}px; --row-height:${props.row.height}px;`;
             styleInner = `width: ${chart.time.totalViewDurationPx}px; height: ${props.row.height}px;`;
         }
-        function updateRow(row) {
+        const updateRow = row => {
             itemsPath = `_internal.flatTreeMapById.${row.id}._internal.items`;
             if (typeof rowSub === 'function') {
                 rowSub();
@@ -5505,17 +5519,17 @@
                 updateDom();
                 update();
             });
-        }
+        };
         /**
          * On props change
          * @param {any} changedProps
          */
-        function onPropsChange(changedProps) {
+        const onPropsChange = changedProps => {
             props = changedProps;
             updateRow(props.row);
-        }
+        };
         onChange(onPropsChange);
-        onDestroy(function destroyRow() {
+        onDestroy(() => {
             itemsSub();
             rowSub();
             itemComponents.forEach(item => item.destroy());
@@ -5532,16 +5546,14 @@
         if (!componentActions.includes(bindElementAction$2)) {
             componentActions.push(bindElementAction$2);
         }
-        return function updateTemplate(templateProps) {
-            return wrapper(html `
+        return templateProps => wrapper(html `
         <div class=${className} data-actions=${actions(componentActions, Object.assign(Object.assign({}, props), { api, state }))} style=${style}>
           <div class=${classNameInner} style=${styleInner}>
             ${itemComponents.map(i => i.html())}
           </div>
         </div>
       `, { props, vido, templateProps });
-        };
-    }
+    };
 
     /**
      * ChartTimelineItemsRowItem component
@@ -5558,7 +5570,7 @@
      * @param {any} data
      * @returns {object} with update and destroy
      */
-    function bindElementAction$3(element, data) {
+    const bindElementAction$3 = (element, data) => {
         data.state.update('_internal.elements.chart-timeline-items-row-items', function updateRowItems(items) {
             if (typeof items === 'undefined') {
                 items = [];
@@ -5574,13 +5586,13 @@
                 });
             }
         };
-    }
-    function ChartTimelineItemsRowItem(vido, props) {
+    };
+    const ChartTimelineItemsRowItem = (vido, props) => {
         const { api, state, onDestroy, actions, update, html, onChange } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
         let style, contentStyle, itemLeftPx = 0, itemWidthPx = 0;
-        function updateItem() {
+        const updateItem = () => {
             contentStyle = '';
             let time = state.get('_internal.chart.time');
             itemLeftPx = (props.item.time.start - time.leftGlobal) / time.timePerPixel;
@@ -5593,11 +5605,11 @@
                 }
             }
             update();
-        }
-        function onPropsChange(changedProps) {
+        };
+        const onPropsChange = changedProps => {
             props = changedProps;
             updateItem();
-        }
+        };
         onChange(onPropsChange);
         const componentName = 'chart-timeline-items-row-item';
         const componentActions = api.getActions(componentName);
@@ -5634,7 +5646,7 @@
         </div>
       `, { vido, props, templateProps });
         };
-    }
+    };
 
     /**
      * Gantt-Schedule-Timeline-Calendar
@@ -6942,7 +6954,7 @@
          */
         getVisibleRowsAndCompensation(rowsWithParentsExpanded) {
           const visibleRows = [];
-          let currentChartOffset = 0;
+          let currentRowsOffset = 0;
           let rowOffset = 0;
           const scrollTop = state.get('config.scroll.top');
           const height = state.get('_internal.height');
@@ -6950,14 +6962,14 @@
           let compensation = 0;
           for (const row of rowsWithParentsExpanded) {
             chartViewBottom = scrollTop + height;
-            if (currentChartOffset + row.height > scrollTop && currentChartOffset < chartViewBottom) {
+            if (currentRowsOffset + row.height >= scrollTop && currentRowsOffset <= chartViewBottom) {
               row.top = rowOffset;
-              compensation = row.top + scrollTop - currentChartOffset;
+              compensation = row.top + scrollTop - currentRowsOffset;
               rowOffset += row.height;
               visibleRows.push(row);
             }
-            currentChartOffset += row.height;
-            if (currentChartOffset >= chartViewBottom) {
+            currentRowsOffset += row.height;
+            if (currentRowsOffset >= chartViewBottom) {
               break;
             }
           }

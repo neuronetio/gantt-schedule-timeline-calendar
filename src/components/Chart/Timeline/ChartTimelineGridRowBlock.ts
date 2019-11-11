@@ -14,7 +14,8 @@
  * @param {any} data
  * @returns {object} with update and destroy
  */
-function bindElementAction(element, data) {
+
+const bindElementAction = (element, data) => {
   data.state.update(
     '_internal.elements.chart-timeline-grid-row-blocks',
     blocks => {
@@ -26,22 +27,24 @@ function bindElementAction(element, data) {
     },
     { only: null }
   );
-  return {
-    update() {},
-    destroy(element) {
-      data.state.update('_internal.elements.chart-timeline-grid-row-blocks', blocks => {
+
+  return element => {
+    data.state.update(
+      '_internal.elements.chart-timeline-grid-row-blocks',
+      blocks => {
         return blocks.filter(el => el !== element);
-      });
-    }
+      },
+      { only: [''] }
+    );
   };
-}
+};
 
 interface Props {
   row: any;
   time: any;
 }
 
-export default function ChartTimelineGridRowBlock(vido, props: Props) {
+const ChartTimelineGridRowBlock = (vido, props: Props) => {
   const { api, state, onDestroy, actions, update, html, onChange } = vido;
   const componentName = 'chart-timeline-grid-row-block';
   const componentActions = api.getActions(componentName);
@@ -59,20 +62,20 @@ export default function ChartTimelineGridRowBlock(vido, props: Props) {
     .startOf('day')
     .valueOf();
   let className, classNameContent;
-  function updateClassName(time) {
+  const updateClassName = time => {
     className = api.getClass(componentName);
     classNameContent = className + '-content';
     if (time.leftGlobal === currentTime) {
       className += ' current';
     }
-  }
+  };
   updateClassName(props.time);
   let style = `width: ${props.time.width}px;height: ${props.row.height}px;`;
   /**
    * On props change
    * @param {any} changedProps
    */
-  function onPropsChange(changedProps) {
+  const onPropsChange = changedProps => {
     props = changedProps;
     updateClassName(props.time);
     style = `width: ${props.time.width}px; height: ${props.row.height}px;`;
@@ -95,20 +98,21 @@ export default function ChartTimelineGridRowBlock(vido, props: Props) {
       style += props.row.style.gridBlock.current;
     }
     update();
-  }
+  };
   onChange(onPropsChange);
 
   if (componentActions.indexOf(bindElementAction) === -1) {
     componentActions.push(bindElementAction);
   }
 
-  return () =>
+  return templateProps =>
     wrapper(
       html`
         <div class=${className} data-actions=${actions(componentActions, { ...props, api, state })} style=${style}>
           <div class=${classNameContent} />
         </div>
       `,
-      { props, vido, templateProps: props }
+      { props, vido, templateProps }
     );
-}
+};
+export default ChartTimelineGridRowBlock;

@@ -61,7 +61,7 @@ export default function Chart(vido, props = {}) {
     )
   );
 
-  function handleEvent(event) {
+  const handleEvent = event => {
     let scrollLeft, scrollTop;
     if (event.type === 'scroll') {
       state.update('config.scroll.left', event.target.scrollLeft);
@@ -95,7 +95,7 @@ export default function Chart(vido, props = {}) {
       }
       state.update('config.scroll.percent.left', percent);
     }
-  }
+  };
 
   const onScroll = {
     handleEvent: schedule(handleEvent),
@@ -109,16 +109,16 @@ export default function Chart(vido, props = {}) {
     capture: false
   };
 
-  function bindElement(element) {
+  const bindElement = element => {
     if (!scrollElement) {
       scrollElement = element;
       state.update('_internal.elements.horizontal-scroll', element);
     }
-  }
+  };
 
-  function bindInnerScroll(element) {
+  const bindInnerScroll = element => {
     state.update('_internal.elements.horizontal-scroll-inner', element);
-  }
+  };
 
   let chartWidth = 0;
   let ro;
@@ -142,8 +142,8 @@ export default function Chart(vido, props = {}) {
     ro.disconnect();
   });
 
-  return function updateTemplate(templateProps) {
-    return wrapper(
+  return templateProps =>
+    wrapper(
       html`
         <div class=${className} data-actions=${actions(componentActions, { api, state })} @wheel=${onWheel}>
           ${Calendar.html()}${Timeline.html()}
@@ -154,5 +154,4 @@ export default function Chart(vido, props = {}) {
       `,
       { vido, props: {}, templateProps }
     );
-  };
 }

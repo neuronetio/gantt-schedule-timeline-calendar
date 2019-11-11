@@ -25,18 +25,18 @@ export default function ChartTimelineItems(vido, props = {}) {
     })
   );
   let style;
-  function calculateStyle() {
+  const calculateStyle = () => {
     const width = state.get('_internal.chart.dimensions.width');
     const height = state.get('_internal.height');
     style = `width: ${width}px; height: ${height}px;`;
-  }
+  };
   onDestroy(state.subscribeAll(['_internal.height', '_internal.chart.dimensions.width'], calculateStyle));
   let rowsComponents = [];
-  function createRowComponents() {
+  const createRowComponents = () => {
     const visibleRows = state.get('_internal.list.visibleRows');
     rowsComponents = reuseComponents(rowsComponents, visibleRows, row => ({ row }), ItemsRowComponent);
     update();
-  }
+  };
   onDestroy(
     state.subscribeAll(['_internal.list.visibleRows', 'config.chart.items', 'config.list.rows'], createRowComponents, {
       bulk: true
@@ -47,8 +47,8 @@ export default function ChartTimelineItems(vido, props = {}) {
     rowsComponents.forEach(row => row.destroy());
   });
 
-  return function updateTemplate(templateProps) {
-    return wrapper(
+  return templateProps =>
+    wrapper(
       html`
         <div class=${className} style=${style} data-actions=${actions(componentActions, { api, state })}>
           ${rowsComponents.map(r => r.html())}
@@ -56,5 +56,4 @@ export default function ChartTimelineItems(vido, props = {}) {
       `,
       { props, vido, templateProps }
     );
-  };
 }

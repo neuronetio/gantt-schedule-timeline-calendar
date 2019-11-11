@@ -14,7 +14,7 @@
  * @param {any} data
  * @returns {object} with update and destroy
  */
-function bindElementAction(element, data) {
+const bindElementAction = (element, data) => {
   data.state.update(
     '_internal.elements.chart-timeline-items-rows',
     rows => {
@@ -34,9 +34,9 @@ function bindElementAction(element, data) {
       });
     }
   };
-}
+};
 
-export default function ChartTimelineItemsRow(vido, props) {
+const ChartTimelineItemsRow = (vido, props) => {
   const { api, state, onDestroy, actions, update, html, onChange, reuseComponents } = vido;
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRow', value => (wrapper = value)));
@@ -59,7 +59,7 @@ export default function ChartTimelineItemsRow(vido, props) {
     }
   }
 
-  function updateRow(row) {
+  const updateRow = row => {
     itemsPath = `_internal.flatTreeMapById.${row.id}._internal.items`;
 
     if (typeof rowSub === 'function') {
@@ -79,19 +79,19 @@ export default function ChartTimelineItemsRow(vido, props) {
       updateDom();
       update();
     });
-  }
+  };
 
   /**
    * On props change
    * @param {any} changedProps
    */
-  function onPropsChange(changedProps) {
+  const onPropsChange = changedProps => {
     props = changedProps;
     updateRow(props.row);
-  }
+  };
   onChange(onPropsChange);
 
-  onDestroy(function destroyRow() {
+  onDestroy(() => {
     itemsSub();
     rowSub();
     itemComponents.forEach(item => item.destroy());
@@ -113,8 +113,8 @@ export default function ChartTimelineItemsRow(vido, props) {
     componentActions.push(bindElementAction);
   }
 
-  return function updateTemplate(templateProps) {
-    return wrapper(
+  return templateProps =>
+    wrapper(
       html`
         <div class=${className} data-actions=${actions(componentActions, { ...props, api, state })} style=${style}>
           <div class=${classNameInner} style=${styleInner}>
@@ -124,5 +124,6 @@ export default function ChartTimelineItemsRow(vido, props) {
       `,
       { props, vido, templateProps }
     );
-  };
-}
+};
+
+export default ChartTimelineItemsRow;

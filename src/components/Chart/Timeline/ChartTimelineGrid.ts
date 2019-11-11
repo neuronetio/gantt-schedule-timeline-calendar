@@ -26,16 +26,6 @@ export default function ChartTimelineGrid(vido, props) {
     })
   );
 
-  let style, width;
-  onDestroy(
-    state.subscribeAll(['_internal.height', '_internal.chart.dimensions.width'], function widthHeightChange() {
-      width = state.get('_internal.chart.dimensions.width');
-      const height = state.get('_internal.height');
-      style = `height: ${height}px; width: ${width}px;`;
-      update();
-    })
-  );
-
   let period;
   onDestroy(state.subscribe('config.chart.time.period', value => (period = value)));
   let onBlockCreate;
@@ -44,15 +34,21 @@ export default function ChartTimelineGrid(vido, props) {
   let rowsComponents = [];
   const rowsWithBlocks = [];
   const formatCache = new Map();
+  let style;
   /**
    * Generate blocks
    */
-  function generateBlocks() {
-    const visibleRows = state.get('_internal.list.visibleRows');
+  const generateBlocks = () => {
+    const width = state.get('_internal.chart.dimensions.width');
+    const height = state.get('_internal.height');
     const periodDates = state.get(`_internal.chart.time.dates.${period}`);
+    const visibleRows = state.get('_internal.list.visibleRows');
     if (!periodDates || periodDates.length === 0) {
       return;
     }
+    const compensation = periodDates[0].subPx;
+    style = `height: ${height}px; width: ${width}px; transform: translate(-${compensation}px, 0px);`;
+
     let top = 0;
     rowsWithBlocks.length = 0;
     for (const row of visibleRows) {
@@ -76,23 +72,32 @@ export default function ChartTimelineGrid(vido, props) {
       top += row.height;
     }
     state.update('_internal.chart.grid.rowsWithBlocks', rowsWithBlocks);
-  }
+  };
   onDestroy(
-    state.subscribeAll(['_internal.list.visibleRows;', `_internal.chart.time.dates.${period};`], generateBlocks, {
-      bulk: true
-    })
+    state.subscribeAll(
+      [
+        '_internal.list.visibleRows;',
+        `_internal.chart.time.dates.${period};`,
+        '_internal.height',
+        '_internal.chart.dimensions.width'
+      ],
+      generateBlocks,
+      {
+        bulk: true
+      }
+    )
   );
 
   /**
    * Generate rows components
    * @param {array} rowsWithBlocks
    */
-  function generateRowsComponents(rowsWithBlocks) {
+  const generateRowsComponents = rowsWithBlocks => {
     if (rowsWithBlocks) {
       reuseComponents(rowsComponents, rowsWithBlocks, row => row, GridRowComponent);
       update();
     }
-  }
+  };
   onDestroy(state.subscribe('_internal.chart.grid.rowsWithBlocks', generateRowsComponents));
 
   /**
@@ -110,8 +115,8 @@ export default function ChartTimelineGrid(vido, props) {
     rowsComponents.forEach(row => row.destroy());
   });
 
-  return function updateTemplate(templateProps) {
-    return wrapper(
+  return templateProps =>
+    wrapper(
       html`
         <div class=${className} data-actions=${actions(componentActions, { api, state })} style=${style}>
           ${rowsComponents.map(r => r.html())}
@@ -119,5 +124,4 @@ export default function ChartTimelineGrid(vido, props) {
       `,
       { props, vido, templateProps }
     );
-  };
 }

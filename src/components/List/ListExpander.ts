@@ -42,7 +42,7 @@ export default function ListExpander(vido, props) {
   );
   if (props.row) {
     let parentSub;
-    function onPropsChange(changedProps) {
+    const onPropsChange = changedProps => {
       props = changedProps;
       if (parentSub) parentSub();
       parentSub = state.subscribe(`_internal.list.rows.${props.row.id}.parentId`, function parentChanged(parentId) {
@@ -51,7 +51,7 @@ export default function ListExpander(vido, props) {
         update();
       });
       ListToggle.change(props);
-    }
+    };
     onChange(onPropsChange);
     onDestroy(function listExpanderDestroy() {
       if (parentSub) parentSub();
@@ -61,8 +61,8 @@ export default function ListExpander(vido, props) {
     children = [];
   }
 
-  return function updateTemplate(templateProps) {
-    return wrapper(
+  return templateProps =>
+    wrapper(
       html`
         <div class=${className} data-action=${actions(componentActions, { row: props.row, api, state })}>
           <div class=${paddingClass} style=${width}></div>
@@ -71,5 +71,4 @@ export default function ListExpander(vido, props) {
       `,
       { vido, props, templateProps }
     );
-  };
 }
