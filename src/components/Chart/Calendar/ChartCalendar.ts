@@ -49,7 +49,7 @@ export default function ChartCalendar(vido, props) {
         reuseComponents(
           dayComponents,
           dates.day,
-          date => ({ period: 'day', date, currentDate }),
+          date => date && { period: 'day', date, currentDate },
           ChartCalendarDateComponent
         );
       }
@@ -57,7 +57,7 @@ export default function ChartCalendar(vido, props) {
         reuseComponents(
           monthComponents,
           dates.month,
-          date => ({ period: 'month', date, currentDate }),
+          date => date && { period: 'month', date, currentDate },
           ChartCalendarDateComponent
         );
       }

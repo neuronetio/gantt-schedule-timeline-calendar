@@ -28,7 +28,8 @@ export default function ChartCalendarDate(vido, props) {
 
   let time, htmlFormatted, style;
 
-  function updateDate() {
+  const updateDate = () => {
+    if (!props) return;
     time = state.get('_internal.chart.time');
     style = `width: ${props.date.width}px; margin-left:-${props.date.subPx}px;`;
     const dateMod = api.time.date(props.date.leftGlobal);
@@ -301,10 +302,14 @@ export default function ChartCalendarDate(vido, props) {
         break;
     }
     update();
-  }
+  };
 
   let timeSub;
-  onChange(changedProps => {
+  onChange((changedProps, options) => {
+    if (options.leave) {
+      style = 'visibility: hidden';
+      return update();
+    }
     props = changedProps;
     if (timeSub) {
       timeSub();

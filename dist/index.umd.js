@@ -2501,15 +2501,15 @@
             }
             else if (currentLen > dataLen) {
                 let diff = currentLen - dataLen;
+                if (leaveTail) {
+                    leave = true;
+                    leaveStartingAt = currentLen - diff;
+                }
                 while (diff) {
                     const index = currentLen - diff;
                     if (!leaveTail) {
                         modified.push(currentComponents[index].instance);
                         currentComponents[index].destroy();
-                    }
-                    else {
-                        leave = true;
-                        leaveStartingAt = index;
                     }
                     diff--;
                 }
@@ -2560,7 +2560,7 @@
                 }
                 return this.updateFunction(props);
             }
-            change(changedProps = {}, options = { leave: false }) {
+            change(changedProps, options = { leave: false }) {
                 const props = changedProps;
                 if (this.vidoInstance.debug) {
                     console.groupCollapsed(`component change method fired ${this.instance}`);
@@ -4758,10 +4758,10 @@
         onDestroy(state.subscribe(`_internal.chart.time.dates`, dates => {
             const currentDate = api.time.date().format('YYYY-MM-DD');
             if (typeof dates.day === 'object' && Array.isArray(dates.day) && dates.day.length) {
-                reuseComponents(dayComponents, dates.day, date => ({ period: 'day', date, currentDate }), ChartCalendarDateComponent);
+                reuseComponents(dayComponents, dates.day, date => date && { period: 'day', date, currentDate }, ChartCalendarDateComponent);
             }
             if (typeof dates.month === 'object' && Array.isArray(dates.month) && dates.month.length) {
-                reuseComponents(monthComponents, dates.month, date => ({ period: 'month', date, currentDate }), ChartCalendarDateComponent);
+                reuseComponents(monthComponents, dates.month, date => date && { period: 'month', date, currentDate }, ChartCalendarDateComponent);
             }
             update();
         }));
@@ -4804,7 +4804,9 @@
             current = '';
         }
         let time, htmlFormatted, style;
-        function updateDate() {
+        const updateDate = () => {
+            if (!props)
+                return;
             time = state.get('_internal.chart.time');
             style = `width: ${props.date.width}px; margin-left:-${props.date.subPx}px;`;
             const dateMod = api.time.date(props.date.leftGlobal);
@@ -5059,9 +5061,13 @@
                     break;
             }
             update();
-        }
+        };
         let timeSub;
-        onChange(changedProps => {
+        onChange((changedProps, options) => {
+            if (options.leave) {
+                style = 'visibility: hidden';
+                return update();
+            }
             props = changedProps;
             if (timeSub) {
                 timeSub();
@@ -5386,7 +5392,11 @@
          * On props change
          * @param {any} changedProps
          */
-        const onPropsChange = changedProps => {
+        const onPropsChange = (changedProps, options) => {
+            if (options.leave) {
+                style = 'visibility: hidden;';
+                return update();
+            }
             props = changedProps;
             updateClassName(props.time);
             style = `width: ${props.time.width}px; height: ${props.row.height}px;`;

@@ -75,7 +75,11 @@ const ChartTimelineGridRowBlock = (vido, props: Props) => {
    * On props change
    * @param {any} changedProps
    */
-  const onPropsChange = changedProps => {
+  const onPropsChange = (changedProps, options) => {
+    if (options.leave) {
+      style = 'visibility: hidden;';
+      return update();
+    }
     props = changedProps;
     updateClassName(props.time);
     style = `width: ${props.time.width}px; height: ${props.row.height}px;`;
