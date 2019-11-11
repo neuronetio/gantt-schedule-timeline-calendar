@@ -57,7 +57,11 @@ export default function ChartTimelineGridRow(vido, props) {
   function onPropsChange(changedProps) {
     props = changedProps;
     reuseComponents(rowsBlocksComponents, props.blocks, block => block, GridBlockComponent);
-    style = `height: ${props.row.height}px; width: ${props.width}px;`;
+    let compensation = 0;
+    if (props.blocks.length) {
+      compensation = props.blocks[0].time.subPx;
+    }
+    style = `height: ${props.row.height}px; width: ${props.width}px; transform: translate(-${compensation}px, 0px)`;
     update();
   }
   onChange(onPropsChange);
