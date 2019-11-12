@@ -37,24 +37,30 @@ const bindElementAction = (element, data) => {
 };
 
 const ChartTimelineItemsRowItem = (vido, props) => {
-  const { api, state, onDestroy, actions, update, html, onChange } = vido;
+  const { api, state, onDestroy, actions, update, html, onChange, styleMap } = vido;
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
-  let style,
-    contentStyle,
+  let style = { width: '', height: '', transform: '', opacity: '1', pointerEvents: 'all' },
+    contentStyle = {},
     itemLeftPx = 0,
-    itemWidthPx = 0;
+    itemWidthPx = 0,
+    leave = false;
 
-  const updateItem = options => {
-    contentStyle = '';
+  const updateItem = () => {
+    if (leave) return;
+    contentStyle = {};
     let time = state.get('_internal.chart.time');
     itemLeftPx = (props.item.time.start - time.leftGlobal) / time.timePerPixel;
     itemWidthPx = (props.item.time.end - props.item.time.start) / time.timePerPixel;
     itemWidthPx -= state.get('config.chart.spacing') || 0;
-    style = `transform: translate(${itemLeftPx}px, 0px); width:${itemWidthPx}px; `;
+    style.width = itemWidthPx + 'px';
+    style.height = props.row.height + 'px';
+    style.transform = `translate(${itemLeftPx}px, 0px)`;
+    style.opacity = '1';
+    style.pointerEvents = 'all';
     if (typeof props.item.style === 'object' && props.item.style.constructor.name === 'Object') {
       if (typeof props.item.style.current === 'string') {
-        contentStyle += props.item.style.current;
+        contentStyle = { ...contentStyle, ...props.item.style.current };
       }
     }
     update();
@@ -62,11 +68,15 @@ const ChartTimelineItemsRowItem = (vido, props) => {
 
   const onPropsChange = (changedProps, options) => {
     if (options.leave) {
-      style += 'visibility: hidden;';
+      leave = true;
+      style.opacity = '0';
+      style.pointerEvents = 'none';
       return update();
+    } else {
+      leave = false;
     }
     props = changedProps;
-    updateItem(options);
+    updateItem();
   };
   onChange(onPropsChange);
 
@@ -84,7 +94,7 @@ const ChartTimelineItemsRowItem = (vido, props) => {
 
   onDestroy(
     state.subscribe('_internal.chart.time', bulk => {
-      updateItem({ leave: false });
+      updateItem();
     })
   );
 
@@ -92,8 +102,8 @@ const ChartTimelineItemsRowItem = (vido, props) => {
     componentActions.push(bindElementAction);
   }
 
-  return function updateTemplate(templateProps) {
-    return wrapper(
+  return templateProps =>
+    wrapper(
       html`
         <div
           class=${className}
@@ -105,15 +115,14 @@ const ChartTimelineItemsRowItem = (vido, props) => {
             api,
             state
           })}
-          style=${style}
+          style=${styleMap(style)}
         >
-          <div class=${contentClassName} style=${contentStyle}>
+          <div class=${contentClassName} style=${styleMap(contentStyle)}>
             <div class=${labelClassName}>${props.item.label}</div>
           </div>
         </div>
       `,
       { vido, props, templateProps }
     );
-  };
 };
 export default ChartTimelineItemsRowItem;

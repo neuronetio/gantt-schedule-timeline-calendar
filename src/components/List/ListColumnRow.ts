@@ -21,13 +21,20 @@ export default function ListColumnRow(vido, props) {
     row = state.get(rowPath);
   let colPath = `config.list.columns.data.${props.columnId}`,
     column = state.get(colPath);
-  let style = { width: '', height: '', visibility: '', '--height': '' };
+  let style = {
+    width: props.width + 'px',
+    height: row.height + 'px',
+    opacity: '1',
+    pointerEvents: 'all',
+    '--height': row.height + 'px'
+  };
   let rowSub, colSub;
   const ListExpander = createComponent(ListExpanderComponent, { row });
 
   const onPropsChange = (changedProps, options) => {
     if (options.leave) {
-      style.visibility = 'hidden';
+      style.opacity = '0';
+      style.pointerEvents = 'none';
       update();
       return;
     }
@@ -47,11 +54,13 @@ export default function ListColumnRow(vido, props) {
       style['--height'] = row.height + 'px';
       style.width = props.width + 'px';
       style.height = row.height + 'px';
+      style.opacity = '1';
+      style.pointerEvents = 'all';
       for (let parentId of row._internal.parents) {
         const parent = state.get(`_internal.flatTreeMapById.${parentId}`);
         if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
           if (typeof parent.style.children === 'string') {
-            style += parent.style.children;
+            style = { ...style, ...parent.style.children };
           }
         }
       }
@@ -60,7 +69,7 @@ export default function ListColumnRow(vido, props) {
         row.style.constructor.name === 'Object' &&
         typeof row.style.current === 'string'
       ) {
-        style += row.style.current;
+        style = { ...style, ...row.style.current };
       }
       update();
     });
@@ -115,7 +124,7 @@ export default function ListColumnRow(vido, props) {
           data-actions=${actions(componentActions, { column, row, api, state })}
         >
           ${typeof column.expander === 'boolean' && column.expander ? ListExpander.html() : ''}
-          ${typeof column.html === 'string' ? getHtml() : getText()}
+          <div class=${className + '-content'}>${typeof column.html === 'string' ? getHtml() : getText()}</div>
         </div>
       `,
       { vido, props, templateProps }

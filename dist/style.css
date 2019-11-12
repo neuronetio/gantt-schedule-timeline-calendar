@@ -77,6 +77,7 @@
   line-height: var(--height);
   vertical-align: middle;
   font-size: 14px;
+  display: flex;
 }
 .gantt-schedule-timeline-calendar__list-column-row * {
   overflow: hidden;

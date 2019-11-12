@@ -4144,7 +4144,7 @@
             styleContainer.height = height + 'px';
             styleScrollCompensation.width = width + 'px';
             styleScrollCompensation.height = height + 'px';
-            styleScrollCompensation.transform = ` translate(0px, ${compensation}px)`;
+            styleScrollCompensation.transform = `translate(0px, ${compensation}px)`;
         };
         onDestroy(state.subscribeAll([
             'config.list.columns.percent',
@@ -4363,12 +4363,19 @@
         onDestroy(state.subscribe('config.components.ListExpander', value => (ListExpanderComponent = value)));
         let rowPath = `_internal.flatTreeMapById.${props.rowId}`, row = state.get(rowPath);
         let colPath = `config.list.columns.data.${props.columnId}`, column = state.get(colPath);
-        let style = { width: '', height: '', visibility: '', '--height': '' };
+        let style = {
+            width: props.width + 'px',
+            height: row.height + 'px',
+            opacity: '1',
+            pointerEvents: 'all',
+            '--height': row.height + 'px'
+        };
         let rowSub, colSub;
         const ListExpander = createComponent(ListExpanderComponent, { row });
         const onPropsChange = (changedProps, options) => {
             if (options.leave) {
-                style.visibility = 'hidden';
+                style.opacity = '0';
+                style.pointerEvents = 'none';
                 update();
                 return;
             }
@@ -4388,18 +4395,20 @@
                 style['--height'] = row.height + 'px';
                 style.width = props.width + 'px';
                 style.height = row.height + 'px';
+                style.opacity = '1';
+                style.pointerEvents = 'all';
                 for (let parentId of row._internal.parents) {
                     const parent = state.get(`_internal.flatTreeMapById.${parentId}`);
                     if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
                         if (typeof parent.style.children === 'string') {
-                            style += parent.style.children;
+                            style = Object.assign(Object.assign({}, style), parent.style.children);
                         }
                     }
                 }
                 if (typeof row.style === 'object' &&
                     row.style.constructor.name === 'Object' &&
                     typeof row.style.current === 'string') {
-                    style += row.style.current;
+                    style = Object.assign(Object.assign({}, style), row.style.current);
                 }
                 update();
             });
@@ -4447,7 +4456,7 @@
           data-actions=${actions(componentActions, { column, row, api, state })}
         >
           ${typeof column.expander === 'boolean' && column.expander ? ListExpander.html() : ''}
-          ${typeof column.html === 'string' ? getHtml() : getText()}
+          <div class=${className + '-content'}>${typeof column.html === 'string' ? getHtml() : getText()}</div>
         </div>
       `, { vido, props, templateProps });
         };
@@ -5313,17 +5322,25 @@
         const GridBlockComponent = state.get('config.components.ChartTimelineGridRowBlock');
         const componentActions = api.getActions(componentName);
         let className = api.getClass(componentName);
-        let style = { width: '', height: '', visibility: '', overflow: 'hidden' };
+        let style = {
+            width: props.width + 'px',
+            height: props.row.height + 'px',
+            opacity: '1',
+            pointerEvents: 'all',
+            overflow: 'hidden'
+        };
         let rowsBlocksComponents = [];
         const onPropsChange = (changedProps, options) => {
             if (options.leave) {
-                style.visibility = 'hidden';
+                style.opacity = '0';
+                style.pointerEvents = 'none';
                 update();
                 return;
             }
             props = changedProps;
             reuseComponents(rowsBlocksComponents, props.blocks, block => block, GridBlockComponent);
-            style.visibility = 'visible';
+            style.opacity = '1';
+            style.pointerEvents = 'all';
             style.height = props.row.height + 'px';
             style.width = props.width + 'px';
             update();
@@ -5529,26 +5546,24 @@
         const ItemComponent = state.get('config.components.ChartTimelineItemsRowItem');
         let itemsPath = `_internal.flatTreeMapById.${props.row.id}._internal.items`;
         let rowSub, itemsSub;
-        let style = { visibility: '', width: '', height: '', overflow: 'hidden' }, styleInner = { width: '', height: '', overflow: 'hidden' };
+        let style = { opacity: '1', pointerEvents: 'all', width: '', height: '', overflow: 'hidden' }, styleInner = { width: '', height: '', overflow: 'hidden' };
         let itemComponents = [];
-        function updateDom() {
+        const updateDom = () => {
+            const chart = state.get('_internal.chart');
+            style.opacity = '1';
+            style.pointerEvents = 'all';
+            style.width = chart.dimensions.width + 'px';
+            styleInner.width = chart.time.totalViewDurationPx + 'px';
             if (!props) {
-                style.visibility = 'hidden';
+                style.opacity = '0';
+                style.pointerEvents = 'none';
                 return;
             }
-            const chart = state.get('_internal.chart');
-            style.visibility = 'visible';
-            style.width = chart.dimensions.width + 'px';
             style.height = props.row.height + 'px';
             style['--row-height'] = props.row.height + 'px';
-            styleInner.width = chart.time.totalViewDurationPx + 'px';
             styleInner.height = props.row.height + 'px';
-        }
-        const updateRow = (row, options) => {
-            if (options.leave) {
-                updateDom();
-                return update();
-            }
+        };
+        const updateRow = row => {
             itemsPath = `_internal.flatTreeMapById.${row.id}._internal.items`;
             if (typeof rowSub === 'function') {
                 rowSub();
@@ -5572,11 +5587,11 @@
          */
         const onPropsChange = (changedProps, options) => {
             if (options.leave) {
-                style.visibility = 'hidden';
+                updateDom();
                 return update();
             }
             props = changedProps;
-            updateRow(props.row, options);
+            updateRow(props.row);
         };
         onChange(onPropsChange);
         onDestroy(() => {
@@ -5600,7 +5615,7 @@
         <div
           class=${className}
           data-actions=${actions(componentActions, Object.assign(Object.assign({}, props), { api, state }))}
-          style=${styleMap(style)}
+          style=${styleMap(style, true)}
         >
           <div class=${classNameInner} style=${styleMap(styleInner)}>
             ${itemComponents.map(i => i.html())}
@@ -5642,28 +5657,39 @@
         };
     };
     const ChartTimelineItemsRowItem = (vido, props) => {
-        const { api, state, onDestroy, actions, update, html, onChange } = vido;
+        const { api, state, onDestroy, actions, update, html, onChange, styleMap } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
-        let style, contentStyle, itemLeftPx = 0, itemWidthPx = 0;
-        const updateItem = options => {
-            contentStyle = '';
+        let style = { width: '', height: '', transform: '', opacity: '1', pointerEvents: 'all' }, contentStyle = {}, itemLeftPx = 0, itemWidthPx = 0, leave = false;
+        const updateItem = () => {
+            if (leave)
+                return;
+            contentStyle = {};
             let time = state.get('_internal.chart.time');
             itemLeftPx = (props.item.time.start - time.leftGlobal) / time.timePerPixel;
             itemWidthPx = (props.item.time.end - props.item.time.start) / time.timePerPixel;
             itemWidthPx -= state.get('config.chart.spacing') || 0;
-            style = `transform: translate(${itemLeftPx}px, 0px); width:${itemWidthPx}px; `;
+            style.width = itemWidthPx + 'px';
+            style.height = props.row.height + 'px';
+            style.transform = `translate(${itemLeftPx}px, 0px)`;
+            style.opacity = '1';
+            style.pointerEvents = 'all';
             if (typeof props.item.style === 'object' && props.item.style.constructor.name === 'Object') {
                 if (typeof props.item.style.current === 'string') {
-                    contentStyle += props.item.style.current;
+                    contentStyle = Object.assign(Object.assign({}, contentStyle), props.item.style.current);
                 }
             }
             update();
         };
         const onPropsChange = (changedProps, options) => {
             if (options.leave) {
-                style += 'visibility: hidden;';
+                leave = true;
+                style.opacity = '0';
+                style.pointerEvents = 'none';
                 return update();
+            }
+            else {
+                leave = false;
             }
             props = changedProps;
             updateItem();
@@ -5684,26 +5710,24 @@
         if (componentActions.indexOf(bindElementAction$3) === -1) {
             componentActions.push(bindElementAction$3);
         }
-        return function updateTemplate(templateProps) {
-            return wrapper(html `
+        return templateProps => wrapper(html `
         <div
           class=${className}
           data-actions=${actions(componentActions, {
-            item: props.item,
-            row: props.row,
-            left: itemLeftPx,
-            width: itemWidthPx,
-            api,
-            state
-        })}
-          style=${style}
+        item: props.item,
+        row: props.row,
+        left: itemLeftPx,
+        width: itemWidthPx,
+        api,
+        state
+    })}
+          style=${styleMap(style)}
         >
-          <div class=${contentClassName} style=${contentStyle}>
+          <div class=${contentClassName} style=${styleMap(contentStyle)}>
             <div class=${labelClassName}>${props.item.label}</div>
           </div>
         </div>
       `, { vido, props, templateProps });
-        };
     };
 
     /**

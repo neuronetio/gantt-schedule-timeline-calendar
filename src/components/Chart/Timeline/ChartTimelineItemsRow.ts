@@ -48,33 +48,31 @@ const ChartTimelineItemsRow = (vido, props) => {
 
   let element,
     scrollLeft,
-    style = { visibility: '', width: '', height: '', overflow: 'hidden' },
+    style = { opacity: '1', pointerEvents: 'all', width: '', height: '', overflow: 'hidden' },
     styleInner = { width: '', height: '', overflow: 'hidden' };
   let itemComponents = [];
 
-  function updateDom() {
+  const updateDom = () => {
+    const chart = state.get('_internal.chart');
+    style.opacity = '1';
+    style.pointerEvents = 'all';
+    style.width = chart.dimensions.width + 'px';
+    styleInner.width = chart.time.totalViewDurationPx + 'px';
     if (!props) {
-      style.visibility = 'hidden';
+      style.opacity = '0';
+      style.pointerEvents = 'none';
       return;
     }
-    const chart = state.get('_internal.chart');
-    style.visibility = 'visible';
-    style.width = chart.dimensions.width + 'px';
     style.height = props.row.height + 'px';
     style['--row-height'] = props.row.height + 'px';
-    styleInner.width = chart.time.totalViewDurationPx + 'px';
     styleInner.height = props.row.height + 'px';
     if (element && scrollLeft !== chart.time.leftPx) {
       element.scrollLeft = chart.time.leftPx;
       scrollLeft = chart.time.leftPx;
     }
-  }
+  };
 
-  const updateRow = (row, options) => {
-    if (options.leave) {
-      updateDom();
-      return update();
-    }
+  const updateRow = row => {
     itemsPath = `_internal.flatTreeMapById.${row.id}._internal.items`;
     if (typeof rowSub === 'function') {
       rowSub();
@@ -99,11 +97,11 @@ const ChartTimelineItemsRow = (vido, props) => {
    */
   const onPropsChange = (changedProps, options) => {
     if (options.leave) {
-      style.visibility = 'hidden';
+      updateDom();
       return update();
     }
     props = changedProps;
-    updateRow(props.row, options);
+    updateRow(props.row);
   };
   onChange(onPropsChange);
 
@@ -135,7 +133,7 @@ const ChartTimelineItemsRow = (vido, props) => {
         <div
           class=${className}
           data-actions=${actions(componentActions, { ...props, api, state })}
-          style=${styleMap(style)}
+          style=${styleMap(style, true)}
         >
           <div class=${classNameInner} style=${styleMap(styleInner)}>
             ${itemComponents.map(i => i.html())}

@@ -58,7 +58,7 @@ export default function ListColumn(vido, props) {
     styleContainer.height = height + 'px';
     styleScrollCompensation.width = width + 'px';
     styleScrollCompensation.height = height + 'px';
-    styleScrollCompensation.transform = ` translate(0px, ${compensation}px)`;
+    styleScrollCompensation.transform = `translate(0px, ${compensation}px)`;
   };
   onDestroy(
     state.subscribeAll(

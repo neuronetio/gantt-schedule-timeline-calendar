@@ -52,17 +52,25 @@ export default function ChartTimelineGridRow(vido, props) {
   const componentActions = api.getActions(componentName);
   let className = api.getClass(componentName);
 
-  let style = { width: '', height: '', visibility: '', overflow: 'hidden' };
+  let style = {
+    width: props.width + 'px',
+    height: props.row.height + 'px',
+    opacity: '1',
+    pointerEvents: 'all',
+    overflow: 'hidden'
+  };
   let rowsBlocksComponents = [];
   const onPropsChange = (changedProps, options) => {
     if (options.leave) {
-      style.visibility = 'hidden';
+      style.opacity = '0';
+      style.pointerEvents = 'none';
       update();
       return;
     }
     props = changedProps;
     reuseComponents(rowsBlocksComponents, props.blocks, block => block, GridBlockComponent);
-    style.visibility = 'visible';
+    style.opacity = '1';
+    style.pointerEvents = 'all';
     style.height = props.row.height + 'px';
     style.width = props.width + 'px';
     update();
