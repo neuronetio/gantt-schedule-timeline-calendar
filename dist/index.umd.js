@@ -2039,79 +2039,6 @@
 
     /**
      * @license
-     * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
-     * This code may only be used under the BSD style license found at
-     * http://polymer.github.io/LICENSE.txt
-     * The complete set of authors may be found at
-     * http://polymer.github.io/AUTHORS.txt
-     * The complete set of contributors may be found at
-     * http://polymer.github.io/CONTRIBUTORS.txt
-     * Code distributed by Google as part of the polymer project is also
-     * subject to an additional IP rights grant found at
-     * http://polymer.github.io/PATENTS.txt
-     */
-    /**
-     * Stores the StyleInfo object applied to a given AttributePart.
-     * Used to unset existing values when a new StyleInfo object is applied.
-     */
-    const styleMapCache = new WeakMap();
-    /**
-     * A directive that applies CSS properties to an element.
-     *
-     * `styleMap` can only be used in the `style` attribute and must be the only
-     * expression in the attribute. It takes the property names in the `styleInfo`
-     * object and adds the property values as CSS propertes. Property names with
-     * dashes (`-`) are assumed to be valid CSS property names and set on the
-     * element's style object using `setProperty()`. Names without dashes are
-     * assumed to be camelCased JavaScript property names and set on the element's
-     * style object using property assignment, allowing the style object to
-     * translate JavaScript-style names to CSS property names.
-     *
-     * For example `styleMap({backgroundColor: 'red', 'border-top': '5px', '--size':
-     * '0'})` sets the `background-color`, `border-top` and `--size` properties.
-     *
-     * @param styleInfo {StyleInfo}
-     */
-    const styleMap = directive((styleInfo) => (part) => {
-        if (!(part instanceof AttributePart) || (part instanceof PropertyPart) ||
-            part.committer.name !== 'style' || part.committer.parts.length > 1) {
-            throw new Error('The `styleMap` directive must be used in the style attribute ' +
-                'and must be the only part in the attribute.');
-        }
-        const { committer } = part;
-        const { style } = committer.element;
-        // Handle static styles the first time we see a Part
-        if (!styleMapCache.has(part)) {
-            style.cssText = committer.strings.join(' ');
-        }
-        // Remove old properties that no longer exist in styleInfo
-        const oldInfo = styleMapCache.get(part);
-        for (const name in oldInfo) {
-            if (!(name in styleInfo)) {
-                if (name.indexOf('-') === -1) {
-                    // tslint:disable-next-line:no-any
-                    style[name] = null;
-                }
-                else {
-                    style.removeProperty(name);
-                }
-            }
-        }
-        // Add or update properties
-        for (const name in styleInfo) {
-            if (name.indexOf('-') === -1) {
-                // tslint:disable-next-line:no-any
-                style[name] = styleInfo[name];
-            }
-            else {
-                style.setProperty(name, styleInfo[name]);
-            }
-        }
-        styleMapCache.set(part, styleInfo);
-    });
-
-    /**
-     * @license
      * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
      * This code may only be used under the BSD style license found at
      * http://polymer.github.io/LICENSE.txt
@@ -2310,7 +2237,7 @@
      */
     function clone(source) {
         if (typeof source.actions !== 'undefined') {
-            const actns = source.actions.map(action => {
+            const actns = source.actions.map((action) => {
                 const result = Object.assign({}, action);
                 const props = Object.assign({}, result.props);
                 delete props.state;
@@ -2337,6 +2264,7 @@
         let app, element;
         let shouldUpdateCount = 0;
         const resolved = Promise.resolve();
+        const previousStyle = new WeakMap();
         /**
          * Get actions for component instance as directives
          *
@@ -2459,11 +2387,53 @@
         vido.prototype.guard = guard;
         vido.prototype.ifDefined = ifDefined;
         vido.prototype.repeat = repeat;
-        vido.prototype.styleMap = styleMap;
+        //vido.prototype.styleMap = styleMap;
         vido.prototype.unsafeHTML = unsafeHTML;
         vido.prototype.until = until;
         vido.prototype.schedule = schedule;
         vido.prototype.actionsByInstance = (componentActions, props) => { };
+        vido.prototype.styleMap = directive((styleInfo, removePrevious = true) => (part) => {
+            const style = part.committer.element.style;
+            let previous = previousStyle.get(part);
+            if (previous === undefined) {
+                previous = {};
+            }
+            if (removePrevious) {
+                for (const name in previous) {
+                    if (styleInfo[name] === undefined) {
+                        if (!name.includes('-')) {
+                            try {
+                                style[name] = null;
+                            }
+                            catch (e) {
+                                style.removeProperty(name);
+                            }
+                        }
+                        else {
+                            style.removeProperty(name);
+                        }
+                    }
+                }
+            }
+            for (const name in styleInfo) {
+                const value = styleInfo[name];
+                if (previous[name] !== undefined && previous[name] === value) {
+                    continue;
+                }
+                if (!name.includes('-')) {
+                    try {
+                        style[name] = value;
+                    }
+                    catch (e) {
+                        style.setProperty(name, value);
+                    }
+                }
+                else {
+                    style.setProperty(name, value);
+                }
+            }
+            previousStyle.set(part, Object.assign({}, styleInfo));
+        });
         vido.prototype.onDestroy = function onDestroy(fn) {
             this.destroyable.push(fn);
         };
@@ -2489,7 +2459,7 @@
             const dataLen = dataArray.length;
             let leave = false;
             let leaveStartingAt = 0;
-            if (currentComponents.length < dataArray.length) {
+            if (currentLen < dataLen) {
                 let diff = dataLen - currentLen;
                 while (diff) {
                     const item = dataArray[dataLen - diff];
