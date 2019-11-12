@@ -53,6 +53,7 @@ $item-content-padding = 5px
     overflow: hidden
     flex-grow: 0
     flex-shrink: 0
+    user-select: none
     &-expander
       display: inline-flex
       height: var(--height)
@@ -61,9 +62,14 @@ $item-content-padding = 5px
         height: var(--height)
         display: inline-block
       &-toggle
-        cursor: pointer
-        display: inline-block
+        display: block
         margin-right: 5px
+        &-child
+          cursor: default
+        &-open
+          cursor: pointer
+        &-closed
+          cursor: pointer
         & svg
           vertical-align: middle
           width: 16px
@@ -75,6 +81,8 @@ $item-content-padding = 5px
       &-rows
         height: var(--height)
         overflow: hidden
+        &---scroll-compensation
+          overflow: hidden
     &-column-row, &-column-header
       overflow: hidden
       text-overflow: ellipsis
@@ -253,8 +261,8 @@ $item-content-padding = 5px
         &-row
           overflow: hidden
           pointer-events: none
+          position: relative
           &-inner
-            position: relative
             overflow: hidden
             height: 100%
           &-item
@@ -263,10 +271,10 @@ $item-content-padding = 5px
             padding: 4px 0px
             height: 100%
             user-select: none
-            &--selecting
+            /*&--selecting
               border: 1px solid rgb(0,119, 192)
             &--selected
-              border: 1px solid rgb(0,119, 192)
+              border: 1px solid rgb(0,119, 192)*/
             &--moving
               opacity: 0.5
             &-content

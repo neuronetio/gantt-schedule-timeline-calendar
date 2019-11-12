@@ -17,12 +17,13 @@ export default function ListToggle(vido, props) {
 
   const componentActions = api.getActions(componentName);
   let className, style;
-  let classNameOpen, classNameClosed;
+  let classNameChild, classNameOpen, classNameClosed;
   let expanded = false;
-  let iconOpen, iconClosed;
+  let iconChild, iconOpen, iconClosed;
   onDestroy(
     state.subscribe('config.classNames', value => {
       className = api.getClass(componentName);
+      classNameChild = api.getClass(componentName + '-child');
       classNameOpen = api.getClass(componentName + '-open');
       classNameClosed = api.getClass(componentName + '-closed');
       update();
@@ -32,6 +33,7 @@ export default function ListToggle(vido, props) {
     state.subscribeAll(['config.list.expander.size', 'config.list.expander.icons'], () => {
       const expander = state.get('config.list.expander');
       style = `--size: ${expander.size}px`;
+      iconChild = expander.icons.child;
       iconOpen = expander.icons.open;
       iconClosed = expander.icons.closed;
       update();
@@ -84,6 +86,27 @@ export default function ListToggle(vido, props) {
     }
   }
 
+  const getIcon = () => {
+    if (props.row?._internal?.children?.length === 0) {
+      return html`
+        <div class=${classNameChild}>
+          ${unsafeHTML(iconChild)}
+        </div>
+      `;
+    }
+    return expanded
+      ? html`
+          <div class=${classNameOpen}>
+            ${unsafeHTML(iconOpen)}
+          </div>
+        `
+      : html`
+          <div class=${classNameClosed}>
+            ${unsafeHTML(iconClosed)}
+          </div>
+        `;
+  };
+
   return function updateTemplate(templateProps) {
     return wrapper(
       html`
@@ -93,17 +116,7 @@ export default function ListToggle(vido, props) {
           style=${style}
           @click=${toggle}
         >
-          ${expanded
-            ? html`
-                <div class=${classNameOpen}>
-                  ${unsafeHTML(iconOpen)}
-                </div>
-              `
-            : html`
-                <div class=${classNameClosed}>
-                  ${unsafeHTML(iconClosed)}
-                </div>
-              `}
+          ${getIcon()}
         </div>
       `,
       { vido, props, templateProps }

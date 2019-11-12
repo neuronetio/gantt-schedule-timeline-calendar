@@ -35,7 +35,7 @@ export default function ListColumn(vido, props) {
   let className,
     classNameContainer,
     calculatedWidth,
-    widthStyle = { width: '' },
+    widthStyle = { width: '', '--width': '' },
     styleContainer = { width: '', height: '' },
     styleScrollCompensation = { width: '', height: '', transform: '' };
 
@@ -54,6 +54,7 @@ export default function ListColumn(vido, props) {
     width = calculatedWidth + list.columns.resizer.width;
     const height = state.get('_internal.height');
     widthStyle.width = width + 'px';
+    widthStyle['--width'] = width + 'px';
     styleContainer.width = width + 'px';
     styleContainer.height = height + 'px';
     styleScrollCompensation.width = width + 'px';

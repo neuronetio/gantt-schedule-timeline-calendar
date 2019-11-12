@@ -45,7 +45,7 @@ interface Props {
 }
 
 const ChartTimelineGridRowBlock = (vido, props: Props) => {
-  const { api, state, onDestroy, actions, update, html, onChange } = vido;
+  const { api, state, onDestroy, actions, update, html, onChange, styleMap } = vido;
   const componentName = 'chart-timeline-grid-row-block';
   const componentActions = api.getActions(componentName);
 
@@ -70,37 +70,29 @@ const ChartTimelineGridRowBlock = (vido, props: Props) => {
     }
   };
   updateClassName(props.time);
-  let style = `width: ${props.time.width}px;height: ${props.row.height}px;`;
+  let style = { width: '', height: '' };
   /**
    * On props change
    * @param {any} changedProps
    */
   const onPropsChange = (changedProps, options) => {
     if (options.leave) {
-      style = 'visibility: hidden;';
-      return update();
+      return;
     }
     props = changedProps;
     updateClassName(props.time);
-    style = `width: ${props.time.width}px; height: ${props.row.height}px;`;
+    // @ts-ignore
+    style = {};
+    style.width = props.time.width + 'px';
+    style.height = props.row.height + 'px';
     const rows = state.get('config.list.rows');
     for (const parentId of props.row._internal.parents) {
       const parent = rows[parentId];
-      if (
-        typeof parent.style === 'object' &&
-        typeof parent.style.gridBlock === 'object' &&
-        typeof parent.style.gridBlock.children === 'string'
-      ) {
-        style += parent.style.gridBlock.children;
-      }
+      const childrenStyle = parent.style?.grid?.block?.children;
+      if (childrenStyle) style = { ...style, ...childrenStyle };
     }
-    if (
-      typeof props.row.style === 'object' &&
-      typeof props.row.style.gridBlock === 'object' &&
-      typeof props.row.style.gridBlock.current === 'string'
-    ) {
-      style += props.row.style.gridBlock.current;
-    }
+    const currentStyle = props.row?.style?.grid?.block?.current;
+    if (currentStyle) style = { ...style, ...currentStyle };
     update();
   };
   onChange(onPropsChange);
@@ -112,7 +104,11 @@ const ChartTimelineGridRowBlock = (vido, props: Props) => {
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, { ...props, api, state })} style=${style}>
+        <div
+          class=${className}
+          data-actions=${actions(componentActions, { ...props, api, state })}
+          style=${styleMap(style)}
+        >
           <div class=${classNameContent} />
         </div>
       `,

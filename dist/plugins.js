@@ -519,7 +519,10 @@ function Selection(options = {}) {
         selecting() { },
         deselecting() { },
         selected() { },
-        deselected() { }
+        deselected() { },
+        canSelect(type, currently) {
+            return currently;
+        }
     };
     options = Object.assign(Object.assign({}, defaultOptions), options);
     let chartTimeline, top, left;
@@ -653,13 +656,13 @@ function Selection(options = {}) {
         function isInside(boundingRect, rectBoundingRect) {
             let horizontal = false;
             let vertical = false;
-            if ((boundingRect.left >= rectBoundingRect.left && boundingRect.left <= rectBoundingRect.right) ||
-                (boundingRect.right >= rectBoundingRect.left && boundingRect.right <= rectBoundingRect.right) ||
+            if ((boundingRect.left > rectBoundingRect.left && boundingRect.left < rectBoundingRect.right) ||
+                (boundingRect.right > rectBoundingRect.left && boundingRect.right < rectBoundingRect.right) ||
                 (boundingRect.left <= rectBoundingRect.left && boundingRect.right >= rectBoundingRect.right)) {
                 horizontal = true;
             }
-            if ((boundingRect.top >= rectBoundingRect.top && boundingRect.top <= rectBoundingRect.bottom) ||
-                (boundingRect.bottom >= rectBoundingRect.top && boundingRect.bottom <= rectBoundingRect.bottom) ||
+            if ((boundingRect.top > rectBoundingRect.top && boundingRect.top < rectBoundingRect.bottom) ||
+                (boundingRect.bottom > rectBoundingRect.top && boundingRect.bottom < rectBoundingRect.bottom) ||
                 (boundingRect.top <= rectBoundingRect.top && boundingRect.bottom >= rectBoundingRect.bottom)) {
                 vertical = true;
             }
@@ -674,14 +677,22 @@ function Selection(options = {}) {
          */
         function getSelecting(rectBoundingRect, elements, type, getId) {
             const selectingResult = [];
+            const currentlySelectingData = [];
             const all = elements[type + 's'];
             const currentSelecting = state.get(`${path}.selecting.${type}s`);
             for (const element of all) {
                 const boundingRect = element.getBoundingClientRect();
                 if (isInside(boundingRect, rectBoundingRect)) {
-                    selectingResult.push(getId(element.vido));
-                    if (!currentSelecting.includes(getId(element.vido))) {
-                        options.selecting(element.vido, type);
+                    currentlySelectingData.push(element.vido);
+                    const canSelect = options.canSelect(type, currentlySelectingData);
+                    if (canSelect.includes(element.vido)) {
+                        if (!currentSelecting.includes(getId(element.vido))) {
+                            options.selecting(element.vido, type);
+                        }
+                        selectingResult.push(getId(element.vido));
+                    }
+                    else {
+                        currentlySelectingData.unshift();
                     }
                 }
                 else {

@@ -48,21 +48,31 @@ const ChartTimelineItemsRowItem = (vido, props) => {
 
   const updateItem = () => {
     if (leave) return;
-    contentStyle = {};
+
     let time = state.get('_internal.chart.time');
     itemLeftPx = (props.item.time.start - time.leftGlobal) / time.timePerPixel;
     itemWidthPx = (props.item.time.end - props.item.time.start) / time.timePerPixel;
     itemWidthPx -= state.get('config.chart.spacing') || 0;
+    // @ts-ignore
+    style = {};
     style.width = itemWidthPx + 'px';
     style.height = props.row.height + 'px';
     style.transform = `translate(${itemLeftPx}px, 0px)`;
     style.opacity = '1';
     style.pointerEvents = 'all';
-    if (typeof props.item.style === 'object' && props.item.style.constructor.name === 'Object') {
-      if (typeof props.item.style.current === 'string') {
-        contentStyle = { ...contentStyle, ...props.item.style.current };
-      }
+    // @ts-ignore
+    contentStyle = {};
+    const rows = state.get('config.list.rows');
+    for (const parentId of props.row._internal.parents) {
+      const parent = rows[parentId];
+      const childrenStyle = parent.style?.items?.item?.children;
+      if (childrenStyle) contentStyle = { ...contentStyle, ...childrenStyle };
     }
+    const currentRowItemsStyle = props.row?.style?.items?.item?.current;
+    if (currentRowItemsStyle) contentStyle = { ...contentStyle, ...currentRowItemsStyle };
+    const currentStyle = props.item?.style;
+    if (currentStyle) contentStyle = { ...contentStyle, ...currentStyle };
+    //console.log(props.row.id, props.row._internal.parents, contentStyle);
     update();
   };
 

@@ -48,8 +48,8 @@ const ChartTimelineItemsRow = (vido, props) => {
 
   let element,
     scrollLeft,
-    style = { opacity: '1', pointerEvents: 'all', width: '', height: '', overflow: 'hidden' },
-    styleInner = { width: '', height: '', overflow: 'hidden' };
+    style = { opacity: '1', pointerEvents: 'all', width: '', height: '' },
+    styleInner = { width: '', height: '' };
   let itemComponents = [];
 
   const updateDom = () => {

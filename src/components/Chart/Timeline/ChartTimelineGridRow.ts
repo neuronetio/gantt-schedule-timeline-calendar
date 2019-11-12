@@ -69,10 +69,20 @@ export default function ChartTimelineGridRow(vido, props) {
     }
     props = changedProps;
     reuseComponents(rowsBlocksComponents, props.blocks, block => block, GridBlockComponent);
+    // @ts-ignore
+    style = {};
     style.opacity = '1';
     style.pointerEvents = 'all';
     style.height = props.row.height + 'px';
     style.width = props.width + 'px';
+    const rows = state.get('config.list.rows');
+    for (const parentId of props.row._internal.parents) {
+      const parent = rows[parentId];
+      const childrenStyle = parent.style?.grid?.row?.children;
+      if (childrenStyle) style = { ...style, ...childrenStyle };
+    }
+    const currentStyle = props.row?.style?.grid?.row?.current;
+    if (currentStyle) style = { ...style, ...currentStyle };
     update();
   };
   onChange(onPropsChange);

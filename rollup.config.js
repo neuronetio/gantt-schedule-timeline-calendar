@@ -182,6 +182,11 @@ const devFiles = [
       }),
       commonjs({ extensions: ['.js', '.ts'] })
     ]
+  },
+  {
+    input: 'src/style.styl',
+    output: { format: 'esm', file: 'dist/style.css' },
+    plugins: [stylus()]
   }
 ];
 
@@ -364,11 +369,6 @@ const prodFiles = Array.prototype.concat(devFiles, [
           keep_fnames: true
         })
     ]
-  },
-  {
-    input: 'src/style.styl',
-    output: { format: 'esm', file: 'dist/style.css' },
-    plugins: [stylus()]
   }
 ]);
 const files = production ? prodFiles : devFiles;

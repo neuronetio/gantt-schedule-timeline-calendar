@@ -4086,7 +4086,7 @@
         const rowsComponentName = componentName + '-rows';
         const componentActions = api.getActions(componentName);
         const rowsActions = api.getActions(rowsComponentName);
-        let className, classNameContainer, calculatedWidth, widthStyle = { width: '' }, styleContainer = { width: '', height: '' }, styleScrollCompensation = { width: '', height: '', transform: '' };
+        let className, classNameContainer, calculatedWidth, widthStyle = { width: '', '--width': '' }, styleContainer = { width: '', height: '' }, styleScrollCompensation = { width: '', height: '', transform: '' };
         onDestroy(state.subscribe('config.classNames', value => {
             className = api.getClass(componentName, { column });
             classNameContainer = api.getClass(rowsComponentName, { column });
@@ -4100,6 +4100,7 @@
             width = calculatedWidth + list.columns.resizer.width;
             const height = state.get('_internal.height');
             widthStyle.width = width + 'px';
+            widthStyle['--width'] = width + 'px';
             styleContainer.width = width + 'px';
             styleContainer.height = height + 'px';
             styleScrollCompensation.width = width + 'px';
@@ -4324,7 +4325,6 @@
         let rowPath = `_internal.flatTreeMapById.${props.rowId}`, row = state.get(rowPath);
         let colPath = `config.list.columns.data.${props.columnId}`, column = state.get(colPath);
         let style = {
-            width: props.width + 'px',
             height: row.height + 'px',
             opacity: '1',
             pointerEvents: 'all',
@@ -4352,22 +4352,23 @@
             colPath = `config.list.columns.data.${columnId}`;
             rowSub = state.subscribe(rowPath, value => {
                 row = value;
+                // @ts-ignore
+                style = {};
                 style['--height'] = row.height + 'px';
-                style.width = props.width + 'px';
                 style.height = row.height + 'px';
                 style.opacity = '1';
                 style.pointerEvents = 'all';
                 for (let parentId of row._internal.parents) {
                     const parent = state.get(`_internal.flatTreeMapById.${parentId}`);
                     if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
-                        if (typeof parent.style.children === 'string') {
+                        if (typeof parent.style.children === 'object') {
                             style = Object.assign(Object.assign({}, style), parent.style.children);
                         }
                     }
                 }
                 if (typeof row.style === 'object' &&
                     row.style.constructor.name === 'Object' &&
-                    typeof row.style.current === 'string') {
+                    typeof row.style.current === 'object') {
                     style = Object.assign(Object.assign({}, style), row.style.current);
                 }
                 update();
@@ -4408,18 +4409,16 @@
                 return column.data(row);
             return row[column.data];
         }
-        return function updateTemplate(templateProps) {
-            return wrapper(html `
+        return templateProps => wrapper(html `
         <div
           class=${className}
           style=${styleMap(style)}
           data-actions=${actions(componentActions, { column, row, api, state })}
         >
-          ${typeof column.expander === 'boolean' && column.expander ? ListExpander.html() : ''}
+          ${column.expander ? ListExpander.html() : null}
           <div class=${className + '-content'}>${typeof column.html === 'string' ? getHtml() : getText()}</div>
         </div>
       `, { vido, props, templateProps });
-        };
     }
 
     /**
@@ -4435,7 +4434,7 @@
         const { api, state, onDestroy, actions, update, html, createComponent, onChange } = vido;
         const componentName = 'list-expander';
         const componentActions = api.getActions(componentName);
-        let className, padding, width, paddingClass, children = [];
+        let className, padding, width, paddingClass;
         let ListToggleComponent;
         onDestroy(state.subscribe('config.components.ListToggle', value => (ListToggleComponent = value)));
         const ListToggle = createComponent(ListToggleComponent, props.row ? { row: props.row } : {});
@@ -4459,7 +4458,6 @@
                     parentSub();
                 parentSub = state.subscribe(`_internal.list.rows.${props.row.id}.parentId`, function parentChanged(parentId) {
                     width = 'width:' + props.row._internal.parents.length * padding + 'px';
-                    children = props.row._internal.children;
                     update();
                 });
                 ListToggle.change(props);
@@ -4472,12 +4470,11 @@
         }
         else {
             width = 'width:0px';
-            children = [];
         }
         return templateProps => wrapper(html `
         <div class=${className} data-action=${actions(componentActions, { row: props.row, api, state })}>
           <div class=${paddingClass} style=${width}></div>
-          ${children.length || !props.row ? ListToggle.html() : ''}
+          ${ListToggle.html()}
         </div>
       `, { vido, props, templateProps });
     }
@@ -4498,11 +4495,12 @@
         onDestroy(state.subscribe('config.wrappers.ListToggle', value => (wrapper = value)));
         const componentActions = api.getActions(componentName);
         let className, style;
-        let classNameOpen, classNameClosed;
+        let classNameChild, classNameOpen, classNameClosed;
         let expanded = false;
-        let iconOpen, iconClosed;
+        let iconChild, iconOpen, iconClosed;
         onDestroy(state.subscribe('config.classNames', value => {
             className = api.getClass(componentName);
+            classNameChild = api.getClass(componentName + '-child');
             classNameOpen = api.getClass(componentName + '-open');
             classNameClosed = api.getClass(componentName + '-closed');
             update();
@@ -4510,6 +4508,7 @@
         onDestroy(state.subscribeAll(['config.list.expander.size', 'config.list.expander.icons'], () => {
             const expander = state.get('config.list.expander');
             style = `--size: ${expander.size}px`;
+            iconChild = expander.icons.child;
             iconOpen = expander.icons.open;
             iconClosed = expander.icons.closed;
             update();
@@ -4558,6 +4557,27 @@
                 }, { only: ['*.expanded'] });
             }
         }
+        const getIcon = () => {
+            var _a, _b, _c;
+            if (((_c = (_b = (_a = props.row) === null || _a === void 0 ? void 0 : _a._internal) === null || _b === void 0 ? void 0 : _b.children) === null || _c === void 0 ? void 0 : _c.length) === 0) {
+                return html `
+        <div class=${classNameChild}>
+          ${unsafeHTML(iconChild)}
+        </div>
+      `;
+            }
+            return expanded
+                ? html `
+          <div class=${classNameOpen}>
+            ${unsafeHTML(iconOpen)}
+          </div>
+        `
+                : html `
+          <div class=${classNameClosed}>
+            ${unsafeHTML(iconClosed)}
+          </div>
+        `;
+        };
         return function updateTemplate(templateProps) {
             return wrapper(html `
         <div
@@ -4566,17 +4586,7 @@
           style=${style}
           @click=${toggle}
         >
-          ${expanded
-            ? html `
-                <div class=${classNameOpen}>
-                  ${unsafeHTML(iconOpen)}
-                </div>
-              `
-            : html `
-                <div class=${classNameClosed}>
-                  ${unsafeHTML(iconClosed)}
-                </div>
-              `}
+          ${getIcon()}
         </div>
       `, { vido, props, templateProps });
         };
@@ -5291,6 +5301,7 @@
         };
         let rowsBlocksComponents = [];
         const onPropsChange = (changedProps, options) => {
+            var _a, _b, _c, _d, _e, _f, _g;
             if (options.leave) {
                 style.opacity = '0';
                 style.pointerEvents = 'none';
@@ -5299,10 +5310,22 @@
             }
             props = changedProps;
             reuseComponents(rowsBlocksComponents, props.blocks, block => block, GridBlockComponent);
+            // @ts-ignore
+            style = {};
             style.opacity = '1';
             style.pointerEvents = 'all';
             style.height = props.row.height + 'px';
             style.width = props.width + 'px';
+            const rows = state.get('config.list.rows');
+            for (const parentId of props.row._internal.parents) {
+                const parent = rows[parentId];
+                const childrenStyle = (_c = (_b = (_a = parent.style) === null || _a === void 0 ? void 0 : _a.grid) === null || _b === void 0 ? void 0 : _b.row) === null || _c === void 0 ? void 0 : _c.children;
+                if (childrenStyle)
+                    style = Object.assign(Object.assign({}, style), childrenStyle);
+            }
+            const currentStyle = (_g = (_f = (_e = (_d = props.row) === null || _d === void 0 ? void 0 : _d.style) === null || _e === void 0 ? void 0 : _e.grid) === null || _f === void 0 ? void 0 : _f.row) === null || _g === void 0 ? void 0 : _g.current;
+            if (currentStyle)
+                style = Object.assign(Object.assign({}, style), currentStyle);
             update();
         };
         onChange(onPropsChange);
@@ -5359,7 +5382,7 @@
         };
     };
     const ChartTimelineGridRowBlock = (vido, props) => {
-        const { api, state, onDestroy, actions, update, html, onChange } = vido;
+        const { api, state, onDestroy, actions, update, html, onChange, styleMap } = vido;
         const componentName = 'chart-timeline-grid-row-block';
         const componentActions = api.getActions(componentName);
         let wrapper;
@@ -5380,33 +5403,32 @@
             }
         };
         updateClassName(props.time);
-        let style = `width: ${props.time.width}px;height: ${props.row.height}px;`;
+        let style = { width: '', height: '' };
         /**
          * On props change
          * @param {any} changedProps
          */
         const onPropsChange = (changedProps, options) => {
+            var _a, _b, _c, _d, _e, _f, _g;
             if (options.leave) {
-                style = 'visibility: hidden;';
-                return update();
+                return;
             }
             props = changedProps;
             updateClassName(props.time);
-            style = `width: ${props.time.width}px; height: ${props.row.height}px;`;
+            // @ts-ignore
+            style = {};
+            style.width = props.time.width + 'px';
+            style.height = props.row.height + 'px';
             const rows = state.get('config.list.rows');
             for (const parentId of props.row._internal.parents) {
                 const parent = rows[parentId];
-                if (typeof parent.style === 'object' &&
-                    typeof parent.style.gridBlock === 'object' &&
-                    typeof parent.style.gridBlock.children === 'string') {
-                    style += parent.style.gridBlock.children;
-                }
+                const childrenStyle = (_c = (_b = (_a = parent.style) === null || _a === void 0 ? void 0 : _a.grid) === null || _b === void 0 ? void 0 : _b.block) === null || _c === void 0 ? void 0 : _c.children;
+                if (childrenStyle)
+                    style = Object.assign(Object.assign({}, style), childrenStyle);
             }
-            if (typeof props.row.style === 'object' &&
-                typeof props.row.style.gridBlock === 'object' &&
-                typeof props.row.style.gridBlock.current === 'string') {
-                style += props.row.style.gridBlock.current;
-            }
+            const currentStyle = (_g = (_f = (_e = (_d = props.row) === null || _d === void 0 ? void 0 : _d.style) === null || _e === void 0 ? void 0 : _e.grid) === null || _f === void 0 ? void 0 : _f.block) === null || _g === void 0 ? void 0 : _g.current;
+            if (currentStyle)
+                style = Object.assign(Object.assign({}, style), currentStyle);
             update();
         };
         onChange(onPropsChange);
@@ -5414,7 +5436,11 @@
             componentActions.push(bindElementAction$1);
         }
         return templateProps => wrapper(html `
-        <div class=${className} data-actions=${actions(componentActions, Object.assign(Object.assign({}, props), { api, state }))} style=${style}>
+        <div
+          class=${className}
+          data-actions=${actions(componentActions, Object.assign(Object.assign({}, props), { api, state }))}
+          style=${styleMap(style)}
+        >
           <div class=${classNameContent} />
         </div>
       `, { props, vido, templateProps });
@@ -5506,7 +5532,7 @@
         const ItemComponent = state.get('config.components.ChartTimelineItemsRowItem');
         let itemsPath = `_internal.flatTreeMapById.${props.row.id}._internal.items`;
         let rowSub, itemsSub;
-        let style = { opacity: '1', pointerEvents: 'all', width: '', height: '', overflow: 'hidden' }, styleInner = { width: '', height: '', overflow: 'hidden' };
+        let style = { opacity: '1', pointerEvents: 'all', width: '', height: '' }, styleInner = { width: '', height: '' };
         let itemComponents = [];
         const updateDom = () => {
             const chart = state.get('_internal.chart');
@@ -5622,23 +5648,36 @@
         onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
         let style = { width: '', height: '', transform: '', opacity: '1', pointerEvents: 'all' }, contentStyle = {}, itemLeftPx = 0, itemWidthPx = 0, leave = false;
         const updateItem = () => {
+            var _a, _b, _c, _d, _e, _f, _g, _h;
             if (leave)
                 return;
-            contentStyle = {};
             let time = state.get('_internal.chart.time');
             itemLeftPx = (props.item.time.start - time.leftGlobal) / time.timePerPixel;
             itemWidthPx = (props.item.time.end - props.item.time.start) / time.timePerPixel;
             itemWidthPx -= state.get('config.chart.spacing') || 0;
+            // @ts-ignore
+            style = {};
             style.width = itemWidthPx + 'px';
             style.height = props.row.height + 'px';
             style.transform = `translate(${itemLeftPx}px, 0px)`;
             style.opacity = '1';
             style.pointerEvents = 'all';
-            if (typeof props.item.style === 'object' && props.item.style.constructor.name === 'Object') {
-                if (typeof props.item.style.current === 'string') {
-                    contentStyle = Object.assign(Object.assign({}, contentStyle), props.item.style.current);
-                }
+            // @ts-ignore
+            contentStyle = {};
+            const rows = state.get('config.list.rows');
+            for (const parentId of props.row._internal.parents) {
+                const parent = rows[parentId];
+                const childrenStyle = (_c = (_b = (_a = parent.style) === null || _a === void 0 ? void 0 : _a.items) === null || _b === void 0 ? void 0 : _b.item) === null || _c === void 0 ? void 0 : _c.children;
+                if (childrenStyle)
+                    contentStyle = Object.assign(Object.assign({}, contentStyle), childrenStyle);
             }
+            const currentRowItemsStyle = (_g = (_f = (_e = (_d = props.row) === null || _d === void 0 ? void 0 : _d.style) === null || _e === void 0 ? void 0 : _e.items) === null || _f === void 0 ? void 0 : _f.item) === null || _g === void 0 ? void 0 : _g.current;
+            if (currentRowItemsStyle)
+                contentStyle = Object.assign(Object.assign({}, contentStyle), currentRowItemsStyle);
+            const currentStyle = (_h = props.item) === null || _h === void 0 ? void 0 : _h.style;
+            if (currentStyle)
+                contentStyle = Object.assign(Object.assign({}, contentStyle), currentStyle);
+            //console.log(props.row.id, props.row._internal.parents, contentStyle);
             update();
         };
         const onPropsChange = (changedProps, options) => {
@@ -5824,6 +5863,7 @@
                     padding: 20,
                     size: 20,
                     icons: {
+                        child: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><ellipse ry="4" rx="4" id="svg_1" cy="12" cx="12" fill="#000000B0"/></svg>',
                         open: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>',
                         closed: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>'
                     }

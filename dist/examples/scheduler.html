@@ -58,12 +58,22 @@
           label: 'Room ' + i,
           parentId: withParent ? (i - 1).toString() : undefined,
           expanded: false,
+          canSelect: i === 7 || i === 1 ? false : true,
           style: {
-            current: i === 1 ? 'background: gray; color:white; font-weight:bold;' : '',
-            children: i === 1 ? 'background: lightgray; border-bottom: 1px solid transparent;' : '',
-            gridBlock: {
-              current: i === 1 ? 'background: lightgray; border-bottom: 1px solid transparent;' : '',
-              children: i === 1 ? 'background: lightgray; border-bottom: 1px solid transparent;' : ''
+            current: i === 1 ? { background: 'gray', color: 'white', 'font-weight': 'bold' } : {},
+            children: i === 1 ? { background: 'lightgray' } : {},
+            grid: {
+              block: {
+                current: i === 1 ? { background: 'gray', color: 'white', 'font-weight': 'bold' } : {},
+                children: i === 1 ? { background: 'lightgray' } : {}
+              }
+            },
+            items: {
+              item: {
+                current: i === 2 ? { background: 'olive' } : {},
+                children: i === 2 ? { background: 'olive' } : {}
+              },
+              row: {}
             }
           }
         };
@@ -75,6 +85,7 @@
       rows['2'].label = 'Level 0';
       rows['3'].label = 'Level 1';
       rows['3'].parentId = '1';
+      rows['7'].label = 'Not selectable';
 
       let startDayjs = GSTC.api
         .date()
@@ -99,7 +110,7 @@
                 .valueOf() - 1
           },
           rowId: id,
-          style: { current: i === 0 ? 'background: green; color:white;' : '' }
+          style: i === 0 ? { background: 'green', color: 'white' } : {}
         };
       }
 
@@ -226,22 +237,44 @@
           }),
           SaveAsImage(),
           Selection({
+            items: false,
+            rows: false,
+            grid: true,
             rectStyle: { opacity: '0.0' },
+            canSelect(type, currentlySelecting) {
+              if (type === 'chart-timeline-grid-row-block') {
+                // check if there is any item that lives inside current cell
+                return currentlySelecting.filter(selected => {
+                  if (!selected.row.canSelect) return false;
+                  for (const item of selected.row._internal.items) {
+                    if (
+                      (item.time.start >= selected.time.leftGlobal && item.time.start <= selected.time.rightGlobal) ||
+                      (item.time.end >= selected.time.leftGlobal && item.time.end <= selected.time.rightGlobal) ||
+                      (item.time.start <= selected.time.leftGlobal && item.time.end >= selected.time.rightGlobal)
+                    ) {
+                      return false;
+                    }
+                  }
+                  return true;
+                });
+              }
+              return currentlySelecting;
+            },
             selecting(data, type) {
-              console.log(`selecting ${type}`, data);
+              //console.log(`selecting ${type}`, data);
             },
             deselecting(data, type) {
-              console.log(`deselecting ${type}`, data);
+              //console.log(`deselecting ${type}`, data);
             },
             selected(data, type) {
-              console.log(`selected ${type}`, data);
+              //console.log(`selected ${type}`, data);
             },
             deselected(data, type) {
-              console.log(`deselected ${type}`, data);
+              //console.log(`deselected ${type}`, data);
             }
           })
         ],
-        height: 40 * 12 + 94,
+        height: 800,
         list: {
           rows,
           columns,
