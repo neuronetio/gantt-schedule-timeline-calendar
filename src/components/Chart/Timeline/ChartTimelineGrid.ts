@@ -12,6 +12,7 @@ export default function ChartTimelineGrid(vido, props) {
   const { api, state, onDestroy, actions, update, html, reuseComponents } = vido;
   const componentName = 'chart-timeline-grid';
   const componentActions = api.getActions(componentName);
+  const actionProps = { api, state };
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineGrid', value => (wrapper = value)));
@@ -118,7 +119,7 @@ export default function ChartTimelineGrid(vido, props) {
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, { api, state })} style=${style}>
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${style}>
           ${rowsComponents.map(r => r.html())}
         </div>
       `,

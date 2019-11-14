@@ -30,9 +30,8 @@ export default function ListToggle(vido, props) {
     })
   );
   onDestroy(
-    state.subscribeAll(['config.list.expander.size', 'config.list.expander.icons'], () => {
+    state.subscribe('config.list.expander.icons', () => {
       const expander = state.get('config.list.expander');
-      style = `--size: ${expander.size}px`;
       iconChild = expander.icons.child;
       iconOpen = expander.icons.open;
       iconClosed = expander.icons.closed;
@@ -107,19 +106,14 @@ export default function ListToggle(vido, props) {
         `;
   };
 
-  return function updateTemplate(templateProps) {
-    return wrapper(
+  const actionProps = { row: props.row, api, state };
+  return templateProps =>
+    wrapper(
       html`
-        <div
-          class=${className}
-          data-actions=${actions(componentActions, { row: props.row, api, state })}
-          style=${style}
-          @click=${toggle}
-        >
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} @click=${toggle}>
           ${getIcon()}
         </div>
       `,
       { vido, props, templateProps }
     );
-  };
 }

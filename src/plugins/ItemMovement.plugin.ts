@@ -85,7 +85,8 @@ export default function ItemMovement(options = {}) {
       const height = element.clientHeight + 'px';
       ghost.style.height = height;
       ghost.style['line-height'] = height;
-      ghost.style.opacity = '0.75';
+      ghost.style.opacity = '0.6';
+      ghost.style.transform = 'scale(1.05, 1.05)';
       state.get('_internal.elements.chart-timeline').appendChild(ghost);
       movement.ghost = ghost;
       return ghost;
@@ -109,7 +110,6 @@ export default function ItemMovement(options = {}) {
         state.get('_internal.elements.chart-timeline').removeChild(movementState[itemId].ghost);
         delete movementState[itemId].ghost;
       }
-      element.style.opacity = '1';
     }
 
     function getSnapStart(data) {
@@ -340,12 +340,12 @@ export default function ItemMovement(options = {}) {
     resizerEl.addEventListener('mousedown', resizerMouseDown, { capture: true });
     document.addEventListener('mousemove', documentMouseMove, { capture: true, passive: true });
     document.addEventListener('mouseup', documentMouseUp, { capture: true, passive: true });
+
     return {
       update(node, changedData) {
-        data = changedData;
-        if (!isResizeable(data)) {
+        if (!isResizeable(data) && resizerEl.style.visibility === 'visible') {
           resizerEl.style.visibility = 'hidden';
-        } else {
+        } else if (isResizeable(data) && resizerEl.style.visibility === 'hidden') {
           resizerEl.style.visibility = 'visible';
         }
       },

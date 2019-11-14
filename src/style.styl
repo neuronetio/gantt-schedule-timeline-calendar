@@ -19,6 +19,7 @@ $item-content-padding = 5px
   overflow: hidden
   color: $font-color
   font-size: 14px
+  background-color: #fdfdfd;
 
   & *
     box-sizing: border-box
@@ -55,33 +56,45 @@ $item-content-padding = 5px
     flex-shrink: 0
     user-select: none
     &-expander
-      display: inline-flex
+      display: flex
       height: var(--height)
       &-padding
-        width: var(--width)
+        width: var(--expander-padding-width)
         height: var(--height)
-        display: inline-block
+        display: block
+        flex-shrink: 0
       &-toggle
         display: block
-        margin-right: 5px
+        flex-shrink: 0
+        height: var(--height)
+        width: var(--expander-size)
         &-child
+          margin: 0 auto
+          text-align: center
           cursor: default
         &-open
+          margin: 0 auto
+          text-align: center
           cursor: pointer
         &-closed
+          margin: 0 auto
+          text-align: center
           cursor: pointer
         & svg
           vertical-align: middle
           width: 16px
           height: 16px
-          margin-left: 10px
     &-column
       width: var(--width)
       position: relative
       &-rows
         height: var(--height)
+        width: var(--width)
         overflow: hidden
-        &---scroll-compensation
+        &--scroll-compensation
+          overflow: hidden
+          height: var(--height)
+          width: var(--width)
           overflow: hidden
     &-column-row, &-column-header
       overflow: hidden
@@ -100,6 +113,13 @@ $item-content-padding = 5px
     &-column-row
       border-bottom: 1px solid $bg-dark-2
       border-right: 1px solid $bg-dark-2
+      &-content
+        width: calc( var(--width) - var(--expander-padding-width) - var(--expander-size) )
+        height: var(--height)
+        overflow: hidden
+        padding-left: 6px
+        flex-shrink: 0
+        flex-grow: 1
     &-column-header
       background: $bg-dark-1
       font-weight: 500
@@ -110,11 +130,10 @@ $item-content-padding = 5px
       &-content
         vertical-align: middle
         line-height: calc(var(--height) - 2px)
-        margin-left: 4px
         width: 100%
         display: flex
       &-resizer
-        display: inline-flex
+        display: flex
         flex-grow: 1
         flex-shrink: 0
         background:transparent
@@ -124,6 +143,7 @@ $item-content-padding = 5px
           display: block
         &-container
           flex-grow: 1
+          padding-left: 6px
         &-line
           position:absolute
           top: 0
@@ -266,7 +286,8 @@ $item-content-padding = 5px
             overflow: hidden
             height: 100%
           &-item
-            position: absolute
+            overflow: hidden
+            position: absolute // must be here - movement
             pointer-events: all
             padding: 4px 0px
             height: 100%
@@ -278,6 +299,7 @@ $item-content-padding = 5px
             &--moving
               opacity: 0.5
             &-content
+              overflow: hidden
               user-select: none
               background: #E74C3C
               color: white

@@ -98,19 +98,21 @@ export default function ListColumn(vido, props) {
   function getRowHtml(row) {
     return row.html();
   }
+  const componentActionsProps = { column, state: state, api: api };
+  const rowActionsProps = { api, state };
   return templateProps =>
     wrapper(
       html`
         <div
           class=${className}
-          data-actions=${actions(componentActions, { column, state: state, api: api })}
+          data-actions=${actions(componentActions, componentActionsProps)}
           style=${styleMap(widthStyle)}
         >
           ${ListColumnHeader.html()}
           <div
             class=${classNameContainer}
             style=${styleMap(styleContainer)}
-            data-actions=${actions(rowsActions, { api, state })}
+            data-actions=${actions(rowsActions, rowActionsProps)}
           >
             <div class=${classNameContainer + '--scroll-compensation'} style=${styleMap(styleScrollCompensation)}>
               ${visibleRows.map(getRowHtml)}

@@ -39,6 +39,11 @@ function bindElementAction(element, data) {
 export default function ChartTimelineGridRow(vido, props) {
   const { api, state, onDestroy, actions, update, html, reuseComponents, onChange, styleMap } = vido;
   const componentName = 'chart-timeline-grid-row';
+  const actionProps = {
+    ...props,
+    api,
+    state
+  };
   let wrapper;
   onDestroy(
     state.subscribe('config.wrappers.ChartTimelineGridRow', value => {
@@ -83,6 +88,9 @@ export default function ChartTimelineGridRow(vido, props) {
     }
     const currentStyle = props.row?.style?.grid?.row?.current;
     if (currentStyle) style = { ...style, ...currentStyle };
+    for (const prop in props) {
+      actionProps[prop] = props[prop];
+    }
     update();
   };
   onChange(onPropsChange);
@@ -94,24 +102,14 @@ export default function ChartTimelineGridRow(vido, props) {
   if (componentActions.indexOf(bindElementAction) === -1) {
     componentActions.push(bindElementAction);
   }
-
-  return templateProps =>
-    wrapper(
+  return templateProps => {
+    return wrapper(
       html`
-        <div
-          class=${className}
-          data-actions=${actions(componentActions, {
-            row: props.row,
-            blocks: props.blocks,
-            top: props.top,
-            api,
-            state
-          })}
-          style=${styleMap(style)}
-        >
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style)}>
           ${rowsBlocksComponents.map(r => r.html())}
         </div>
       `,
       { vido, props, templateProps }
     );
+  };
 }

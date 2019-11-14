@@ -2050,48 +2050,6 @@
      * subject to an additional IP rights grant found at
      * http://polymer.github.io/PATENTS.txt
      */
-    // For each part, remember the value that was last rendered to the part by the
-    // unsafeHTML directive, and the DocumentFragment that was last set as a value.
-    // The DocumentFragment is used as a unique key to check if the last value
-    // rendered to the part was with unsafeHTML. If not, we'll always re-render the
-    // value passed to unsafeHTML.
-    const previousValues$1 = new WeakMap();
-    /**
-     * Renders the result as HTML, rather than text.
-     *
-     * Note, this is unsafe to use with any user-provided input that hasn't been
-     * sanitized or escaped, as it may lead to cross-site-scripting
-     * vulnerabilities.
-     */
-    const unsafeHTML = directive((value) => (part) => {
-        if (!(part instanceof NodePart)) {
-            throw new Error('unsafeHTML can only be used in text bindings');
-        }
-        const previousValue = previousValues$1.get(part);
-        if (previousValue !== undefined && isPrimitive(value) &&
-            value === previousValue.value && part.value === previousValue.fragment) {
-            return;
-        }
-        const template = document.createElement('template');
-        template.innerHTML = value; // innerHTML casts to string internally
-        const fragment = document.importNode(template.content, true);
-        part.setValue(fragment);
-        previousValues$1.set(part, { value, fragment });
-    });
-
-    /**
-     * @license
-     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-     * This code may only be used under the BSD style license found at
-     * http://polymer.github.io/LICENSE.txt
-     * The complete set of authors may be found at
-     * http://polymer.github.io/AUTHORS.txt
-     * The complete set of contributors may be found at
-     * http://polymer.github.io/CONTRIBUTORS.txt
-     * Code distributed by Google as part of the polymer project is also
-     * subject to an additional IP rights grant found at
-     * http://polymer.github.io/PATENTS.txt
-     */
     const _state = new WeakMap();
     // Effectively infinity, but a SMI.
     const _infinity = 0x7fffffff;
@@ -2265,6 +2223,9 @@
         let shouldUpdateCount = 0;
         const resolved = Promise.resolve();
         const previousStyle = new WeakMap();
+        const previousUnsafeValues = new WeakMap();
+        const textNode = document.createTextNode('');
+        const templateNode = document.createElement('template');
         /**
          * Get actions for component instance as directives
          *
@@ -2273,7 +2234,7 @@
          */
         function getActions(instance) {
             return directive(function actionsByInstanceDirective(createFunctions, props = {}) {
-                return function partial(part) {
+                return function actions(part) {
                     const element = part.committer.element;
                     for (const create of createFunctions) {
                         if (typeof create === 'function') {
@@ -2303,6 +2264,7 @@
                             }
                         }
                     }
+                    part.setValue('');
                 };
             });
         }
@@ -2342,7 +2304,6 @@
             }
             /**
              * Change component input properties
-             *
              * @param {any} newProps
              */
             change(newProps, options) {
@@ -2387,12 +2348,31 @@
         vido.prototype.guard = guard;
         vido.prototype.ifDefined = ifDefined;
         vido.prototype.repeat = repeat;
-        //vido.prototype.styleMap = styleMap;
-        vido.prototype.unsafeHTML = unsafeHTML;
+        //vido.prototype.unsafeHTML = unsafeHTML;
+        vido.prototype.unsafeHTML = directive((value) => (part) => {
+            const previousValue = previousUnsafeValues.get(part);
+            if (previousValue !== undefined &&
+                isPrimitive(value) &&
+                value === previousValue.value &&
+                part.value === previousValue.fragment) {
+                return;
+            }
+            const template = templateNode.cloneNode();
+            template.innerHTML = value; // innerHTML casts to string internally
+            const fragment = document.importNode(template.content, true);
+            part.setValue(fragment);
+            previousUnsafeValues.set(part, { value, fragment });
+        });
         vido.prototype.until = until;
         vido.prototype.schedule = schedule;
         vido.prototype.actionsByInstance = (componentActions, props) => { };
-        vido.prototype.styleMap = directive((styleInfo, removePrevious = true) => (part) => {
+        vido.prototype.text = directive((text) => function setText(part) {
+            const node = part.value || textNode.cloneNode();
+            if (node.data !== text)
+                node.data = text;
+            part.setValue(node);
+        });
+        vido.prototype.styleMap = directive((styleInfo, removePrevious = true) => function style(part) {
             const style = part.committer.element.style;
             let previous = previousStyle.get(part);
             if (previous === undefined) {
@@ -2411,12 +2391,7 @@
                     continue;
                 }
                 if (!name.includes('-')) {
-                    try {
-                        style[name] = value;
-                    }
-                    catch (e) {
-                        style.setProperty(name, value);
-                    }
+                    style[name] = value;
                 }
                 else {
                     style.setProperty(name, value);
@@ -2599,13 +2574,12 @@
          * @param {object} vidoInstance
          */
         vido.prototype.updateTemplate = function updateTemplate() {
-            shouldUpdateCount++;
-            const currentShouldUpdateCount = shouldUpdateCount;
+            const currentShouldUpdateCount = ++shouldUpdateCount;
             const self = this;
             resolved.then(function flush() {
                 if (currentShouldUpdateCount === shouldUpdateCount) {
-                    self.render();
                     shouldUpdateCount = 0;
+                    self.render();
                     if (self.debug) {
                         console.groupCollapsed('templates updated');
                         console.trace();
@@ -2631,11 +2605,20 @@
          * Execute actions
          */
         vido.prototype.executeActions = function executeActions() {
+            var _a, _b;
             for (const actions of actionsByInstance.values()) {
                 for (const action of actions) {
                     if (typeof action.element.vido === 'undefined') {
-                        if (typeof action.componentAction.create === 'function') {
-                            const result = action.componentAction.create(action.element, action.props);
+                        const componentAction = action.componentAction;
+                        const create = componentAction.create;
+                        if (typeof create === 'function') {
+                            let result;
+                            if (((_a = create.prototype) === null || _a === void 0 ? void 0 : _a.update) === undefined && ((_b = create.prototype) === null || _b === void 0 ? void 0 : _b.destroy) === undefined) {
+                                result = create(action.element, action.props);
+                            }
+                            else {
+                                result = new create(action.element, action.props);
+                            }
                             if (this.debug) {
                                 console.groupCollapsed(`create action executed ${action.instance}`);
                                 console.log(clone({ components: components.keys(), action, actionsByInstance }));
@@ -2644,14 +2627,14 @@
                             }
                             if (typeof result !== 'undefined') {
                                 if (typeof result === 'function') {
-                                    action.componentAction.destroy = result;
+                                    componentAction.destroy = result;
                                 }
                                 else {
                                     if (typeof result.update === 'function') {
-                                        action.componentAction.update = result.update;
+                                        componentAction.update = result.update.bind(result);
                                     }
                                     if (typeof result.destroy === 'function') {
-                                        action.componentAction.destroy = result.destroy;
+                                        componentAction.destroy = result.destroy.bind(result);
                                     }
                                 }
                             }
@@ -3946,13 +3929,15 @@
         const bindScrollInnerElement = (element) => {
             state.update('_internal.elements.vertical-scroll-inner', element);
         };
+        const actionProps = Object.assign(Object.assign({}, props), { api, state });
         return templateProps => wrapper(html `
         <div
+          data-info-url="https://github.com/neuronetio/gantt-schedule-timeline-calendar"
           class=${className}
           style=${style}
           @scroll=${onScrollStop}
           @wheel=${onScrollStop}
-          data-actions=${actions(componentActions, Object.assign(Object.assign({}, props), { api, state }))}
+          data-actions=${actions(componentActions, actionProps)}
         >
           ${List.html()}${Chart.html()}
           <div
@@ -3977,7 +3962,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function List(vido, props = {}) {
-        const { api, state, onDestroy, actions, update, reuseComponents, html, schedule } = vido;
+        const { api, state, onDestroy, actions, update, reuseComponents, html, schedule, styleMap } = vido;
         const componentName = 'list';
         const componentActions = api.getActions(componentName);
         let wrapper;
@@ -4005,9 +3990,12 @@
         onDestroy(() => {
             listColumns.forEach(c => c.destroy());
         });
-        let style = '';
-        onDestroy(state.subscribe('config.height', height => {
-            style = `height: ${height}px`;
+        let style = { height: '', '--expander-padding-width': '', '--expander-size': '' };
+        onDestroy(state.subscribeAll(['config.height', 'config.list.expander'], bulk => {
+            style.height = state.get('config.height') + 'px';
+            const expander = state.get('config.list.expander');
+            style['--expander-padding-width'] = expander.padding + 'px';
+            style['--expander-size'] = expander.size + 'px';
             update();
         }));
         function onScrollHandler(event) {
@@ -4045,12 +4033,13 @@
                 update: getWidth
             };
         });
+        const actionProps = Object.assign(Object.assign({}, props), { api, state });
         return templateProps => wrapper(list.columns.percent > 0
             ? html `
             <div
               class=${className}
-              data-actions=${actions(componentActions, Object.assign(Object.assign({}, props), { api, state }))}
-              style=${style}
+              data-actions=${actions(componentActions, actionProps)}
+              style=${styleMap(style)}
               @scroll=${onScroll}
               @wheel=${onScroll}
             >
@@ -4129,17 +4118,19 @@
         function getRowHtml(row) {
             return row.html();
         }
+        const componentActionsProps = { column, state: state, api: api };
+        const rowActionsProps = { api, state };
         return templateProps => wrapper(html `
         <div
           class=${className}
-          data-actions=${actions(componentActions, { column, state: state, api: api })}
+          data-actions=${actions(componentActions, componentActionsProps)}
           style=${styleMap(widthStyle)}
         >
           ${ListColumnHeader.html()}
           <div
             class=${classNameContainer}
             style=${styleMap(styleContainer)}
-            data-actions=${actions(rowsActions, { api, state })}
+            data-actions=${actions(rowsActions, rowActionsProps)}
           >
             <div class=${classNameContainer + '--scroll-compensation'} style=${styleMap(styleScrollCompensation)}>
               ${visibleRows.map(getRowHtml)}
@@ -4159,7 +4150,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnHeader(vido, props) {
-        const { api, state, onDestroy, actions, update, createComponent, html } = vido;
+        const { api, state, onDestroy, actions, update, createComponent, html, cache } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListColumnHeader', value => (wrapper = value)));
         const componentName = 'list-column-header';
@@ -4199,9 +4190,10 @@
       </div>
     `;
         }
+        const actionProps = { column, api, state };
         return templateProps => wrapper(html `
-        <div class=${className} style=${style} data-actions=${actions(componentActions, { column, api, state })}>
-          ${typeof column.expander === 'boolean' && column.expander ? withExpander() : withoutExpander()}
+        <div class=${className} style=${style} data-actions=${actions(componentActions, actionProps)}>
+          ${cache(typeof column.expander === 'boolean' && column.expander ? withExpander() : withoutExpander())}
         </div>
       `, { vido, props, templateProps });
     }
@@ -4216,7 +4208,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnHeaderResizer(vido, props) {
-        const { api, state, onDestroy, update, html, actions } = vido;
+        const { api, state, onDestroy, update, html, actions, text, cache } = vido;
         const componentName = 'list-column-header-resizer';
         const componentActions = api.getActions(componentName);
         let wrapper;
@@ -4289,14 +4281,15 @@
         onDestroy(() => document.body.removeEventListener('mousemove', onMouseMove));
         document.body.addEventListener('mouseup', onMouseUp);
         onDestroy(() => document.body.removeEventListener('mouseup', onMouseUp));
+        const actionProps = { column, api, state };
         return templateProps => wrapper(html `
-        <div class=${className} data-actions=${actions(componentActions, { column, api, state })}>
+        <div class=${className} data-actions=${actions(componentActions, actionProps)}>
           <div class=${containerClass}>
-            ${column.header.html
+            ${cache(column.header.html
         ? html `
-                  ${column.header.html}
-                `
-        : column.header.content}
+                    ${column.header.html}
+                  `
+        : text(column.header.content))}
           </div>
           <div class=${dotsClass} style=${'--' + dotsWidth} @mousedown=${onMouseDown}>
             ${dots.map(dot => html `
@@ -4317,7 +4310,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnRow(vido, props) {
-        const { api, state, onDestroy, actions, update, html, createComponent, onChange, styleMap } = vido;
+        const { api, state, onDestroy, actions, update, html, createComponent, onChange, styleMap, text, cache } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListColumnRow', value => (wrapper = value)));
         let ListExpanderComponent;
@@ -4325,10 +4318,12 @@
         let rowPath = `_internal.flatTreeMapById.${props.rowId}`, row = state.get(rowPath);
         let colPath = `config.list.columns.data.${props.columnId}`, column = state.get(colPath);
         let style = {
-            height: row.height + 'px',
             opacity: '1',
             pointerEvents: 'all',
-            '--height': row.height + 'px'
+            height: '',
+            '--height': '',
+            '--expander-padding-width': '',
+            '--expander-size': ''
         };
         let rowSub, colSub;
         const ListExpander = createComponent(ListExpanderComponent, { row });
@@ -4350,14 +4345,16 @@
             }
             rowPath = `_internal.flatTreeMapById.${rowId}`;
             colPath = `config.list.columns.data.${columnId}`;
-            rowSub = state.subscribe(rowPath, value => {
-                row = value;
+            rowSub = state.subscribeAll([rowPath, 'config.list.expander'], bulk => {
+                row = state.get(rowPath);
+                const expander = state.get('config.list.expander');
                 // @ts-ignore
-                style = {};
-                style['--height'] = row.height + 'px';
-                style.height = row.height + 'px';
+                style = {}; // we must reset style because of user specified styling
                 style.opacity = '1';
                 style.pointerEvents = 'all';
+                style.height = row.height + 'px';
+                style['--height'] = row.height + 'px';
+                style['--expander-padding-width'] = expander.padding * (row._internal.parents.length + 1) + 'px';
                 for (let parentId of row._internal.parents) {
                     const parent = state.get(`_internal.flatTreeMapById.${parentId}`);
                     if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
@@ -4409,14 +4406,13 @@
                 return column.data(row);
             return row[column.data];
         }
+        const actionProps = { column, row, api, state };
         return templateProps => wrapper(html `
-        <div
-          class=${className}
-          style=${styleMap(style)}
-          data-actions=${actions(componentActions, { column, row, api, state })}
-        >
-          ${column.expander ? ListExpander.html() : null}
-          <div class=${className + '-content'}>${typeof column.html === 'string' ? getHtml() : getText()}</div>
+        <div class=${className} style=${styleMap(style)} data-actions=${actions(componentActions, actionProps)}>
+          ${cache(column.expander ? ListExpander.html() : null)}
+          <div class=${className + '-content'}>
+            ${cache(typeof column.html === 'string' ? getHtml() : text(getText()))}
+          </div>
         </div>
       `, { vido, props, templateProps });
     }
@@ -4434,7 +4430,7 @@
         const { api, state, onDestroy, actions, update, html, createComponent, onChange } = vido;
         const componentName = 'list-expander';
         const componentActions = api.getActions(componentName);
-        let className, padding, width, paddingClass;
+        let className, paddingClass;
         let ListToggleComponent;
         onDestroy(state.subscribe('config.components.ListToggle', value => (ListToggleComponent = value)));
         const ListToggle = createComponent(ListToggleComponent, props.row ? { row: props.row } : {});
@@ -4446,34 +4442,19 @@
             paddingClass = api.getClass(componentName + '-padding');
             update();
         }));
-        onDestroy(state.subscribeAll(['config.list.expander.padding'], value => {
-            padding = value;
-            update();
-        }));
         if (props.row) {
-            let parentSub;
             const onPropsChange = changedProps => {
                 props = changedProps;
-                if (parentSub)
-                    parentSub();
-                parentSub = state.subscribe(`_internal.list.rows.${props.row.id}.parentId`, function parentChanged(parentId) {
-                    width = 'width:' + props.row._internal.parents.length * padding + 'px';
-                    update();
-                });
                 ListToggle.change(props);
             };
             onChange(onPropsChange);
             onDestroy(function listExpanderDestroy() {
-                if (parentSub)
-                    parentSub();
             });
         }
-        else {
-            width = 'width:0px';
-        }
+        const actionProps = { row: props.row, api, state };
         return templateProps => wrapper(html `
-        <div class=${className} data-action=${actions(componentActions, { row: props.row, api, state })}>
-          <div class=${paddingClass} style=${width}></div>
+        <div class=${className} data-action=${actions(componentActions, actionProps)}>
+          <div class=${paddingClass}></div>
           ${ListToggle.html()}
         </div>
       `, { vido, props, templateProps });
@@ -4494,7 +4475,7 @@
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListToggle', value => (wrapper = value)));
         const componentActions = api.getActions(componentName);
-        let className, style;
+        let className;
         let classNameChild, classNameOpen, classNameClosed;
         let expanded = false;
         let iconChild, iconOpen, iconClosed;
@@ -4505,9 +4486,8 @@
             classNameClosed = api.getClass(componentName + '-closed');
             update();
         }));
-        onDestroy(state.subscribeAll(['config.list.expander.size', 'config.list.expander.icons'], () => {
+        onDestroy(state.subscribe('config.list.expander.icons', () => {
             const expander = state.get('config.list.expander');
-            style = `--size: ${expander.size}px`;
             iconChild = expander.icons.child;
             iconOpen = expander.icons.open;
             iconClosed = expander.icons.closed;
@@ -4578,18 +4558,12 @@
           </div>
         `;
         };
-        return function updateTemplate(templateProps) {
-            return wrapper(html `
-        <div
-          class=${className}
-          data-actions=${actions(componentActions, { row: props.row, api, state })}
-          style=${style}
-          @click=${toggle}
-        >
+        const actionProps = { row: props.row, api, state };
+        return templateProps => wrapper(html `
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} @click=${toggle}>
           ${getIcon()}
         </div>
       `, { vido, props, templateProps });
-        };
     }
 
     /**
@@ -4675,7 +4649,7 @@
             capture: false
         };
         const onWheel = {
-            handleEvent,
+            handleEvent: schedule(handleEvent),
             passive: true,
             capture: false
         };
@@ -4728,9 +4702,10 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ChartCalendar(vido, props) {
-        const { api, state, onDestroy, actions, update, reuseComponents, html, repeat } = vido;
+        const { api, state, onDestroy, actions, update, reuseComponents, html, styleMap } = vido;
         const componentName = 'chart-calendar';
         const componentActions = api.getActions(componentName);
+        const actionProps = Object.assign(Object.assign({}, props), { api, state });
         const ChartCalendarDateComponent = state.get('config.components.ChartCalendarDate');
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartCalendar', value => (wrapper = value)));
@@ -4739,10 +4714,11 @@
             className = api.getClass(componentName);
             update();
         }));
-        let headerHeight, style = '';
+        let headerHeight, style = { height: '', '--headerHeight': '' };
         onDestroy(state.subscribe('config.headerHeight', value => {
             headerHeight = value;
-            style = `height: ${headerHeight}px;--calendar-height: ${headerHeight}px`;
+            style.height = headerHeight + 'px';
+            style['--calendar-height'] = headerHeight + 'px';
             update();
         }));
         let period;
@@ -4765,7 +4741,7 @@
             state.update('_internal.elements.calendar', element);
         });
         return templateProps => wrapper(html `
-        <div class=${className} data-actions=${actions(componentActions, Object.assign(Object.assign({}, props), { api, state }))} style=${style}>
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style)}>
           <div class=${className + '-dates ' + className + '-dates--months'}>${monthComponents.map(m => m.html())}</div>
           <div class=${className + '-dates ' + className + '-dates--days'}>${dayComponents.map(d => d.html())}</div>
           </div>
@@ -4783,7 +4759,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ChartCalendarDate(vido, props) {
-        const { api, state, onDestroy, actions, update, onChange, html } = vido;
+        const { api, state, onDestroy, actions, update, onChange, html, styleMap, text } = vido;
         const componentName = 'chart-calendar-date';
         const componentActions = api.getActions(componentName);
         let wrapper;
@@ -4796,12 +4772,14 @@
         else {
             current = '';
         }
-        let time, htmlFormatted, style;
+        let time, htmlFormatted, style = { width: '', 'margin-left': '', visibility: 'visible' };
         const updateDate = () => {
             if (!props)
                 return;
             time = state.get('_internal.chart.time');
-            style = `width: ${props.date.width}px; margin-left:-${props.date.subPx}px;`;
+            style.width = props.date.width + 'px';
+            style['margin-left'] = -props.date.subPx + 'px';
+            style.visibility = 'visible';
             const dateMod = api.time.date(props.date.leftGlobal);
             if (dateMod.format('YYYY-MM-DD') === props.currentDate) {
                 current = ' current';
@@ -4821,15 +4799,15 @@
                     htmlFormatted = html `
           <div
             class=${className + '-content ' + className + '-content--month' + current}
-            style="margin-left:${props.date.subPx + 8}px;"
+            style="margin-left:${props.date.subPx}"
           >
-            ${dateMod.format('MMMM YYYY')}
+            ${text(dateMod.format('MMMM YYYY'))}
           </div>
         `;
                     if (maxWidth <= 100) {
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--month' + current}>
-              ${dateMod.format("MMM'YY")}
+              ${text(dateMod.format("MMM'YY"))}
             </div>
           `;
                     }
@@ -4838,37 +4816,37 @@
                     htmlFormatted = html `
           <div class=${className + '-content ' + className + '-content--day _0' + current}>
             <div class=${className + '-content ' + className + '-content--day-small' + current}>
-              ${dateMod.format('DD')} ${dateMod.format('ddd')}
+              ${text(dateMod.format('DD'))} ${text(dateMod.format('ddd'))}
             </div>
           </div>
         `;
                     if (maxWidth >= 40 && maxWidth < 50) {
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _40' + current}>
-              ${dateMod.format('DD')}
+              ${text(dateMod.format('DD'))}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${dateMod.format('dd')}
+              ${text(dateMod.format('dd'))}
             </div>
           `;
                     }
                     if (maxWidth >= 50 && maxWidth < 90) {
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _50' + current}>
-              ${dateMod.format('DD')}
+              ${text(dateMod.format('DD'))}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${dateMod.format('ddd')}
+              ${text(dateMod.format('ddd'))}
             </div>
           `;
                     }
                     if (maxWidth >= 90 && maxWidth < 180) {
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _90' + current}>
-              ${dateMod.format('DD')}
+              ${text(dateMod.format('DD'))}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${dateMod.format('dddd')}
+              ${text(dateMod.format('dddd'))}
             </div>
           `;
                     }
@@ -4890,7 +4868,7 @@
                         }
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _180' + current}>
-              ${dateMod.format('DD dddd')}
+              ${text(dateMod.format('DD dddd'))}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
               ${hours.map(hour => html `
@@ -4898,7 +4876,7 @@
                       class="${className + '-content ' + className + '-content--hours-hour' + current}"
                       style="width: ${hour.width}px"
                     >
-                      ${hour.formatted}
+                      ${text(hour.formatted)}
                     </div>
                   `)}
             </div>
@@ -4922,7 +4900,7 @@
                         }
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _400' + current}>
-              ${dateMod.format('DD dddd')}
+              ${text(dateMod.format('DD dddd'))}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
               ${hours.map(hour => html `
@@ -4930,7 +4908,7 @@
                       class=${className + '-content ' + className + '-content--hours-hour' + current}
                       style="width: ${hour.width}px"
                     >
-                      ${hour.formatted}
+                      ${text(hour.formatted)}
                     </div>
                   `)}
             </div>
@@ -4956,7 +4934,7 @@
                         }
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _1000' + current} style=${scroll}>
-              ${dateMod.format('DD dddd')}
+              ${text(dateMod.format('DD dddd'))}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
               ${hours.map(hour => html `
@@ -4964,7 +4942,7 @@
                       class=${className + '-content ' + className + '-content--hours-hour' + current}
                       style="width: ${hour.width}px"
                     >
-                      ${hour.formatted}
+                      ${text(hour.formatted)}
                     </div>
                   `)}
             </div>
@@ -4983,7 +4961,7 @@
                         }
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _2000' + current} style=${scroll}>
-              ${dateMod.format('DD dddd')}
+              ${text(dateMod.format('DD dddd'))}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
               ${hours.map(hour => html `
@@ -4991,7 +4969,7 @@
                       class=${className + '-content ' + className + '-content--hours-hour' + current}
                       style="width: ${hour.width}px"
                     >
-                      ${hour.formatted}
+                      ${text(hour.formatted)}
                     </div>
                   `)}
             </div>
@@ -5010,7 +4988,7 @@
                         }
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _5000' + current} style=${scroll}>
-              ${dateMod.format('DD dddd')}
+              ${text(dateMod.format('DD dddd'))}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
               ${hours.map(hour => html `
@@ -5018,7 +4996,7 @@
                       class=${className + '-content ' + className + '-content--hours-hour' + current}
                       style="width: ${hour.width}px"
                     >
-                      ${hour.formatted}
+                      ${text(hour.formatted)}
                     </div>
                   `)}
             </div>
@@ -5037,7 +5015,7 @@
                         }
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _20000' + current} style=${scroll}>
-              ${dateMod.format('DD dddd')}
+              ${text(dateMod.format('DD dddd'))}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
               ${hours.map(hour => html `
@@ -5045,7 +5023,7 @@
                       class=${className + '-content ' + className + '-content--hours-hour' + current}
                       style="width: ${hour.width}px"
                     >
-                      ${hour.formatted}
+                      ${text(hour.formatted)}
                     </div>
                   `)}
             </div>
@@ -5058,7 +5036,7 @@
         let timeSub;
         onChange((changedProps, options) => {
             if (options.leave) {
-                style = 'visibility: hidden';
+                style.visibility = 'hidden';
                 return update();
             }
             props = changedProps;
@@ -5075,7 +5053,7 @@
         return templateProps => wrapper(html `
         <div
           class=${className + ' ' + className + '--' + props.period + current}
-          style=${style}
+          style=${styleMap(style)}
           data-actions=${actions(componentActions, { date: props.date, period: props.period, api, state })}
         >
           ${htmlFormatted}
@@ -5096,6 +5074,7 @@
         const { api, state, onDestroy, actions, update, html, createComponent } = vido;
         const componentName = 'chart-timeline';
         const componentActions = api.getActions(componentName);
+        const actionProps = Object.assign(Object.assign({}, props), { api, state });
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimeline', value => (wrapper = value)));
         const GridComponent = state.get('config.components.ChartTimelineGrid');
@@ -5133,7 +5112,7 @@
         <div
           class=${className}
           style=${style}
-          data-actions=${actions(componentActions, Object.assign(Object.assign({}, props), { api, state }))}
+          data-actions=${actions(componentActions, actionProps)}
           @wheel=${api.onScroll}
         >
           <div class=${classNameInner} style=${styleInner}>
@@ -5156,6 +5135,7 @@
         const { api, state, onDestroy, actions, update, html, reuseComponents } = vido;
         const componentName = 'chart-timeline-grid';
         const componentActions = api.getActions(componentName);
+        const actionProps = { api, state };
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineGrid', value => (wrapper = value)));
         const GridRowComponent = state.get('config.components.ChartTimelineGridRow');
@@ -5243,7 +5223,7 @@
             rowsComponents.forEach(row => row.destroy());
         });
         return templateProps => wrapper(html `
-        <div class=${className} data-actions=${actions(componentActions, { api, state })} style=${style}>
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${style}>
           ${rowsComponents.map(r => r.html())}
         </div>
       `, { props, vido, templateProps });
@@ -5284,6 +5264,8 @@
     function ChartTimelineGridRow(vido, props) {
         const { api, state, onDestroy, actions, update, html, reuseComponents, onChange, styleMap } = vido;
         const componentName = 'chart-timeline-grid-row';
+        const actionProps = Object.assign(Object.assign({}, props), { api,
+            state });
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineGridRow', value => {
             wrapper = value;
@@ -5326,6 +5308,9 @@
             const currentStyle = (_g = (_f = (_e = (_d = props.row) === null || _d === void 0 ? void 0 : _d.style) === null || _e === void 0 ? void 0 : _e.grid) === null || _f === void 0 ? void 0 : _f.row) === null || _g === void 0 ? void 0 : _g.current;
             if (currentStyle)
                 style = Object.assign(Object.assign({}, style), currentStyle);
+            for (const prop in props) {
+                actionProps[prop] = props[prop];
+            }
             update();
         };
         onChange(onPropsChange);
@@ -5335,21 +5320,13 @@
         if (componentActions.indexOf(bindElementAction) === -1) {
             componentActions.push(bindElementAction);
         }
-        return templateProps => wrapper(html `
-        <div
-          class=${className}
-          data-actions=${actions(componentActions, {
-        row: props.row,
-        blocks: props.blocks,
-        top: props.top,
-        api,
-        state
-    })}
-          style=${styleMap(style)}
-        >
+        return templateProps => {
+            return wrapper(html `
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style)}>
           ${rowsBlocksComponents.map(r => r.html())}
         </div>
       `, { vido, props, templateProps });
+        };
     }
 
     /**
@@ -5384,6 +5361,8 @@
     const ChartTimelineGridRowBlock = (vido, props) => {
         const { api, state, onDestroy, actions, update, html, onChange, styleMap } = vido;
         const componentName = 'chart-timeline-grid-row-block';
+        let actionProps = Object.assign(Object.assign({}, props), { api,
+            state });
         const componentActions = api.getActions(componentName);
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineGridRowBlock', value => {
@@ -5408,12 +5387,13 @@
          * On props change
          * @param {any} changedProps
          */
-        const onPropsChange = (changedProps, options) => {
+        function onPropsChange(changedProps, options) {
             var _a, _b, _c, _d, _e, _f, _g;
             if (options.leave) {
-                return;
+                return update();
             }
             props = changedProps;
+            actionProps = Object.assign(Object.assign({}, props), { api, state });
             updateClassName(props.time);
             // @ts-ignore
             style = {};
@@ -5430,20 +5410,18 @@
             if (currentStyle)
                 style = Object.assign(Object.assign({}, style), currentStyle);
             update();
-        };
+        }
         onChange(onPropsChange);
         if (componentActions.indexOf(bindElementAction$1) === -1) {
             componentActions.push(bindElementAction$1);
         }
-        return templateProps => wrapper(html `
-        <div
-          class=${className}
-          data-actions=${actions(componentActions, Object.assign(Object.assign({}, props), { api, state }))}
-          style=${styleMap(style)}
-        >
+        return templateProps => {
+            return wrapper(html `
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style)}>
           <div class=${classNameContent} />
         </div>
       `, { props, vido, templateProps });
+        };
     };
 
     /**
@@ -5486,8 +5464,9 @@
         onDestroy(function destroyRows() {
             rowsComponents.forEach(row => row.destroy());
         });
+        const actionProps = { api, state };
         return templateProps => wrapper(html `
-        <div class=${className} style=${style} data-actions=${actions(componentActions, { api, state })}>
+        <div class=${className} style=${style} data-actions=${actions(componentActions, actionProps)}>
           ${rowsComponents.map(r => r.html())}
         </div>
       `, { props, vido, templateProps });
@@ -5527,6 +5506,7 @@
     };
     const ChartTimelineItemsRow = (vido, props) => {
         const { api, state, onDestroy, actions, update, html, onChange, reuseComponents, styleMap } = vido;
+        const actionProps = Object.assign(Object.assign({}, props), { api, state });
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRow', value => (wrapper = value)));
         const ItemComponent = state.get('config.components.ChartTimelineItemsRowItem');
@@ -5577,6 +5557,9 @@
                 return update();
             }
             props = changedProps;
+            for (const prop in props) {
+                actionProps[prop] = props[prop];
+            }
             updateRow(props.row);
         };
         onChange(onPropsChange);
@@ -5597,17 +5580,15 @@
         if (!componentActions.includes(bindElementAction$2)) {
             componentActions.push(bindElementAction$2);
         }
-        return templateProps => wrapper(html `
-        <div
-          class=${className}
-          data-actions=${actions(componentActions, Object.assign(Object.assign({}, props), { api, state }))}
-          style=${styleMap(style, true)}
-        >
+        return templateProps => {
+            return wrapper(html `
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style, true)}>
           <div class=${classNameInner} style=${styleMap(styleInner)}>
             ${itemComponents.map(i => i.html())}
           </div>
         </div>
       `, { props, vido, templateProps });
+        };
     };
 
     /**
@@ -5642,12 +5623,20 @@
             }
         };
     };
-    const ChartTimelineItemsRowItem = (vido, props) => {
-        const { api, state, onDestroy, actions, update, html, onChange, styleMap } = vido;
+    function ChartTimelineItemsRowItem(vido, props) {
+        const { api, state, onDestroy, actions, update, html, onChange, styleMap, text } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
-        let style = { width: '', height: '', transform: '', opacity: '1', pointerEvents: 'all' }, contentStyle = {}, itemLeftPx = 0, itemWidthPx = 0, leave = false;
-        const updateItem = () => {
+        let style = { width: '', height: '', transform: '', opacity: '1', pointerEvents: 'all' }, contentStyle = { width: '', height: '' }, itemLeftPx = 0, itemWidthPx = 0, leave = false;
+        const actionProps = {
+            item: props.item,
+            row: props.row,
+            left: itemLeftPx,
+            width: itemWidthPx,
+            api,
+            state
+        };
+        function updateItem() {
             var _a, _b, _c, _d, _e, _f, _g, _h;
             if (leave)
                 return;
@@ -5663,7 +5652,7 @@
             style.opacity = '1';
             style.pointerEvents = 'all';
             // @ts-ignore
-            contentStyle = {};
+            contentStyle = { 'max-width': itemWidthPx + 'px', 'max-height': props.row.height + 'px' };
             const rows = state.get('config.list.rows');
             for (const parentId of props.row._internal.parents) {
                 const parent = rows[parentId];
@@ -5677,10 +5666,9 @@
             const currentStyle = (_h = props.item) === null || _h === void 0 ? void 0 : _h.style;
             if (currentStyle)
                 contentStyle = Object.assign(Object.assign({}, contentStyle), currentStyle);
-            //console.log(props.row.id, props.row._internal.parents, contentStyle);
             update();
-        };
-        const onPropsChange = (changedProps, options) => {
+        }
+        function onPropsChange(changedProps, options) {
             if (options.leave) {
                 leave = true;
                 style.opacity = '0';
@@ -5691,8 +5679,12 @@
                 leave = false;
             }
             props = changedProps;
+            actionProps.item = props.item;
+            actionProps.row = props.row;
+            actionProps.left = itemLeftPx;
+            actionProps.width = itemWidthPx;
             updateItem();
-        };
+        }
         onChange(onPropsChange);
         const componentName = 'chart-timeline-items-row-item';
         const componentActions = api.getActions(componentName);
@@ -5709,25 +5701,18 @@
         if (componentActions.indexOf(bindElementAction$3) === -1) {
             componentActions.push(bindElementAction$3);
         }
-        return templateProps => wrapper(html `
-        <div
-          class=${className}
-          data-actions=${actions(componentActions, {
-        item: props.item,
-        row: props.row,
-        left: itemLeftPx,
-        width: itemWidthPx,
-        api,
-        state
-    })}
-          style=${styleMap(style)}
-        >
+        return templateProps => {
+            return wrapper(html `
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style)}>
           <div class=${contentClassName} style=${styleMap(contentStyle)}>
-            <div class=${labelClassName}>${props.item.label}</div>
+            <div class=${labelClassName}>
+              ${text(props.item.label)}
+            </div>
           </div>
         </div>
       `, { vido, props, templateProps });
-    };
+        };
+    }
 
     /**
      * Gantt-Schedule-Timeline-Calendar
@@ -5860,7 +5845,7 @@
                     data: {}
                 },
                 expander: {
-                    padding: 20,
+                    padding: 18,
                     size: 20,
                     icons: {
                         child: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><ellipse ry="4" rx="4" id="svg_1" cy="12" cx="12" fill="#000000B0"/></svg>',
@@ -6217,9 +6202,25 @@
     function log(message, info) {
         console.debug(message, info);
     }
-    const defaultOptions = { delimeter: `.`, notRecursive: `;`, param: `:`, wildcard: `*`, log };
-    const defaultListenerOptions = { bulk: false, debug: false, source: '', data: undefined };
-    const defaultUpdateOptions = { only: [], source: '', debug: false, data: undefined };
+    const defaultOptions = {
+        delimeter: `.`,
+        notRecursive: `;`,
+        param: `:`,
+        wildcard: `*`,
+        log
+    };
+    const defaultListenerOptions = {
+        bulk: false,
+        debug: false,
+        source: "",
+        data: undefined
+    };
+    const defaultUpdateOptions = {
+        only: [],
+        source: "",
+        debug: false,
+        data: undefined
+    };
     function DeepState(data = {}, options = defaultOptions) {
         this.listeners = new Map();
         this.data = data;
@@ -6282,7 +6283,7 @@
         return path;
     };
     DeepState.prototype.split = function split(path) {
-        return path === '' ? [] : path.split(this.options.delimeter);
+        return path === "" ? [] : path.split(this.options.delimeter);
     };
     DeepState.prototype.isWildcard = function isWildcard(path) {
         return path.includes(this.options.wildcard);
@@ -6297,16 +6298,16 @@
         return path.includes(this.options.param);
     };
     DeepState.prototype.getParamsInfo = function getParamsInfo(path) {
-        let paramsInfo = { replaced: '', original: path, params: {} };
+        let paramsInfo = { replaced: "", original: path, params: {} };
         let partIndex = 0;
         let fullReplaced = [];
         for (const part of this.split(path)) {
             paramsInfo.params[partIndex] = {
                 original: part,
-                replaced: '',
-                name: ''
+                replaced: "",
+                name: ""
             };
-            const reg = new RegExp(`\\${this.options.param}([^\\${this.options.delimeter}\\${this.options.param}]+)`, 'g');
+            const reg = new RegExp(`\\${this.options.param}([^\\${this.options.delimeter}\\${this.options.param}]+)`, "g");
             let param = reg.exec(part);
             if (param) {
                 paramsInfo.params[partIndex].name = param[1];
@@ -6350,16 +6351,7 @@
         };
     };
     DeepState.prototype.getCleanListenersCollection = function getCleanListenersCollection(values = {}) {
-        return Object.assign({
-            listeners: {},
-            isRecursive: false,
-            isWildcard: false,
-            hasParams: false,
-            match: undefined,
-            paramsInfo: undefined,
-            path: undefined,
-            count: 0
-        }, values);
+        return Object.assign({ listeners: new Map(), isRecursive: false, isWildcard: false, hasParams: false, match: undefined, paramsInfo: undefined, path: undefined, count: 0 }, values);
     };
     DeepState.prototype.getCleanListener = function getCleanListener(fn, options = defaultListenerOptions) {
         return {
@@ -6382,7 +6374,7 @@
         if (this.listeners.has(listenerPath)) {
             let listenersCollection = this.listeners.get(listenerPath);
             this.id++;
-            listenersCollection.listeners[this.id] = listener;
+            listenersCollection.listeners.set(this.id, listener);
             return listenersCollection;
         }
         let collCfg = {
@@ -6404,11 +6396,11 @@
         }
         let listenersCollection = this.getCleanListenersCollection(Object.assign(Object.assign({}, collCfg), { match: this.getListenerCollectionMatch(collCfg.path, collCfg.isRecursive, collCfg.isWildcard) }));
         this.id++;
-        listenersCollection.listeners[this.id] = listener;
+        listenersCollection.listeners.set(this.id, listener);
         this.listeners.set(collCfg.path, listenersCollection);
         return listenersCollection;
     };
-    DeepState.prototype.subscribe = function subscribe(listenerPath, fn, options = defaultListenerOptions, type = 'subscribe') {
+    DeepState.prototype.subscribe = function subscribe(listenerPath, fn, options = defaultListenerOptions, type = "subscribe") {
         let listener = this.getCleanListener(fn, options);
         const listenersCollection = this.getListenersCollection(listenerPath, listener);
         listenersCollection.count++;
@@ -6475,7 +6467,7 @@
         const listeners = this.listeners;
         const listenersCollection = listeners.get(path);
         return function unsub() {
-            delete listenersCollection.listeners[id];
+            listenersCollection.listeners.delete(id);
             listenersCollection.count--;
             if (listenersCollection.count === 0) {
                 listeners.delete(path);
@@ -6483,10 +6475,11 @@
         };
     };
     DeepState.prototype.same = function same(newValue, oldValue) {
-        return ((['number', 'string', 'undefined', 'boolean'].includes(typeof newValue) || newValue === null) &&
+        return ((["number", "string", "undefined", "boolean"].includes(typeof newValue) ||
+            newValue === null) &&
             oldValue === newValue);
     };
-    DeepState.prototype.notifyListeners = function notifyListeners(listeners, exclude = [], returnNotified = true) {
+    DeepState.prototype.notifyListeners = function notifyListeners(listeners, exclude = [], returnNotified) {
         const alreadyNotified = [];
         for (const path in listeners) {
             let { single, bulk } = listeners[path];
@@ -6503,7 +6496,10 @@
                 if (exclude.includes(bulkListener))
                     continue;
                 const time = this.debugTime(bulkListener);
-                const bulkValue = bulkListener.value.map((bulk) => (Object.assign(Object.assign({}, bulk), { value: bulk.value() })));
+                const bulkValue = [];
+                for (const bulk of bulkListener.value) {
+                    bulkValue.push(Object.assign(Object.assign({}, bulk), { value: bulk.value() }));
+                }
                 bulkListener.listener.fn(bulkValue, bulkListener.eventInfo);
                 if (returnNotified)
                     alreadyNotified.push(bulkListener);
@@ -6512,7 +6508,7 @@
         }
         return alreadyNotified;
     };
-    DeepState.prototype.getSubscribedListeners = function getSubscribedListeners(updatePath, newValue, options, type = 'update', originalPath = null) {
+    DeepState.prototype.getSubscribedListeners = function getSubscribedListeners(updatePath, newValue, options, type = "update", originalPath = null) {
         options = Object.assign(Object.assign({}, defaultUpdateOptions), options);
         const listeners = {};
         for (let [listenerPath, listenersCollection] of this.listeners) {
@@ -6525,8 +6521,7 @@
                     ? () => this.get(this.cutPath(updatePath, listenerPath))
                     : () => newValue;
                 const bulkValue = [{ value, path: updatePath, params }];
-                for (const listenerId in listenersCollection.listeners) {
-                    const listener = listenersCollection.listeners[listenerId];
+                for (const listener of listenersCollection.listeners.values()) {
                     if (listener.options.bulk) {
                         listeners[listenerPath].bulk.push({
                             listener,
@@ -6568,10 +6563,10 @@
         }
         return listeners;
     };
-    DeepState.prototype.notifySubscribedListeners = function notifySubscribedListeners(updatePath, newValue, options, type = 'update', originalPath = null) {
+    DeepState.prototype.notifySubscribedListeners = function notifySubscribedListeners(updatePath, newValue, options, type = "update", originalPath = null) {
         return this.notifyListeners(this.getSubscribedListeners(updatePath, newValue, options, type, originalPath));
     };
-    DeepState.prototype.getNestedListeners = function getNestedListeners(updatePath, newValue, options, type = 'update', originalPath = null) {
+    DeepState.prototype.getNestedListeners = function getNestedListeners(updatePath, newValue, options, type = "update", originalPath = null) {
         const listeners = {};
         for (let [listenerPath, listenersCollection] of this.listeners) {
             listeners[listenerPath] = { single: [], bulk: [] };
@@ -6587,8 +6582,7 @@
                 for (const currentRestPath in values) {
                     const value = () => values[currentRestPath];
                     const fullPath = [updatePath, currentRestPath].join(this.options.delimeter);
-                    for (const listenerId in listenersCollection.listeners) {
-                        const listener = listenersCollection.listeners[listenerId];
+                    for (const [listenerId, listener] of listenersCollection.listeners) {
                         const eventInfo = {
                             type,
                             listener,
@@ -6606,7 +6600,12 @@
                             bulkListeners[listenerId] = listener;
                         }
                         else {
-                            listeners[listenerPath].single.push({ listener, listenersCollection, eventInfo, value });
+                            listeners[listenerPath].single.push({
+                                listener,
+                                listenersCollection,
+                                eventInfo,
+                                value
+                            });
                         }
                     }
                 }
@@ -6624,20 +6623,25 @@
                         options,
                         params
                     };
-                    listeners[listenerPath].bulk.push({ listener, listenersCollection, eventInfo, value: bulk });
+                    listeners[listenerPath].bulk.push({
+                        listener,
+                        listenersCollection,
+                        eventInfo,
+                        value: bulk
+                    });
                 }
             }
         }
         return listeners;
     };
-    DeepState.prototype.notifyNestedListeners = function notifyNestedListeners(updatePath, newValue, options, type = 'update', alreadyNotified, originalPath = null) {
+    DeepState.prototype.notifyNestedListeners = function notifyNestedListeners(updatePath, newValue, options, type = "update", alreadyNotified, originalPath = null) {
         return this.notifyListeners(this.getNestedListeners(updatePath, newValue, options, type, originalPath), alreadyNotified, false);
     };
-    DeepState.prototype.getNotifyOnlyListeners = function getNotifyOnlyListeners(updatePath, newValue, options, type = 'update', originalPath = null) {
+    DeepState.prototype.getNotifyOnlyListeners = function getNotifyOnlyListeners(updatePath, newValue, options, type = "update", originalPath = null) {
         const listeners = {};
-        if (typeof options.only !== 'object' ||
+        if (typeof options.only !== "object" ||
             !Array.isArray(options.only) ||
-            typeof options.only[0] === 'undefined' ||
+            typeof options.only[0] === "undefined" ||
             !this.canBeNested(newValue)) {
             return listeners;
         }
@@ -6653,8 +6657,7 @@
                     if (this.match(listenerPath, fullPath)) {
                         const value = () => wildcardScan[wildcardPath];
                         const bulkValue = [{ value, path: fullPath, params }];
-                        for (const listenerId in listenersCollection.listeners) {
-                            const listener = listenersCollection.listeners[listenerId];
+                        for (const listener of listenersCollection.listeners.values()) {
                             const eventInfo = {
                                 type,
                                 listener,
@@ -6668,8 +6671,13 @@
                                 options
                             };
                             if (listener.options.bulk) {
-                                if (!listeners[notifyPath].bulk.some((bulkListener) => bulkListener.listener === listener)) {
-                                    listeners[notifyPath].bulk.push({ listener, listenersCollection, eventInfo, value: bulkValue });
+                                if (!listeners[notifyPath].bulk.some(bulkListener => bulkListener.listener === listener)) {
+                                    listeners[notifyPath].bulk.push({
+                                        listener,
+                                        listenersCollection,
+                                        eventInfo,
+                                        value: bulkValue
+                                    });
                                 }
                             }
                             else {
@@ -6687,19 +6695,20 @@
         }
         return listeners;
     };
-    DeepState.prototype.notifyOnly = function notifyOnly(updatePath, newValue, options, type = 'update', originalPath = null) {
-        return (typeof this.notifyListeners(this.getNotifyOnlyListeners(updatePath, newValue, options, type, originalPath))[0] !==
-            'undefined');
+    DeepState.prototype.notifyOnly = function notifyOnly(updatePath, newValue, options, type = "update", originalPath) {
+        return (typeof this.notifyListeners(this.getNotifyOnlyListeners(updatePath, newValue, options, type, originalPath))[0] !== "undefined");
     };
     DeepState.prototype.canBeNested = function canBeNested(newValue) {
-        return typeof newValue === 'object' && newValue !== null;
+        return typeof newValue === "object" && newValue !== null;
     };
     DeepState.prototype.getUpdateValues = function getUpdateValues(oldValue, split, fn) {
-        if (typeof oldValue === 'object' && oldValue !== null) {
-            Array.isArray(oldValue) ? (oldValue = oldValue.slice()) : (oldValue = Object.assign({}, oldValue));
+        if (typeof oldValue === "object" && oldValue !== null) {
+            Array.isArray(oldValue)
+                ? (oldValue = oldValue.slice())
+                : (oldValue = Object.assign({}, oldValue));
         }
         let newValue = fn;
-        if (typeof fn === 'function') {
+        if (typeof fn === "function") {
             newValue = fn(this.pathGet(split, this.data));
         }
         return { newValue, oldValue };
@@ -6718,19 +6727,22 @@
         for (const path in bulk) {
             const newValue = bulk[path];
             if (options.only.length) {
-                groupedListenersPack.push(this.getNotifyOnlyListeners(path, newValue, options, 'update', updatePath));
+                groupedListenersPack.push(this.getNotifyOnlyListeners(path, newValue, options, "update", updatePath));
             }
             else {
-                groupedListenersPack.push(this.getSubscribedListeners(path, newValue, options, 'update', updatePath));
+                groupedListenersPack.push(this.getSubscribedListeners(path, newValue, options, "update", updatePath));
                 this.canBeNested(newValue) &&
-                    groupedListenersPack.push(this.getNestedListeners(path, newValue, options, 'update', updatePath));
+                    groupedListenersPack.push(this.getNestedListeners(path, newValue, options, "update", updatePath));
             }
-            options.debug && this.options.log('Wildcard update', { path, newValue });
+            options.debug && this.options.log("Wildcard update", { path, newValue });
             this.pathSet(this.split(path), newValue, this.data);
         }
         let alreadyNotified = [];
         for (const groupedListeners of groupedListenersPack) {
-            alreadyNotified = [...alreadyNotified, ...this.notifyListeners(groupedListeners, alreadyNotified)];
+            alreadyNotified = [
+                ...alreadyNotified,
+                ...this.notifyListeners(groupedListeners, alreadyNotified)
+            ];
         }
     };
     DeepState.prototype.update = function update(updatePath, fn, options = defaultUpdateOptions) {
@@ -6740,7 +6752,7 @@
         const split = this.split(updatePath);
         const { oldValue, newValue } = this.getUpdateValues(this.pathGet(split, this.data), split, fn);
         if (options.debug) {
-            this.options.log(`Updating ${updatePath} ${options.source ? `from ${options.source}` : ''}`, oldValue, newValue);
+            this.options.log(`Updating ${updatePath} ${options.source ? `from ${options.source}` : ""}`, oldValue, newValue);
         }
         if (this.same(newValue, oldValue)) {
             return newValue;
@@ -6756,31 +6768,35 @@
         }
         const alreadyNotified = this.notifySubscribedListeners(updatePath, newValue, options);
         if (this.canBeNested(newValue)) {
-            this.notifyNestedListeners(updatePath, newValue, options, 'update', alreadyNotified);
+            this.notifyNestedListeners(updatePath, newValue, options, "update", alreadyNotified);
         }
         return newValue;
     };
     DeepState.prototype.get = function get(userPath = undefined) {
-        if (typeof userPath === 'undefined' || userPath === '') {
+        if (typeof userPath === "undefined" || userPath === "") {
             return this.data;
         }
         return this.pathGet(this.split(userPath), this.data);
     };
     DeepState.prototype.debugSubscribe = function debugSubscribe(listener, listenersCollection, listenerPath) {
         if (listener.options.debug) {
-            this.options.log('listener subscribed', listenerPath, listener, listenersCollection);
+            this.options.log("listener subscribed", listenerPath, listener, listenersCollection);
         }
     };
     DeepState.prototype.debugListener = function debugListener(time, groupedListener) {
-        if (groupedListener.eventInfo.options.debug || groupedListener.listener.options.debug) {
-            this.options.log('Listener fired', {
+        if (groupedListener.eventInfo.options.debug ||
+            groupedListener.listener.options.debug) {
+            this.options.log("Listener fired", {
                 time: Date.now() - time,
                 info: groupedListener
             });
         }
     };
     DeepState.prototype.debugTime = function debugTime(groupedListener) {
-        return groupedListener.listener.options.debug || groupedListener.eventInfo.options.debug ? Date.now() : 0;
+        return groupedListener.listener.options.debug ||
+            groupedListener.eventInfo.options.debug
+            ? Date.now()
+            : 0;
     };
 
     /**

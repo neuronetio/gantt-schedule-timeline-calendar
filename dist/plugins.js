@@ -162,7 +162,8 @@ function ItemMovement(options = {}) {
             const height = element.clientHeight + 'px';
             ghost.style.height = height;
             ghost.style['line-height'] = height;
-            ghost.style.opacity = '0.75';
+            ghost.style.opacity = '0.6';
+            ghost.style.transform = 'scale(1.05, 1.05)';
             state.get('_internal.elements.chart-timeline').appendChild(ghost);
             movement.ghost = ghost;
             return ghost;
@@ -184,7 +185,6 @@ function ItemMovement(options = {}) {
                 state.get('_internal.elements.chart-timeline').removeChild(movementState[itemId].ghost);
                 delete movementState[itemId].ghost;
             }
-            element.style.opacity = '1';
         }
         function getSnapStart(data) {
             let snapStart = options.snapStart;
@@ -404,11 +404,10 @@ function ItemMovement(options = {}) {
         document.addEventListener('mouseup', documentMouseUp, { capture: true, passive: true });
         return {
             update(node, changedData) {
-                data = changedData;
-                if (!isResizeable(data)) {
+                if (!isResizeable(data) && resizerEl.style.visibility === 'visible') {
                     resizerEl.style.visibility = 'hidden';
                 }
-                else {
+                else if (isResizeable(data) && resizerEl.style.visibility === 'hidden') {
                     resizerEl.style.visibility = 'visible';
                 }
             },
@@ -869,46 +868,45 @@ function Selection(options = {}) {
         };
     }
     /**
+     * Update selection
+     * @param {any} data
+     * @param {Element} element
+     * @param {string} classNameSelecting
+     * @param {string} classNameSelected
+     */
+    function updateSelection(element, selecting, selected, classNameSelecting, classNameSelected) {
+        if (selecting && !element.classList.contains(classNameSelecting)) {
+            element.classList.add(classNameSelecting);
+        }
+        else if (!selecting && element.classList.contains(classNameSelecting)) {
+            element.classList.remove(classNameSelecting);
+        }
+        if (selected && !element.classList.contains(classNameSelected)) {
+            element.classList.add(classNameSelected);
+        }
+        else if (!selected && element.classList.contains(classNameSelected)) {
+            element.classList.remove(classNameSelected);
+        }
+    }
+    /**
      * Grid row block action
      * @param {Element} element
      * @param {object} data
      * @returns {object} with update and destroy functions
      */
-    function gridBlockAction(element, data) {
-        const classNameSelecting = api.getClass('chart-timeline-grid-row-block') + '--selecting';
-        const classNameSelected = api.getClass('chart-timeline-grid-row-block') + '--selected';
-        if (data.selecting) {
-            element.classList.add(classNameSelecting);
+    class GridBlockAction {
+        constructor(element, data) {
+            this.classNameSelecting = api.getClass('chart-timeline-grid-row-block') + '--selecting';
+            this.classNameSelected = api.getClass('chart-timeline-grid-row-block') + '--selected';
+            updateSelection(element, data.selecting, data.selected, this.classNameSelecting, this.classNameSelected);
         }
-        else {
-            element.classList.remove(classNameSelecting);
+        update(element, data) {
+            updateSelection(element, data.selecting, data.selected, this.classNameSelecting, this.classNameSelected);
         }
-        if (data.selected) {
-            element.classList.add(classNameSelected);
+        destroy(element, changedData) {
+            element.classList.remove(this.classNameSelecting);
+            element.classList.remove(this.classNameSelected);
         }
-        else {
-            element.classList.remove(classNameSelected);
-        }
-        return {
-            update(element, data) {
-                if (data.selecting) {
-                    element.classList.add(classNameSelecting);
-                }
-                else {
-                    element.classList.remove(classNameSelecting);
-                }
-                if (data.selected) {
-                    element.classList.add(classNameSelected);
-                }
-                else {
-                    element.classList.remove(classNameSelected);
-                }
-            },
-            destroy(element, changedData) {
-                element.classList.remove(classNameSelecting);
-                element.classList.remove(classNameSelected);
-            }
-        };
     }
     /**
      * Item action
@@ -916,45 +914,19 @@ function Selection(options = {}) {
      * @param {object} data
      * @returns {object} with update and destroy functions
      */
-    function itemAction(element, data) {
-        const classNameSelecting = api.getClass('chart-timeline-items-row-item') + '--selecting';
-        const classNameSelected = api.getClass('chart-timeline-items-row-item') + '--selected';
-        if (data.item.selecting) {
-            if (!element.classList.contains(classNameSelecting))
-                element.classList.add(classNameSelecting);
+    class ItemAction {
+        constructor(element, data) {
+            this.classNameSelecting = api.getClass('chart-timeline-items-row-item') + '--selecting';
+            this.classNameSelected = api.getClass('chart-timeline-items-row-item') + '--selected';
+            updateSelection(element, data.item.selecting, data.item.selected, this.classNameSelecting, this.classNameSelected);
         }
-        else if (element.classList.contains(classNameSelecting)) {
-            element.classList.remove(classNameSelecting);
+        update(element, data) {
+            updateSelection(element, data.item.selecting, data.item.selected, this.classNameSelecting, this.classNameSelected);
         }
-        if (data.item.selected) {
-            if (!element.classList.contains(classNameSelected))
-                element.classList.add(classNameSelected);
+        destroy(element, data) {
+            element.classList.remove(this.classNameSelecting);
+            element.classList.remove(this.classNameSelected);
         }
-        else if (element.classList.contains(classNameSelected)) {
-            element.classList.remove(classNameSelected);
-        }
-        return {
-            update(element, data) {
-                if (data.item.selecting) {
-                    if (!element.classList.contains(classNameSelecting))
-                        element.classList.add(classNameSelecting);
-                }
-                else if (element.classList.contains(classNameSelecting)) {
-                    element.classList.remove(classNameSelecting);
-                }
-                if (data.item.selected) {
-                    if (!element.classList.contains(classNameSelected))
-                        element.classList.add(classNameSelected);
-                }
-                else if (element.classList.contains(classNameSelected)) {
-                    element.classList.remove(classNameSelected);
-                }
-            },
-            destroy(element, changedData) {
-                element.classList.remove(classNameSelecting);
-                element.classList.remove(classNameSelected);
-            }
-        };
     }
     /**
      * On block create handler
@@ -962,13 +934,14 @@ function Selection(options = {}) {
      * @returns {object} block
      */
     function onBlockCreate(block) {
-        const select = state.get('config.plugin.selection');
-        if (select.selected['chart-timeline-grid-row-blocks'].find(id => id === block.id)) {
-            block.selected = true;
+        const selectedBlocks = state.get('config.plugin.selection.selected.chart-timeline-grid-row-blocks');
+        for (const selectedBlock of selectedBlocks) {
+            if (selectedBlock === block.id) {
+                block.selected = true;
+                return block;
+            }
         }
-        else {
-            block.selected = false;
-        }
+        block.selected = false;
         return block;
     }
     return function initialize(mainVido) {
@@ -1009,11 +982,11 @@ function Selection(options = {}) {
             return actions;
         });
         state.update('config.actions.chart-timeline-grid-row-block', actions => {
-            actions.push(gridBlockAction);
+            actions.push(GridBlockAction);
             return actions;
         });
         state.update('config.actions.chart-timeline-items-row-item', actions => {
-            actions.push(itemAction);
+            actions.push(ItemAction);
             return actions;
         });
         state.update('config.chart.grid.block.onCreate', onCreate => {

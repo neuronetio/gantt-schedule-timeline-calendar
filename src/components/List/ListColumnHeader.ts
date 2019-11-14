@@ -9,7 +9,7 @@
  */
 
 export default function ListColumnHeader(vido, props) {
-  const { api, state, onDestroy, actions, update, createComponent, html } = vido;
+  const { api, state, onDestroy, actions, update, createComponent, html, cache } = vido;
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListColumnHeader', value => (wrapper = value)));
@@ -64,11 +64,12 @@ export default function ListColumnHeader(vido, props) {
     `;
   }
 
+  const actionProps = { column, api, state };
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} style=${style} data-actions=${actions(componentActions, { column, api, state })}>
-          ${typeof column.expander === 'boolean' && column.expander ? withExpander() : withoutExpander()}
+        <div class=${className} style=${style} data-actions=${actions(componentActions, actionProps)}>
+          ${cache(typeof column.expander === 'boolean' && column.expander ? withExpander() : withoutExpander())}
         </div>
       `,
       { vido, props, templateProps }

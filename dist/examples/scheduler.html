@@ -210,6 +210,45 @@
         return end;
       }
 
+      /**
+       * Grid block action - add dolar to apartaments
+       * @param {Element} element
+       * @param {object} data
+       * @returns {object} with update and destroy functions
+       */
+      class GridBlockAction {
+        constructor(element, data) {
+          const content = element.firstElementChild;
+          // on create
+          content.insertAdjacentHTML('beforeend', '<div class="dolar-bg-content">$</div>');
+          const bg = (this.bg = content.querySelector('.dolar-bg-content'));
+          bg.onclick = ev => alert('dolar clicked!');
+          if (data.row.id !== '1' && bg.style.visibility !== 'hidden') {
+            bg.style['line-height'] = data.row.height + 'px';
+            bg.style.visibility = 'hidden';
+          } else if (data.row.id === '1' && bg.style.visibility !== 'visible') {
+            bg.style['line-height'] = data.row.height + 'px';
+            bg.style.visibility = 'visible';
+          }
+        }
+
+        update(element, data) {
+          let bg = element.firstElementChild.firstElementChild;
+          if (data.row.id !== '1' && bg.style.visibility !== 'hidden') {
+            bg.style['line-height'] = data.row.height + 'px';
+            bg.style.visibility = 'hidden';
+          } else if (data.row.id === '1' && bg.style.visibility !== 'visible') {
+            bg.style['line-height'] = data.row.height + 'px';
+            bg.style.visibility = 'visible';
+          }
+        }
+
+        destroy() {
+          let bg = element.firstElementChild && element.firstElementChild.firstElementChild;
+          if (bg) bg.remove();
+        }
+      }
+
       const from = GSTC.api
         .date()
         .startOf('month')
@@ -277,10 +316,7 @@
         height: 800,
         list: {
           rows,
-          columns,
-          expander: {
-            padding: 31
-          }
+          columns
         },
         chart: {
           spacing: 1,
@@ -293,51 +329,7 @@
         },
         classNames: {},
         actions: {
-          'list-column-header': [
-            (element, data) => {
-              const target = element.querySelector('.gantt-schedule-timeline-calendar__list-column-header-content');
-              target.style['cursor'] = 'pointer';
-              target.addEventListener('click', () => {
-                target.style.color = '#' + Math.round(Math.random() * 999999);
-                console.log(`${data.column.header.content} clicked!`);
-              });
-            }
-          ],
-          'chart-timeline-grid-row-block': [
-            /**
-             * Grid block action - add dolar to apartaments
-             * @param {Element} element
-             * @param {object} data
-             * @returns {object} with update and destroy functions
-             */
-            function gridBlockAction(element, data) {
-              const content = element.firstElementChild;
-              // on create
-              content.insertAdjacentHTML('beforeend', '<div class="dolar-bg-content">$</div>');
-              let bg = content.querySelector('.dolar-bg-content');
-              bg.onclick = ev => alert('dolar clicked!');
-              if (data.row.id === '1') {
-                bg.style['line-height'] = data.row.height + 'px';
-                bg.style.visibility = 'visible';
-              } else {
-                bg.style.visibility = 'hidden';
-              }
-              return {
-                update(element, changedData) {
-                  if (data.row.id === '1' && changedData.row.id !== '1') {
-                    bg.style.visibility = 'hidden';
-                  } else if (data.row.id !== '1' && changedData.row.id === '1') {
-                    bg.style['line-height'] = changedData.row.height + 'px';
-                    bg.style.visibility = 'visible';
-                  }
-                  data = changedData;
-                },
-                destroy(element, data) {
-                  if (bg) bg.remove();
-                }
-              };
-            }
-          ]
+          'chart-timeline-grid-row-block': [GridBlockAction]
         },
         locale: {
           name: 'pl',

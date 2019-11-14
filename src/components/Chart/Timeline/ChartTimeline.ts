@@ -12,6 +12,7 @@ export default function ChartTimeline(vido, props) {
   const { api, state, onDestroy, actions, update, html, createComponent } = vido;
   const componentName = 'chart-timeline';
   const componentActions = api.getActions(componentName);
+  const actionProps = { ...props, api, state };
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimeline', value => (wrapper = value)));
@@ -66,7 +67,7 @@ export default function ChartTimeline(vido, props) {
         <div
           class=${className}
           style=${style}
-          data-actions=${actions(componentActions, { ...props, api, state })}
+          data-actions=${actions(componentActions, actionProps)}
           @wheel=${api.onScroll}
         >
           <div class=${classNameInner} style=${styleInner}>

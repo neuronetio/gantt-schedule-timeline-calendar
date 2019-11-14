@@ -9,9 +9,10 @@
  */
 
 export default function ChartCalendar(vido, props) {
-  const { api, state, onDestroy, actions, update, reuseComponents, html, repeat } = vido;
+  const { api, state, onDestroy, actions, update, reuseComponents, html, styleMap } = vido;
   const componentName = 'chart-calendar';
   const componentActions = api.getActions(componentName);
+  const actionProps = { ...props, api, state };
 
   const ChartCalendarDateComponent = state.get('config.components.ChartCalendarDate');
 
@@ -27,11 +28,12 @@ export default function ChartCalendar(vido, props) {
   );
 
   let headerHeight,
-    style = '';
+    style = { height: '', '--headerHeight': '' };
   onDestroy(
     state.subscribe('config.headerHeight', value => {
       headerHeight = value;
-      style = `height: ${headerHeight}px;--calendar-height: ${headerHeight}px`;
+      style.height = headerHeight + 'px';
+      style['--calendar-height'] = headerHeight + 'px';
       update();
     })
   );
@@ -75,7 +77,7 @@ export default function ChartCalendar(vido, props) {
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, { ...props, api, state })} style=${style}>
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style)}>
           <div class=${className + '-dates ' + className + '-dates--months'}>${monthComponents.map(m => m.html())}</div>
           <div class=${className + '-dates ' + className + '-dates--days'}>${dayComponents.map(d => d.html())}</div>
           </div>

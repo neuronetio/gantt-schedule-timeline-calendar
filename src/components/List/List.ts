@@ -9,7 +9,7 @@
  */
 
 export default function List(vido, props = {}) {
-  const { api, state, onDestroy, actions, update, reuseComponents, html, schedule } = vido;
+  const { api, state, onDestroy, actions, update, reuseComponents, html, schedule, styleMap } = vido;
 
   const componentName = 'list';
   const componentActions = api.getActions(componentName);
@@ -47,10 +47,13 @@ export default function List(vido, props = {}) {
     listColumns.forEach(c => c.destroy());
   });
 
-  let style = '';
+  let style = { height: '', '--expander-padding-width': '', '--expander-size': '' };
   onDestroy(
-    state.subscribe('config.height', height => {
-      style = `height: ${height}px`;
+    state.subscribeAll(['config.height', 'config.list.expander'], bulk => {
+      style.height = state.get('config.height') + 'px';
+      const expander = state.get('config.list.expander');
+      style['--expander-padding-width'] = expander.padding + 'px';
+      style['--expander-size'] = expander.size + 'px';
       update();
     })
   );
@@ -93,14 +96,15 @@ export default function List(vido, props = {}) {
     };
   });
 
+  const actionProps = { ...props, api, state };
   return templateProps =>
     wrapper(
       list.columns.percent > 0
         ? html`
             <div
               class=${className}
-              data-actions=${actions(componentActions, { ...props, api, state })}
-              style=${style}
+              data-actions=${actions(componentActions, actionProps)}
+              style=${styleMap(style)}
               @scroll=${onScroll}
               @wheel=${onScroll}
             >

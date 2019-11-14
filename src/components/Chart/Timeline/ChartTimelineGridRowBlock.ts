@@ -47,8 +47,13 @@ interface Props {
 const ChartTimelineGridRowBlock = (vido, props: Props) => {
   const { api, state, onDestroy, actions, update, html, onChange, styleMap } = vido;
   const componentName = 'chart-timeline-grid-row-block';
-  const componentActions = api.getActions(componentName);
+  let actionProps = {
+    ...props,
+    api,
+    state
+  };
 
+  const componentActions = api.getActions(componentName);
   let wrapper;
   onDestroy(
     state.subscribe('config.wrappers.ChartTimelineGridRowBlock', value => {
@@ -75,11 +80,12 @@ const ChartTimelineGridRowBlock = (vido, props: Props) => {
    * On props change
    * @param {any} changedProps
    */
-  const onPropsChange = (changedProps, options) => {
+  function onPropsChange(changedProps, options) {
     if (options.leave) {
-      return;
+      return update();
     }
     props = changedProps;
+    actionProps = { ...props, api, state };
     updateClassName(props.time);
     // @ts-ignore
     style = {};
@@ -94,25 +100,20 @@ const ChartTimelineGridRowBlock = (vido, props: Props) => {
     const currentStyle = props.row?.style?.grid?.block?.current;
     if (currentStyle) style = { ...style, ...currentStyle };
     update();
-  };
+  }
   onChange(onPropsChange);
-
   if (componentActions.indexOf(bindElementAction) === -1) {
     componentActions.push(bindElementAction);
   }
-
-  return templateProps =>
-    wrapper(
+  return templateProps => {
+    return wrapper(
       html`
-        <div
-          class=${className}
-          data-actions=${actions(componentActions, { ...props, api, state })}
-          style=${styleMap(style)}
-        >
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style)}>
           <div class=${classNameContent} />
         </div>
       `,
       { props, vido, templateProps }
     );
+  };
 };
 export default ChartTimelineGridRowBlock;

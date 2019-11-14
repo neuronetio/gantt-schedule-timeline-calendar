@@ -12,7 +12,7 @@ export default function ListExpander(vido, props) {
   const { api, state, onDestroy, actions, update, html, createComponent, onChange } = vido;
   const componentName = 'list-expander';
   const componentActions = api.getActions(componentName);
-  let className, padding, width, paddingClass;
+  let className, paddingClass;
 
   let ListToggleComponent;
   onDestroy(state.subscribe('config.components.ListToggle', value => (ListToggleComponent = value)));
@@ -30,36 +30,24 @@ export default function ListExpander(vido, props) {
     })
   );
 
-  onDestroy(
-    state.subscribeAll(['config.list.expander.padding'], value => {
-      padding = value;
-      update();
-    })
-  );
   if (props.row) {
     let parentSub;
     const onPropsChange = changedProps => {
       props = changedProps;
-      if (parentSub) parentSub();
-      parentSub = state.subscribe(`_internal.list.rows.${props.row.id}.parentId`, function parentChanged(parentId) {
-        width = 'width:' + props.row._internal.parents.length * padding + 'px';
-        update();
-      });
       ListToggle.change(props);
     };
     onChange(onPropsChange);
     onDestroy(function listExpanderDestroy() {
       if (parentSub) parentSub();
     });
-  } else {
-    width = 'width:0px';
   }
 
+  const actionProps = { row: props.row, api, state };
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-action=${actions(componentActions, { row: props.row, api, state })}>
-          <div class=${paddingClass} style=${width}></div>
+        <div class=${className} data-action=${actions(componentActions, actionProps)}>
+          <div class=${paddingClass}></div>
           ${ListToggle.html()}
         </div>
       `,

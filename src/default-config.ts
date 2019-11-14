@@ -151,7 +151,7 @@ function defaultConfig() {
         data: {}
       },
       expander: {
-        padding: 20,
+        padding: 18,
         size: 20,
         icons: {
           child:

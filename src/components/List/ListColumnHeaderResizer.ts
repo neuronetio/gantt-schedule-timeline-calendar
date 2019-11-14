@@ -9,7 +9,7 @@
  */
 
 export default function ListColumnHeaderResizer(vido, props) {
-  const { api, state, onDestroy, update, html, actions } = vido;
+  const { api, state, onDestroy, update, html, actions, text, cache } = vido;
 
   const componentName = 'list-column-header-resizer';
   const componentActions = api.getActions(componentName);
@@ -111,16 +111,19 @@ export default function ListColumnHeaderResizer(vido, props) {
   document.body.addEventListener('mouseup', onMouseUp);
   onDestroy(() => document.body.removeEventListener('mouseup', onMouseUp));
 
+  const actionProps = { column, api, state };
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, { column, api, state })}>
+        <div class=${className} data-actions=${actions(componentActions, actionProps)}>
           <div class=${containerClass}>
-            ${column.header.html
-              ? html`
-                  ${column.header.html}
-                `
-              : column.header.content}
+            ${cache(
+              column.header.html
+                ? html`
+                    ${column.header.html}
+                  `
+                : text(column.header.content)
+            )}
           </div>
           <div class=${dotsClass} style=${'--' + dotsWidth} @mousedown=${onMouseDown}>
             ${dots.map(

@@ -38,6 +38,7 @@ const bindElementAction = (element, data) => {
 
 const ChartTimelineItemsRow = (vido, props) => {
   const { api, state, onDestroy, actions, update, html, onChange, reuseComponents, styleMap } = vido;
+  const actionProps = { ...props, api, state };
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRow', value => (wrapper = value)));
 
@@ -101,6 +102,9 @@ const ChartTimelineItemsRow = (vido, props) => {
       return update();
     }
     props = changedProps;
+    for (const prop in props) {
+      actionProps[prop] = props[prop];
+    }
     updateRow(props.row);
   };
   onChange(onPropsChange);
@@ -127,14 +131,10 @@ const ChartTimelineItemsRow = (vido, props) => {
     componentActions.push(bindElementAction);
   }
 
-  return templateProps =>
-    wrapper(
+  return templateProps => {
+    return wrapper(
       html`
-        <div
-          class=${className}
-          data-actions=${actions(componentActions, { ...props, api, state })}
-          style=${styleMap(style, true)}
-        >
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style, true)}>
           <div class=${classNameInner} style=${styleMap(styleInner)}>
             ${itemComponents.map(i => i.html())}
           </div>
@@ -142,6 +142,7 @@ const ChartTimelineItemsRow = (vido, props) => {
       `,
       { props, vido, templateProps }
     );
+  };
 };
 
 export default ChartTimelineItemsRow;

@@ -104,7 +104,7 @@ export default function Chart(vido, props = {}) {
   };
 
   const onWheel = {
-    handleEvent,
+    handleEvent: schedule(handleEvent),
     passive: true,
     capture: false
   };

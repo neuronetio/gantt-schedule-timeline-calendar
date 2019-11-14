@@ -383,15 +383,17 @@ export default function Main(vido, props = {}) {
     state.update('_internal.elements.vertical-scroll-inner', element);
   };
 
+  const actionProps = { ...props, api, state };
   return templateProps =>
     wrapper(
       html`
         <div
+          data-info-url="https://github.com/neuronetio/gantt-schedule-timeline-calendar"
           class=${className}
           style=${style}
           @scroll=${onScrollStop}
           @wheel=${onScrollStop}
-          data-actions=${actions(componentActions, { ...props, api, state })}
+          data-actions=${actions(componentActions, actionProps)}
         >
           ${List.html()}${Chart.html()}
           <div

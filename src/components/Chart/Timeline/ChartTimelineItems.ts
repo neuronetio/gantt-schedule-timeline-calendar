@@ -47,10 +47,11 @@ export default function ChartTimelineItems(vido, props = {}) {
     rowsComponents.forEach(row => row.destroy());
   });
 
+  const actionProps = { api, state };
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} style=${style} data-actions=${actions(componentActions, { api, state })}>
+        <div class=${className} style=${style} data-actions=${actions(componentActions, actionProps)}>
           ${rowsComponents.map(r => r.html())}
         </div>
       `,

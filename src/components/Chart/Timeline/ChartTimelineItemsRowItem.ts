@@ -36,19 +36,26 @@ const bindElementAction = (element, data) => {
   };
 };
 
-const ChartTimelineItemsRowItem = (vido, props) => {
-  const { api, state, onDestroy, actions, update, html, onChange, styleMap } = vido;
+function ChartTimelineItemsRowItem(vido, props) {
+  const { api, state, onDestroy, actions, update, html, onChange, styleMap, text } = vido;
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
   let style = { width: '', height: '', transform: '', opacity: '1', pointerEvents: 'all' },
-    contentStyle = {},
+    contentStyle = { width: '', height: '' },
     itemLeftPx = 0,
     itemWidthPx = 0,
     leave = false;
+  const actionProps = {
+    item: props.item,
+    row: props.row,
+    left: itemLeftPx,
+    width: itemWidthPx,
+    api,
+    state
+  };
 
-  const updateItem = () => {
+  function updateItem() {
     if (leave) return;
-
     let time = state.get('_internal.chart.time');
     itemLeftPx = (props.item.time.start - time.leftGlobal) / time.timePerPixel;
     itemWidthPx = (props.item.time.end - props.item.time.start) / time.timePerPixel;
@@ -61,7 +68,7 @@ const ChartTimelineItemsRowItem = (vido, props) => {
     style.opacity = '1';
     style.pointerEvents = 'all';
     // @ts-ignore
-    contentStyle = {};
+    contentStyle = { 'max-width': itemWidthPx + 'px', 'max-height': props.row.height + 'px' };
     const rows = state.get('config.list.rows');
     for (const parentId of props.row._internal.parents) {
       const parent = rows[parentId];
@@ -72,11 +79,10 @@ const ChartTimelineItemsRowItem = (vido, props) => {
     if (currentRowItemsStyle) contentStyle = { ...contentStyle, ...currentRowItemsStyle };
     const currentStyle = props.item?.style;
     if (currentStyle) contentStyle = { ...contentStyle, ...currentStyle };
-    //console.log(props.row.id, props.row._internal.parents, contentStyle);
     update();
-  };
+  }
 
-  const onPropsChange = (changedProps, options) => {
+  function onPropsChange(changedProps, options) {
     if (options.leave) {
       leave = true;
       style.opacity = '0';
@@ -86,8 +92,12 @@ const ChartTimelineItemsRowItem = (vido, props) => {
       leave = false;
     }
     props = changedProps;
+    actionProps.item = props.item;
+    actionProps.row = props.row;
+    actionProps.left = itemLeftPx;
+    actionProps.width = itemWidthPx;
     updateItem();
-  };
+  }
   onChange(onPropsChange);
 
   const componentName = 'chart-timeline-items-row-item';
@@ -112,27 +122,19 @@ const ChartTimelineItemsRowItem = (vido, props) => {
     componentActions.push(bindElementAction);
   }
 
-  return templateProps =>
-    wrapper(
+  return templateProps => {
+    return wrapper(
       html`
-        <div
-          class=${className}
-          data-actions=${actions(componentActions, {
-            item: props.item,
-            row: props.row,
-            left: itemLeftPx,
-            width: itemWidthPx,
-            api,
-            state
-          })}
-          style=${styleMap(style)}
-        >
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style)}>
           <div class=${contentClassName} style=${styleMap(contentStyle)}>
-            <div class=${labelClassName}>${props.item.label}</div>
+            <div class=${labelClassName}>
+              ${text(props.item.label)}
+            </div>
           </div>
         </div>
       `,
       { vido, props, templateProps }
     );
-};
+  };
+}
 export default ChartTimelineItemsRowItem;
