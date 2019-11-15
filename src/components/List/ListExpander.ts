@@ -12,7 +12,7 @@ export default function ListExpander(vido, props) {
   const { api, state, onDestroy, actions, update, html, createComponent, onChange } = vido;
   const componentName = 'list-expander';
   const componentActions = api.getActions(componentName);
-  let className, paddingClass;
+  let className;
 
   let ListToggleComponent;
   onDestroy(state.subscribe('config.components.ListToggle', value => (ListToggleComponent = value)));
@@ -25,17 +25,16 @@ export default function ListExpander(vido, props) {
   onDestroy(
     state.subscribe('config.classNames', value => {
       className = api.getClass(componentName);
-      paddingClass = api.getClass(componentName + '-padding');
       update();
     })
   );
 
   if (props.row) {
     let parentSub;
-    const onPropsChange = changedProps => {
+    function onPropsChange(changedProps) {
       props = changedProps;
       ListToggle.change(props);
-    };
+    }
     onChange(onPropsChange);
     onDestroy(function listExpanderDestroy() {
       if (parentSub) parentSub();
@@ -47,7 +46,6 @@ export default function ListExpander(vido, props) {
     wrapper(
       html`
         <div class=${className} data-action=${actions(componentActions, actionProps)}>
-          <div class=${paddingClass}></div>
           ${ListToggle.html()}
         </div>
       `,

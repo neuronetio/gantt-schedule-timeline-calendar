@@ -67,13 +67,13 @@ const ChartTimelineGridRowBlock = (vido, props: Props) => {
     .startOf('day')
     .valueOf();
   let className, classNameContent;
-  const updateClassName = time => {
+  function updateClassName(time) {
     className = api.getClass(componentName);
     classNameContent = className + '-content';
     if (time.leftGlobal === currentTime) {
       className += ' current';
     }
-  };
+  }
   updateClassName(props.time);
   let style = { width: '', height: '' };
   /**

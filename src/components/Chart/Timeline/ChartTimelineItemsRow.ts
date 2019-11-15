@@ -49,8 +49,7 @@ const ChartTimelineItemsRow = (vido, props) => {
 
   let element,
     scrollLeft,
-    style = { opacity: '1', pointerEvents: 'all', width: '', height: '' },
-    styleInner = { width: '', height: '' };
+    style = { opacity: '1', pointerEvents: 'all', width: '', height: '', top: '0px' };
   let itemComponents = [];
 
   const updateDom = () => {
@@ -58,15 +57,14 @@ const ChartTimelineItemsRow = (vido, props) => {
     style.opacity = '1';
     style.pointerEvents = 'all';
     style.width = chart.dimensions.width + 'px';
-    styleInner.width = chart.time.totalViewDurationPx + 'px';
     if (!props) {
       style.opacity = '0';
       style.pointerEvents = 'none';
       return;
     }
     style.height = props.row.height + 'px';
+    style.top = props.row.top + 'px';
     style['--row-height'] = props.row.height + 'px';
-    styleInner.height = props.row.height + 'px';
     if (element && scrollLeft !== chart.time.leftPx) {
       element.scrollLeft = chart.time.leftPx;
       scrollLeft = chart.time.leftPx;
@@ -116,13 +114,11 @@ const ChartTimelineItemsRow = (vido, props) => {
   });
 
   const componentName = 'chart-timeline-items-row';
-  const componentNameInner = componentName + '-inner';
   const componentActions = api.getActions(componentName);
-  let className, classNameInner;
+  let className;
   onDestroy(
     state.subscribe('config.classNames', () => {
       className = api.getClass(componentName, props);
-      classNameInner = api.getClass(componentNameInner, props);
       update();
     })
   );
@@ -134,10 +130,8 @@ const ChartTimelineItemsRow = (vido, props) => {
   return templateProps => {
     return wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style, true)}>
-          <div class=${classNameInner} style=${styleMap(styleInner)}>
-            ${itemComponents.map(i => i.html())}
-          </div>
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style)}>
+          ${itemComponents.map(i => i.html())}
         </div>
       `,
       { props, vido, templateProps }

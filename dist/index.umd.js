@@ -162,7 +162,7 @@
      */
     const boundAttributeSuffix = '$lit$';
     /**
-     * An updateable Template that tracks the location of dynamic parts.
+     * An updatable Template that tracks the location of dynamic parts.
      */
     class Template {
         constructor(result, element) {
@@ -315,9 +315,14 @@
         return index >= 0 && str.slice(index) === suffix;
     };
     const isTemplatePartActive = (part) => part.index !== -1;
+    /**
+     * Used to clone existing node instead of each time creating new one which is
+     * slower
+     */
+    const markerNode = document.createComment('');
     // Allows `document.createComment('')` to be renamed for a
     // small manual size-savings.
-    const createMarker = () => document.createComment('');
+    const createMarker = () => markerNode.cloneNode();
     /**
      * This regex extracts the attribute name preceding an attribute-position
      * expression. It does this by matching the syntax allowed for attributes
@@ -405,7 +410,7 @@
             // Given these constraints, with full custom elements support we would
             // prefer the order: Clone, Process, Adopt, Upgrade, Update, Connect
             //
-            // But Safari dooes not implement CustomElementRegistry#upgrade, so we
+            // But Safari does not implement CustomElementRegistry#upgrade, so we
             // can not implement that order and still have upgrade-before-update and
             // upgrade disconnected fragments. So we instead sacrifice the
             // process-before-upgrade constraint, since in Custom Elements v1 elements
@@ -491,7 +496,30 @@
      * subject to an additional IP rights grant found at
      * http://polymer.github.io/PATENTS.txt
      */
+    let policy;
+    /**
+     * Turns the value to trusted HTML. If the application uses Trusted Types the
+     * value is transformed into TrustedHTML, which can be assigned to execution
+     * sink. If the application doesn't use Trusted Types, the return value is the
+     * same as the argument.
+     */
+    function convertConstantTemplateStringToTrustedHTML(value) {
+        // tslint:disable-next-line
+        const w = window;
+        // TrustedTypes have been renamed to trustedTypes
+        // (https://github.com/WICG/trusted-types/issues/177)
+        const trustedTypes = (w.trustedTypes || w.TrustedTypes);
+        if (trustedTypes && !policy) {
+            policy = trustedTypes.createPolicy('lit-html', { createHTML: (s) => s });
+        }
+        return policy ? policy.createHTML(value) : value;
+    }
     const commentMarker = ` ${marker} `;
+    /**
+     * Used to clone existing node instead of each time creating new one which is
+     * slower
+     */
+    const emptyTemplateNode = document.createElement('template');
     /**
      * The return type of `html`, which holds a Template and the values from
      * interpolated expressions.
@@ -515,7 +543,7 @@
                 // For each binding we want to determine the kind of marker to insert
                 // into the template source before it's parsed by the browser's HTML
                 // parser. The marker type is based on whether the expression is in an
-                // attribute, text, or comment poisition.
+                // attribute, text, or comment position.
                 //   * For node-position bindings we insert a comment with the marker
                 //     sentinel as its text content, like <!--{{lit-guid}}-->.
                 //   * For attribute bindings we insert just the marker sentinel for the
@@ -535,13 +563,13 @@
                 // be false positives.
                 isCommentBinding = (commentOpen > -1 || isCommentBinding) &&
                     s.indexOf('-->', commentOpen + 1) === -1;
-                // Check to see if we have an attribute-like sequence preceeding the
+                // Check to see if we have an attribute-like sequence preceding the
                 // expression. This can match "name=value" like structures in text,
                 // comments, and attribute values, so there can be false-positives.
                 const attributeMatch = lastAttributeNameRegex.exec(s);
                 if (attributeMatch === null) {
                     // We're only in this branch if we don't have a attribute-like
-                    // preceeding sequence. For comments, this guards against unusual
+                    // preceding sequence. For comments, this guards against unusual
                     // attribute values like <div foo="<!--${'bar'}">. Cases like
                     // <!-- foo=${'bar'}--> are handled correctly in the attribute branch
                     // below.
@@ -560,8 +588,12 @@
             return html;
         }
         getTemplateElement() {
-            const template = document.createElement('template');
-            template.innerHTML = this.getHTML();
+            const template = emptyTemplateNode.cloneNode();
+            // this is secure because `this.strings` is a TemplateStringsArray.
+            // TODO: validate this when
+            // https://github.com/tc39/proposal-array-is-template-object is implemented.
+            template.innerHTML =
+                convertConstantTemplateStringToTrustedHTML(this.getHTML());
             return template;
         }
     }
@@ -608,9 +640,16 @@
             // tslint:disable-next-line:no-any
             !!(value && value[Symbol.iterator]);
     };
+    const sanitizeDOMValue = (value, name, type, node) => {
+        return value;
+    };
+    /**
+     * Used to clone text node instead of each time creating new one which is slower
+     */
+    const emptyTextNode = document.createTextNode('');
     /**
      * Writes attribute values to the DOM for a group of AttributeParts bound to a
-     * single attibute. The value is only set once even if there are multiple parts
+     * single attribute. The value is only set once even if there are multiple parts
      * for an attribute.
      */
     class AttributeCommitter {
@@ -632,11 +671,32 @@
         }
         _getValue() {
             const strings = this.strings;
+            const parts = this.parts;
             const l = strings.length - 1;
+            // If we're assigning an attribute via syntax like:
+            //    attr="${foo}"  or  attr=${foo}
+            // but not
+            //    attr="${foo} ${bar}" or attr="${foo} baz"
+            // then we don't want to coerce the attribute value into one long
+            // string. Instead we want to just return the value itself directly,
+            // so that sanitizeDOMValue can get the actual value rather than
+            // String(value)
+            // The exception is if v is an array, in which case we do want to smash
+            // it together into a string without calling String() on the array.
+            //
+            // This also allows trusted values (when using TrustedTypes) being
+            // assigned to DOM sinks without being stringified in the process.
+            if (l === 1 && strings[0] === '' && strings[1] === '' &&
+                parts[0] !== undefined) {
+                const v = parts[0].value;
+                if (!isIterable(v)) {
+                    return v;
+                }
+            }
             let text = '';
             for (let i = 0; i < l; i++) {
                 text += strings[i];
-                const part = this.parts[i];
+                const part = parts[i];
                 if (part !== undefined) {
                     const v = part.value;
                     if (isPrimitive(v) || !isIterable(v)) {
@@ -655,7 +715,13 @@
         commit() {
             if (this.dirty) {
                 this.dirty = false;
-                this.element.setAttribute(this.name, this._getValue());
+                let value = this._getValue();
+                value = sanitizeDOMValue(value, this.name, 'attribute', this.element);
+                if (typeof value === 'symbol') {
+                    // Native Symbols throw if they're coerced to string.
+                    value = String(value);
+                }
+                this.element.setAttribute(this.name, value);
             }
         }
     }
@@ -793,18 +859,25 @@
         __commitText(value) {
             const node = this.startNode.nextSibling;
             value = value == null ? '' : value;
-            // If `value` isn't already a string, we explicitly convert it here in case
-            // it can't be implicitly converted - i.e. it's a symbol.
-            const valueAsString = typeof value === 'string' ? value : String(value);
             if (node === this.endNode.previousSibling &&
                 node.nodeType === 3 /* Node.TEXT_NODE */) {
                 // If we only have a single text node between the markers, we can just
                 // set its value, rather than replacing it.
-                // TODO(justinfagnani): Can we just check if this.value is primitive?
-                node.data = valueAsString;
+                const renderedValue = sanitizeDOMValue(value);
+                node.data = typeof renderedValue === 'string' ?
+                    renderedValue :
+                    String(renderedValue);
             }
             else {
-                this.__commitNode(document.createTextNode(valueAsString));
+                // When setting text content, for security purposes it matters a lot what
+                // the parent is. For example, <style> and <script> need to be handled
+                // with care, while <span> does not. So first we need to put a text node
+                // into the document, then we can sanitize its contentx.
+                const textNode = emptyTextNode.cloneNode();
+                this.__commitNode(textNode);
+                const renderedValue = sanitizeDOMValue(value);
+                textNode.data = typeof renderedValue === 'string' ? renderedValue :
+                    String(renderedValue);
             }
             this.value = value;
         }
@@ -815,6 +888,21 @@
                 this.value.update(value.values);
             }
             else {
+                // `value` is a template result that was constructed without knowledge of
+                // the parent we're about to write it into. sanitizeDOMValue hasn't been
+                // made aware of this relationship, and for scripts and style specifically
+                // this is known to be unsafe. So in the case where the user is in
+                // "secure mode" (i.e. when there's a sanitizeDOMValue set), we just want
+                // to forbid this because it's not a use case we want to support.
+                // We check for sanitizeDOMValue is to prevent this from
+                // being a breaking change to the library.
+                const parent = this.endNode.parentNode;
+                if (
+                    parent.nodeName === 'SCRIPT') {
+                    this.__commitText('/* lit-html will not write ' +
+                        'TemplateResults to scripts and styles */');
+                    return;
+                }
                 // Make sure we propagate the template processor from the TemplateResult
                 // so that we use its syntax extension, etc. The template factory comes
                 // from the render function options so that it can control template
@@ -943,15 +1031,17 @@
         commit() {
             if (this.dirty) {
                 this.dirty = false;
+                let value = this._getValue();
+                value = sanitizeDOMValue(value, this.name, 'property', this.element);
                 // tslint:disable-next-line:no-any
-                this.element[this.name] = this._getValue();
+                this.element[this.name] = value;
             }
         }
     }
     class PropertyPart extends AttributePart {
     }
     // Detect event listener options support. If the `capture` property is read
-    // from the options object, then options are supported. If not, then the thrid
+    // from the options object, then options are supported. If not, then the third
     // argument to add/removeEventListener is interpreted as the boolean capture
     // value so we should only pass the `capture` property.
     let eventOptionsSupported = false;
@@ -1480,7 +1570,7 @@
      * Stores the ClassInfo object applied to a given AttributePart.
      * Used to unset existing values when a new ClassInfo object is applied.
      */
-    const classMapCache = new WeakMap();
+    const previousClassesCache = new WeakMap();
     /**
      * A directive that applies CSS classes. This must be used in the `class`
      * attribute and must be the only part used in the attribute. It takes each
@@ -1499,29 +1589,39 @@
         }
         const { committer } = part;
         const { element } = committer;
-        // handle static classes
-        if (!classMapCache.has(part)) {
+        let previousClasses = previousClassesCache.get(part);
+        if (previousClasses === undefined) {
+            // Write static classes once
             element.className = committer.strings.join(' ');
+            previousClassesCache.set(part, previousClasses = new Set());
         }
         const { classList } = element;
-        // remove old classes that no longer apply
-        const oldInfo = classMapCache.get(part);
-        for (const name in oldInfo) {
+        // Remove old classes that no longer apply
+        // We use forEach() instead of for-of so that re don't require down-level
+        // iteration.
+        previousClasses.forEach((name) => {
             if (!(name in classInfo)) {
                 classList.remove(name);
+                previousClasses.delete(name);
             }
-        }
-        // add new classes
+        });
+        // Add or remove classes based on their classMap value
         for (const name in classInfo) {
             const value = classInfo[name];
-            if (!oldInfo || value !== oldInfo[name]) {
-                // We explicitly want a loose truthy check here because
-                // it seems more convenient that '' and 0 are skipped.
-                const method = value ? 'add' : 'remove';
-                classList[method](name);
+            // We explicitly want a loose truthy check of `value` because it seems more
+            // convenient that '' and 0 are skipped.
+            // tslint:disable-next-line: triple-equals
+            if (value != previousClasses.has(name)) {
+                if (value) {
+                    classList.add(name);
+                    previousClasses.add(name);
+                }
+                else {
+                    classList.remove(name);
+                    previousClasses.delete(name);
+                }
             }
         }
-        classMapCache.set(part, classInfo);
     });
 
     /**
@@ -1687,7 +1787,7 @@
      * needed, and DOM will never be reused with values for different keys (new DOM
      * will always be created for new keys). This is generally the most efficient
      * way to use `repeat` since it performs minimum unnecessary work for insertions
-     * amd removals.
+     * and removals.
      *
      * IMPORTANT: If providing a `keyFn`, keys *must* be unique for all items in a
      * given call to `repeat`. The behavior when two or more items have the same key
@@ -2050,6 +2150,53 @@
      * subject to an additional IP rights grant found at
      * http://polymer.github.io/PATENTS.txt
      */
+    // For each part, remember the value that was last rendered to the part by the
+    // unsafeHTML directive, and the DocumentFragment that was last set as a value.
+    // The DocumentFragment is used as a unique key to check if the last value
+    // rendered to the part was with unsafeHTML. If not, we'll always re-render the
+    // value passed to unsafeHTML.
+    const previousValues$1 = new WeakMap();
+    /**
+     * Used to clone existing node instead of each time creating new one which is
+     * slower
+     */
+    const emptyTemplateNode$1 = document.createElement('template');
+    /**
+     * Renders the result as HTML, rather than text.
+     *
+     * Note, this is unsafe to use with any user-provided input that hasn't been
+     * sanitized or escaped, as it may lead to cross-site-scripting
+     * vulnerabilities.
+     */
+    const unsafeHTML = directive((value) => (part) => {
+        if (!(part instanceof NodePart)) {
+            throw new Error('unsafeHTML can only be used in text bindings');
+        }
+        const previousValue = previousValues$1.get(part);
+        if (previousValue !== undefined && isPrimitive(value) &&
+            value === previousValue.value && part.value === previousValue.fragment) {
+            return;
+        }
+        const template = emptyTemplateNode$1.cloneNode();
+        template.innerHTML = value; // innerHTML casts to string internally
+        const fragment = document.importNode(template.content, true);
+        part.setValue(fragment);
+        previousValues$1.set(part, { value, fragment });
+    });
+
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
     const _state = new WeakMap();
     // Effectively infinity, but a SMI.
     const _infinity = 0x7fffffff;
@@ -2096,7 +2243,7 @@
                 part.setValue(value);
                 state.lastRenderedIndex = i;
                 // Since a lower-priority value will never overwrite a higher-priority
-                // synchronous value, we can stop processsing now.
+                // synchronous value, we can stop processing now.
                 break;
             }
             // If this is a Promise we've already handled, skip it.
@@ -2121,6 +2268,18 @@
         }
     });
 
+    /* dev imports
+    import { render, html, directive, svg } from '../lit-html';
+    import { asyncAppend } from '../lit-html/directives/async-append';
+    import { asyncReplace } from '../lit-html/directives/async-replace';
+    import { cache } from '../lit-html/directives/cache';
+    import { classMap } from '../lit-html/directives/class-map';
+    import { guard } from '../lit-html/directives/guard';
+    import { ifDefined } from '../lit-html/directives/if-defined';
+    import { repeat } from '../lit-html/directives/repeat';
+    import { unsafeHTML } from '../lit-html/directives/unsafe-html';
+    import { until } from '../lit-html/directives/until';
+    */
     /**
      * Schedule - a throttle function that uses requestAnimationFrame to limit the rate at which a function is called.
      *
@@ -2223,9 +2382,6 @@
         let shouldUpdateCount = 0;
         const resolved = Promise.resolve();
         const previousStyle = new WeakMap();
-        const previousUnsafeValues = new WeakMap();
-        const textNode = document.createTextNode('');
-        const templateNode = document.createElement('template');
         /**
          * Get actions for component instance as directives
          *
@@ -2348,30 +2504,34 @@
         vido.prototype.guard = guard;
         vido.prototype.ifDefined = ifDefined;
         vido.prototype.repeat = repeat;
-        //vido.prototype.unsafeHTML = unsafeHTML;
-        vido.prototype.unsafeHTML = directive((value) => (part) => {
-            const previousValue = previousUnsafeValues.get(part);
-            if (previousValue !== undefined &&
-                isPrimitive(value) &&
-                value === previousValue.value &&
-                part.value === previousValue.fragment) {
-                return;
-            }
-            const template = templateNode.cloneNode();
-            template.innerHTML = value; // innerHTML casts to string internally
-            const fragment = document.importNode(template.content, true);
-            part.setValue(fragment);
-            previousUnsafeValues.set(part, { value, fragment });
-        });
+        vido.prototype.unsafeHTML = unsafeHTML;
+        /*vido.prototype.unsafeHTML = directive((value) => (part) => {
+          const previousValue = previousUnsafeValues.get(part);
+          if (
+            previousValue !== undefined &&
+            isPrimitive(value) &&
+            value === previousValue.value &&
+            part.value === previousValue.fragment
+          ) {
+            return;
+          }
+          const template = templateNode.cloneNode() as HTMLTemplateElement;
+          template.innerHTML = value; // innerHTML casts to string internally
+          const fragment = document.importNode(template.content, true);
+          part.setValue(fragment);
+          previousUnsafeValues.set(part, { value, fragment });
+        });*/
         vido.prototype.until = until;
         vido.prototype.schedule = schedule;
         vido.prototype.actionsByInstance = (componentActions, props) => { };
-        vido.prototype.text = directive((text) => function setText(part) {
-            const node = part.value || textNode.cloneNode();
-            if (node.data !== text)
-                node.data = text;
-            part.setValue(node);
-        });
+        /*vido.prototype.text = directive(
+          (text) =>
+            function setText(part) {
+              const node = textNode.cloneNode() as Text;
+              if (node.data !== text) node.data = text;
+              part.setValue(node);
+            }
+        );*/
         vido.prototype.styleMap = directive((styleInfo, removePrevious = true) => function style(part) {
             const style = part.committer.element.style;
             let previous = previousStyle.get(part);
@@ -2576,17 +2736,13 @@
         vido.prototype.updateTemplate = function updateTemplate() {
             const currentShouldUpdateCount = ++shouldUpdateCount;
             const self = this;
-            resolved.then(function flush() {
+            function flush() {
                 if (currentShouldUpdateCount === shouldUpdateCount) {
                     shouldUpdateCount = 0;
                     self.render();
-                    if (self.debug) {
-                        console.groupCollapsed('templates updated');
-                        console.trace();
-                        console.groupEnd();
-                    }
                 }
-            });
+            }
+            resolved.then(flush);
         };
         /**
          * Create app
@@ -2608,7 +2764,7 @@
             var _a, _b;
             for (const actions of actionsByInstance.values()) {
                 for (const action of actions) {
-                    if (typeof action.element.vido === 'undefined') {
+                    if (action.element.vido === undefined) {
                         const componentAction = action.componentAction;
                         const create = componentAction.create;
                         if (typeof create === 'function') {
@@ -2619,13 +2775,7 @@
                             else {
                                 result = new create(action.element, action.props);
                             }
-                            if (this.debug) {
-                                console.groupCollapsed(`create action executed ${action.instance}`);
-                                console.log(clone({ components: components.keys(), action, actionsByInstance }));
-                                console.trace();
-                                console.groupEnd();
-                            }
-                            if (typeof result !== 'undefined') {
+                            if (result !== undefined) {
                                 if (typeof result === 'function') {
                                     componentAction.destroy = result;
                                 }
@@ -2644,12 +2794,6 @@
                         action.element.vido = action.props;
                         if (typeof action.componentAction.update === 'function') {
                             action.componentAction.update(action.element, action.props);
-                            if (this.debug) {
-                                console.groupCollapsed(`update action executed ${action.instance}`);
-                                console.log(clone({ components: components.keys(), action, actionsByInstance }));
-                                console.trace();
-                                console.groupEnd();
-                            }
                         }
                     }
                 }
@@ -2666,6 +2810,30 @@
             this.executeActions();
         };
         return new vido();
+    }
+
+    /*! *****************************************************************************
+    Copyright (c) Microsoft Corporation. All rights reserved.
+    Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+    this file except in compliance with the License. You may obtain a copy of the
+    License at http://www.apache.org/licenses/LICENSE-2.0
+
+    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+    WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+    MERCHANTABLITY OR NON-INFRINGEMENT.
+
+    See the Apache Version 2.0 License for specific language governing permissions
+    and limitations under the License.
+    ***************************************************************************** */
+
+    function __awaiter(thisArg, _arguments, P, generator) {
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+            function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
     }
 
     /**
@@ -3605,7 +3773,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function Main(vido, props = {}) {
-        const { api, state, onDestroy, actions, update, schedule, createComponent, html } = vido;
+        const { api, state, onDestroy, actions, update, createComponent, html } = vido;
         const componentName = api.name;
         let ListComponent;
         onDestroy(state.subscribe('config.components.List', value => (ListComponent = value)));
@@ -3843,6 +4011,32 @@
             '_internal.list.width',
             '_internal.chart.dimensions'
         ], recalculateTimes, { bulk: true }));
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        function renderIcon(html) {
+            return new Promise(resolve => {
+                const img = document.createElement('img');
+                img.setAttribute('src', 'data:image/svg+xml;base64,' + btoa(html));
+                img.onload = function () {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    resolve(canvas.toDataURL('image/png'));
+                };
+            });
+        }
+        function renderIcons() {
+            return __awaiter(this, void 0, void 0, function* () {
+                const icons = state.get('config.list.expander.icons');
+                const rendered = {};
+                for (const iconName in icons) {
+                    const html = icons[iconName];
+                    rendered[iconName] = yield renderIcon(html);
+                }
+                state.update('_internal.list.expander.icons', rendered);
+            });
+        }
+        renderIcons();
         state.update('_internal.scrollBarHeight', api.getScrollBarHeight());
         let scrollTop = 0;
         /**
@@ -3850,30 +4044,53 @@
          * @param {MouseEvent} event
          */
         const handleEvent = (event) => {
-            // @ts-ignore
-            const top = event.target.scrollTop;
-            /**
-             * Handle on scroll event
-             * @param {object} scroll
-             * @returns {object} scroll
-             */
-            const handleOnScroll = scroll => {
-                scroll.top = top;
-                scrollTop = scroll.top;
-                const scrollInner = state.get('_internal.elements.vertical-scroll-inner');
-                if (scrollInner) {
-                    const scrollHeight = scrollInner.clientHeight;
-                    scroll.percent.top = scroll.top / scrollHeight;
+            event.stopPropagation();
+            if (event.type === 'scroll') {
+                // @ts-ignore
+                const top = event.target.scrollTop;
+                /**
+                 * Handle on scroll event
+                 * @param {object} scroll
+                 * @returns {object} scroll
+                 */
+                const handleOnScroll = scroll => {
+                    scroll.top = top;
+                    scrollTop = scroll.top;
+                    const scrollInner = state.get('_internal.elements.vertical-scroll-inner');
+                    if (scrollInner) {
+                        const scrollHeight = scrollInner.clientHeight;
+                        scroll.percent.top = scroll.top / scrollHeight;
+                    }
+                    return scroll;
+                };
+                if (scrollTop !== top)
+                    state.update('config.scroll', handleOnScroll, {
+                        only: ['top', 'percent.top']
+                    });
+            }
+            else {
+                const wheel = api.normalizeMouseWheelEvent(event);
+                const xMultiplier = state.get('config.scroll.xMultiplier');
+                const yMultiplier = state.get('config.scroll.yMultiplier');
+                if (event.shiftKey && wheel.y) {
+                    state.update('config.scroll.left', left => {
+                        return api.limitScroll('left', (left += wheel.y * xMultiplier));
+                    });
                 }
-                return scroll;
-            };
-            if (scrollTop !== top)
-                state.update('config.scroll', handleOnScroll, {
-                    only: ['top', 'percent.top']
-                });
+                else if (wheel.x) {
+                    state.update('config.scroll.left', left => {
+                        return api.limitScroll('left', (left += wheel.x * xMultiplier));
+                    });
+                }
+                else {
+                    state.update('config.scroll.top', top => {
+                        return (scrollTop = api.limitScroll('top', (top += wheel.y * yMultiplier)));
+                    });
+                }
+            }
         };
         const onScroll = {
-            handleEvent: schedule(handleEvent),
+            handleEvent: handleEvent,
             passive: true,
             capture: false
         };
@@ -3944,6 +4161,7 @@
             class=${classNameVerticalScroll}
             style=${styleVerticalScroll}
             @scroll=${onScroll}
+            @wheel=${onScroll}
             data-action=${actions([bindScrollElement])}
           >
             <div style=${styleVerticalScrollArea} data-actions=${actions([bindScrollInnerElement])} />
@@ -4086,7 +4304,7 @@
             const list = state.get('config.list');
             const compensation = state.get('config.scroll.compensation');
             calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
-            width = calculatedWidth + list.columns.resizer.width;
+            width = calculatedWidth;
             const height = state.get('_internal.height');
             widthStyle.width = width + 'px';
             widthStyle['--width'] = width + 'px';
@@ -4150,7 +4368,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnHeader(vido, props) {
-        const { api, state, onDestroy, actions, update, createComponent, html, cache } = vido;
+        const { api, state, onDestroy, actions, update, createComponent, html, cache, styleMap } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListColumnHeader', value => (wrapper = value)));
         const componentName = 'list-column-header';
@@ -4168,12 +4386,18 @@
             column = val;
             update();
         }));
-        let className, contentClass, style;
+        let className, contentClass, style = {
+            height: '',
+            '--height': '',
+            '--paddings-count': ''
+        };
         onDestroy(state.subscribeAll(['config.classNames', 'config.headerHeight'], () => {
             const value = state.get('config');
             className = api.getClass(componentName, { column });
             contentClass = api.getClass(componentName + '-content', { column });
-            style = `--height: ${value.headerHeight}px;height:${value.headerHeight}px;`;
+            style.height = value.headerHeight + 'px';
+            style['--height'] = value.headerHeight + 'px';
+            style['--paddings-count'] = '1';
             update();
         }));
         function withExpander() {
@@ -4192,7 +4416,7 @@
         }
         const actionProps = { column, api, state };
         return templateProps => wrapper(html `
-        <div class=${className} style=${style} data-actions=${actions(componentActions, actionProps)}>
+        <div class=${className} style=${styleMap(style)} data-actions=${actions(componentActions, actionProps)}>
           ${cache(typeof column.expander === 'boolean' && column.expander ? withExpander() : withoutExpander())}
         </div>
       `, { vido, props, templateProps });
@@ -4208,7 +4432,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnHeaderResizer(vido, props) {
-        const { api, state, onDestroy, update, html, actions, text, cache } = vido;
+        const { api, state, onDestroy, update, html, actions, cache } = vido;
         const componentName = 'list-column-header-resizer';
         const componentActions = api.getActions(componentName);
         let wrapper;
@@ -4289,7 +4513,7 @@
         ? html `
                     ${column.header.html}
                   `
-        : text(column.header.content))}
+        : column.header.content)}
           </div>
           <div class=${dotsClass} style=${'--' + dotsWidth} @mousedown=${onMouseDown}>
             ${dots.map(dot => html `
@@ -4310,21 +4534,32 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnRow(vido, props) {
-        const { api, state, onDestroy, actions, update, html, createComponent, onChange, styleMap, text, cache } = vido;
+        const { api, state, onDestroy, actions, update, html, createComponent, onChange, styleMap } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListColumnRow', value => (wrapper = value)));
         let ListExpanderComponent;
         onDestroy(state.subscribe('config.components.ListExpander', value => (ListExpanderComponent = value)));
         let rowPath = `_internal.flatTreeMapById.${props.rowId}`, row = state.get(rowPath);
         let colPath = `config.list.columns.data.${props.columnId}`, column = state.get(colPath);
-        let style = {
-            opacity: '1',
-            pointerEvents: 'all',
-            height: '',
-            '--height': '',
-            '--expander-padding-width': '',
-            '--expander-size': ''
-        };
+        let style = column.expander
+            ? {
+                opacity: '1',
+                pointerEvents: 'all',
+                height: '',
+                width: '',
+                top: '',
+                '--height': '',
+                '--expander-padding-width': '',
+                '--expander-size': ''
+            }
+            : {
+                opacity: '1',
+                pointerEvents: 'all',
+                height: '',
+                width: '',
+                top: '',
+                '--height': ''
+            };
         let rowSub, colSub;
         const ListExpander = createComponent(ListExpanderComponent, { row });
         const onPropsChange = (changedProps, options) => {
@@ -4353,8 +4588,12 @@
                 style.opacity = '1';
                 style.pointerEvents = 'all';
                 style.height = row.height + 'px';
+                style.width = column.width + 'px';
+                style.top = row.top + 'px';
                 style['--height'] = row.height + 'px';
-                style['--expander-padding-width'] = expander.padding * (row._internal.parents.length + 1) + 'px';
+                if (column.expander) {
+                    style['--expander-padding-width'] = expander.padding * (row._internal.parents.length + 1) + 'px';
+                }
                 for (let parentId of row._internal.parents) {
                     const parent = state.get(`_internal.flatTreeMapById.${parentId}`);
                     if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
@@ -4409,9 +4648,9 @@
         const actionProps = { column, row, api, state };
         return templateProps => wrapper(html `
         <div class=${className} style=${styleMap(style)} data-actions=${actions(componentActions, actionProps)}>
-          ${cache(column.expander ? ListExpander.html() : null)}
+          ${column.expander ? ListExpander.html() : null}
           <div class=${className + '-content'}>
-            ${cache(typeof column.html === 'string' ? getHtml() : text(getText()))}
+            ${typeof column.html === 'string' ? getHtml() : getText()}
           </div>
         </div>
       `, { vido, props, templateProps });
@@ -4430,7 +4669,7 @@
         const { api, state, onDestroy, actions, update, html, createComponent, onChange } = vido;
         const componentName = 'list-expander';
         const componentActions = api.getActions(componentName);
-        let className, paddingClass;
+        let className;
         let ListToggleComponent;
         onDestroy(state.subscribe('config.components.ListToggle', value => (ListToggleComponent = value)));
         const ListToggle = createComponent(ListToggleComponent, props.row ? { row: props.row } : {});
@@ -4439,14 +4678,13 @@
         onDestroy(state.subscribe('config.wrappers.ListExpander', value => (wrapper = value)));
         onDestroy(state.subscribe('config.classNames', value => {
             className = api.getClass(componentName);
-            paddingClass = api.getClass(componentName + '-padding');
             update();
         }));
         if (props.row) {
-            const onPropsChange = changedProps => {
+            function onPropsChange(changedProps) {
                 props = changedProps;
                 ListToggle.change(props);
-            };
+            }
             onChange(onPropsChange);
             onDestroy(function listExpanderDestroy() {
             });
@@ -4454,7 +4692,6 @@
         const actionProps = { row: props.row, api, state };
         return templateProps => wrapper(html `
         <div class=${className} data-action=${actions(componentActions, actionProps)}>
-          <div class=${paddingClass}></div>
           ${ListToggle.html()}
         </div>
       `, { vido, props, templateProps });
@@ -4470,27 +4707,27 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListToggle(vido, props) {
-        const { api, state, onDestroy, actions, update, html, unsafeHTML, onChange } = vido;
+        const { api, state, onDestroy, actions, update, html, onChange, cache } = vido;
         const componentName = 'list-expander-toggle';
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListToggle', value => (wrapper = value)));
         const componentActions = api.getActions(componentName);
-        let className;
-        let classNameChild, classNameOpen, classNameClosed;
+        let className, classNameChild, classNameOpen, classNameClosed;
         let expanded = false;
         let iconChild, iconOpen, iconClosed;
         onDestroy(state.subscribe('config.classNames', value => {
             className = api.getClass(componentName);
-            classNameChild = api.getClass(componentName + '-child');
-            classNameOpen = api.getClass(componentName + '-open');
-            classNameClosed = api.getClass(componentName + '-closed');
+            classNameChild = className + '-child';
+            classNameOpen = className + '-open';
+            classNameClosed = className + '-closed';
             update();
         }));
-        onDestroy(state.subscribe('config.list.expander.icons', () => {
-            const expander = state.get('config.list.expander');
-            iconChild = expander.icons.child;
-            iconOpen = expander.icons.open;
-            iconClosed = expander.icons.closed;
+        onDestroy(state.subscribe('_internal.list.expander.icons', icons => {
+            if (icons) {
+                iconChild = icons.child;
+                iconOpen = icons.open;
+                iconClosed = icons.closed;
+            }
             update();
         }));
         if (props.row) {
@@ -4537,31 +4774,28 @@
                 }, { only: ['*.expanded'] });
             }
         }
+        const actionProps = { row: props.row, api, state };
         const getIcon = () => {
             var _a, _b, _c;
-            if (((_c = (_b = (_a = props.row) === null || _a === void 0 ? void 0 : _a._internal) === null || _b === void 0 ? void 0 : _b.children) === null || _c === void 0 ? void 0 : _c.length) === 0) {
-                return html `
-        <div class=${classNameChild}>
-          ${unsafeHTML(iconChild)}
-        </div>
-      `;
-            }
-            return expanded
-                ? html `
-          <div class=${classNameOpen}>
-            ${unsafeHTML(iconOpen)}
-          </div>
-        `
-                : html `
-          <div class=${classNameClosed}>
-            ${unsafeHTML(iconClosed)}
-          </div>
+            if (iconChild) {
+                if (((_c = (_b = (_a = props.row) === null || _a === void 0 ? void 0 : _a._internal) === null || _b === void 0 ? void 0 : _b.children) === null || _c === void 0 ? void 0 : _c.length) === 0) {
+                    return html `
+          <img class=${classNameChild} src=${iconChild} />
         `;
+                }
+                return expanded
+                    ? html `
+            <img class=${classNameOpen} src=${iconOpen} />
+          `
+                    : html `
+            <img class=${classNameClosed} src=${iconClosed} />
+          `;
+            }
+            return '';
         };
-        const actionProps = { row: props.row, api, state };
         return templateProps => wrapper(html `
-        <div class=${className} data-actions=${actions(componentActions, actionProps)} @click=${toggle}>
-          ${getIcon()}
+        <div class=${className} data-action=${actions(componentActions, actionProps)} @click=${toggle}>
+          ${cache(getIcon())}
         </div>
       `, { vido, props, templateProps });
     }
@@ -4605,6 +4839,7 @@
             update();
         }));
         const handleEvent = event => {
+            event.stopPropagation();
             let scrollLeft, scrollTop;
             if (event.type === 'scroll') {
                 state.update('config.scroll.left', event.target.scrollLeft);
@@ -4644,12 +4879,12 @@
             }
         };
         const onScroll = {
-            handleEvent: schedule(handleEvent),
+            handleEvent: handleEvent,
             passive: true,
             capture: false
         };
         const onWheel = {
-            handleEvent: schedule(handleEvent),
+            handleEvent: handleEvent,
             passive: true,
             capture: false
         };
@@ -4759,7 +4994,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ChartCalendarDate(vido, props) {
-        const { api, state, onDestroy, actions, update, onChange, html, styleMap, text } = vido;
+        const { api, state, onDestroy, actions, update, onChange, html, styleMap } = vido;
         const componentName = 'chart-calendar-date';
         const componentActions = api.getActions(componentName);
         let wrapper;
@@ -4780,6 +5015,7 @@
             style.width = props.date.width + 'px';
             style['margin-left'] = -props.date.subPx + 'px';
             style.visibility = 'visible';
+            const scroll = { overflow: 'hidden', '-align': 'left', 'margin-left': props.date.subPx + 8 + 'px' };
             const dateMod = api.time.date(props.date.leftGlobal);
             if (dateMod.format('YYYY-MM-DD') === props.currentDate) {
                 current = ' current';
@@ -4801,13 +5037,13 @@
             class=${className + '-content ' + className + '-content--month' + current}
             style="margin-left:${props.date.subPx}"
           >
-            ${text(dateMod.format('MMMM YYYY'))}
+            ${dateMod.format('MMMM YYYY')}
           </div>
         `;
                     if (maxWidth <= 100) {
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--month' + current}>
-              ${text(dateMod.format("MMM'YY"))}
+              ${dateMod.format("MMM'YY")}
             </div>
           `;
                     }
@@ -4816,41 +5052,41 @@
                     htmlFormatted = html `
           <div class=${className + '-content ' + className + '-content--day _0' + current}>
             <div class=${className + '-content ' + className + '-content--day-small' + current}>
-              ${text(dateMod.format('DD'))} ${text(dateMod.format('ddd'))}
+              ${dateMod.format('DD')} ${dateMod.format('ddd')}
             </div>
           </div>
         `;
                     if (maxWidth >= 40 && maxWidth < 50) {
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _40' + current}>
-              ${text(dateMod.format('DD'))}
+              ${dateMod.format('DD')}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${text(dateMod.format('dd'))}
+              ${dateMod.format('dd')}
             </div>
           `;
                     }
-                    if (maxWidth >= 50 && maxWidth < 90) {
+                    else if (maxWidth >= 50 && maxWidth < 90) {
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _50' + current}>
-              ${text(dateMod.format('DD'))}
+              ${dateMod.format('DD')}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${text(dateMod.format('ddd'))}
+              ${dateMod.format('ddd')}
             </div>
           `;
                     }
-                    if (maxWidth >= 90 && maxWidth < 180) {
+                    else if (maxWidth >= 90 && maxWidth < 180) {
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _90' + current}>
-              ${text(dateMod.format('DD'))}
+              ${dateMod.format('DD')}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${text(dateMod.format('dddd'))}
+              ${dateMod.format('dddd')}
             </div>
           `;
                     }
-                    if (maxWidth >= 180 && maxWidth < 400) {
+                    else if (maxWidth >= 180 && maxWidth < 400) {
                         const hours = [];
                         const start = dateMod.startOf('day');
                         for (let i = 0; i < 12; i++) {
@@ -4868,7 +5104,7 @@
                         }
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _180' + current}>
-              ${text(dateMod.format('DD dddd'))}
+              ${dateMod.format('DD dddd')}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
               ${hours.map(hour => html `
@@ -4876,13 +5112,13 @@
                       class="${className + '-content ' + className + '-content--hours-hour' + current}"
                       style="width: ${hour.width}px"
                     >
-                      ${text(hour.formatted)}
+                      ${hour.formatted}
                     </div>
                   `)}
             </div>
           `;
                     }
-                    if (maxWidth >= 400 && maxWidth < 1000) {
+                    else if (maxWidth >= 400 && maxWidth < 1000) {
                         const hours = [];
                         const start = dateMod.startOf('day');
                         for (let i = 0; i < 24; i++) {
@@ -4900,7 +5136,7 @@
                         }
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _400' + current}>
-              ${text(dateMod.format('DD dddd'))}
+              ${dateMod.format('DD dddd')}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
               ${hours.map(hour => html `
@@ -4908,15 +5144,14 @@
                       class=${className + '-content ' + className + '-content--hours-hour' + current}
                       style="width: ${hour.width}px"
                     >
-                      ${text(hour.formatted)}
+                      ${hour.formatted}
                     </div>
                   `)}
             </div>
           `;
                     }
                     // scroll day from now on
-                    const scroll = `overflow:hidden; text-align:left; margin-left: ${props.date.subPx + 8}px;`;
-                    if (maxWidth >= 1000 && maxWidth < 2000) {
+                    else if (maxWidth >= 1000 && maxWidth < 2000) {
                         const hours = [];
                         const start = dateMod.startOf('day');
                         for (let i = 0; i < 24; i++) {
@@ -4933,8 +5168,11 @@
                             });
                         }
                         htmlFormatted = html `
-            <div class=${className + '-content ' + className + '-content--day _1000' + current} style=${scroll}>
-              ${text(dateMod.format('DD dddd'))}
+            <div
+              class=${className + '-content ' + className + '-content--day _1000' + current}
+              style=${styleMap(scroll)}
+            >
+              ${dateMod.format('DD dddd')}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
               ${hours.map(hour => html `
@@ -4942,13 +5180,13 @@
                       class=${className + '-content ' + className + '-content--hours-hour' + current}
                       style="width: ${hour.width}px"
                     >
-                      ${text(hour.formatted)}
+                      ${hour.formatted}
                     </div>
                   `)}
             </div>
           `;
                     }
-                    if (maxWidth >= 2000 && maxWidth < 5000) {
+                    else if (maxWidth >= 2000 && maxWidth < 5000) {
                         const hours = [];
                         const start = dateMod.startOf('day');
                         for (let i = 0; i < 24 * 2; i++) {
@@ -4961,7 +5199,7 @@
                         }
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _2000' + current} style=${scroll}>
-              ${text(dateMod.format('DD dddd'))}
+              ${dateMod.format('DD dddd')}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
               ${hours.map(hour => html `
@@ -4969,13 +5207,13 @@
                       class=${className + '-content ' + className + '-content--hours-hour' + current}
                       style="width: ${hour.width}px"
                     >
-                      ${text(hour.formatted)}
+                      ${hour.formatted}
                     </div>
                   `)}
             </div>
           `;
                     }
-                    if (maxWidth >= 5000 && maxWidth < 20000) {
+                    else if (maxWidth >= 5000 && maxWidth < 20000) {
                         const hours = [];
                         const start = dateMod.startOf('day');
                         for (let i = 0; i < 24 * 4; i++) {
@@ -4988,7 +5226,7 @@
                         }
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _5000' + current} style=${scroll}>
-              ${text(dateMod.format('DD dddd'))}
+              ${dateMod.format('DD dddd')}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
               ${hours.map(hour => html `
@@ -4996,13 +5234,13 @@
                       class=${className + '-content ' + className + '-content--hours-hour' + current}
                       style="width: ${hour.width}px"
                     >
-                      ${text(hour.formatted)}
+                      ${hour.formatted}
                     </div>
                   `)}
             </div>
           `;
                     }
-                    if (maxWidth >= 20000) {
+                    else if (maxWidth >= 20000) {
                         const hours = [];
                         const start = dateMod.startOf('day');
                         for (let i = 0; i < 24 * 12; i++) {
@@ -5015,7 +5253,7 @@
                         }
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _20000' + current} style=${scroll}>
-              ${text(dateMod.format('DD dddd'))}
+              ${dateMod.format('DD dddd')}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
               ${hours.map(hour => html `
@@ -5023,7 +5261,7 @@
                       class=${className + '-content ' + className + '-content--hours-hour' + current}
                       style="width: ${hour.width}px"
                     >
-                      ${text(hour.formatted)}
+                      ${hour.formatted}
                     </div>
                   `)}
             </div>
@@ -5034,12 +5272,15 @@
             update();
         };
         let timeSub;
+        const actionProps = { date: props.date, period: props.period, api, state };
         onChange((changedProps, options) => {
             if (options.leave) {
                 style.visibility = 'hidden';
                 return update();
             }
             props = changedProps;
+            actionProps.date = props.date;
+            actionProps.period = props.period;
             if (timeSub) {
                 timeSub();
             }
@@ -5054,7 +5295,7 @@
         <div
           class=${className + ' ' + className + '--' + props.period + current}
           style=${styleMap(style)}
-          data-actions=${actions(componentActions, { date: props.date, period: props.period, api, state })}
+          data-actions=${actions(componentActions, actionProps)}
         >
           ${htmlFormatted}
         </div>
@@ -5374,13 +5615,13 @@
             .startOf('day')
             .valueOf();
         let className, classNameContent;
-        const updateClassName = time => {
+        function updateClassName(time) {
             className = api.getClass(componentName);
             classNameContent = className + '-content';
             if (time.leftGlobal === currentTime) {
                 className += ' current';
             }
-        };
+        }
         updateClassName(props.time);
         let style = { width: '', height: '' };
         /**
@@ -5512,22 +5753,21 @@
         const ItemComponent = state.get('config.components.ChartTimelineItemsRowItem');
         let itemsPath = `_internal.flatTreeMapById.${props.row.id}._internal.items`;
         let rowSub, itemsSub;
-        let style = { opacity: '1', pointerEvents: 'all', width: '', height: '' }, styleInner = { width: '', height: '' };
+        let style = { opacity: '1', pointerEvents: 'all', width: '', height: '', top: '0px' };
         let itemComponents = [];
         const updateDom = () => {
             const chart = state.get('_internal.chart');
             style.opacity = '1';
             style.pointerEvents = 'all';
             style.width = chart.dimensions.width + 'px';
-            styleInner.width = chart.time.totalViewDurationPx + 'px';
             if (!props) {
                 style.opacity = '0';
                 style.pointerEvents = 'none';
                 return;
             }
             style.height = props.row.height + 'px';
+            style.top = props.row.top + 'px';
             style['--row-height'] = props.row.height + 'px';
-            styleInner.height = props.row.height + 'px';
         };
         const updateRow = row => {
             itemsPath = `_internal.flatTreeMapById.${row.id}._internal.items`;
@@ -5569,12 +5809,10 @@
             itemComponents.forEach(item => item.destroy());
         });
         const componentName = 'chart-timeline-items-row';
-        const componentNameInner = componentName + '-inner';
         const componentActions = api.getActions(componentName);
-        let className, classNameInner;
+        let className;
         onDestroy(state.subscribe('config.classNames', () => {
             className = api.getClass(componentName, props);
-            classNameInner = api.getClass(componentNameInner, props);
             update();
         }));
         if (!componentActions.includes(bindElementAction$2)) {
@@ -5582,10 +5820,8 @@
         }
         return templateProps => {
             return wrapper(html `
-        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style, true)}>
-          <div class=${classNameInner} style=${styleMap(styleInner)}>
-            ${itemComponents.map(i => i.html())}
-          </div>
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style)}>
+          ${itemComponents.map(i => i.html())}
         </div>
       `, { props, vido, templateProps });
         };
@@ -5624,10 +5860,10 @@
         };
     };
     function ChartTimelineItemsRowItem(vido, props) {
-        const { api, state, onDestroy, actions, update, html, onChange, styleMap, text } = vido;
+        const { api, state, onDestroy, actions, update, html, onChange, styleMap } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
-        let style = { width: '', height: '', transform: '', opacity: '1', pointerEvents: 'all' }, contentStyle = { width: '', height: '' }, itemLeftPx = 0, itemWidthPx = 0, leave = false;
+        let style = { width: '', height: '', left: '', opacity: '1', pointerEvents: 'all' }, contentStyle = { width: '', height: '' }, itemLeftPx = 0, itemWidthPx = 0, leave = false;
         const actionProps = {
             item: props.item,
             row: props.row,
@@ -5644,15 +5880,30 @@
             itemLeftPx = (props.item.time.start - time.leftGlobal) / time.timePerPixel;
             itemWidthPx = (props.item.time.end - props.item.time.start) / time.timePerPixel;
             itemWidthPx -= state.get('config.chart.spacing') || 0;
+            const oldWidth = style.width;
+            const oldHeight = style.height;
+            //const oldTransform = style.transform;
+            const oldLeft = style.left;
             // @ts-ignore
             style = {};
-            style.width = itemWidthPx + 'px';
-            style.height = props.row.height + 'px';
-            style.transform = `translate(${itemLeftPx}px, 0px)`;
-            style.opacity = '1';
-            style.pointerEvents = 'all';
+            const inViewPort = api.isItemInViewport(props.item, time.leftGlobal, time.rightGlobal);
+            style.opacity = inViewPort ? '1' : '0';
+            style.pointerEvents = inViewPort ? 'all' : 'none';
+            if (inViewPort) {
+                // update style only when visible to prevent browser's recalculate style
+                style.width = itemWidthPx + 'px';
+                style.height = props.row.height + 'px';
+                //style.transform = `translate(${itemLeftPx}px, 0px)`;
+                style.left = itemLeftPx + 'px';
+            }
+            else {
+                style.width = oldWidth;
+                style.height = oldHeight;
+                style.left = oldLeft;
+                //style.transform = oldTransform;
+            }
             // @ts-ignore
-            contentStyle = { 'max-width': itemWidthPx + 'px', 'max-height': props.row.height + 'px' };
+            contentStyle = { width: itemWidthPx + 'px', 'max-height': props.row.height + 'px' };
             const rows = state.get('config.list.rows');
             for (const parentId of props.row._internal.parents) {
                 const parent = rows[parentId];
@@ -5706,7 +5957,7 @@
         <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style)}>
           <div class=${contentClassName} style=${styleMap(contentStyle)}>
             <div class=${labelClassName}>
-              ${text(props.item.label)}
+              ${props.item.label}
             </div>
           </div>
         </div>
@@ -5847,6 +6098,10 @@
                 expander: {
                     padding: 18,
                     size: 20,
+                    icon: {
+                        width: 16,
+                        height: 16
+                    },
                     icons: {
                         child: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><ellipse ry="4" rx="4" id="svg_1" cy="12" cx="12" fill="#000000B0"/></svg>',
                         open: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>',

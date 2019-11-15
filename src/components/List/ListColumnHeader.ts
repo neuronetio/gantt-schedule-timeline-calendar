@@ -9,7 +9,7 @@
  */
 
 export default function ListColumnHeader(vido, props) {
-  const { api, state, onDestroy, actions, update, createComponent, html, cache } = vido;
+  const { api, state, onDestroy, actions, update, createComponent, html, cache, styleMap } = vido;
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListColumnHeader', value => (wrapper = value)));
@@ -37,13 +37,21 @@ export default function ListColumnHeader(vido, props) {
     })
   );
 
-  let className, contentClass, style;
+  let className,
+    contentClass,
+    style = {
+      height: '',
+      '--height': '',
+      '--paddings-count': ''
+    };
   onDestroy(
     state.subscribeAll(['config.classNames', 'config.headerHeight'], () => {
       const value = state.get('config');
       className = api.getClass(componentName, { column });
       contentClass = api.getClass(componentName + '-content', { column });
-      style = `--height: ${value.headerHeight}px;height:${value.headerHeight}px;`;
+      style.height = value.headerHeight + 'px';
+      style['--height'] = value.headerHeight + 'px';
+      style['--paddings-count'] = '1';
       update();
     })
   );
@@ -68,7 +76,7 @@ export default function ListColumnHeader(vido, props) {
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} style=${style} data-actions=${actions(componentActions, actionProps)}>
+        <div class=${className} style=${styleMap(style)} data-actions=${actions(componentActions, actionProps)}>
           ${cache(typeof column.expander === 'boolean' && column.expander ? withExpander() : withoutExpander())}
         </div>
       `,

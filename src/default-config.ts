@@ -153,6 +153,10 @@ function defaultConfig() {
       expander: {
         padding: 18,
         size: 20,
+        icon: {
+          width: 16,
+          height: 16
+        },
         icons: {
           child:
             '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><ellipse ry="4" rx="4" id="svg_1" cy="12" cx="12" fill="#000000B0"/></svg>',

@@ -9,7 +9,7 @@
  */
 
 export default function ChartCalendarDate(vido, props) {
-  const { api, state, onDestroy, actions, update, onChange, html, styleMap, text } = vido;
+  const { api, state, onDestroy, actions, update, onChange, html, styleMap } = vido;
 
   const componentName = 'chart-calendar-date';
   const componentActions = api.getActions(componentName);
@@ -36,6 +36,7 @@ export default function ChartCalendarDate(vido, props) {
     style.width = props.date.width + 'px';
     style['margin-left'] = -props.date.subPx + 'px';
     style.visibility = 'visible';
+    const scroll = { overflow: 'hidden', '-align': 'left', 'margin-left': props.date.subPx + 8 + 'px' };
     const dateMod = api.time.date(props.date.leftGlobal);
     if (dateMod.format('YYYY-MM-DD') === props.currentDate) {
       current = ' current';
@@ -54,13 +55,13 @@ export default function ChartCalendarDate(vido, props) {
             class=${className + '-content ' + className + '-content--month' + current}
             style="margin-left:${props.date.subPx}"
           >
-            ${text(dateMod.format('MMMM YYYY'))}
+            ${dateMod.format('MMMM YYYY')}
           </div>
         `;
         if (maxWidth <= 100) {
           htmlFormatted = html`
             <div class=${className + '-content ' + className + '-content--month' + current}>
-              ${text(dateMod.format("MMM'YY"))}
+              ${dateMod.format("MMM'YY")}
             </div>
           `;
         }
@@ -69,41 +70,38 @@ export default function ChartCalendarDate(vido, props) {
         htmlFormatted = html`
           <div class=${className + '-content ' + className + '-content--day _0' + current}>
             <div class=${className + '-content ' + className + '-content--day-small' + current}>
-              ${text(dateMod.format('DD'))} ${text(dateMod.format('ddd'))}
+              ${dateMod.format('DD')} ${dateMod.format('ddd')}
             </div>
           </div>
         `;
         if (maxWidth >= 40 && maxWidth < 50) {
           htmlFormatted = html`
             <div class=${className + '-content ' + className + '-content--day _40' + current}>
-              ${text(dateMod.format('DD'))}
+              ${dateMod.format('DD')}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${text(dateMod.format('dd'))}
+              ${dateMod.format('dd')}
             </div>
           `;
-        }
-        if (maxWidth >= 50 && maxWidth < 90) {
+        } else if (maxWidth >= 50 && maxWidth < 90) {
           htmlFormatted = html`
             <div class=${className + '-content ' + className + '-content--day _50' + current}>
-              ${text(dateMod.format('DD'))}
+              ${dateMod.format('DD')}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${text(dateMod.format('ddd'))}
+              ${dateMod.format('ddd')}
             </div>
           `;
-        }
-        if (maxWidth >= 90 && maxWidth < 180) {
+        } else if (maxWidth >= 90 && maxWidth < 180) {
           htmlFormatted = html`
             <div class=${className + '-content ' + className + '-content--day _90' + current}>
-              ${text(dateMod.format('DD'))}
+              ${dateMod.format('DD')}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${text(dateMod.format('dddd'))}
+              ${dateMod.format('dddd')}
             </div>
           `;
-        }
-        if (maxWidth >= 180 && maxWidth < 400) {
+        } else if (maxWidth >= 180 && maxWidth < 400) {
           const hours = [];
           const start = dateMod.startOf('day');
           for (let i = 0; i < 12; i++) {
@@ -122,7 +120,7 @@ export default function ChartCalendarDate(vido, props) {
           }
           htmlFormatted = html`
             <div class=${className + '-content ' + className + '-content--day _180' + current}>
-              ${text(dateMod.format('DD dddd'))}
+              ${dateMod.format('DD dddd')}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
               ${hours.map(
@@ -132,14 +130,13 @@ export default function ChartCalendarDate(vido, props) {
                       class="${className + '-content ' + className + '-content--hours-hour' + current}"
                       style="width: ${hour.width}px"
                     >
-                      ${text(hour.formatted)}
+                      ${hour.formatted}
                     </div>
                   `
               )}
             </div>
           `;
-        }
-        if (maxWidth >= 400 && maxWidth < 1000) {
+        } else if (maxWidth >= 400 && maxWidth < 1000) {
           const hours = [];
           const start = dateMod.startOf('day');
           for (let i = 0; i < 24; i++) {
@@ -158,7 +155,7 @@ export default function ChartCalendarDate(vido, props) {
           }
           htmlFormatted = html`
             <div class=${className + '-content ' + className + '-content--day _400' + current}>
-              ${text(dateMod.format('DD dddd'))}
+              ${dateMod.format('DD dddd')}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
               ${hours.map(
@@ -168,7 +165,7 @@ export default function ChartCalendarDate(vido, props) {
                       class=${className + '-content ' + className + '-content--hours-hour' + current}
                       style="width: ${hour.width}px"
                     >
-                      ${text(hour.formatted)}
+                      ${hour.formatted}
                     </div>
                   `
               )}
@@ -176,8 +173,7 @@ export default function ChartCalendarDate(vido, props) {
           `;
         }
         // scroll day from now on
-        const scroll = `overflow:hidden; text-align:left; margin-left: ${props.date.subPx + 8}px;`;
-        if (maxWidth >= 1000 && maxWidth < 2000) {
+        else if (maxWidth >= 1000 && maxWidth < 2000) {
           const hours = [];
           const start = dateMod.startOf('day');
           for (let i = 0; i < 24; i++) {
@@ -195,8 +191,11 @@ export default function ChartCalendarDate(vido, props) {
             });
           }
           htmlFormatted = html`
-            <div class=${className + '-content ' + className + '-content--day _1000' + current} style=${scroll}>
-              ${text(dateMod.format('DD dddd'))}
+            <div
+              class=${className + '-content ' + className + '-content--day _1000' + current}
+              style=${styleMap(scroll)}
+            >
+              ${dateMod.format('DD dddd')}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
               ${hours.map(
@@ -206,14 +205,13 @@ export default function ChartCalendarDate(vido, props) {
                       class=${className + '-content ' + className + '-content--hours-hour' + current}
                       style="width: ${hour.width}px"
                     >
-                      ${text(hour.formatted)}
+                      ${hour.formatted}
                     </div>
                   `
               )}
             </div>
           `;
-        }
-        if (maxWidth >= 2000 && maxWidth < 5000) {
+        } else if (maxWidth >= 2000 && maxWidth < 5000) {
           const hours = [];
           const start = dateMod.startOf('day');
           for (let i = 0; i < 24 * 2; i++) {
@@ -226,7 +224,7 @@ export default function ChartCalendarDate(vido, props) {
           }
           htmlFormatted = html`
             <div class=${className + '-content ' + className + '-content--day _2000' + current} style=${scroll}>
-              ${text(dateMod.format('DD dddd'))}
+              ${dateMod.format('DD dddd')}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
               ${hours.map(
@@ -236,14 +234,13 @@ export default function ChartCalendarDate(vido, props) {
                       class=${className + '-content ' + className + '-content--hours-hour' + current}
                       style="width: ${hour.width}px"
                     >
-                      ${text(hour.formatted)}
+                      ${hour.formatted}
                     </div>
                   `
               )}
             </div>
           `;
-        }
-        if (maxWidth >= 5000 && maxWidth < 20000) {
+        } else if (maxWidth >= 5000 && maxWidth < 20000) {
           const hours = [];
           const start = dateMod.startOf('day');
           for (let i = 0; i < 24 * 4; i++) {
@@ -256,7 +253,7 @@ export default function ChartCalendarDate(vido, props) {
           }
           htmlFormatted = html`
             <div class=${className + '-content ' + className + '-content--day _5000' + current} style=${scroll}>
-              ${text(dateMod.format('DD dddd'))}
+              ${dateMod.format('DD dddd')}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
               ${hours.map(
@@ -266,14 +263,13 @@ export default function ChartCalendarDate(vido, props) {
                       class=${className + '-content ' + className + '-content--hours-hour' + current}
                       style="width: ${hour.width}px"
                     >
-                      ${text(hour.formatted)}
+                      ${hour.formatted}
                     </div>
                   `
               )}
             </div>
           `;
-        }
-        if (maxWidth >= 20000) {
+        } else if (maxWidth >= 20000) {
           const hours = [];
           const start = dateMod.startOf('day');
           for (let i = 0; i < 24 * 12; i++) {
@@ -286,7 +282,7 @@ export default function ChartCalendarDate(vido, props) {
           }
           htmlFormatted = html`
             <div class=${className + '-content ' + className + '-content--day _20000' + current} style=${scroll}>
-              ${text(dateMod.format('DD dddd'))}
+              ${dateMod.format('DD dddd')}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
               ${hours.map(
@@ -296,7 +292,7 @@ export default function ChartCalendarDate(vido, props) {
                       class=${className + '-content ' + className + '-content--hours-hour' + current}
                       style="width: ${hour.width}px"
                     >
-                      ${text(hour.formatted)}
+                      ${hour.formatted}
                     </div>
                   `
               )}
@@ -309,12 +305,15 @@ export default function ChartCalendarDate(vido, props) {
   };
 
   let timeSub;
+  const actionProps = { date: props.date, period: props.period, api, state };
   onChange((changedProps, options) => {
     if (options.leave) {
       style.visibility = 'hidden';
       return update();
     }
     props = changedProps;
+    actionProps.date = props.date;
+    actionProps.period = props.period;
     if (timeSub) {
       timeSub();
     }
@@ -333,7 +332,7 @@ export default function ChartCalendarDate(vido, props) {
         <div
           class=${className + ' ' + className + '--' + props.period + current}
           style=${styleMap(style)}
-          data-actions=${actions(componentActions, { date: props.date, period: props.period, api, state })}
+          data-actions=${actions(componentActions, actionProps)}
         >
           ${htmlFormatted}
         </div>

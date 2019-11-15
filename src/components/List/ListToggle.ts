@@ -9,32 +9,32 @@
  */
 
 export default function ListToggle(vido, props) {
-  const { api, state, onDestroy, actions, update, html, unsafeHTML, onChange } = vido;
+  const { api, state, onDestroy, actions, update, html, onChange, cache } = vido;
   const componentName = 'list-expander-toggle';
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListToggle', value => (wrapper = value)));
 
   const componentActions = api.getActions(componentName);
-  let className, style;
-  let classNameChild, classNameOpen, classNameClosed;
+  let className, classNameChild, classNameOpen, classNameClosed;
   let expanded = false;
   let iconChild, iconOpen, iconClosed;
   onDestroy(
     state.subscribe('config.classNames', value => {
       className = api.getClass(componentName);
-      classNameChild = api.getClass(componentName + '-child');
-      classNameOpen = api.getClass(componentName + '-open');
-      classNameClosed = api.getClass(componentName + '-closed');
+      classNameChild = className + '-child';
+      classNameOpen = className + '-open';
+      classNameClosed = className + '-closed';
       update();
     })
   );
   onDestroy(
-    state.subscribe('config.list.expander.icons', () => {
-      const expander = state.get('config.list.expander');
-      iconChild = expander.icons.child;
-      iconOpen = expander.icons.open;
-      iconClosed = expander.icons.closed;
+    state.subscribe('_internal.list.expander.icons', icons => {
+      if (icons) {
+        iconChild = icons.child;
+        iconOpen = icons.open;
+        iconClosed = icons.closed;
+      }
       update();
     })
   );
@@ -85,33 +85,29 @@ export default function ListToggle(vido, props) {
     }
   }
 
-  const getIcon = () => {
-    if (props.row?._internal?.children?.length === 0) {
-      return html`
-        <div class=${classNameChild}>
-          ${unsafeHTML(iconChild)}
-        </div>
-      `;
-    }
-    return expanded
-      ? html`
-          <div class=${classNameOpen}>
-            ${unsafeHTML(iconOpen)}
-          </div>
-        `
-      : html`
-          <div class=${classNameClosed}>
-            ${unsafeHTML(iconClosed)}
-          </div>
-        `;
-  };
-
   const actionProps = { row: props.row, api, state };
+  const getIcon = () => {
+    if (iconChild) {
+      if (props.row?._internal?.children?.length === 0) {
+        return html`
+          <img class=${classNameChild} src=${iconChild} />
+        `;
+      }
+      return expanded
+        ? html`
+            <img class=${classNameOpen} src=${iconOpen} />
+          `
+        : html`
+            <img class=${classNameClosed} src=${iconClosed} />
+          `;
+    }
+    return '';
+  };
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, actionProps)} @click=${toggle}>
-          ${getIcon()}
+        <div class=${className} data-action=${actions(componentActions, actionProps)} @click=${toggle}>
+          ${cache(getIcon())}
         </div>
       `,
       { vido, props, templateProps }

@@ -11,7 +11,7 @@
 import ResizeObserver from 'resize-observer-polyfill';
 
 export default function Main(vido, props = {}) {
-  const { api, state, onDestroy, actions, update, schedule, createComponent, html } = vido;
+  const { api, state, onDestroy, actions, update, createComponent, html } = vido;
   const componentName = api.name;
 
   let ListComponent;
@@ -288,6 +288,32 @@ export default function Main(vido, props = {}) {
     )
   );
 
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  function renderIcon(html: string) {
+    return new Promise(resolve => {
+      const img = document.createElement('img');
+      img.setAttribute('src', 'data:image/svg+xml;base64,' + btoa(html));
+      img.onload = function() {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      };
+    });
+  }
+
+  async function renderIcons() {
+    const icons = state.get('config.list.expander.icons');
+    const rendered = {};
+    for (const iconName in icons) {
+      const html = icons[iconName];
+      rendered[iconName] = await renderIcon(html);
+    }
+    state.update('_internal.list.expander.icons', rendered);
+  }
+  renderIcons();
+
   state.update('_internal.scrollBarHeight', api.getScrollBarHeight());
 
   let scrollTop = 0;
@@ -297,31 +323,51 @@ export default function Main(vido, props = {}) {
    * @param {MouseEvent} event
    */
   const handleEvent = (event: MouseEvent) => {
-    // @ts-ignore
-    const top = event.target.scrollTop;
-    /**
-     * Handle on scroll event
-     * @param {object} scroll
-     * @returns {object} scroll
-     */
-    const handleOnScroll = scroll => {
-      scroll.top = top;
-      scrollTop = scroll.top;
-      const scrollInner = state.get('_internal.elements.vertical-scroll-inner');
-      if (scrollInner) {
-        const scrollHeight = scrollInner.clientHeight;
-        scroll.percent.top = scroll.top / scrollHeight;
+    event.stopPropagation();
+    if (event.type === 'scroll') {
+      // @ts-ignore
+      const top = event.target.scrollTop;
+      /**
+       * Handle on scroll event
+       * @param {object} scroll
+       * @returns {object} scroll
+       */
+      const handleOnScroll = scroll => {
+        scroll.top = top;
+        scrollTop = scroll.top;
+        const scrollInner = state.get('_internal.elements.vertical-scroll-inner');
+        if (scrollInner) {
+          const scrollHeight = scrollInner.clientHeight;
+          scroll.percent.top = scroll.top / scrollHeight;
+        }
+        return scroll;
+      };
+      if (scrollTop !== top)
+        state.update('config.scroll', handleOnScroll, {
+          only: ['top', 'percent.top']
+        });
+    } else {
+      const wheel = api.normalizeMouseWheelEvent(event);
+      const xMultiplier = state.get('config.scroll.xMultiplier');
+      const yMultiplier = state.get('config.scroll.yMultiplier');
+      if (event.shiftKey && wheel.y) {
+        state.update('config.scroll.left', left => {
+          return api.limitScroll('left', (left += wheel.y * xMultiplier));
+        });
+      } else if (wheel.x) {
+        state.update('config.scroll.left', left => {
+          return api.limitScroll('left', (left += wheel.x * xMultiplier));
+        });
+      } else {
+        state.update('config.scroll.top', top => {
+          return (scrollTop = api.limitScroll('top', (top += wheel.y * yMultiplier)));
+        });
       }
-      return scroll;
-    };
-    if (scrollTop !== top)
-      state.update('config.scroll', handleOnScroll, {
-        only: ['top', 'percent.top']
-      });
+    }
   };
 
   const onScroll = {
-    handleEvent: schedule(handleEvent),
+    handleEvent: handleEvent,
     passive: true,
     capture: false
   };
@@ -400,6 +446,7 @@ export default function Main(vido, props = {}) {
             class=${classNameVerticalScroll}
             style=${styleVerticalScroll}
             @scroll=${onScroll}
+            @wheel=${onScroll}
             data-action=${actions([bindScrollElement])}
           >
             <div style=${styleVerticalScrollArea} data-actions=${actions([bindScrollInnerElement])} />

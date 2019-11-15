@@ -9,7 +9,7 @@
  */
 
 export default function ListColumnHeaderResizer(vido, props) {
-  const { api, state, onDestroy, update, html, actions, text, cache } = vido;
+  const { api, state, onDestroy, update, html, actions, cache } = vido;
 
   const componentName = 'list-column-header-resizer';
   const componentActions = api.getActions(componentName);
@@ -122,7 +122,7 @@ export default function ListColumnHeaderResizer(vido, props) {
                 ? html`
                     ${column.header.html}
                   `
-                : text(column.header.content)
+                : column.header.content
             )}
           </div>
           <div class=${dotsClass} style=${'--' + dotsWidth} @mousedown=${onMouseDown}>

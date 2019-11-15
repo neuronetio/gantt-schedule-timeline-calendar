@@ -37,10 +37,10 @@ const bindElementAction = (element, data) => {
 };
 
 function ChartTimelineItemsRowItem(vido, props) {
-  const { api, state, onDestroy, actions, update, html, onChange, styleMap, text } = vido;
+  const { api, state, onDestroy, actions, update, html, onChange, styleMap } = vido;
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
-  let style = { width: '', height: '', transform: '', opacity: '1', pointerEvents: 'all' },
+  let style = { width: '', height: '', left: '', opacity: '1', pointerEvents: 'all' },
     contentStyle = { width: '', height: '' },
     itemLeftPx = 0,
     itemWidthPx = 0,
@@ -60,15 +60,29 @@ function ChartTimelineItemsRowItem(vido, props) {
     itemLeftPx = (props.item.time.start - time.leftGlobal) / time.timePerPixel;
     itemWidthPx = (props.item.time.end - props.item.time.start) / time.timePerPixel;
     itemWidthPx -= state.get('config.chart.spacing') || 0;
+    const oldWidth = style.width;
+    const oldHeight = style.height;
+    //const oldTransform = style.transform;
+    const oldLeft = style.left;
     // @ts-ignore
     style = {};
-    style.width = itemWidthPx + 'px';
-    style.height = props.row.height + 'px';
-    style.transform = `translate(${itemLeftPx}px, 0px)`;
-    style.opacity = '1';
-    style.pointerEvents = 'all';
+    const inViewPort = api.isItemInViewport(props.item, time.leftGlobal, time.rightGlobal);
+    style.opacity = inViewPort ? '1' : '0';
+    style.pointerEvents = inViewPort ? 'all' : 'none';
+    if (inViewPort) {
+      // update style only when visible to prevent browser's recalculate style
+      style.width = itemWidthPx + 'px';
+      style.height = props.row.height + 'px';
+      //style.transform = `translate(${itemLeftPx}px, 0px)`;
+      style.left = itemLeftPx + 'px';
+    } else {
+      style.width = oldWidth;
+      style.height = oldHeight;
+      style.left = oldLeft;
+      //style.transform = oldTransform;
+    }
     // @ts-ignore
-    contentStyle = { 'max-width': itemWidthPx + 'px', 'max-height': props.row.height + 'px' };
+    contentStyle = { width: itemWidthPx + 'px', 'max-height': props.row.height + 'px' };
     const rows = state.get('config.list.rows');
     for (const parentId of props.row._internal.parents) {
       const parent = rows[parentId];
@@ -128,7 +142,7 @@ function ChartTimelineItemsRowItem(vido, props) {
         <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style)}>
           <div class=${contentClassName} style=${styleMap(contentStyle)}>
             <div class=${labelClassName}>
-              ${text(props.item.label)}
+              ${props.item.label}
             </div>
           </div>
         </div>

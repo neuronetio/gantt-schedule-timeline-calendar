@@ -51,7 +51,7 @@ export default function ListColumn(vido, props) {
     const list = state.get('config.list');
     const compensation = state.get('config.scroll.compensation');
     calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
-    width = calculatedWidth + list.columns.resizer.width;
+    width = calculatedWidth;
     const height = state.get('_internal.height');
     widthStyle.width = width + 'px';
     widthStyle['--width'] = width + 'px';

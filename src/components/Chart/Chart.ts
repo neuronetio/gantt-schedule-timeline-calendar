@@ -62,6 +62,7 @@ export default function Chart(vido, props = {}) {
   );
 
   const handleEvent = event => {
+    event.stopPropagation();
     let scrollLeft, scrollTop;
     if (event.type === 'scroll') {
       state.update('config.scroll.left', event.target.scrollLeft);
@@ -98,13 +99,13 @@ export default function Chart(vido, props = {}) {
   };
 
   const onScroll = {
-    handleEvent: schedule(handleEvent),
+    handleEvent: handleEvent,
     passive: true,
     capture: false
   };
 
   const onWheel = {
-    handleEvent: schedule(handleEvent),
+    handleEvent: handleEvent,
     passive: true,
     capture: false
   };
