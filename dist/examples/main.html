@@ -35,7 +35,7 @@
         const id = i.toString();
         rows[id] = {
           id,
-          label: 'row id ' + i,
+          label: `<div class="test">test</div>`,
           progress: 50,
           parentId: withParent ? (i - 1).toString() : undefined,
           expanded: false
@@ -87,7 +87,7 @@
             id: 'label',
             data: 'label',
             expander: true,
-            isHtml: true,
+            isHTML: true,
             width: 230,
             header: {
               content: 'Label'

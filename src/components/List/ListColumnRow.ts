@@ -9,7 +9,7 @@
  */
 
 export default function ListColumnRow(vido, props) {
-  const { api, state, onDestroy, actions, update, html, createComponent, onChange, styleMap } = vido;
+  const { api, state, onDestroy, actions, update, html, createComponent, onChange, styleMap, unsafeHTML } = vido;
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListColumnRow', value => (wrapper = value)));
@@ -24,7 +24,7 @@ export default function ListColumnRow(vido, props) {
   let style = column.expander
     ? {
         opacity: '1',
-        pointerEvents: 'all',
+        pointerEvents: 'auto',
         height: '',
         width: '',
         top: '',
@@ -34,7 +34,7 @@ export default function ListColumnRow(vido, props) {
       }
     : {
         opacity: '1',
-        pointerEvents: 'all',
+        pointerEvents: 'auto',
         height: '',
         width: '',
         top: '',
@@ -67,7 +67,7 @@ export default function ListColumnRow(vido, props) {
       // @ts-ignore
       style = {}; // we must reset style because of user specified styling
       style.opacity = '1';
-      style.pointerEvents = 'all';
+      style.pointerEvents = 'auto';
       style.height = row.height + 'px';
       style.width = column.width + 'px';
       style.top = row.top + 'px';
@@ -120,13 +120,8 @@ export default function ListColumnRow(vido, props) {
   );
 
   function getHtml() {
-    if (typeof column.data === 'function')
-      return html`
-        ${column.data(row)}
-      `;
-    return html`
-      ${row[column.data]}
-    `;
+    if (typeof column.data === 'function') return unsafeHTML(column.data(row));
+    return unsafeHTML(row[column.data]);
   }
 
   function getText() {
@@ -141,7 +136,7 @@ export default function ListColumnRow(vido, props) {
         <div class=${className} style=${styleMap(style)} data-actions=${actions(componentActions, actionProps)}>
           ${column.expander ? ListExpander.html() : null}
           <div class=${className + '-content'}>
-            ${typeof column.html === 'string' ? getHtml() : getText()}
+            ${column.isHTML ? getHtml() : getText()}
           </div>
         </div>
       `,

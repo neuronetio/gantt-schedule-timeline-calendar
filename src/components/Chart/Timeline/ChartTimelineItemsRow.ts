@@ -49,13 +49,13 @@ const ChartTimelineItemsRow = (vido, props) => {
 
   let element,
     scrollLeft,
-    style = { opacity: '1', pointerEvents: 'all', width: '', height: '', top: '0px' };
+    style = { opacity: '1', pointerEvents: 'auto', width: '', height: '', top: '0px' };
   let itemComponents = [];
 
   const updateDom = () => {
     const chart = state.get('_internal.chart');
     style.opacity = '1';
-    style.pointerEvents = 'all';
+    style.pointerEvents = 'auto';
     style.width = chart.dimensions.width + 'px';
     if (!props) {
       style.opacity = '0';

@@ -162,7 +162,7 @@
      */
     const boundAttributeSuffix = '$lit$';
     /**
-     * An updatable Template that tracks the location of dynamic parts.
+     * An updateable Template that tracks the location of dynamic parts.
      */
     class Template {
         constructor(result, element) {
@@ -315,14 +315,9 @@
         return index >= 0 && str.slice(index) === suffix;
     };
     const isTemplatePartActive = (part) => part.index !== -1;
-    /**
-     * Used to clone existing node instead of each time creating new one which is
-     * slower
-     */
-    const markerNode = document.createComment('');
     // Allows `document.createComment('')` to be renamed for a
     // small manual size-savings.
-    const createMarker = () => markerNode.cloneNode();
+    const createMarker = () => document.createComment('');
     /**
      * This regex extracts the attribute name preceding an attribute-position
      * expression. It does this by matching the syntax allowed for attributes
@@ -410,7 +405,7 @@
             // Given these constraints, with full custom elements support we would
             // prefer the order: Clone, Process, Adopt, Upgrade, Update, Connect
             //
-            // But Safari does not implement CustomElementRegistry#upgrade, so we
+            // But Safari dooes not implement CustomElementRegistry#upgrade, so we
             // can not implement that order and still have upgrade-before-update and
             // upgrade disconnected fragments. So we instead sacrifice the
             // process-before-upgrade constraint, since in Custom Elements v1 elements
@@ -496,30 +491,7 @@
      * subject to an additional IP rights grant found at
      * http://polymer.github.io/PATENTS.txt
      */
-    let policy;
-    /**
-     * Turns the value to trusted HTML. If the application uses Trusted Types the
-     * value is transformed into TrustedHTML, which can be assigned to execution
-     * sink. If the application doesn't use Trusted Types, the return value is the
-     * same as the argument.
-     */
-    function convertConstantTemplateStringToTrustedHTML(value) {
-        // tslint:disable-next-line
-        const w = window;
-        // TrustedTypes have been renamed to trustedTypes
-        // (https://github.com/WICG/trusted-types/issues/177)
-        const trustedTypes = (w.trustedTypes || w.TrustedTypes);
-        if (trustedTypes && !policy) {
-            policy = trustedTypes.createPolicy('lit-html', { createHTML: (s) => s });
-        }
-        return policy ? policy.createHTML(value) : value;
-    }
     const commentMarker = ` ${marker} `;
-    /**
-     * Used to clone existing node instead of each time creating new one which is
-     * slower
-     */
-    const emptyTemplateNode = document.createElement('template');
     /**
      * The return type of `html`, which holds a Template and the values from
      * interpolated expressions.
@@ -543,7 +515,7 @@
                 // For each binding we want to determine the kind of marker to insert
                 // into the template source before it's parsed by the browser's HTML
                 // parser. The marker type is based on whether the expression is in an
-                // attribute, text, or comment position.
+                // attribute, text, or comment poisition.
                 //   * For node-position bindings we insert a comment with the marker
                 //     sentinel as its text content, like <!--{{lit-guid}}-->.
                 //   * For attribute bindings we insert just the marker sentinel for the
@@ -563,13 +535,13 @@
                 // be false positives.
                 isCommentBinding = (commentOpen > -1 || isCommentBinding) &&
                     s.indexOf('-->', commentOpen + 1) === -1;
-                // Check to see if we have an attribute-like sequence preceding the
+                // Check to see if we have an attribute-like sequence preceeding the
                 // expression. This can match "name=value" like structures in text,
                 // comments, and attribute values, so there can be false-positives.
                 const attributeMatch = lastAttributeNameRegex.exec(s);
                 if (attributeMatch === null) {
                     // We're only in this branch if we don't have a attribute-like
-                    // preceding sequence. For comments, this guards against unusual
+                    // preceeding sequence. For comments, this guards against unusual
                     // attribute values like <div foo="<!--${'bar'}">. Cases like
                     // <!-- foo=${'bar'}--> are handled correctly in the attribute branch
                     // below.
@@ -588,12 +560,8 @@
             return html;
         }
         getTemplateElement() {
-            const template = emptyTemplateNode.cloneNode();
-            // this is secure because `this.strings` is a TemplateStringsArray.
-            // TODO: validate this when
-            // https://github.com/tc39/proposal-array-is-template-object is implemented.
-            template.innerHTML =
-                convertConstantTemplateStringToTrustedHTML(this.getHTML());
+            const template = document.createElement('template');
+            template.innerHTML = this.getHTML();
             return template;
         }
     }
@@ -640,16 +608,9 @@
             // tslint:disable-next-line:no-any
             !!(value && value[Symbol.iterator]);
     };
-    const sanitizeDOMValue = (value, name, type, node) => {
-        return value;
-    };
-    /**
-     * Used to clone text node instead of each time creating new one which is slower
-     */
-    const emptyTextNode = document.createTextNode('');
     /**
      * Writes attribute values to the DOM for a group of AttributeParts bound to a
-     * single attribute. The value is only set once even if there are multiple parts
+     * single attibute. The value is only set once even if there are multiple parts
      * for an attribute.
      */
     class AttributeCommitter {
@@ -671,32 +632,11 @@
         }
         _getValue() {
             const strings = this.strings;
-            const parts = this.parts;
             const l = strings.length - 1;
-            // If we're assigning an attribute via syntax like:
-            //    attr="${foo}"  or  attr=${foo}
-            // but not
-            //    attr="${foo} ${bar}" or attr="${foo} baz"
-            // then we don't want to coerce the attribute value into one long
-            // string. Instead we want to just return the value itself directly,
-            // so that sanitizeDOMValue can get the actual value rather than
-            // String(value)
-            // The exception is if v is an array, in which case we do want to smash
-            // it together into a string without calling String() on the array.
-            //
-            // This also allows trusted values (when using TrustedTypes) being
-            // assigned to DOM sinks without being stringified in the process.
-            if (l === 1 && strings[0] === '' && strings[1] === '' &&
-                parts[0] !== undefined) {
-                const v = parts[0].value;
-                if (!isIterable(v)) {
-                    return v;
-                }
-            }
             let text = '';
             for (let i = 0; i < l; i++) {
                 text += strings[i];
-                const part = parts[i];
+                const part = this.parts[i];
                 if (part !== undefined) {
                     const v = part.value;
                     if (isPrimitive(v) || !isIterable(v)) {
@@ -715,13 +655,7 @@
         commit() {
             if (this.dirty) {
                 this.dirty = false;
-                let value = this._getValue();
-                value = sanitizeDOMValue(value, this.name, 'attribute', this.element);
-                if (typeof value === 'symbol') {
-                    // Native Symbols throw if they're coerced to string.
-                    value = String(value);
-                }
-                this.element.setAttribute(this.name, value);
+                this.element.setAttribute(this.name, this._getValue());
             }
         }
     }
@@ -859,25 +793,18 @@
         __commitText(value) {
             const node = this.startNode.nextSibling;
             value = value == null ? '' : value;
+            // If `value` isn't already a string, we explicitly convert it here in case
+            // it can't be implicitly converted - i.e. it's a symbol.
+            const valueAsString = typeof value === 'string' ? value : String(value);
             if (node === this.endNode.previousSibling &&
                 node.nodeType === 3 /* Node.TEXT_NODE */) {
                 // If we only have a single text node between the markers, we can just
                 // set its value, rather than replacing it.
-                const renderedValue = sanitizeDOMValue(value);
-                node.data = typeof renderedValue === 'string' ?
-                    renderedValue :
-                    String(renderedValue);
+                // TODO(justinfagnani): Can we just check if this.value is primitive?
+                node.data = valueAsString;
             }
             else {
-                // When setting text content, for security purposes it matters a lot what
-                // the parent is. For example, <style> and <script> need to be handled
-                // with care, while <span> does not. So first we need to put a text node
-                // into the document, then we can sanitize its contentx.
-                const textNode = emptyTextNode.cloneNode();
-                this.__commitNode(textNode);
-                const renderedValue = sanitizeDOMValue(value);
-                textNode.data = typeof renderedValue === 'string' ? renderedValue :
-                    String(renderedValue);
+                this.__commitNode(document.createTextNode(valueAsString));
             }
             this.value = value;
         }
@@ -888,21 +815,6 @@
                 this.value.update(value.values);
             }
             else {
-                // `value` is a template result that was constructed without knowledge of
-                // the parent we're about to write it into. sanitizeDOMValue hasn't been
-                // made aware of this relationship, and for scripts and style specifically
-                // this is known to be unsafe. So in the case where the user is in
-                // "secure mode" (i.e. when there's a sanitizeDOMValue set), we just want
-                // to forbid this because it's not a use case we want to support.
-                // We check for sanitizeDOMValue is to prevent this from
-                // being a breaking change to the library.
-                const parent = this.endNode.parentNode;
-                if (
-                    parent.nodeName === 'SCRIPT') {
-                    this.__commitText('/* lit-html will not write ' +
-                        'TemplateResults to scripts and styles */');
-                    return;
-                }
                 // Make sure we propagate the template processor from the TemplateResult
                 // so that we use its syntax extension, etc. The template factory comes
                 // from the render function options so that it can control template
@@ -1031,17 +943,15 @@
         commit() {
             if (this.dirty) {
                 this.dirty = false;
-                let value = this._getValue();
-                value = sanitizeDOMValue(value, this.name, 'property', this.element);
                 // tslint:disable-next-line:no-any
-                this.element[this.name] = value;
+                this.element[this.name] = this._getValue();
             }
         }
     }
     class PropertyPart extends AttributePart {
     }
     // Detect event listener options support. If the `capture` property is read
-    // from the options object, then options are supported. If not, then the third
+    // from the options object, then options are supported. If not, then the thrid
     // argument to add/removeEventListener is interpreted as the boolean capture
     // value so we should only pass the `capture` property.
     let eventOptionsSupported = false;
@@ -1570,7 +1480,7 @@
      * Stores the ClassInfo object applied to a given AttributePart.
      * Used to unset existing values when a new ClassInfo object is applied.
      */
-    const previousClassesCache = new WeakMap();
+    const classMapCache = new WeakMap();
     /**
      * A directive that applies CSS classes. This must be used in the `class`
      * attribute and must be the only part used in the attribute. It takes each
@@ -1589,39 +1499,29 @@
         }
         const { committer } = part;
         const { element } = committer;
-        let previousClasses = previousClassesCache.get(part);
-        if (previousClasses === undefined) {
-            // Write static classes once
+        // handle static classes
+        if (!classMapCache.has(part)) {
             element.className = committer.strings.join(' ');
-            previousClassesCache.set(part, previousClasses = new Set());
         }
         const { classList } = element;
-        // Remove old classes that no longer apply
-        // We use forEach() instead of for-of so that re don't require down-level
-        // iteration.
-        previousClasses.forEach((name) => {
+        // remove old classes that no longer apply
+        const oldInfo = classMapCache.get(part);
+        for (const name in oldInfo) {
             if (!(name in classInfo)) {
                 classList.remove(name);
-                previousClasses.delete(name);
-            }
-        });
-        // Add or remove classes based on their classMap value
-        for (const name in classInfo) {
-            const value = classInfo[name];
-            // We explicitly want a loose truthy check of `value` because it seems more
-            // convenient that '' and 0 are skipped.
-            // tslint:disable-next-line: triple-equals
-            if (value != previousClasses.has(name)) {
-                if (value) {
-                    classList.add(name);
-                    previousClasses.add(name);
-                }
-                else {
-                    classList.remove(name);
-                    previousClasses.delete(name);
-                }
             }
         }
+        // add new classes
+        for (const name in classInfo) {
+            const value = classInfo[name];
+            if (!oldInfo || value !== oldInfo[name]) {
+                // We explicitly want a loose truthy check here because
+                // it seems more convenient that '' and 0 are skipped.
+                const method = value ? 'add' : 'remove';
+                classList[method](name);
+            }
+        }
+        classMapCache.set(part, classInfo);
     });
 
     /**
@@ -1787,7 +1687,7 @@
      * needed, and DOM will never be reused with values for different keys (new DOM
      * will always be created for new keys). This is generally the most efficient
      * way to use `repeat` since it performs minimum unnecessary work for insertions
-     * and removals.
+     * amd removals.
      *
      * IMPORTANT: If providing a `keyFn`, keys *must* be unique for all items in a
      * given call to `repeat`. The behavior when two or more items have the same key
@@ -2150,53 +2050,6 @@
      * subject to an additional IP rights grant found at
      * http://polymer.github.io/PATENTS.txt
      */
-    // For each part, remember the value that was last rendered to the part by the
-    // unsafeHTML directive, and the DocumentFragment that was last set as a value.
-    // The DocumentFragment is used as a unique key to check if the last value
-    // rendered to the part was with unsafeHTML. If not, we'll always re-render the
-    // value passed to unsafeHTML.
-    const previousValues$1 = new WeakMap();
-    /**
-     * Used to clone existing node instead of each time creating new one which is
-     * slower
-     */
-    const emptyTemplateNode$1 = document.createElement('template');
-    /**
-     * Renders the result as HTML, rather than text.
-     *
-     * Note, this is unsafe to use with any user-provided input that hasn't been
-     * sanitized or escaped, as it may lead to cross-site-scripting
-     * vulnerabilities.
-     */
-    const unsafeHTML = directive((value) => (part) => {
-        if (!(part instanceof NodePart)) {
-            throw new Error('unsafeHTML can only be used in text bindings');
-        }
-        const previousValue = previousValues$1.get(part);
-        if (previousValue !== undefined && isPrimitive(value) &&
-            value === previousValue.value && part.value === previousValue.fragment) {
-            return;
-        }
-        const template = emptyTemplateNode$1.cloneNode();
-        template.innerHTML = value; // innerHTML casts to string internally
-        const fragment = document.importNode(template.content, true);
-        part.setValue(fragment);
-        previousValues$1.set(part, { value, fragment });
-    });
-
-    /**
-     * @license
-     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-     * This code may only be used under the BSD style license found at
-     * http://polymer.github.io/LICENSE.txt
-     * The complete set of authors may be found at
-     * http://polymer.github.io/AUTHORS.txt
-     * The complete set of contributors may be found at
-     * http://polymer.github.io/CONTRIBUTORS.txt
-     * Code distributed by Google as part of the polymer project is also
-     * subject to an additional IP rights grant found at
-     * http://polymer.github.io/PATENTS.txt
-     */
     const _state = new WeakMap();
     // Effectively infinity, but a SMI.
     const _infinity = 0x7fffffff;
@@ -2243,7 +2096,7 @@
                 part.setValue(value);
                 state.lastRenderedIndex = i;
                 // Since a lower-priority value will never overwrite a higher-priority
-                // synchronous value, we can stop processing now.
+                // synchronous value, we can stop processsing now.
                 break;
             }
             // If this is a Promise we've already handled, skip it.
@@ -2268,18 +2121,6 @@
         }
     });
 
-    /* dev imports
-    import { render, html, directive, svg } from '../lit-html';
-    import { asyncAppend } from '../lit-html/directives/async-append';
-    import { asyncReplace } from '../lit-html/directives/async-replace';
-    import { cache } from '../lit-html/directives/cache';
-    import { classMap } from '../lit-html/directives/class-map';
-    import { guard } from '../lit-html/directives/guard';
-    import { ifDefined } from '../lit-html/directives/if-defined';
-    import { repeat } from '../lit-html/directives/repeat';
-    import { unsafeHTML } from '../lit-html/directives/unsafe-html';
-    import { until } from '../lit-html/directives/until';
-    */
     /**
      * Schedule - a throttle function that uses requestAnimationFrame to limit the rate at which a function is called.
      *
@@ -2382,6 +2223,9 @@
         let shouldUpdateCount = 0;
         const resolved = Promise.resolve();
         const previousStyle = new WeakMap();
+        const previousUnsafeValues = new WeakMap();
+        const textNode = document.createTextNode('');
+        const templateNode = document.createElement('template');
         /**
          * Get actions for component instance as directives
          *
@@ -2504,34 +2348,30 @@
         vido.prototype.guard = guard;
         vido.prototype.ifDefined = ifDefined;
         vido.prototype.repeat = repeat;
-        vido.prototype.unsafeHTML = unsafeHTML;
-        /*vido.prototype.unsafeHTML = directive((value) => (part) => {
-          const previousValue = previousUnsafeValues.get(part);
-          if (
-            previousValue !== undefined &&
-            isPrimitive(value) &&
-            value === previousValue.value &&
-            part.value === previousValue.fragment
-          ) {
-            return;
-          }
-          const template = templateNode.cloneNode() as HTMLTemplateElement;
-          template.innerHTML = value; // innerHTML casts to string internally
-          const fragment = document.importNode(template.content, true);
-          part.setValue(fragment);
-          previousUnsafeValues.set(part, { value, fragment });
-        });*/
+        //vido.prototype.unsafeHTML = unsafeHTML;
+        vido.prototype.unsafeHTML = directive((value) => (part) => {
+            const previousValue = previousUnsafeValues.get(part);
+            if (previousValue !== undefined &&
+                isPrimitive(value) &&
+                value === previousValue.value &&
+                part.value === previousValue.fragment) {
+                return;
+            }
+            const template = templateNode.cloneNode();
+            template.innerHTML = value; // innerHTML casts to string internally
+            const fragment = document.importNode(template.content, true);
+            part.setValue(fragment);
+            previousUnsafeValues.set(part, { value, fragment });
+        });
         vido.prototype.until = until;
         vido.prototype.schedule = schedule;
         vido.prototype.actionsByInstance = (componentActions, props) => { };
-        /*vido.prototype.text = directive(
-          (text) =>
-            function setText(part) {
-              const node = textNode.cloneNode() as Text;
-              if (node.data !== text) node.data = text;
-              part.setValue(node);
-            }
-        );*/
+        vido.prototype.text = directive((text) => function setText(part) {
+            const node = part.value || textNode.cloneNode();
+            if (node.data !== text)
+                node.data = text;
+            part.setValue(node);
+        });
         vido.prototype.styleMap = directive((styleInfo, removePrevious = true) => function style(part) {
             const style = part.committer.element.style;
             let previous = previousStyle.get(part);
@@ -2736,13 +2576,17 @@
         vido.prototype.updateTemplate = function updateTemplate() {
             const currentShouldUpdateCount = ++shouldUpdateCount;
             const self = this;
-            function flush() {
+            resolved.then(function flush() {
                 if (currentShouldUpdateCount === shouldUpdateCount) {
                     shouldUpdateCount = 0;
                     self.render();
+                    if (self.debug) {
+                        console.groupCollapsed('templates updated');
+                        console.trace();
+                        console.groupEnd();
+                    }
                 }
-            }
-            resolved.then(flush);
+            });
         };
         /**
          * Create app
@@ -2764,7 +2608,7 @@
             var _a, _b;
             for (const actions of actionsByInstance.values()) {
                 for (const action of actions) {
-                    if (action.element.vido === undefined) {
+                    if (typeof action.element.vido === 'undefined') {
                         const componentAction = action.componentAction;
                         const create = componentAction.create;
                         if (typeof create === 'function') {
@@ -2775,7 +2619,13 @@
                             else {
                                 result = new create(action.element, action.props);
                             }
-                            if (result !== undefined) {
+                            if (this.debug) {
+                                console.groupCollapsed(`create action executed ${action.instance}`);
+                                console.log(clone({ components: components.keys(), action, actionsByInstance }));
+                                console.trace();
+                                console.groupEnd();
+                            }
+                            if (typeof result !== 'undefined') {
                                 if (typeof result === 'function') {
                                     componentAction.destroy = result;
                                 }
@@ -2794,6 +2644,12 @@
                         action.element.vido = action.props;
                         if (typeof action.componentAction.update === 'function') {
                             action.componentAction.update(action.element, action.props);
+                            if (this.debug) {
+                                console.groupCollapsed(`update action executed ${action.instance}`);
+                                console.log(clone({ components: components.keys(), action, actionsByInstance }));
+                                console.trace();
+                                console.groupEnd();
+                            }
                         }
                     }
                 }
@@ -4534,7 +4390,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnRow(vido, props) {
-        const { api, state, onDestroy, actions, update, html, createComponent, onChange, styleMap } = vido;
+        const { api, state, onDestroy, actions, update, html, createComponent, onChange, styleMap, unsafeHTML } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListColumnRow', value => (wrapper = value)));
         let ListExpanderComponent;
@@ -4544,7 +4400,7 @@
         let style = column.expander
             ? {
                 opacity: '1',
-                pointerEvents: 'all',
+                pointerEvents: 'auto',
                 height: '',
                 width: '',
                 top: '',
@@ -4554,7 +4410,7 @@
             }
             : {
                 opacity: '1',
-                pointerEvents: 'all',
+                pointerEvents: 'auto',
                 height: '',
                 width: '',
                 top: '',
@@ -4586,7 +4442,7 @@
                 // @ts-ignore
                 style = {}; // we must reset style because of user specified styling
                 style.opacity = '1';
-                style.pointerEvents = 'all';
+                style.pointerEvents = 'auto';
                 style.height = row.height + 'px';
                 style.width = column.width + 'px';
                 style.top = row.top + 'px';
@@ -4633,12 +4489,8 @@
         }));
         function getHtml() {
             if (typeof column.data === 'function')
-                return html `
-        ${column.data(row)}
-      `;
-            return html `
-      ${row[column.data]}
-    `;
+                return unsafeHTML(column.data(row));
+            return unsafeHTML(row[column.data]);
         }
         function getText() {
             if (typeof column.data === 'function')
@@ -4650,7 +4502,7 @@
         <div class=${className} style=${styleMap(style)} data-actions=${actions(componentActions, actionProps)}>
           ${column.expander ? ListExpander.html() : null}
           <div class=${className + '-content'}>
-            ${typeof column.html === 'string' ? getHtml() : getText()}
+            ${column.isHTML ? getHtml() : getText()}
           </div>
         </div>
       `, { vido, props, templateProps });
@@ -5753,12 +5605,12 @@
         const ItemComponent = state.get('config.components.ChartTimelineItemsRowItem');
         let itemsPath = `_internal.flatTreeMapById.${props.row.id}._internal.items`;
         let rowSub, itemsSub;
-        let style = { opacity: '1', pointerEvents: 'all', width: '', height: '', top: '0px' };
+        let style = { opacity: '1', pointerEvents: 'auto', width: '', height: '', top: '0px' };
         let itemComponents = [];
         const updateDom = () => {
             const chart = state.get('_internal.chart');
             style.opacity = '1';
-            style.pointerEvents = 'all';
+            style.pointerEvents = 'auto';
             style.width = chart.dimensions.width + 'px';
             if (!props) {
                 style.opacity = '0';
@@ -5860,10 +5712,10 @@
         };
     };
     function ChartTimelineItemsRowItem(vido, props) {
-        const { api, state, onDestroy, actions, update, html, onChange, styleMap } = vido;
+        const { api, state, onDestroy, actions, update, html, onChange, styleMap, unsafeHTML } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
-        let style = { width: '', height: '', left: '', opacity: '1', pointerEvents: 'all' }, contentStyle = { width: '', height: '' }, itemLeftPx = 0, itemWidthPx = 0, leave = false;
+        let style = { width: '', height: '', left: '', opacity: '1', pointerEvents: 'auto' }, contentStyle = { width: '', height: '' }, itemLeftPx = 0, itemWidthPx = 0, leave = false;
         const actionProps = {
             item: props.item,
             row: props.row,
@@ -5888,7 +5740,7 @@
             style = {};
             const inViewPort = api.isItemInViewport(props.item, time.leftGlobal, time.rightGlobal);
             style.opacity = inViewPort ? '1' : '0';
-            style.pointerEvents = inViewPort ? 'all' : 'none';
+            style.pointerEvents = inViewPort ? 'auto' : 'none';
             if (inViewPort) {
                 // update style only when visible to prevent browser's recalculate style
                 style.width = itemWidthPx + 'px';
@@ -5957,7 +5809,7 @@
         <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style)}>
           <div class=${contentClassName} style=${styleMap(contentStyle)}>
             <div class=${labelClassName}>
-              ${props.item.label}
+              ${props.item.isHtml ? unsafeHTML(props.item.label) : props.item.label}
             </div>
           </div>
         </div>

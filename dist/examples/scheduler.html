@@ -233,7 +233,7 @@
         }
 
         update(element, data) {
-          let bg = element.firstElementChild.firstElementChild;
+          let bg = this.bg;
           if (data.row.id !== '1' && bg.style.visibility !== 'hidden') {
             bg.style['line-height'] = data.row.height + 'px';
             bg.style.visibility = 'hidden';
@@ -244,8 +244,7 @@
         }
 
         destroy() {
-          let bg = element.firstElementChild && element.firstElementChild.firstElementChild;
-          if (bg) bg.remove();
+          if (this.bg) this.bg.remove();
         }
       }
 

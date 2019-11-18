@@ -37,10 +37,10 @@ const bindElementAction = (element, data) => {
 };
 
 function ChartTimelineItemsRowItem(vido, props) {
-  const { api, state, onDestroy, actions, update, html, onChange, styleMap } = vido;
+  const { api, state, onDestroy, actions, update, html, onChange, styleMap, unsafeHTML } = vido;
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
-  let style = { width: '', height: '', left: '', opacity: '1', pointerEvents: 'all' },
+  let style = { width: '', height: '', left: '', opacity: '1', pointerEvents: 'auto' },
     contentStyle = { width: '', height: '' },
     itemLeftPx = 0,
     itemWidthPx = 0,
@@ -68,7 +68,7 @@ function ChartTimelineItemsRowItem(vido, props) {
     style = {};
     const inViewPort = api.isItemInViewport(props.item, time.leftGlobal, time.rightGlobal);
     style.opacity = inViewPort ? '1' : '0';
-    style.pointerEvents = inViewPort ? 'all' : 'none';
+    style.pointerEvents = inViewPort ? 'auto' : 'none';
     if (inViewPort) {
       // update style only when visible to prevent browser's recalculate style
       style.width = itemWidthPx + 'px';
@@ -142,7 +142,7 @@ function ChartTimelineItemsRowItem(vido, props) {
         <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style)}>
           <div class=${contentClassName} style=${styleMap(contentStyle)}>
             <div class=${labelClassName}>
-              ${props.item.label}
+              ${props.item.isHtml ? unsafeHTML(props.item.label) : props.item.label}
             </div>
           </div>
         </div>
