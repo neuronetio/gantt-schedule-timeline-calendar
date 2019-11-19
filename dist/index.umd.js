@@ -5482,10 +5482,11 @@
             if (!periodDates || periodDates.length === 0) {
                 return;
             }
-            const compensation = periodDates[0].subPx;
-            styleMap.style.height = height + 'px';
+            const xCompensation = periodDates[0].subPx;
+            const yCompensation = state.get('config.scroll.compensation');
+            styleMap.style.height = height + Math.abs(yCompensation) + 'px';
             styleMap.style.width = width + 'px';
-            styleMap.style.transform = `translate(-${compensation}px, 0px)`;
+            styleMap.style.transform = `translate(-${xCompensation}px, 0px)`;
             let top = 0;
             rowsWithBlocks.length = 0;
             for (const row of visibleRows) {
