@@ -330,7 +330,7 @@ export default function Main(vido, props = {}) {
    * @param {MouseEvent} event
    */
   const handleEvent = (event: MouseEvent) => {
-    event.stopPropagation();
+    //event.stopPropagation();
     if (event.type === 'scroll') {
       // @ts-ignore
       const top = event.target.scrollTop;
@@ -385,6 +385,7 @@ export default function Main(vido, props = {}) {
    */
   const onScrollStop = (event: Event) => {
     event.stopPropagation();
+    event.stopImmediatePropagation();
     event.preventDefault();
   };
 

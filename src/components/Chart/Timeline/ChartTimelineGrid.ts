@@ -47,10 +47,10 @@ export default function ChartTimelineGrid(vido, props) {
     if (!periodDates || periodDates.length === 0) {
       return;
     }
-    //const compensation = periodDates[0].subPx;
+    const compensation = periodDates[0].subPx;
     styleMap.style.height = height + 'px';
     styleMap.style.width = width + 'px';
-    //styleMap.style.transform = `translate(-${compensation}px, 0px)`;
+    styleMap.style.transform = `translate(-${compensation}px, 0px)`;
 
     let top = 0;
     rowsWithBlocks.length = 0;

@@ -64,7 +64,7 @@ $item-content-padding = 5px
       height: var(--height)
       width: calc(var(--expander-padding-width) + var(--expander-size))
       flex-shrink: 0
-      //will-change: opacity
+      will-change: opacity
       &-toggle
         padding-left: var(--expander-padding-width)
         display: block
@@ -114,7 +114,7 @@ $item-content-padding = 5px
     &-column-row
       border-bottom: 1px solid $bg-dark-2
       border-right: 1px solid $bg-dark-2
-      //will-change: height
+      will-change: height
       &-content
         width: calc( var(--width) - var(--expander-padding-width) - var(--expander-size) )
         height: var(--height)
@@ -240,16 +240,15 @@ $item-content-padding = 5px
       position: relative
       &-inner
         overflow: hidden
-        //will-change: transform, height
+        will-change: transform, height
       &-grid
         position: relative
         overflow: hidden
-        //will-change: transform
         &-row
           display: flex
           text-align:center
           user-select: none
-          //will-change: opacity
+          will-change: opacity, height
           pointer-events: none
           &-block
             pointer-events: auto

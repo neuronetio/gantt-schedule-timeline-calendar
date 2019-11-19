@@ -81,7 +81,6 @@
             typeof o.isDirective === 'boolean';
     };
 
-
     /**
      * @license
      * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -125,7 +124,6 @@
         }
     };
 
-
     /**
      * @license
      * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
@@ -148,7 +146,6 @@
      * A sentinel value that signals a NodePart to fully clear its content.
      */
     const nothing = {};
-
 
     /**
      * @license
@@ -368,7 +365,6 @@
      */
     const lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
 
-
     /**
      * @license
      * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -496,7 +492,6 @@
             return fragment;
         }
     }
-
 
     /**
      * @license
@@ -633,7 +628,6 @@
         }
     }
 
-
     /**
      * @license
      * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -656,7 +650,15 @@
             // tslint:disable-next-line:no-any
             !!(value && value[Symbol.iterator]);
     };
+    /**
+     * A global callback used to sanitize any value before inserting it into the
+     * DOM.
+     */
+    let sanitizeDOMValueImpl;
     const sanitizeDOMValue = (value, name, type, node) => {
+        if (sanitizeDOMValueImpl !== undefined) {
+            return sanitizeDOMValueImpl(value, name, type, node);
+        }
         return value;
     };
     /**
@@ -893,7 +895,7 @@
                 node.nodeType === 3 /* Node.TEXT_NODE */) {
                 // If we only have a single text node between the markers, we can just
                 // set its value, rather than replacing it.
-                const renderedValue = sanitizeDOMValue(value);
+                const renderedValue = sanitizeDOMValue(value, 'data', 'property', node);
                 node.data = typeof renderedValue === 'string' ?
                     renderedValue :
                     String(renderedValue);
@@ -905,7 +907,7 @@
                 // into the document, then we can sanitize its contentx.
                 const textNode = emptyTextNode.cloneNode();
                 this.__commitNode(textNode);
-                const renderedValue = sanitizeDOMValue(value);
+                const renderedValue = sanitizeDOMValue(value, 'textContent', 'property', textNode);
                 textNode.data = typeof renderedValue === 'string' ? renderedValue :
                     String(renderedValue);
             }
@@ -927,7 +929,7 @@
                 // We check for sanitizeDOMValue is to prevent this from
                 // being a breaking change to the library.
                 const parent = this.endNode.parentNode;
-                if (
+                if (sanitizeDOMValueImpl !== undefined && parent.nodeName === 'STYLE' ||
                     parent.nodeName === 'SCRIPT') {
                     this.__commitText('/* lit-html will not write ' +
                         'TemplateResults to scripts and styles */');
@@ -1159,7 +1161,6 @@
             { capture: o.capture, passive: o.passive, once: o.once } :
             o.capture);
 
-
     /**
      * @license
      * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -1211,7 +1212,6 @@
     }
     const defaultTemplateProcessor = new DefaultTemplateProcessor();
 
-
     /**
      * @license
      * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -1259,7 +1259,6 @@
     }
     const templateCaches = new Map();
 
-
     /**
      * @license
      * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -1300,7 +1299,6 @@
         part.commit();
     };
 
-
     /**
      * @license
      * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -1329,7 +1327,6 @@
      */
     const svg = (strings, ...values) => new SVGTemplateResult(strings, values, 'svg', defaultTemplateProcessor);
 
-
     /**
      * @license
      * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -1343,7 +1340,7 @@
      * subject to an additional IP rights grant found at
      * http://polymer.github.io/PATENTS.txt
      */
-    var __asyncValues =  function (o) {
+    var __asyncValues = (undefined && undefined.__asyncValues) || function (o) {
         if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
         var m = o[Symbol.asyncIterator], i;
         return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
@@ -1437,7 +1434,6 @@
         }
     });
 
-
     /**
      * @license
      * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -1451,7 +1447,7 @@
      * subject to an additional IP rights grant found at
      * http://polymer.github.io/PATENTS.txt
      */
-    var __asyncValues$1 =  function (o) {
+    var __asyncValues$1 = (undefined && undefined.__asyncValues) || function (o) {
         if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
         var m = o[Symbol.asyncIterator], i;
         return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
@@ -1528,7 +1524,6 @@
         }
     });
 
-
     /**
      * @license
      * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
@@ -1604,7 +1599,6 @@
         part.setValue(value);
     });
 
-
     /**
      * @license
      * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
@@ -1676,7 +1670,6 @@
         }
     });
 
-
     /**
      * @license
      * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
@@ -1745,7 +1738,6 @@
         previousValues.set(part, Array.isArray(value) ? Array.from(value) : value);
     });
 
-
     /**
      * @license
      * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
@@ -1776,7 +1768,6 @@
             part.setValue(value);
         }
     });
-
 
     /**
      * @license
@@ -2192,7 +2183,6 @@
         };
     });
 
-
     /**
      * @license
      * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -2239,7 +2229,6 @@
         part.setValue(fragment);
         previousValues$1.set(part, { value, fragment });
     });
-
 
     /**
      * @license
@@ -2324,7 +2313,6 @@
             });
         }
     });
-
 
     /* dev imports
     import { render, html, directive, svg, Part } from '../lit-html';
@@ -2603,7 +2591,6 @@
                     if (prev !== undefined && prev === value) {
                         continue;
                     }
-                    //console.log(`setting ${name}, prev: ${prev} , current: ${this.style[name]}`);
                     if (!name.includes('-')) {
                         style[name] = value;
                     }
@@ -4103,7 +4090,7 @@
          * @param {MouseEvent} event
          */
         const handleEvent = (event) => {
-            event.stopPropagation();
+            //event.stopPropagation();
             if (event.type === 'scroll') {
                 // @ts-ignore
                 const top = event.target.scrollTop;
@@ -4159,6 +4146,7 @@
          */
         const onScrollStop = (event) => {
             event.stopPropagation();
+            event.stopImmediatePropagation();
             event.preventDefault();
         };
         const dimensions = { width: 0, height: 0 };
@@ -4366,7 +4354,7 @@
             update();
         }));
         let width;
-        const calculateStyle = () => {
+        function calculateStyle() {
             const list = state.get('config.list');
             const compensation = state.get('config.scroll.compensation');
             calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
@@ -4377,16 +4365,17 @@
             containerStyleMap.style.width = width + 'px';
             containerStyleMap.style.height = height + 'px';
             scrollCompensationStyleMap.style.width = width + 'px';
-            scrollCompensationStyleMap.style.height = height + 'px';
+            scrollCompensationStyleMap.style.height = height + Math.abs(compensation) + 'px';
             scrollCompensationStyleMap.style.transform = `translate(0px, ${compensation}px)`;
-        };
+        }
         onDestroy(state.subscribeAll([
             'config.list.columns.percent',
             'config.list.columns.resizer.width',
             `config.list.columns.data.${column.id}.width`,
             '_internal.chart.dimensions.width',
             '_internal.height',
-            'config.scroll.compensation'
+            'config.scroll.compensation',
+            '_internal.list.width'
         ], calculateStyle, { bulk: true }));
         let visibleRows = [];
         const visibleRowsChange = val => {
@@ -4504,7 +4493,7 @@
             column = val;
             update();
         }));
-        let className, containerClass, dotsClass, dotClass, lineClass, calculatedWidth, dotsWidth;
+        let className, containerClass, dotsClass, dotClass, lineClass, calculatedWidth, dotsStyleMap = new StyleMap({ width: '' });
         let inRealTime = false;
         onDestroy(state.subscribe('config.classNames', value => {
             className = api.getClass(componentName, { column });
@@ -4522,8 +4511,9 @@
         ], (value, path) => {
             const list = state.get('config.list');
             calculatedWidth = column.width * list.columns.percent * 0.01;
-            dotsWidth = `width: ${list.columns.resizer.width}px`;
+            dotsStyleMap.style['--width'] = list.columns.resizer.width + 'px';
             inRealTime = list.columns.resizer.inRealTime;
+            state.update('_internal.list.width', calculatedWidth);
             update();
         }));
         let dots = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -4589,7 +4579,7 @@
                   `
         : column.header.content)}
           </div>
-          <div class=${dotsClass} style=${'--' + dotsWidth} @mousedown=${onMouseDown}>
+          <div class=${dotsClass} style=${dotsStyleMap} @mousedown=${onMouseDown}>
             ${dots.map(dot => html `
                   <div class=${dotClass} />
                 `)}
@@ -4657,13 +4647,11 @@
             rowSub = state.subscribeAll([rowPath, 'config.list.expander'], bulk => {
                 row = state.get(rowPath);
                 const expander = state.get('config.list.expander');
-                const compensation = state.get('config.scroll.compensation');
                 // @ts-ignore
                 styleMap.style = {}; // we must reset style because of user specified styling
                 styleMap.style['opacity'] = '1';
                 styleMap.style['pointerEvents'] = 'auto';
                 styleMap.style['height'] = row.height + 'px';
-                styleMap.style['width'] = column.width + 'px';
                 styleMap.style['--height'] = row.height + 'px';
                 if (column.expander) {
                     styleMap.style['--expander-padding-width'] = expander.padding * (row._internal.parents.length + 1) + 'px';
@@ -4916,7 +4904,6 @@
             update();
         }));
         const handleEvent = event => {
-            event.stopPropagation();
             let scrollLeft, scrollTop;
             if (event.type === 'scroll') {
                 state.update('config.scroll.left', event.target.scrollLeft);
@@ -5093,7 +5080,11 @@
         else {
             current = '';
         }
-        let time, htmlFormatted, styleMap = new StyleMap({ width: '', 'margin-left': '', visibility: 'visible' }), scrollStyleMap = new StyleMap({ overflow: 'hidden', '-align': 'left', 'margin-left': props.date.subPx + 8 + 'px' });
+        let time, htmlFormatted, styleMap = new StyleMap({ width: '', 'margin-left': '', visibility: 'visible' }), scrollStyleMap = new StyleMap({
+            overflow: 'hidden',
+            'text-align': 'left',
+            'margin-left': props.date.subPx + 8 + 'px'
+        });
         const updateDate = () => {
             if (!props)
                 return;
@@ -5101,7 +5092,7 @@
             styleMap.style.width = props.date.width + 'px';
             styleMap.style['margin-left'] = -props.date.subPx + 'px';
             styleMap.style.visibility = 'visible';
-            scrollStyleMap.style = { overflow: 'hidden', '-align': 'left', 'margin-left': props.date.subPx + 8 + 'px' };
+            scrollStyleMap.style = { overflow: 'hidden', 'text-align': 'left', 'margin-left': props.date.subPx + 8 + 'px' };
             const dateMod = api.time.date(props.date.leftGlobal);
             if (dateMod.format('YYYY-MM-DD') === props.currentDate) {
                 current = ' current';
@@ -5119,10 +5110,7 @@
             switch (props.period) {
                 case 'month':
                     htmlFormatted = html `
-          <div
-            class=${className + '-content ' + className + '-content--month' + current}
-            style="margin-left:${props.date.subPx}"
-          >
+          <div class=${className + '-content ' + className + '-content--month' + current} style=${scrollStyleMap}>
             ${dateMod.format('MMMM YYYY')}
           </div>
         `;
@@ -5494,10 +5482,10 @@
             if (!periodDates || periodDates.length === 0) {
                 return;
             }
-            //const compensation = periodDates[0].subPx;
+            const compensation = periodDates[0].subPx;
             styleMap.style.height = height + 'px';
             styleMap.style.width = width + 'px';
-            //styleMap.style.transform = `translate(-${compensation}px, 0px)`;
+            styleMap.style.transform = `translate(-${compensation}px, 0px)`;
             let top = 0;
             rowsWithBlocks.length = 0;
             for (const row of visibleRows) {
@@ -5783,10 +5771,11 @@
         const calculateStyle = () => {
             const width = state.get('_internal.chart.dimensions.width');
             const height = state.get('_internal.height');
+            const compensation = state.get('config.scroll.compensation');
             styleMap.style.width = width + 'px';
-            styleMap.style.height = height + 'px';
+            styleMap.style.height = height + Math.abs(compensation) + 'px';
         };
-        onDestroy(state.subscribeAll(['_internal.height', '_internal.chart.dimensions.width'], calculateStyle));
+        onDestroy(state.subscribeAll(['_internal.height', '_internal.chart.dimensions.width', 'config.scroll.compensation'], calculateStyle));
         let rowsComponents = [];
         const createRowComponents = () => {
             const visibleRows = state.get('_internal.list.visibleRows');

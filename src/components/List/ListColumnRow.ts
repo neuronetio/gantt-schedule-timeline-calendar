@@ -66,13 +66,11 @@ export default function ListColumnRow(vido, props) {
     rowSub = state.subscribeAll([rowPath, 'config.list.expander'], bulk => {
       row = state.get(rowPath);
       const expander = state.get('config.list.expander');
-      const compensation = state.get('config.scroll.compensation');
       // @ts-ignore
       styleMap.style = {}; // we must reset style because of user specified styling
       styleMap.style['opacity'] = '1';
       styleMap.style['pointerEvents'] = 'auto';
       styleMap.style['height'] = row.height + 'px';
-      styleMap.style['width'] = column.width + 'px';
       styleMap.style['--height'] = row.height + 'px';
       if (column.expander) {
         styleMap.style['--expander-padding-width'] = expander.padding * (row._internal.parents.length + 1) + 'px';

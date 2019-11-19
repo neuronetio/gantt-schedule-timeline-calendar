@@ -25,7 +25,13 @@ export default function ListColumnHeaderResizer(vido, props) {
     })
   );
 
-  let className, containerClass, dotsClass, dotClass, lineClass, calculatedWidth, width, dotsWidth;
+  let className,
+    containerClass,
+    dotsClass,
+    dotClass,
+    lineClass,
+    calculatedWidth,
+    dotsStyleMap = new StyleMap({ width: '' });
   let inRealTime = false;
   onDestroy(
     state.subscribe('config.classNames', value => {
@@ -48,9 +54,9 @@ export default function ListColumnHeaderResizer(vido, props) {
       (value, path) => {
         const list = state.get('config.list');
         calculatedWidth = column.width * list.columns.percent * 0.01;
-        width = 'width:' + calculatedWidth + 'px';
-        dotsWidth = `width: ${list.columns.resizer.width}px`;
+        dotsStyleMap.style['--width'] = list.columns.resizer.width + 'px';
         inRealTime = list.columns.resizer.inRealTime;
+        state.update('_internal.list.width', calculatedWidth);
         update();
       }
     )
@@ -130,7 +136,7 @@ export default function ListColumnHeaderResizer(vido, props) {
                 : column.header.content
             )}
           </div>
-          <div class=${dotsClass} style=${'--' + dotsWidth} @mousedown=${onMouseDown}>
+          <div class=${dotsClass} style=${dotsStyleMap} @mousedown=${onMouseDown}>
             ${dots.map(
               dot =>
                 html`

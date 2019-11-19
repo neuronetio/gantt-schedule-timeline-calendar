@@ -46,7 +46,7 @@ export default function ListColumn(vido, props) {
     })
   );
   let width;
-  const calculateStyle = () => {
+  function calculateStyle() {
     const list = state.get('config.list');
     const compensation = state.get('config.scroll.compensation');
     calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
@@ -57,9 +57,9 @@ export default function ListColumn(vido, props) {
     containerStyleMap.style.width = width + 'px';
     containerStyleMap.style.height = height + 'px';
     scrollCompensationStyleMap.style.width = width + 'px';
-    scrollCompensationStyleMap.style.height = height + 'px';
+    scrollCompensationStyleMap.style.height = height + Math.abs(compensation) + 'px';
     scrollCompensationStyleMap.style.transform = `translate(0px, ${compensation}px)`;
-  };
+  }
   onDestroy(
     state.subscribeAll(
       [
@@ -68,7 +68,8 @@ export default function ListColumn(vido, props) {
         `config.list.columns.data.${column.id}.width`,
         '_internal.chart.dimensions.width',
         '_internal.height',
-        'config.scroll.compensation'
+        'config.scroll.compensation',
+        '_internal.list.width'
       ],
       calculateStyle,
       { bulk: true }

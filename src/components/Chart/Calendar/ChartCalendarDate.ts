@@ -29,7 +29,11 @@ export default function ChartCalendarDate(vido, props) {
   let time,
     htmlFormatted,
     styleMap = new StyleMap({ width: '', 'margin-left': '', visibility: 'visible' }),
-    scrollStyleMap = new StyleMap({ overflow: 'hidden', '-align': 'left', 'margin-left': props.date.subPx + 8 + 'px' });
+    scrollStyleMap = new StyleMap({
+      overflow: 'hidden',
+      'text-align': 'left',
+      'margin-left': props.date.subPx + 8 + 'px'
+    });
 
   const updateDate = () => {
     if (!props) return;
@@ -37,7 +41,7 @@ export default function ChartCalendarDate(vido, props) {
     styleMap.style.width = props.date.width + 'px';
     styleMap.style['margin-left'] = -props.date.subPx + 'px';
     styleMap.style.visibility = 'visible';
-    scrollStyleMap.style = { overflow: 'hidden', '-align': 'left', 'margin-left': props.date.subPx + 8 + 'px' };
+    scrollStyleMap.style = { overflow: 'hidden', 'text-align': 'left', 'margin-left': props.date.subPx + 8 + 'px' };
     const dateMod = api.time.date(props.date.leftGlobal);
     if (dateMod.format('YYYY-MM-DD') === props.currentDate) {
       current = ' current';
@@ -52,10 +56,7 @@ export default function ChartCalendarDate(vido, props) {
     switch (props.period) {
       case 'month':
         htmlFormatted = html`
-          <div
-            class=${className + '-content ' + className + '-content--month' + current}
-            style="margin-left:${props.date.subPx}"
-          >
+          <div class=${className + '-content ' + className + '-content--month' + current} style=${scrollStyleMap}>
             ${dateMod.format('MMMM YYYY')}
           </div>
         `;

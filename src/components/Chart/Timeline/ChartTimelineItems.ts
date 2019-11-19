@@ -28,10 +28,16 @@ export default function ChartTimelineItems(vido, props = {}) {
   const calculateStyle = () => {
     const width = state.get('_internal.chart.dimensions.width');
     const height = state.get('_internal.height');
+    const compensation = state.get('config.scroll.compensation');
     styleMap.style.width = width + 'px';
-    styleMap.style.height = height + 'px';
+    styleMap.style.height = height + Math.abs(compensation) + 'px';
   };
-  onDestroy(state.subscribeAll(['_internal.height', '_internal.chart.dimensions.width'], calculateStyle));
+  onDestroy(
+    state.subscribeAll(
+      ['_internal.height', '_internal.chart.dimensions.width', 'config.scroll.compensation'],
+      calculateStyle
+    )
+  );
   let rowsComponents = [];
   const createRowComponents = () => {
     const visibleRows = state.get('_internal.list.visibleRows');
