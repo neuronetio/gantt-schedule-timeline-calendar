@@ -9,7 +9,7 @@
  */
 
 export default function ListColumn(vido, props) {
-  const { api, state, onDestroy, actions, update, createComponent, reuseComponents, html, styleMap } = vido;
+  const { api, state, onDestroy, actions, update, createComponent, reuseComponents, html, StyleMap } = vido;
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListColumn', value => (wrapper = value)));
@@ -32,12 +32,11 @@ export default function ListColumn(vido, props) {
   const rowsComponentName = componentName + '-rows';
   const componentActions = api.getActions(componentName);
   const rowsActions = api.getActions(rowsComponentName);
-  let className,
-    classNameContainer,
-    calculatedWidth,
-    widthStyle = { width: '', '--width': '' },
-    styleContainer = { width: '', height: '' },
-    styleScrollCompensation = { width: '', height: '', transform: '' };
+  let className, classNameContainer, calculatedWidth;
+
+  const widthStyleMap = new StyleMap({ width: '', '--width': '' });
+  const containerStyleMap = new StyleMap({ width: '', height: '' });
+  const scrollCompensationStyleMap = new StyleMap({ width: '', height: '' });
 
   onDestroy(
     state.subscribe('config.classNames', value => {
@@ -53,13 +52,13 @@ export default function ListColumn(vido, props) {
     calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
     width = calculatedWidth;
     const height = state.get('_internal.height');
-    widthStyle.width = width + 'px';
-    widthStyle['--width'] = width + 'px';
-    styleContainer.width = width + 'px';
-    styleContainer.height = height + 'px';
-    styleScrollCompensation.width = width + 'px';
-    styleScrollCompensation.height = height + 'px';
-    styleScrollCompensation.transform = `translate(0px, ${compensation}px)`;
+    widthStyleMap.style.width = width + 'px';
+    widthStyleMap.style['--width'] = width + 'px';
+    containerStyleMap.style.width = width + 'px';
+    containerStyleMap.style.height = height + 'px';
+    scrollCompensationStyleMap.style.width = width + 'px';
+    scrollCompensationStyleMap.style.height = height + 'px';
+    scrollCompensationStyleMap.style.transform = `translate(0px, ${compensation}px)`;
   };
   onDestroy(
     state.subscribeAll(
@@ -103,18 +102,14 @@ export default function ListColumn(vido, props) {
   return templateProps =>
     wrapper(
       html`
-        <div
-          class=${className}
-          data-actions=${actions(componentActions, componentActionsProps)}
-          style=${styleMap(widthStyle)}
-        >
+        <div class=${className} data-actions=${actions(componentActions, componentActionsProps)} style=${widthStyleMap}>
           ${ListColumnHeader.html()}
           <div
             class=${classNameContainer}
-            style=${styleMap(styleContainer)}
+            style=${containerStyleMap}
             data-actions=${actions(rowsActions, rowActionsProps)}
           >
-            <div class=${classNameContainer + '--scroll-compensation'} style=${styleMap(styleScrollCompensation)}>
+            <div class=${classNameContainer + '--scroll-compensation'} style=${scrollCompensationStyleMap}>
               ${visibleRows.map(getRowHtml)}
             </div>
           </div>

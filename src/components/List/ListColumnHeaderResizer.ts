@@ -9,7 +9,7 @@
  */
 
 export default function ListColumnHeaderResizer(vido, props) {
-  const { api, state, onDestroy, update, html, actions, cache } = vido;
+  const { api, state, onDestroy, update, html, actions, cache, StyleMap } = vido;
 
   const componentName = 'list-column-header-resizer';
   const componentActions = api.getActions(componentName);
@@ -69,16 +69,21 @@ export default function ListColumnHeaderResizer(vido, props) {
 
   let isMoving = false;
   let left = calculatedWidth;
-  let lineStyle = `--display: none; --left: ${left}px;`;
+  const lineStyleMap = new StyleMap({
+    '--display': 'none',
+    '--left': left + 'px'
+  });
   const columnWidthPath = `config.list.columns.data.${column.id}.width`;
 
   function onMouseDown(event) {
     isMoving = true;
     state.update('_internal.list.columns.resizer.active', true);
     if (isMoving) {
-      lineStyle = `--display:block; --left: ${left}px;`;
+      lineStyleMap.style['display'] = 'block';
+      lineStyleMap.style['--left'] = left + 'px';
     } else {
-      lineStyle = `--display:none; --left: 0px;`;
+      lineStyleMap.style['display'] = 'none';
+      lineStyleMap.style['--left'] = '0px';
     }
   }
 

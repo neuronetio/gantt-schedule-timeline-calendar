@@ -53,7 +53,6 @@
   height: var(--height);
   width: calc(var(--expander-padding-width) + var(--expander-size));
   flex-shrink: 0;
-  will-change: opacity;
 }
 .gantt-schedule-timeline-calendar__list-expander-toggle {
   padding-left: var(--expander-padding-width);
@@ -90,11 +89,10 @@
   overflow: hidden;
 }
 .gantt-schedule-timeline-calendar__list-column-rows--scroll-compensation {
-  overflow: hidden;
   height: var(--height);
   width: var(--width);
   overflow: hidden;
-  will-change: transform, width;
+  will-change: transform;
 }
 .gantt-schedule-timeline-calendar__list-column-row,
 .gantt-schedule-timeline-calendar__list-column-header {
@@ -116,8 +114,6 @@
 .gantt-schedule-timeline-calendar__list-column-row {
   border-bottom: 1px solid #f9fafb;
   border-right: 1px solid #f9fafb;
-  will-change: top, height;
-  position: absolute;
 }
 .gantt-schedule-timeline-calendar__list-column-row-content {
   width: calc(var(--width) - var(--expander-padding-width) - var(--expander-size));
@@ -126,7 +122,6 @@
   padding-left: 6px;
   flex-shrink: 0;
   flex-grow: 1;
-  will-change: height, contents;
 }
 .gantt-schedule-timeline-calendar__list-column-header {
   background: #f9fafb;
@@ -271,18 +266,15 @@
 }
 .gantt-schedule-timeline-calendar__chart-timeline-inner {
   overflow: hidden;
-  will-change: transform, height;
 }
 .gantt-schedule-timeline-calendar__chart-timeline-grid {
   position: relative;
   overflow: hidden;
-  will-change: transform;
 }
 .gantt-schedule-timeline-calendar__chart-timeline-grid-row {
   display: flex;
   text-align: center;
   user-select: none;
-  will-change: opacity;
   pointer-events: none;
 }
 .gantt-schedule-timeline-calendar__chart-timeline-grid-row-block {
@@ -329,8 +321,7 @@
 .gantt-schedule-timeline-calendar__chart-timeline-items-row {
   overflow: hidden;
   pointer-events: none;
-  position: absolute;
-  will-change: opacity, top;
+  will-change: opacity;
 }
 .gantt-schedule-timeline-calendar__chart-timeline-items-row-item {
   overflow: hidden;

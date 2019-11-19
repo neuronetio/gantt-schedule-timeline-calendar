@@ -37,7 +37,7 @@ const bindElementAction = (element, data) => {
 };
 
 const ChartTimelineItemsRow = (vido, props) => {
-  const { api, state, onDestroy, actions, update, html, onChange, reuseComponents, styleMap } = vido;
+  const { api, state, onDestroy, actions, update, html, onChange, reuseComponents, StyleMap } = vido;
   const actionProps = { ...props, api, state };
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRow', value => (wrapper = value)));
@@ -49,22 +49,23 @@ const ChartTimelineItemsRow = (vido, props) => {
 
   let element,
     scrollLeft,
-    style = { opacity: '1', pointerEvents: 'auto', width: '', height: '', top: '0px' };
+    styleMap = new StyleMap({ opacity: '1', pointerEvents: 'auto', width: '', height: '' });
   let itemComponents = [];
 
   const updateDom = () => {
     const chart = state.get('_internal.chart');
-    style.opacity = '1';
-    style.pointerEvents = 'auto';
-    style.width = chart.dimensions.width + 'px';
+    //const compensation = state.get('config.scroll.compensation');
+    styleMap.style.opacity = '1';
+    styleMap.style.pointerEvents = 'auto';
+    styleMap.style.width = chart.dimensions.width + 'px';
     if (!props) {
-      style.opacity = '0';
-      style.pointerEvents = 'none';
+      styleMap.style.opacity = '0';
+      styleMap.style.pointerEvents = 'none';
       return;
     }
-    style.height = props.row.height + 'px';
-    style.top = props.row.top + 'px';
-    style['--row-height'] = props.row.height + 'px';
+    styleMap.style.height = props.row.height + 'px';
+    //styleMap.style.top = props.row.top + compensation + 'px';
+    styleMap.style['--row-height'] = props.row.height + 'px';
     if (element && scrollLeft !== chart.time.leftPx) {
       element.scrollLeft = chart.time.leftPx;
       scrollLeft = chart.time.leftPx;
@@ -130,7 +131,7 @@ const ChartTimelineItemsRow = (vido, props) => {
   return templateProps => {
     return wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style)}>
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap}>
           ${itemComponents.map(i => i.html())}
         </div>
       `,

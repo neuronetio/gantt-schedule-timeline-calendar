@@ -9,7 +9,7 @@
  */
 
 export default function ChartCalendarDate(vido, props) {
-  const { api, state, onDestroy, actions, update, onChange, html, styleMap } = vido;
+  const { api, state, onDestroy, actions, update, onChange, html, StyleMap } = vido;
 
   const componentName = 'chart-calendar-date';
   const componentActions = api.getActions(componentName);
@@ -28,15 +28,16 @@ export default function ChartCalendarDate(vido, props) {
 
   let time,
     htmlFormatted,
-    style = { width: '', 'margin-left': '', visibility: 'visible' };
+    styleMap = new StyleMap({ width: '', 'margin-left': '', visibility: 'visible' }),
+    scrollStyleMap = new StyleMap({ overflow: 'hidden', '-align': 'left', 'margin-left': props.date.subPx + 8 + 'px' });
 
   const updateDate = () => {
     if (!props) return;
     time = state.get('_internal.chart.time');
-    style.width = props.date.width + 'px';
-    style['margin-left'] = -props.date.subPx + 'px';
-    style.visibility = 'visible';
-    const scroll = { overflow: 'hidden', '-align': 'left', 'margin-left': props.date.subPx + 8 + 'px' };
+    styleMap.style.width = props.date.width + 'px';
+    styleMap.style['margin-left'] = -props.date.subPx + 'px';
+    styleMap.style.visibility = 'visible';
+    scrollStyleMap.style = { overflow: 'hidden', '-align': 'left', 'margin-left': props.date.subPx + 8 + 'px' };
     const dateMod = api.time.date(props.date.leftGlobal);
     if (dateMod.format('YYYY-MM-DD') === props.currentDate) {
       current = ' current';
@@ -191,10 +192,7 @@ export default function ChartCalendarDate(vido, props) {
             });
           }
           htmlFormatted = html`
-            <div
-              class=${className + '-content ' + className + '-content--day _1000' + current}
-              style=${styleMap(scroll)}
-            >
+            <div class=${className + '-content ' + className + '-content--day _1000' + current} style=${scrollStyleMap}>
               ${dateMod.format('DD dddd')}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
@@ -223,7 +221,7 @@ export default function ChartCalendarDate(vido, props) {
             });
           }
           htmlFormatted = html`
-            <div class=${className + '-content ' + className + '-content--day _2000' + current} style=${scroll}>
+            <div class=${className + '-content ' + className + '-content--day _2000' + current} style=${scrollStyleMap}>
               ${dateMod.format('DD dddd')}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
@@ -252,7 +250,7 @@ export default function ChartCalendarDate(vido, props) {
             });
           }
           htmlFormatted = html`
-            <div class=${className + '-content ' + className + '-content--day _5000' + current} style=${scroll}>
+            <div class=${className + '-content ' + className + '-content--day _5000' + current} style=${scrollStyleMap}>
               ${dateMod.format('DD dddd')}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
@@ -281,7 +279,10 @@ export default function ChartCalendarDate(vido, props) {
             });
           }
           htmlFormatted = html`
-            <div class=${className + '-content ' + className + '-content--day _20000' + current} style=${scroll}>
+            <div
+              class=${className + '-content ' + className + '-content--day _20000' + current}
+              style=${scrollStyleMap}
+            >
               ${dateMod.format('DD dddd')}
             </div>
             <div class=${className + '-content ' + className + '-content--hours' + current}>
@@ -308,7 +309,7 @@ export default function ChartCalendarDate(vido, props) {
   const actionProps = { date: props.date, period: props.period, api, state };
   onChange((changedProps, options) => {
     if (options.leave) {
-      style.visibility = 'hidden';
+      styleMap.style.visibility = 'hidden';
       return update();
     }
     props = changedProps;
@@ -331,7 +332,7 @@ export default function ChartCalendarDate(vido, props) {
       html`
         <div
           class=${className + ' ' + className + '--' + props.period + current}
-          style=${styleMap(style)}
+          style=${styleMap}
           data-actions=${actions(componentActions, actionProps)}
         >
           ${htmlFormatted}

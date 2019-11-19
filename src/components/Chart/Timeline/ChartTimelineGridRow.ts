@@ -37,7 +37,7 @@ function bindElementAction(element, data) {
 }
 
 export default function ChartTimelineGridRow(vido, props) {
-  const { api, state, onDestroy, actions, update, html, reuseComponents, onChange, styleMap } = vido;
+  const { api, state, onDestroy, actions, update, html, reuseComponents, onChange, StyleMap } = vido;
   const componentName = 'chart-timeline-grid-row';
   const actionProps = {
     ...props,
@@ -57,37 +57,40 @@ export default function ChartTimelineGridRow(vido, props) {
   const componentActions = api.getActions(componentName);
   let className = api.getClass(componentName);
 
-  let style = {
+  let styleMap = new StyleMap({
     width: props.width + 'px',
     height: props.row.height + 'px',
     opacity: '1',
     pointerEvents: 'all',
     overflow: 'hidden'
-  };
+  });
+
   let rowsBlocksComponents = [];
   const onPropsChange = (changedProps, options) => {
     if (options.leave) {
-      style.opacity = '0';
-      style.pointerEvents = 'none';
+      styleMap.style.opacity = '0';
+      styleMap.style.pointerEvents = 'none';
       update();
       return;
     }
     props = changedProps;
     reuseComponents(rowsBlocksComponents, props.blocks, block => block, GridBlockComponent);
+    //const compensation = state.get('config.scroll.compensation');
     // @ts-ignore
-    style = {};
-    style.opacity = '1';
-    style.pointerEvents = 'all';
-    style.height = props.row.height + 'px';
-    style.width = props.width + 'px';
+    styleMap.style = {};
+    styleMap.style.opacity = '1';
+    styleMap.style.pointerEvents = 'all';
+    styleMap.style.height = props.row.height + 'px';
+    styleMap.style.width = props.width + 'px';
+    //styleMap.style.top = props.top + compensation + 'px';
     const rows = state.get('config.list.rows');
     for (const parentId of props.row._internal.parents) {
       const parent = rows[parentId];
       const childrenStyle = parent.style?.grid?.row?.children;
-      if (childrenStyle) style = { ...style, ...childrenStyle };
+      if (childrenStyle) styleMap.style = { ...styleMap.style, ...childrenStyle };
     }
     const currentStyle = props.row?.style?.grid?.row?.current;
-    if (currentStyle) style = { ...style, ...currentStyle };
+    if (currentStyle) styleMap.style = { ...styleMap.style, ...currentStyle };
     for (const prop in props) {
       actionProps[prop] = props[prop];
     }
@@ -105,7 +108,7 @@ export default function ChartTimelineGridRow(vido, props) {
   return templateProps => {
     return wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style)}>
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap}>
           ${rowsBlocksComponents.map(r => r.html())}
         </div>
       `,

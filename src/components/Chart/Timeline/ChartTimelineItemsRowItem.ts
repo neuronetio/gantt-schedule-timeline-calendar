@@ -37,11 +37,11 @@ const bindElementAction = (element, data) => {
 };
 
 function ChartTimelineItemsRowItem(vido, props) {
-  const { api, state, onDestroy, actions, update, html, onChange, styleMap, unsafeHTML } = vido;
+  const { api, state, onDestroy, actions, update, html, onChange, unsafeHTML, StyleMap } = vido;
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
-  let style = { width: '', height: '', left: '', opacity: '1', pointerEvents: 'auto' },
-    contentStyle = { width: '', height: '' },
+  let styleMap = new StyleMap({ width: '', height: '', left: '', opacity: '1', pointerEvents: 'auto' }),
+    contentStyleMap = new StyleMap({ width: '', height: '' }),
     itemLeftPx = 0,
     itemWidthPx = 0,
     leave = false;
@@ -58,49 +58,52 @@ function ChartTimelineItemsRowItem(vido, props) {
     if (leave) return;
     let time = state.get('_internal.chart.time');
     itemLeftPx = (props.item.time.start - time.leftGlobal) / time.timePerPixel;
+    itemLeftPx = Math.round(itemLeftPx * 10) * 0.1;
     itemWidthPx = (props.item.time.end - props.item.time.start) / time.timePerPixel;
     itemWidthPx -= state.get('config.chart.spacing') || 0;
-    const oldWidth = style.width;
-    const oldHeight = style.height;
-    //const oldTransform = style.transform;
-    const oldLeft = style.left;
-    // @ts-ignore
-    style = {};
+    if (itemWidthPx) {
+      itemWidthPx = Math.round(itemWidthPx * 10) * 0.1;
+    }
+    const oldWidth = styleMap.style.width;
+    const oldHeight = styleMap.style.height;
+    //const oldTransform = styleMap.style.transform;
+    const oldLeft = styleMap.style.left;
+    styleMap.style = {};
     const inViewPort = api.isItemInViewport(props.item, time.leftGlobal, time.rightGlobal);
-    style.opacity = inViewPort ? '1' : '0';
-    style.pointerEvents = inViewPort ? 'auto' : 'none';
+    styleMap.style.opacity = inViewPort ? '1' : '0';
+    styleMap.style.pointerEvents = inViewPort ? 'auto' : 'none';
     if (inViewPort) {
       // update style only when visible to prevent browser's recalculate style
-      style.width = itemWidthPx + 'px';
-      style.height = props.row.height + 'px';
-      //style.transform = `translate(${itemLeftPx}px, 0px)`;
-      style.left = itemLeftPx + 'px';
+      styleMap.style.width = itemWidthPx + 'px';
+      styleMap.style.height = props.row.height + 'px';
+      //styleMap.style.transform = `translate(${itemLeftPx}px, 0px)`;
+      styleMap.style.left = itemLeftPx + 'px';
     } else {
-      style.width = oldWidth;
-      style.height = oldHeight;
-      style.left = oldLeft;
-      //style.transform = oldTransform;
+      styleMap.style.width = oldWidth;
+      styleMap.style.height = oldHeight;
+      styleMap.style.left = oldLeft;
+      //styleMap.style.transform = oldTransform;
     }
     // @ts-ignore
-    contentStyle = { width: itemWidthPx + 'px', 'max-height': props.row.height + 'px' };
+    contentStyleMap.style = { width: itemWidthPx + 'px', 'max-height': props.row.height + 'px' };
     const rows = state.get('config.list.rows');
     for (const parentId of props.row._internal.parents) {
       const parent = rows[parentId];
       const childrenStyle = parent.style?.items?.item?.children;
-      if (childrenStyle) contentStyle = { ...contentStyle, ...childrenStyle };
+      if (childrenStyle) contentStyleMap.style = { ...contentStyleMap.style, ...childrenStyle };
     }
     const currentRowItemsStyle = props.row?.style?.items?.item?.current;
-    if (currentRowItemsStyle) contentStyle = { ...contentStyle, ...currentRowItemsStyle };
+    if (currentRowItemsStyle) contentStyleMap.style = { ...contentStyleMap, ...currentRowItemsStyle };
     const currentStyle = props.item?.style;
-    if (currentStyle) contentStyle = { ...contentStyle, ...currentStyle };
+    if (currentStyle) contentStyleMap.style = { ...contentStyleMap.style, ...currentStyle };
     update();
   }
 
   function onPropsChange(changedProps, options) {
     if (options.leave) {
       leave = true;
-      style.opacity = '0';
-      style.pointerEvents = 'none';
+      styleMap.style.opacity = '0';
+      styleMap.style.pointerEvents = 'none';
       return update();
     } else {
       leave = false;
@@ -139,8 +142,8 @@ function ChartTimelineItemsRowItem(vido, props) {
   return templateProps => {
     return wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style)}>
-          <div class=${contentClassName} style=${styleMap(contentStyle)}>
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap}>
+          <div class=${contentClassName} style=${contentStyleMap}>
             <div class=${labelClassName}>
               ${props.item.isHtml ? unsafeHTML(props.item.label) : props.item.label}
             </div>

@@ -9,7 +9,7 @@
  */
 
 export default function ChartTimelineItems(vido, props = {}) {
-  const { api, state, onDestroy, actions, update, html, reuseComponents } = vido;
+  const { api, state, onDestroy, actions, update, html, reuseComponents, StyleMap } = vido;
   const componentName = 'chart-timeline-items';
   const componentActions = api.getActions(componentName);
   let wrapper;
@@ -24,11 +24,12 @@ export default function ChartTimelineItems(vido, props = {}) {
       update();
     })
   );
-  let style;
+  let styleMap = new StyleMap({});
   const calculateStyle = () => {
     const width = state.get('_internal.chart.dimensions.width');
     const height = state.get('_internal.height');
-    style = `width: ${width}px; height: ${height}px;`;
+    styleMap.style.width = width + 'px';
+    styleMap.style.height = height + 'px';
   };
   onDestroy(state.subscribeAll(['_internal.height', '_internal.chart.dimensions.width'], calculateStyle));
   let rowsComponents = [];
@@ -51,7 +52,7 @@ export default function ChartTimelineItems(vido, props = {}) {
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} style=${style} data-actions=${actions(componentActions, actionProps)}>
+        <div class=${className} style=${styleMap} data-actions=${actions(componentActions, actionProps)}>
           ${rowsComponents.map(r => r.html())}
         </div>
       `,

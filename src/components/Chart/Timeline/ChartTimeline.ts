@@ -9,7 +9,7 @@
  */
 
 export default function ChartTimeline(vido, props) {
-  const { api, state, onDestroy, actions, update, html, createComponent } = vido;
+  const { api, state, onDestroy, actions, update, html, createComponent, StyleMap } = vido;
   const componentName = 'chart-timeline';
   const componentActions = api.getActions(componentName);
   const actionProps = { ...props, api, state };
@@ -34,15 +34,17 @@ export default function ChartTimeline(vido, props) {
     })
   );
 
-  let style = '',
-    styleInner = '';
+  let styleMap = new StyleMap({}),
+    innerStyleMap = new StyleMap({});
   function calculateStyle() {
     const compensation = state.get('config.scroll.compensation');
     const width = state.get('_internal.chart.dimensions.width');
     const height = state.get('_internal.list.rowsHeight');
-    const widthStyle = width ? `width: ${width}px;` : '';
-    style = `height: ${state.get('_internal.height')}px; ${widthStyle}`;
-    styleInner = `height: ${height}px; ${widthStyle} transform: translate(0px, ${compensation}px);`;
+    styleMap.style.height = state.get('_internal.height') + 'px';
+    if (width) styleMap.style.width = width + 'px';
+    innerStyleMap.style.height = height + 'px';
+    if (width) innerStyleMap.style.width = width + 'px';
+    innerStyleMap.style.transform = `translate(0px, ${compensation}px)`;
     update();
   }
   onDestroy(
@@ -66,11 +68,11 @@ export default function ChartTimeline(vido, props) {
       html`
         <div
           class=${className}
-          style=${style}
+          style=${styleMap}
           data-actions=${actions(componentActions, actionProps)}
           @wheel=${api.onScroll}
         >
-          <div class=${classNameInner} style=${styleInner}>
+          <div class=${classNameInner} style=${innerStyleMap}>
             ${Grid.html()}${Items.html()}
           </div>
         </div>

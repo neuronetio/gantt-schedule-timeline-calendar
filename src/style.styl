@@ -64,7 +64,7 @@ $item-content-padding = 5px
       height: var(--height)
       width: calc(var(--expander-padding-width) + var(--expander-size))
       flex-shrink: 0
-      will-change: opacity
+      //will-change: opacity
       &-toggle
         padding-left: var(--expander-padding-width)
         display: block
@@ -93,11 +93,10 @@ $item-content-padding = 5px
         width: var(--width)
         overflow: hidden
         &--scroll-compensation
-          overflow: hidden
           height: var(--height)
           width: var(--width)
           overflow: hidden
-          will-change: transform, width
+          will-change: transform
     &-column-row, &-column-header
       overflow: hidden
       text-overflow: ellipsis
@@ -115,8 +114,7 @@ $item-content-padding = 5px
     &-column-row
       border-bottom: 1px solid $bg-dark-2
       border-right: 1px solid $bg-dark-2
-      will-change: top, height
-      position: absolute
+      //will-change: height
       &-content
         width: calc( var(--width) - var(--expander-padding-width) - var(--expander-size) )
         height: var(--height)
@@ -124,7 +122,7 @@ $item-content-padding = 5px
         padding-left: 6px
         flex-shrink: 0
         flex-grow: 1
-        will-change: height, contents
+        //will-change: height, contents
     &-column-header
       background: $bg-dark-1
       font-weight: 500
@@ -242,16 +240,16 @@ $item-content-padding = 5px
       position: relative
       &-inner
         overflow: hidden
-        will-change: transform, height
+        //will-change: transform, height
       &-grid
         position: relative
         overflow: hidden
-        will-change: transform
+        //will-change: transform
         &-row
           display: flex
           text-align:center
           user-select: none
-          will-change: opacity
+          //will-change: opacity
           pointer-events: none
           &-block
             pointer-events: auto
@@ -291,8 +289,8 @@ $item-content-padding = 5px
         &-row
           overflow: hidden
           pointer-events: none
-          position: absolute
-          will-change: opacity, top
+          //position: absolute
+          will-change: opacity
           &-item
             overflow: hidden
             position: absolute // must be here - movement

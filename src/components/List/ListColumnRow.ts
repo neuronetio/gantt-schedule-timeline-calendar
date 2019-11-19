@@ -9,7 +9,7 @@
  */
 
 export default function ListColumnRow(vido, props) {
-  const { api, state, onDestroy, actions, update, html, createComponent, onChange, styleMap, unsafeHTML } = vido;
+  const { api, state, onDestroy, actions, update, html, createComponent, onChange, StyleMap, unsafeHTML } = vido;
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListColumnRow', value => (wrapper = value)));
@@ -21,32 +21,34 @@ export default function ListColumnRow(vido, props) {
     row = state.get(rowPath);
   let colPath = `config.list.columns.data.${props.columnId}`,
     column = state.get(colPath);
-  let style = column.expander
-    ? {
-        opacity: '1',
-        pointerEvents: 'auto',
-        height: '',
-        width: '',
-        top: '',
-        '--height': '',
-        '--expander-padding-width': '',
-        '--expander-size': ''
-      }
-    : {
-        opacity: '1',
-        pointerEvents: 'auto',
-        height: '',
-        width: '',
-        top: '',
-        '--height': ''
-      };
+  let styleMap = new StyleMap(
+    column.expander
+      ? {
+          opacity: '1',
+          pointerEvents: 'auto',
+          height: '',
+          width: '',
+          top: '',
+          '--height': '',
+          '--expander-padding-width': '',
+          '--expander-size': ''
+        }
+      : {
+          opacity: '1',
+          pointerEvents: 'auto',
+          height: '',
+          width: '',
+          top: '',
+          '--height': ''
+        }
+  );
   let rowSub, colSub;
   const ListExpander = createComponent(ListExpanderComponent, { row });
 
   const onPropsChange = (changedProps, options) => {
     if (options.leave) {
-      style.opacity = '0';
-      style.pointerEvents = 'none';
+      styleMap.style.opacity = '0';
+      styleMap.style.pointerEvents = 'none';
       update();
       return;
     }
@@ -64,22 +66,25 @@ export default function ListColumnRow(vido, props) {
     rowSub = state.subscribeAll([rowPath, 'config.list.expander'], bulk => {
       row = state.get(rowPath);
       const expander = state.get('config.list.expander');
+      const compensation = state.get('config.scroll.compensation');
       // @ts-ignore
-      style = {}; // we must reset style because of user specified styling
-      style.opacity = '1';
-      style.pointerEvents = 'auto';
-      style.height = row.height + 'px';
-      style.width = column.width + 'px';
-      style.top = row.top + 'px';
-      style['--height'] = row.height + 'px';
+      styleMap.style = {}; // we must reset style because of user specified styling
+      styleMap.style['opacity'] = '1';
+      styleMap.style['pointerEvents'] = 'auto';
+      styleMap.style['height'] = row.height + 'px';
+      styleMap.style['width'] = column.width + 'px';
+      styleMap.style['--height'] = row.height + 'px';
       if (column.expander) {
-        style['--expander-padding-width'] = expander.padding * (row._internal.parents.length + 1) + 'px';
+        styleMap.style['--expander-padding-width'] = expander.padding * (row._internal.parents.length + 1) + 'px';
       }
       for (let parentId of row._internal.parents) {
         const parent = state.get(`_internal.flatTreeMapById.${parentId}`);
         if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
           if (typeof parent.style.children === 'object') {
-            style = { ...style, ...parent.style.children };
+            const childrenStyle = parent.style.children;
+            for (const name in childrenStyle) {
+              styleMap.style[name] = childrenStyle[name];
+            }
           }
         }
       }
@@ -88,7 +93,10 @@ export default function ListColumnRow(vido, props) {
         row.style.constructor.name === 'Object' &&
         typeof row.style.current === 'object'
       ) {
-        style = { ...style, ...row.style.current };
+        const rowCurrentStyle = row.style.current;
+        for (const name in rowCurrentStyle) {
+          styleMap.style[name] = rowCurrentStyle[name];
+        }
       }
       update();
     });
@@ -133,7 +141,7 @@ export default function ListColumnRow(vido, props) {
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} style=${styleMap(style)} data-actions=${actions(componentActions, actionProps)}>
+        <div class=${className} style=${styleMap} data-actions=${actions(componentActions, actionProps)}>
           ${column.expander ? ListExpander.html() : null}
           <div class=${className + '-content'}>
             ${column.isHTML ? getHtml() : getText()}

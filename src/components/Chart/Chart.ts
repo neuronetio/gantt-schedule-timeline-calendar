@@ -11,7 +11,7 @@
 import ResizeObserver from 'resize-observer-polyfill';
 
 export default function Chart(vido, props = {}) {
-  const { api, state, onDestroy, actions, update, html, schedule, createComponent } = vido;
+  const { api, state, onDestroy, actions, update, html, StyleMap, createComponent } = vido;
   const componentName = 'chart';
 
   const ChartCalendarComponent = state.get('config.components.ChartCalendar');
@@ -29,8 +29,8 @@ export default function Chart(vido, props = {}) {
     classNameScroll,
     classNameScrollInner,
     scrollElement,
-    styleScroll = '',
-    styleScrollInner = '',
+    scrollStyleMap = new StyleMap({}),
+    scrollInnerStyleMap = new StyleMap({}),
     componentActions = api.getActions(componentName);
 
   onDestroy(
@@ -54,8 +54,9 @@ export default function Chart(vido, props = {}) {
     state.subscribeAll(
       ['_internal.chart.dimensions.width', '_internal.chart.time.totalViewDurationPx'],
       function horizontalScroll(value, eventInfo) {
-        styleScroll = `width: ${state.get('_internal.chart.dimensions.width')}px`;
-        styleScrollInner = `width: ${state.get('_internal.chart.time.totalViewDurationPx')}px; height:1px`;
+        scrollStyleMap.style.width = state.get('_internal.chart.dimensions.width') + 'px';
+        scrollInnerStyleMap.style.width = state.get('_internal.chart.time.totalViewDurationPx') + 'px';
+        scrollInnerStyleMap.style.height = '1px';
         update();
       }
     )
@@ -148,8 +149,17 @@ export default function Chart(vido, props = {}) {
       html`
         <div class=${className} data-actions=${actions(componentActions, { api, state })} @wheel=${onWheel}>
           ${Calendar.html()}${Timeline.html()}
-          <div class=${classNameScroll} style=${styleScroll} data-actions=${actions([bindElement])} @scroll=${onScroll}>
-            <div class=${classNameScrollInner} style=${styleScrollInner} data-actions=${actions([bindInnerScroll])} />
+          <div
+            class=${classNameScroll}
+            style=${scrollStyleMap}
+            data-actions=${actions([bindElement])}
+            @scroll=${onScroll}
+          >
+            <div
+              class=${classNameScrollInner}
+              style=${scrollInnerStyleMap}
+              data-actions=${actions([bindInnerScroll])}
+            />
           </div>
         </div>
       `,

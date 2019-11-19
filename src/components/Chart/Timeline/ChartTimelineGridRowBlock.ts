@@ -45,7 +45,7 @@ interface Props {
 }
 
 const ChartTimelineGridRowBlock = (vido, props: Props) => {
-  const { api, state, onDestroy, actions, update, html, onChange, styleMap } = vido;
+  const { api, state, onDestroy, actions, update, html, onChange, StyleMap } = vido;
   const componentName = 'chart-timeline-grid-row-block';
   let actionProps = {
     ...props,
@@ -75,7 +75,7 @@ const ChartTimelineGridRowBlock = (vido, props: Props) => {
     }
   }
   updateClassName(props.time);
-  let style = { width: '', height: '' };
+  let styleMap = new StyleMap({ width: '', height: '' });
   /**
    * On props change
    * @param {any} changedProps
@@ -87,18 +87,17 @@ const ChartTimelineGridRowBlock = (vido, props: Props) => {
     props = changedProps;
     actionProps = { ...props, api, state };
     updateClassName(props.time);
-    // @ts-ignore
-    style = {};
-    style.width = props.time.width + 'px';
-    style.height = props.row.height + 'px';
+    styleMap.style = {};
+    styleMap.style.width = props.time.width + 'px';
+    styleMap.style.height = props.row.height + 'px';
     const rows = state.get('config.list.rows');
     for (const parentId of props.row._internal.parents) {
       const parent = rows[parentId];
       const childrenStyle = parent.style?.grid?.block?.children;
-      if (childrenStyle) style = { ...style, ...childrenStyle };
+      if (childrenStyle) styleMap.style = { ...styleMap.style, ...childrenStyle };
     }
     const currentStyle = props.row?.style?.grid?.block?.current;
-    if (currentStyle) style = { ...style, ...currentStyle };
+    if (currentStyle) styleMap.style = { ...styleMap.style, ...currentStyle };
     update();
   }
   onChange(onPropsChange);
@@ -108,7 +107,7 @@ const ChartTimelineGridRowBlock = (vido, props: Props) => {
   return templateProps => {
     return wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap(style)}>
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap}>
           <div class=${classNameContent} />
         </div>
       `,

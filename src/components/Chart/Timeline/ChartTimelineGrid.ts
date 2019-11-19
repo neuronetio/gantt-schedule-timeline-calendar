@@ -9,7 +9,7 @@
  */
 
 export default function ChartTimelineGrid(vido, props) {
-  const { api, state, onDestroy, actions, update, html, reuseComponents } = vido;
+  const { api, state, onDestroy, actions, update, html, reuseComponents, StyleMap } = vido;
   const componentName = 'chart-timeline-grid';
   const componentActions = api.getActions(componentName);
   const actionProps = { api, state };
@@ -35,7 +35,7 @@ export default function ChartTimelineGrid(vido, props) {
   let rowsComponents = [];
   const rowsWithBlocks = [];
   const formatCache = new Map();
-  let style;
+  const styleMap = new StyleMap({});
   /**
    * Generate blocks
    */
@@ -47,8 +47,10 @@ export default function ChartTimelineGrid(vido, props) {
     if (!periodDates || periodDates.length === 0) {
       return;
     }
-    const compensation = periodDates[0].subPx;
-    style = `height: ${height}px; width: ${width}px; transform: translate(-${compensation}px, 0px);`;
+    //const compensation = periodDates[0].subPx;
+    styleMap.style.height = height + 'px';
+    styleMap.style.width = width + 'px';
+    //styleMap.style.transform = `translate(-${compensation}px, 0px)`;
 
     let top = 0;
     rowsWithBlocks.length = 0;
@@ -119,7 +121,7 @@ export default function ChartTimelineGrid(vido, props) {
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${style}>
+        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap}>
           ${rowsComponents.map(r => r.html())}
         </div>
       `,

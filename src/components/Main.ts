@@ -11,7 +11,7 @@
 import ResizeObserver from 'resize-observer-polyfill';
 
 export default function Main(vido, props = {}) {
-  const { api, state, onDestroy, actions, update, createComponent, html } = vido;
+  const { api, state, onDestroy, actions, update, createComponent, html, StyleMap } = vido;
   const componentName = api.name;
 
   let ListComponent;
@@ -41,7 +41,11 @@ export default function Main(vido, props = {}) {
   onDestroy(state.subscribe('config.wrappers.Main', value => (wrapper = value)));
 
   const componentActions = api.getActions('');
-  let className, classNameVerticalScroll, style, styleVerticalScroll, styleVerticalScrollArea;
+  let className,
+    classNameVerticalScroll,
+    styleMap = new StyleMap({}),
+    verticalScrollStyleMap = new StyleMap({}),
+    verticalScrollAreaStyleMap = new StyleMap({});
   let verticalScrollBarElement;
   let rowsHeight = 0;
   let resizerActive = false;
@@ -69,8 +73,10 @@ export default function Main(vido, props = {}) {
     const scrollBarHeight = state.get('_internal.scrollBarHeight');
     const height = config.height - config.headerHeight - scrollBarHeight;
     state.update('_internal.height', height);
-    style = `--height: ${config.height}px`;
-    styleVerticalScroll = `height: ${height}px; width: ${scrollBarHeight}px; margin-top: ${config.headerHeight}px;`;
+    styleMap.style['--height'] = config.height + 'px';
+    verticalScrollStyleMap.style.height = height + 'px';
+    verticalScrollStyleMap.style.width = scrollBarHeight + 'px';
+    verticalScrollStyleMap.style['margin-top'] = config.headerHeight + 'px';
     update();
   };
   onDestroy(state.subscribeAll(['config.height', 'config.headerHeight', '_internal.scrollBarHeight'], heightChange));
@@ -182,7 +188,8 @@ export default function Main(vido, props = {}) {
    */
   const onVisibleRowsChange = () => {
     const top = state.get('config.scroll.top');
-    styleVerticalScrollArea = `height: ${rowsHeight}px; width: 1px`;
+    verticalScrollAreaStyleMap.style.width = '1px';
+    verticalScrollAreaStyleMap.style.height = rowsHeight + 'px';
     if (elementScrollTop !== top && verticalScrollBarElement) {
       elementScrollTop = top;
       verticalScrollBarElement.scrollTop = top;
@@ -436,7 +443,7 @@ export default function Main(vido, props = {}) {
         <div
           data-info-url="https://github.com/neuronetio/gantt-schedule-timeline-calendar"
           class=${className}
-          style=${style}
+          style=${styleMap}
           @scroll=${onScrollStop}
           @wheel=${onScrollStop}
           data-actions=${actions(componentActions, actionProps)}
@@ -444,12 +451,12 @@ export default function Main(vido, props = {}) {
           ${List.html()}${Chart.html()}
           <div
             class=${classNameVerticalScroll}
-            style=${styleVerticalScroll}
+            style=${verticalScrollStyleMap}
             @scroll=${onScroll}
             @wheel=${onScroll}
             data-action=${actions([bindScrollElement])}
           >
-            <div style=${styleVerticalScrollArea} data-actions=${actions([bindScrollInnerElement])} />
+            <div style=${verticalScrollAreaStyleMap} data-actions=${actions([bindScrollInnerElement])} />
           </div>
         </div>
       `,

@@ -1,3 +1,5 @@
+import { Directive } from '../../../../lit-html/lit-html';
+
 /**
  * List component
  *
@@ -9,7 +11,7 @@
  */
 
 export default function List(vido, props = {}) {
-  const { api, state, onDestroy, actions, update, reuseComponents, html, schedule, styleMap } = vido;
+  const { api, state, onDestroy, actions, update, reuseComponents, html, schedule, StyleMap } = vido;
 
   const componentName = 'list';
   const componentActions = api.getActions(componentName);
@@ -46,14 +48,18 @@ export default function List(vido, props = {}) {
   onDestroy(() => {
     listColumns.forEach(c => c.destroy());
   });
+  const styleMap = new StyleMap({
+    height: '',
+    '--expander-padding-width': '',
+    '--expander-size': ''
+  });
 
-  let style = { height: '', '--expander-padding-width': '', '--expander-size': '' };
   onDestroy(
     state.subscribeAll(['config.height', 'config.list.expander'], bulk => {
-      style.height = state.get('config.height') + 'px';
       const expander = state.get('config.list.expander');
-      style['--expander-padding-width'] = expander.padding + 'px';
-      style['--expander-size'] = expander.size + 'px';
+      styleMap.style['height'] = state.get('config.height') + 'px';
+      styleMap.style['--expander-padding-width'] = expander.padding + 'px';
+      styleMap.style['--expander-size'] = expander.size + 'px';
       update();
     })
   );
@@ -104,7 +110,7 @@ export default function List(vido, props = {}) {
             <div
               class=${className}
               data-actions=${actions(componentActions, actionProps)}
-              style=${styleMap(style)}
+              style=${styleMap}
               @scroll=${onScroll}
               @wheel=${onScroll}
             >
