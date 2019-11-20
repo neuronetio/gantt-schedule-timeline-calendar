@@ -1,8 +1,10 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-    typeof define === 'function' && define.amd ? define(factory) :
-    (global = global || self, global.GSTC = factory());
-}(this, (function () { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('hammer')) :
+    typeof define === 'function' && define.amd ? define(['hammer'], factory) :
+    (global = global || self, global.GSTC = factory(global.hammer));
+}(this, (function (hammer) { 'use strict';
+
+    hammer = hammer && hammer.hasOwnProperty('default') ? hammer['default'] : hammer;
 
     /**
      * @license
@@ -7233,6 +7235,7 @@
       name: lib,
       stateFromConfig,
       mergeDeep: mergeDeep$1,
+      hammer,
       date(time) {
         return time ? dayjs_min(time) : dayjs_min();
       },
@@ -7251,6 +7254,8 @@
             console.log.call(console, ...args);
           }
         },
+
+        hammer,
 
         mergeDeep: mergeDeep$1,
 

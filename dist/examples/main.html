@@ -25,6 +25,7 @@
     <div id="app"></div>
     <script src="../ItemMovement.plugin.js"></script>
     <script src="../Selection.plugin.js"></script>
+    <script src="../CalendarScroll.plugin.js"></script>
     <script src="../index.umd.js"></script>
     <script>
       const iterations = 1000;
@@ -111,7 +112,8 @@
             resizeable: true,
             collisionDetection: true
           }),
-          Selection()
+          Selection(),
+          CalendarScroll({ speed: 2 })
         ],
         height: 800,
         list: {
