@@ -111,17 +111,7 @@
             resizeable: true,
             collisionDetection: true
           }),
-          Selection({
-            getApi(api) {
-              selectionApi = api;
-            },
-            canDeselect(type, currently, all) {
-              if (type === 'chart-timeline-grid-row-blocks') {
-                return all.selecting['chart-timeline-grid-row-blocks'].length ? [] : currently;
-              }
-              return [];
-            }
-          })
+          Selection()
         ],
         height: 800,
         list: {
@@ -135,21 +125,7 @@
           }
         },
         classNames: {},
-        actions: {
-          'chart-timeline-grid-row-block': [
-            class GridBlockAction {
-              constructor(element, data) {
-                element.addEventListener('dblclick', this.onDoubleClick);
-              }
-              onDoubleClick() {
-                selectionApi.clearSelection(true);
-              }
-              destroy(element) {
-                element.removeEventListener('dblclick', this.onDoubleClick);
-              }
-            }
-          ]
-        },
+        actions: {},
         locale: {
           name: 'pl',
           weekdays: 'Niedziela_Poniedziałek_Wtorek_Środa_Czwartek_Piątek_Sobota'.split('_'),

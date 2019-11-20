@@ -167,6 +167,23 @@ const devFiles = [
     ]
   },
   {
+    input: 'src/plugins/CalendarScroll.plugin.ts',
+    output: {
+      sourcemap: true,
+      file: 'dist/CalendarScroll.plugin.js',
+      format: 'umd',
+      name: 'CalendarScroll'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+        //module: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] })
+    ]
+  },
+  {
     input: 'src/plugins/plugins.ts',
     output: {
       sourcemap: true,

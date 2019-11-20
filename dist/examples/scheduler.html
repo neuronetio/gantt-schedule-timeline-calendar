@@ -45,6 +45,7 @@
     <script src="../ItemHold.plugin.js"></script>
     <script src="../SaveAsImage.plugin.js"></script>
     <script src="../Selection.plugin.js"></script>
+    <script src="../CalendarScroll.plugin.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="https://cdn.jsdelivr.net/npm/quasar@^1.1.6/dist/quasar.umd.min.js"></script>
     <script>
@@ -222,7 +223,10 @@
           // on create
           content.insertAdjacentHTML('beforeend', '<div class="dolar-bg-content">$</div>');
           const bg = (this.bg = content.querySelector('.dolar-bg-content'));
-          bg.onclick = ev => alert('dolar clicked!');
+          bg.onclick = ev => {
+            ev.stopPropagation();
+            alert('dolar clicked!');
+          };
           if (data.row.id !== '1' && bg.style.visibility !== 'hidden') {
             bg.style['line-height'] = data.row.height + 'px';
             bg.style.visibility = 'hidden';
@@ -247,6 +251,9 @@
           if (this.bg) this.bg.remove();
         }
       }
+
+      // for selection api
+      let selectionApi;
 
       const from = GSTC.api
         .date()
@@ -298,6 +305,17 @@
               }
               return currentlySelecting;
             },
+            getApi(api) {
+              selectionApi = api;
+            },
+            canDeselect(type, currently, all) {
+              if (type === 'chart-timeline-grid-row-blocks') {
+                // if we are selecting we can clear previous selection by returning [] else if
+                // we are not selecting but something is already selected let it be selected - currently
+                return all.selecting['chart-timeline-grid-row-blocks'].length ? [] : currently;
+              }
+              return [];
+            },
             selecting(data, type) {
               //console.log(`selecting ${type}`, data);
             },
@@ -310,7 +328,8 @@
             deselected(data, type) {
               //console.log(`deselected ${type}`, data);
             }
-          })
+          }),
+          CalendarScroll({})
         ],
         height: 800,
         list: {
@@ -345,10 +364,25 @@
       let state;
       let GSTCInstance;
       Vue.component('shedule', {
-        template: `<div><div id="GSTC-vue-example" class="q-pa-md"></div><input type="range" min="17" max="21" v-model="zoom" /></div>`,
+        template: `<div>
+          <q-dialog v-model="deselectDialog">
+            <q-card>
+              <q-card-section class="row items-center">
+                <q-avatar icon="select_all" color="primary" text-color="white" />
+                <span class="q-ml-sm">Do you want to deselect all selected cells?</span>
+              </q-card-section>
+              <q-card-actions align="right">
+                <q-btn flat label="Cancel" color="primary" v-close-popup />
+                <q-btn flat label="Yes" color="primary" v-close-popup @click="deselectEvent" />
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
+          <div id="GSTC-vue-example" class="q-pa-md"></div><input type="range" min="17" max="21" v-model="zoom" />
+        </div>`,
         data() {
           return {
-            zoom: 21
+            zoom: 21,
+            deselectDialog: false
           };
         },
         watch: {
@@ -356,7 +390,11 @@
             state.update('config.chart.time.zoom', newValue);
           }
         },
-        methods: {},
+        methods: {
+          deselectEvent() {
+            selectionApi.clearSelection(true);
+          }
+        },
         mounted() {
           window.state = state = GSTC.api.stateFromConfig(config);
           GSTCInstance = GSTC({
@@ -364,6 +402,24 @@
             state
           });
           this.$root.gstcElement = this.$el.querySelector('.gantt-schedule-timeline-calendar');
+          state.update('config.actions.chart-timeline-grid-row-block', actions => {
+            const self = this;
+            actions.push(
+              class DeselectCellsAction {
+                constructor(element, data) {
+                  element.addEventListener('click', this.onClick);
+                }
+                onClick() {
+                  if (state.get('config.plugin.selection.selected.chart-timeline-grid-row-blocks').length)
+                    self.deselectDialog = true;
+                }
+                destroy(element) {
+                  element.removeEventListener('click', this.onClick);
+                }
+              }
+            );
+            return actions;
+          });
         },
         destroyed: function() {
           this.GSTCInstance.destroy();

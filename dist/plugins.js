@@ -878,11 +878,13 @@ function Selection(options = {}) {
              * @param {MouseEvent} ev
              */
             this.mouseUp = ev => {
-                endSelect(ev);
+                if (selecting.selecting) {
+                    endSelect(ev);
+                }
             };
             element.addEventListener('mousedown', this.mouseDown);
             document.addEventListener('mousemove', schedule(this.mouseMove));
-            document.body.addEventListener('mouseup', this.mouseUp);
+            document.addEventListener('mouseup', this.mouseUp);
             options.getApi(api);
         }
         update() {
@@ -891,7 +893,7 @@ function Selection(options = {}) {
             this.top = bounding.top;
         }
         destroy(element) {
-            document.body.removeEventListener('mouseup', this.mouseUp);
+            document.removeEventListener('mouseup', this.mouseUp);
             document.removeEventListener('mousemove', this.mouseMove);
             element.removeEventListener('mousedown', this.mouseDown);
         }
@@ -1027,7 +1029,53 @@ function Selection(options = {}) {
     };
 }
 
-var plugins = { ItemHold, ItemMovement, SaveAsImage, Selection };
+/**
+ * CalendarScroll plugin
+ *
+ * @copyright Rafal Pospiech <https://neuronet.io>
+ * @author    Rafal Pospiech <neuronet.io@gmail.com>
+ * @package   gantt-schedule-timeline-calendar
+ * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+ * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
+ */
+function CalendarScroll(options = {}) {
+    let state, api;
+    class CalendarScrollAction {
+        constructor(element, data) {
+            this.isMoving = false;
+            element.addEventListener('mousedown', this.onMouseDown);
+            document.addEventListener('mousemove', this.onMouseMove);
+            document.addEventListener('mouseup', this.onMouseUp);
+        }
+        onMouseDown(ev) {
+            this.isMoving = true;
+        }
+        onMouseUp(ev) {
+            this.isMoving = false;
+        }
+        onMouseMove(ev) {
+            if (!this.isMoving)
+                return;
+            console.log('moving', ev.x);
+        }
+        update(element, data) { }
+        destroy(element, data) {
+            element.removeEventListener('mousedown', this.onMouseDown);
+            document.removeEventListener('mousemove', this.onMouseMove);
+            document.removeEventListener('mouseup', this.onMouseUp);
+        }
+    }
+    return function initialize(vido) {
+        api = vido.api;
+        state = vido.state;
+        state.update('config.actions.chart-calendar', actions => {
+            actions.push(CalendarScrollAction);
+            return actions;
+        });
+    };
+}
+
+var plugins = { ItemHold, ItemMovement, SaveAsImage, Selection, CalendarScroll };
 
 export default plugins;
 //# sourceMappingURL=plugins.js.map

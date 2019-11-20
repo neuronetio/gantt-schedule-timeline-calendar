@@ -467,12 +467,14 @@ export default function Selection(options: Options = {}) {
        * @param {MouseEvent} ev
        */
       this.mouseUp = ev => {
-        endSelect(ev);
+        if (selecting.selecting) {
+          endSelect(ev);
+        }
       };
 
       element.addEventListener('mousedown', this.mouseDown);
       document.addEventListener('mousemove', schedule(this.mouseMove));
-      document.body.addEventListener('mouseup', this.mouseUp);
+      document.addEventListener('mouseup', this.mouseUp);
       options.getApi(api);
     }
     update() {
@@ -481,7 +483,7 @@ export default function Selection(options: Options = {}) {
       this.top = bounding.top;
     }
     destroy(element) {
-      document.body.removeEventListener('mouseup', this.mouseUp);
+      document.removeEventListener('mouseup', this.mouseUp);
       document.removeEventListener('mousemove', this.mouseMove);
       element.removeEventListener('mousedown', this.mouseDown);
     }
