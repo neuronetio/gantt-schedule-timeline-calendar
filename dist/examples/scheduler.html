@@ -356,42 +356,8 @@
             state.update('config.chart.time.zoom', newValue);
           }
         },
-        methods: {
-          gridBlockAction(node, data) {
-            const selfVueComponent = this;
-            if (data.row.id === '1') {
-              node.innerHTML = `<div style="line-height: ${data.row.height}px; text-align:center;opacity:0.25;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0z"/><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg></div>`;
-            } else {
-              node.innerHTML = '';
-            }
-
-            const click = node.addEventListener('click', ev => {
-              const formatted = data.api.time.date(data.time.left).format('YYYY-MM-DD HH:mm');
-              selfVueComponent.$root.newDate = formatted;
-              selfVueComponent.$root.dialog = true;
-              console.log('click', formatted);
-            });
-            return {
-              update(data) {
-                if (data.content === 'free') {
-                  node.classList.add(data.api.name + '__helper-dark');
-                } else {
-                  node.classList.remove(data.api.name + '__helper-dark');
-                }
-                if (data.row.id === '1') {
-                  node.innerHTML = `<div style="line-height: ${data.row.height}px; text-align:center;opacity:0.25;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0z"/><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg></div>`;
-                } else {
-                  node.innerHTML = '';
-                }
-              },
-              destroy() {
-                node.removeEventListener('click', click);
-              }
-            };
-          }
-        },
+        methods: {},
         mounted() {
-          //stateData.actions['chart-gantt-grid-block'] = [this.gridBlockAction];
           window.state = state = GSTC.api.stateFromConfig(config);
           GSTCInstance = GSTC({
             element: this.$el,

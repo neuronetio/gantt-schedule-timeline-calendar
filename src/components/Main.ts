@@ -100,7 +100,7 @@ export default function Main(vido, props = {}) {
    * @param {object} bulk
    * @param {object} eventInfo
    */
-  const generateTree = (bulk, eventInfo) => {
+  function generateTree(bulk, eventInfo) {
     if (state.get('_internal.flatTreeMap').length && eventInfo.type === 'subscribe') {
       return;
     }
@@ -120,7 +120,7 @@ export default function Main(vido, props = {}) {
     state.update('_internal.flatTreeMapById', api.getFlatTreeMapById(treeMap));
     state.update('_internal.flatTreeMap', api.flattenTreeMap(treeMap));
     update();
-  };
+  }
 
   onDestroy(
     state.subscribeAll(
@@ -133,7 +133,7 @@ export default function Main(vido, props = {}) {
   /**
    * Prepare expanded
    */
-  const prepareExpanded = () => {
+  function prepareExpanded() {
     const configRows = state.get('config.list.rows');
     const rowsWithParentsExpanded = api.getRowsFromIds(
       api.getRowsWithParentsExpanded(
@@ -147,13 +147,13 @@ export default function Main(vido, props = {}) {
     state.update('_internal.list.rowsHeight', rowsHeight);
     state.update('_internal.list.rowsWithParentsExpanded', rowsWithParentsExpanded);
     update();
-  };
+  }
   onDestroy(state.subscribeAll(['config.list.rows.*.expanded', '_internal.treeMap;'], prepareExpanded, { bulk: true }));
 
   /**
    * Generate visible rows
    */
-  const generateVisibleRows = () => {
+  function generateVisibleRows() {
     const { visibleRows, compensation } = api.getVisibleRowsAndCompensation(
       state.get('_internal.list.rowsWithParentsExpanded')
     );
@@ -179,14 +179,14 @@ export default function Main(vido, props = {}) {
       state.update('_internal.chart.visibleItems', visibleItems);
     }
     update();
-  };
+  }
   onDestroy(state.subscribeAll(['_internal.list.rowsWithParentsExpanded', 'config.scroll.top'], generateVisibleRows));
 
   let elementScrollTop = 0;
   /**
    * On visible rows change
    */
-  const onVisibleRowsChange = () => {
+  function onVisibleRowsChange() {
     const top = state.get('config.scroll.top');
     verticalScrollAreaStyleMap.style.width = '1px';
     verticalScrollAreaStyleMap.style.height = rowsHeight + 'px';
@@ -195,7 +195,7 @@ export default function Main(vido, props = {}) {
       verticalScrollBarElement.scrollTop = top;
     }
     update();
-  };
+  }
   onDestroy(state.subscribe('_internal.list.visibleRows;', onVisibleRowsChange));
 
   /**

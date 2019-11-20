@@ -524,7 +524,6 @@ function Selection(options = {}) {
         }
     };
     options = Object.assign(Object.assign({}, defaultOptions), options);
-    let chartTimeline, top, left;
     let selecting = {
         fromX: -1,
         fromY: -1,
@@ -564,313 +563,317 @@ function Selection(options = {}) {
      * @param {object|any} data
      * @returns {object} with update and destroy
      */
-    function selectionAction(element, data) {
-        let previousSelect;
-        chartTimeline = state.get('_internal.elements.chart-timeline');
-        if (!chartTimeline.querySelector('.' + rectClassName)) {
-            chartTimeline.insertAdjacentElement('beforeend', rect);
-            const bounding = chartTimeline.getBoundingClientRect();
-            left = bounding.left;
-            top = bounding.top;
-        }
-        /**
-         * Clear selection
-         */
-        function clearSelection() {
-            state.update(path, {
-                selecting: {
-                    'chart-timeline-grid-rows': [],
-                    'chart-timeline-grid-row-blocks': [],
-                    'chart-timeline-items-rows': [],
-                    'chart-timeline-items-row-items': []
-                },
-                selected: {
-                    'chart-timeline-grid-rows': [],
-                    'chart-timeline-grid-row-blocks': [],
-                    'chart-timeline-items-rows': [],
-                    'chart-timeline-items-row-items': []
-                }
-            });
-            state.update('_internal.chart.grid.rowsWithBlocks', function clearRowsWithBlocks(rowsWithBlocks) {
-                for (const row of rowsWithBlocks) {
-                    for (const block of row.blocks) {
-                        block.selected = false;
-                        block.selecting = false;
+    class SelectionAction {
+        constructor(element, data) {
+            let previousSelect;
+            this.chartTimeline = state.get('_internal.elements.chart-timeline');
+            if (!this.chartTimeline.querySelector('.' + rectClassName)) {
+                this.chartTimeline.insertAdjacentElement('beforeend', rect);
+                const bounding = this.chartTimeline.getBoundingClientRect();
+                this.left = bounding.left;
+                this.top = bounding.top;
+            }
+            /**
+             * Clear selection
+             */
+            function clearSelection() {
+                state.update(path, {
+                    selecting: {
+                        'chart-timeline-grid-rows': [],
+                        'chart-timeline-grid-row-blocks': [],
+                        'chart-timeline-items-rows': [],
+                        'chart-timeline-items-row-items': []
+                    },
+                    selected: {
+                        'chart-timeline-grid-rows': [],
+                        'chart-timeline-grid-row-blocks': [],
+                        'chart-timeline-items-rows': [],
+                        'chart-timeline-items-row-items': []
                     }
-                }
-                return rowsWithBlocks;
-            });
-        }
-        /**
-         * Clone current selection state
-         * @param {object} currentSelect
-         * @returns {object} currentSelect cloned
-         */
-        function cloneSelection(currentSelect) {
-            const result = {};
-            result.selecting = Object.assign({}, currentSelect.selecting);
-            result.selecting['chart-timeline-grid-rows'] = currentSelect.selecting['chart-timeline-grid-rows'].slice();
-            result.selecting['chart-timeline-grid-row-blocks'] = currentSelect.selecting['chart-timeline-grid-row-blocks'].slice();
-            result.selecting['chart-timeline-items-rows'] = currentSelect.selecting['chart-timeline-items-rows'].slice();
-            result.selecting['chart-timeline-items-row-items'] = currentSelect.selecting['chart-timeline-items-row-items'].slice();
-            result.selected = Object.assign({}, currentSelect.selected);
-            result.selected['chart-timeline-grid-rows'] = currentSelect.selected['chart-timeline-grid-rows'].slice();
-            result.selected['chart-timeline-grid-row-blocks'] = currentSelect.selected['chart-timeline-grid-row-blocks'].slice();
-            result.selected['chart-timeline-items-rows'] = currentSelect.selected['chart-timeline-items-rows'].slice();
-            result.selected['chart-timeline-items-row-items'] = currentSelect.selected['chart-timeline-items-row-items'].slice();
-            return result;
-        }
-        /**
-         * Save and swap coordinates if needed
-         * @param {Event} ev
-         */
-        function saveAndSwapIfNeeded(ev) {
-            // @ts-ignore
-            const currentX = ev.x - left;
-            // @ts-ignore
-            const currentY = ev.y - top;
-            if (currentX <= selecting.startX) {
-                selecting.fromX = currentX;
-                selecting.toX = selecting.startX;
-            }
-            else {
-                selecting.fromX = selecting.startX;
-                selecting.toX = currentX;
-            }
-            if (currentY <= selecting.startY) {
-                selecting.fromY = currentY;
-                selecting.toY = selecting.startY;
-            }
-            else {
-                selecting.fromY = selecting.startY;
-                selecting.toY = currentY;
-            }
-        }
-        /**
-         * Is rectangle inside other rectangle ?
-         * @param {DOMRect} boundingRect
-         * @param {DOMRect} rectBoundingRect
-         * @returns {boolean}
-         */
-        function isInside(boundingRect, rectBoundingRect) {
-            let horizontal = false;
-            let vertical = false;
-            if ((boundingRect.left > rectBoundingRect.left && boundingRect.left < rectBoundingRect.right) ||
-                (boundingRect.right > rectBoundingRect.left && boundingRect.right < rectBoundingRect.right) ||
-                (boundingRect.left <= rectBoundingRect.left && boundingRect.right >= rectBoundingRect.right)) {
-                horizontal = true;
-            }
-            if ((boundingRect.top > rectBoundingRect.top && boundingRect.top < rectBoundingRect.bottom) ||
-                (boundingRect.bottom > rectBoundingRect.top && boundingRect.bottom < rectBoundingRect.bottom) ||
-                (boundingRect.top <= rectBoundingRect.top && boundingRect.bottom >= rectBoundingRect.bottom)) {
-                vertical = true;
-            }
-            return horizontal && vertical;
-        }
-        /**
-         * Get selecting elements
-         * @param {DOMRect} rectBoundingRect
-         * @param {Element[]} elements
-         * @param {string} type
-         * @returns {string[]}
-         */
-        function getSelecting(rectBoundingRect, elements, type, getId) {
-            const selectingResult = [];
-            const currentlySelectingData = [];
-            const all = elements[type + 's'];
-            const currentSelecting = state.get(`${path}.selecting.${type}s`);
-            for (const element of all) {
-                const boundingRect = element.getBoundingClientRect();
-                if (isInside(boundingRect, rectBoundingRect)) {
-                    currentlySelectingData.push(element.vido);
-                    const canSelect = options.canSelect(type, currentlySelectingData);
-                    if (canSelect.includes(element.vido)) {
-                        if (!currentSelecting.includes(getId(element.vido))) {
-                            options.selecting(element.vido, type);
-                        }
-                        selectingResult.push(getId(element.vido));
-                    }
-                    else {
-                        currentlySelectingData.unshift();
-                    }
-                }
-                else {
-                    if (currentSelecting.includes(getId(element.vido))) {
-                        options.deselecting(element.vido, type);
-                    }
-                }
-            }
-            return selectingResult;
-        }
-        /**
-         * Select
-         * @param {Event} ev
-         */
-        function select(ev) {
-            if (!selecting.selecting) {
-                return;
-            }
-            saveAndSwapIfNeeded(ev);
-            rect.style.left = selecting.fromX + 'px';
-            rect.style.top = selecting.fromY + 'px';
-            rect.style.visibility = 'visible';
-            rect.style.width = selecting.toX - selecting.fromX + 'px';
-            rect.style.height = selecting.toY - selecting.fromY + 'px';
-            const rectBoundingRect = rect.getBoundingClientRect();
-            const elements = state.get('_internal.elements');
-            const nowSelecting = {};
-            for (const type in selectionTypesIdGetters) {
-                nowSelecting[type + 's'] = getSelecting(rectBoundingRect, elements, type, selectionTypesIdGetters[type]);
-            }
-            state.update(`${path}.selecting`, nowSelecting);
-            state.update('config.chart.items', function updateItems(items) {
-                const now = nowSelecting['chart-timeline-items-row-items'];
-                for (const itemId in items) {
-                    const item = items[itemId];
-                    if (now.includes(item.id)) {
-                        item.selecting = true;
-                    }
-                    else {
-                        item.selecting = false;
-                    }
-                }
-                return items;
-            });
-            state.update('_internal.chart.grid.rowsWithBlocks', function updateRowsWithBlocks(rowsWithBlocks) {
-                const nowBlocks = nowSelecting['chart-timeline-grid-row-blocks'];
-                const nowRows = nowSelecting['chart-timeline-grid-rows'];
-                for (const row of rowsWithBlocks) {
-                    if (nowRows.includes(row.id)) {
-                        row.selecting = true;
-                    }
-                    else {
-                        row.selecting = false;
-                    }
-                    for (const block of row.blocks) {
-                        if (nowBlocks.includes(block.id)) {
-                            block.selecting = true;
-                        }
-                        else {
+                });
+                state.update('_internal.chart.grid.rowsWithBlocks', function clearRowsWithBlocks(rowsWithBlocks) {
+                    for (const row of rowsWithBlocks) {
+                        for (const block of row.blocks) {
+                            block.selected = false;
                             block.selecting = false;
                         }
                     }
-                }
-                return rowsWithBlocks;
-            });
-        }
-        /**
-         * End select
-         * @param {Event} ev
-         */
-        function endSelect(ev) {
-            if (selecting.selecting) {
-                ev.stopPropagation();
+                    return rowsWithBlocks;
+                });
             }
-            else {
-                clearSelection();
-                return;
+            /**
+             * Clone current selection state
+             * @param {object} currentSelect
+             * @returns {object} currentSelect cloned
+             */
+            function cloneSelection(currentSelect) {
+                const result = {};
+                result.selecting = Object.assign({}, currentSelect.selecting);
+                result.selecting['chart-timeline-grid-rows'] = currentSelect.selecting['chart-timeline-grid-rows'].slice();
+                result.selecting['chart-timeline-grid-row-blocks'] = currentSelect.selecting['chart-timeline-grid-row-blocks'].slice();
+                result.selecting['chart-timeline-items-rows'] = currentSelect.selecting['chart-timeline-items-rows'].slice();
+                result.selecting['chart-timeline-items-row-items'] = currentSelect.selecting['chart-timeline-items-row-items'].slice();
+                result.selected = Object.assign({}, currentSelect.selected);
+                result.selected['chart-timeline-grid-rows'] = currentSelect.selected['chart-timeline-grid-rows'].slice();
+                result.selected['chart-timeline-grid-row-blocks'] = currentSelect.selected['chart-timeline-grid-row-blocks'].slice();
+                result.selected['chart-timeline-items-rows'] = currentSelect.selected['chart-timeline-items-rows'].slice();
+                result.selected['chart-timeline-items-row-items'] = currentSelect.selected['chart-timeline-items-row-items'].slice();
+                return result;
             }
-            selecting.selecting = false;
-            rect.style.visibility = 'hidden';
-            const currentSelect = state.get(path);
-            const select = {};
-            state.update(path, value => {
-                select.selected = Object.assign({}, value.selecting);
-                select.selecting = {
-                    'chart-timeline-grid-rows': [],
-                    'chart-timeline-grid-row-blocks': [],
-                    'chart-timeline-items-rows': [],
-                    'chart-timeline-items-row-items': []
-                };
-                return select;
-            });
-            const elements = state.get('_internal.elements');
-            for (const type in selectionTypesIdGetters) {
-                for (const element of elements[type + 's']) {
-                    if (currentSelect.selecting[type + 's'].includes(element.vido.id)) {
-                        options.deselecting(element.vido, type);
-                    }
+            /**
+             * Save and swap coordinates if needed
+             * @param {MouseEvent} ev
+             */
+            const saveAndSwapIfNeeded = (ev) => {
+                const currentX = ev.x - this.left;
+                const currentY = ev.y - this.top;
+                if (currentX <= selecting.startX) {
+                    selecting.fromX = currentX;
+                    selecting.toX = selecting.startX;
                 }
-            }
-            state.update('config.chart.items', function updateItems(items) {
-                const now = currentSelect.selecting['chart-timeline-items-row-items'];
-                for (const itemId in items) {
-                    const item = items[itemId];
-                    if (now.includes(item.id)) {
-                        item.selecting = true;
-                    }
-                    else {
-                        item.selecting = false;
-                    }
+                else {
+                    selecting.fromX = selecting.startX;
+                    selecting.toX = currentX;
                 }
-                return items;
-            });
-            state.update('_internal.chart.grid.rowsWithBlocks', function updateRowsWithBlocks(rowsWithBlocks) {
-                for (const row of rowsWithBlocks) {
-                    for (const block of row.blocks) {
-                        if (currentSelect.selecting['chart-timeline-grid-row-blocks'].includes(block.id)) {
-                            if (typeof block.selected === 'undefined' || !block.selected) {
-                                options.selected(block, 'chart-timeline-grid-row-block');
+                if (currentY <= selecting.startY) {
+                    selecting.fromY = currentY;
+                    selecting.toY = selecting.startY;
+                }
+                else {
+                    selecting.fromY = selecting.startY;
+                    selecting.toY = currentY;
+                }
+            };
+            /**
+             * Is rectangle inside other rectangle ?
+             * @param {DOMRect} boundingRect
+             * @param {DOMRect} rectBoundingRect
+             * @returns {boolean}
+             */
+            const isInside = (boundingRect, rectBoundingRect) => {
+                let horizontal = false;
+                let vertical = false;
+                if ((boundingRect.left > rectBoundingRect.left && boundingRect.left < rectBoundingRect.right) ||
+                    (boundingRect.right > rectBoundingRect.left && boundingRect.right < rectBoundingRect.right) ||
+                    (boundingRect.left <= rectBoundingRect.left && boundingRect.right >= rectBoundingRect.right)) {
+                    horizontal = true;
+                }
+                if ((boundingRect.top > rectBoundingRect.top && boundingRect.top < rectBoundingRect.bottom) ||
+                    (boundingRect.bottom > rectBoundingRect.top && boundingRect.bottom < rectBoundingRect.bottom) ||
+                    (boundingRect.top <= rectBoundingRect.top && boundingRect.bottom >= rectBoundingRect.bottom)) {
+                    vertical = true;
+                }
+                return horizontal && vertical;
+            };
+            /**
+             * Get selecting elements
+             * @param {DOMRect} rectBoundingRect
+             * @param {Element[]} elements
+             * @param {string} type
+             * @returns {string[]}
+             */
+            const getSelecting = (rectBoundingRect, elements, type, getId) => {
+                const selectingResult = [];
+                const currentlySelectingData = [];
+                const all = elements[type + 's'];
+                const currentSelecting = state.get(`${path}.selecting.${type}s`);
+                for (const element of all) {
+                    const boundingRect = element.getBoundingClientRect();
+                    if (isInside(boundingRect, rectBoundingRect)) {
+                        currentlySelectingData.push(element.vido);
+                        const canSelect = options.canSelect(type, currentlySelectingData);
+                        if (canSelect.includes(element.vido)) {
+                            if (!currentSelecting.includes(getId(element.vido))) {
+                                options.selecting(element.vido, type);
                             }
-                            block.selected = true;
+                            selectingResult.push(getId(element.vido));
                         }
                         else {
-                            if (previousSelect.selected['chart-timeline-grid-row-blocks'].includes(block.id)) {
-                                options.deselected(block, 'chart-timeline-grid-row-block');
-                            }
-                            block.selected = false;
+                            currentlySelectingData.unshift();
+                        }
+                    }
+                    else {
+                        if (currentSelecting.includes(getId(element.vido))) {
+                            options.deselecting(element.vido, type);
                         }
                     }
                 }
-                return rowsWithBlocks;
-            });
+                return selectingResult;
+            };
+            /**
+             * Select
+             * @param {Event} ev
+             */
+            const select = ev => {
+                if (!selecting.selecting) {
+                    return;
+                }
+                saveAndSwapIfNeeded(ev);
+                rect.style.left = selecting.fromX + 'px';
+                rect.style.top = selecting.fromY + 'px';
+                rect.style.visibility = 'visible';
+                rect.style.width = selecting.toX - selecting.fromX + 'px';
+                rect.style.height = selecting.toY - selecting.fromY + 'px';
+                const rectBoundingRect = rect.getBoundingClientRect();
+                const elements = state.get('_internal.elements');
+                const nowSelecting = {};
+                for (const type in selectionTypesIdGetters) {
+                    nowSelecting[type + 's'] = getSelecting(rectBoundingRect, elements, type, selectionTypesIdGetters[type]);
+                }
+                state.update(`${path}.selecting`, nowSelecting);
+                state.update('config.chart.items', function updateItems(items) {
+                    const now = nowSelecting['chart-timeline-items-row-items'];
+                    for (const itemId in items) {
+                        const item = items[itemId];
+                        if (now.includes(item.id)) {
+                            item.selecting = true;
+                        }
+                        else {
+                            item.selecting = false;
+                        }
+                    }
+                    return items;
+                }, { only: ['selecting'] });
+                state.update('_internal.chart.grid.rowsWithBlocks', function updateRowsWithBlocks(rowsWithBlocks) {
+                    const nowBlocks = nowSelecting['chart-timeline-grid-row-blocks'];
+                    const nowRows = nowSelecting['chart-timeline-grid-rows'];
+                    for (const row of rowsWithBlocks) {
+                        if (nowRows.includes(row.id)) {
+                            row.selecting = true;
+                        }
+                        else {
+                            row.selecting = false;
+                        }
+                        for (const block of row.blocks) {
+                            if (nowBlocks.includes(block.id)) {
+                                block.selecting = true;
+                            }
+                            else {
+                                block.selecting = false;
+                            }
+                        }
+                    }
+                    return rowsWithBlocks;
+                });
+            };
+            /**
+             * End select
+             * @param {Event} ev
+             */
+            const endSelect = ev => {
+                if (selecting.selecting) {
+                    ev.stopPropagation();
+                }
+                else {
+                    clearSelection();
+                    return;
+                }
+                selecting.selecting = false;
+                rect.style.visibility = 'hidden';
+                const currentSelect = state.get(path);
+                const select = {};
+                state.update(path, value => {
+                    select.selected = Object.assign({}, value.selecting);
+                    select.selecting = {
+                        'chart-timeline-grid-rows': [],
+                        'chart-timeline-grid-row-blocks': [],
+                        'chart-timeline-items-rows': [],
+                        'chart-timeline-items-row-items': []
+                    };
+                    return select;
+                });
+                const elements = state.get('_internal.elements');
+                for (const type in selectionTypesIdGetters) {
+                    for (const element of elements[type + 's']) {
+                        if (currentSelect.selecting[type + 's'].includes(element.vido.id)) {
+                            options.deselecting(element.vido, type);
+                        }
+                    }
+                }
+                state.update('config.chart.items', function updateItems(items) {
+                    const now = currentSelect.selecting['chart-timeline-items-row-items'];
+                    for (const itemId in items) {
+                        const item = items[itemId];
+                        if (now.includes(item.id)) {
+                            item.selecting = true;
+                        }
+                        else {
+                            item.selecting = false;
+                        }
+                    }
+                    return items;
+                });
+                state.update('_internal.chart.grid.rowsWithBlocks', function updateRowsWithBlocks(rowsWithBlocks) {
+                    for (const row of rowsWithBlocks) {
+                        for (const block of row.blocks) {
+                            if (currentSelect.selecting['chart-timeline-grid-row-blocks'].includes(block.id)) {
+                                if (typeof block.selected === 'undefined' || !block.selected) {
+                                    options.selected(block, 'chart-timeline-grid-row-block');
+                                }
+                                block.selected = true;
+                            }
+                            else {
+                                if (previousSelect.selected['chart-timeline-grid-row-blocks'].includes(block.id)) {
+                                    options.deselected(block, 'chart-timeline-grid-row-block');
+                                }
+                                block.selected = false;
+                            }
+                        }
+                    }
+                    return rowsWithBlocks;
+                });
+            };
+            /**
+             * Mouse down event handler
+             * @param {MouseEvent} ev
+             */
+            this.mouseDown = ev => {
+                if (ev.button !== 0) {
+                    return;
+                }
+                selecting.selecting = true;
+                selecting.fromX = ev.x - this.left;
+                selecting.fromY = ev.y - this.top;
+                selecting.startX = selecting.fromX;
+                selecting.startY = selecting.fromY;
+                previousSelect = cloneSelection(state.get(path));
+                clearSelection();
+            };
+            /**
+             * Mouse move event handler
+             * @param {MouseEvent} ev
+             */
+            this.mouseMove = ev => {
+                select(ev);
+            };
+            /**
+             * Mouse up event handler
+             * @param {MouseEvent} ev
+             */
+            this.mouseUp = ev => {
+                endSelect(ev);
+            };
+            element.addEventListener('mousedown', this.mouseDown);
+            document.addEventListener('mousemove', schedule(this.mouseMove));
+            document.body.addEventListener('mouseup', this.mouseUp);
         }
-        /**
-         * Mouse down event handler
-         * @param {MouseEvent} ev
-         */
-        function mouseDown(ev) {
-            if (ev.button !== 0) {
-                return;
-            }
-            selecting.selecting = true;
-            selecting.fromX = ev.x - left;
-            selecting.fromY = ev.y - top;
-            selecting.startX = selecting.fromX;
-            selecting.startY = selecting.fromY;
-            previousSelect = cloneSelection(state.get(path));
-            clearSelection();
+        update() {
+            const bounding = this.chartTimeline.getBoundingClientRect();
+            this.left = bounding.left;
+            this.top = bounding.top;
         }
-        /**
-         * Mouse move event handler
-         * @param {MouseEvent} ev
-         */
-        function mouseMove(ev) {
-            select(ev);
+        destroy(element) {
+            document.body.removeEventListener('mouseup', this.mouseUp);
+            document.removeEventListener('mousemove', this.mouseMove);
+            element.removeEventListener('mousedown', this.mouseDown);
         }
-        /**
-         * Mouse up event handler
-         * @param {MouseEvent} ev
-         */
-        function mouseUp(ev) {
-            endSelect(ev);
-        }
-        element.addEventListener('mousedown', mouseDown);
-        document.addEventListener('mousemove', schedule(mouseMove));
-        document.body.addEventListener('mouseup', mouseUp);
-        return {
-            update() { },
-            destroy() {
-                document.body.removeEventListener('mouseup', mouseUp);
-                document.removeEventListener('mousemove', mouseMove);
-                element.removeEventListener('mousedown', mouseDown);
-            }
-        };
     }
     /**
      * Update selection
      * @param {any} data
      * @param {Element} element
+     * @param {string[]} selecting
+     * @param {string[]} selected
      * @param {string} classNameSelecting
      * @param {string} classNameSelected
      */
@@ -978,7 +981,7 @@ function Selection(options = {}) {
             return items;
         });
         state.update('config.actions.chart-timeline', actions => {
-            actions.push(selectionAction);
+            actions.push(SelectionAction);
             return actions;
         });
         state.update('config.actions.chart-timeline-grid-row-block', actions => {
