@@ -20,14 +20,16 @@ export default function CalendarScroll(options = {}) {
   class CalendarScrollAction {
     isMoving: boolean = false;
     lastX: number = 0;
+    mc: any;
 
     constructor(element: HTMLElement, data: any) {
-      this.onMouseUp = this.onMouseUp.bind(this);
-      this.onMouseMove = this.onMouseMove.bind(this);
-      this.onMouseDown = this.onMouseDown.bind(this);
-      element.addEventListener('mousedown', this.onMouseDown);
-      document.addEventListener('mousemove', this.onMouseMove);
-      document.addEventListener('mouseup', this.onMouseUp);
+      this.onPanStart = this.onPanStart.bind(this);
+      this.onPanMove = this.onPanMove.bind(this);
+      this.onPanEnd = this.onPanEnd.bind(this);
+      this.mc = new api.Hammer(element);
+      this.mc.on('panstart', this.onPanStart);
+      this.mc.on('panmove', this.onPanMove);
+      this.mc.on('panend', this.onPanEnd);
       element.style.cursor = 'move';
       // @ts-ignore
       if (options.hideScroll) {
@@ -35,18 +37,13 @@ export default function CalendarScroll(options = {}) {
       }
     }
 
-    onMouseDown(ev: MouseEvent) {
+    onPanStart(ev) {
       this.isMoving = true;
-      this.lastX = ev.x;
+      this.lastX = ev.deltaX;
     }
 
-    onMouseUp(ev: MouseEvent) {
-      this.isMoving = false;
-    }
-
-    onMouseMove(ev: MouseEvent) {
-      if (!this.isMoving) return;
-      const movedX = ev.x - this.lastX;
+    onPanMove(ev) {
+      const movedX = ev.deltaX - this.lastX;
       const time = state.get('_internal.chart.time');
       // @ts-ignore
       const movedTime = -Math.round(movedX * time.timePerPixel * options.speed);
@@ -59,15 +56,16 @@ export default function CalendarScroll(options = {}) {
         options.onChange(configTime);
         return configTime;
       });
-      this.lastX = ev.x;
+      this.lastX = ev.deltaX;
     }
 
-    update(element: HTMLElement, data: any) {}
+    onPanEnd(ev) {
+      this.isMoving = false;
+      this.lastX = 0;
+    }
 
     destroy(element: HTMLElement, data: any) {
-      element.removeEventListener('mousedown', this.onMouseDown);
-      document.removeEventListener('mousemove', this.onMouseMove);
-      document.removeEventListener('mouseup', this.onMouseUp);
+      this.mc.off(element);
     }
   }
 

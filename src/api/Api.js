@@ -8,6 +8,7 @@
  */
 
 import defaultConfigFn from '../default-config';
+import Hammer from 'hammerjs';
 import timeApi from './Time';
 import State from 'deep-state-observer';
 import dayjs from 'dayjs';
@@ -94,6 +95,7 @@ const publicApi = {
   name: lib,
   stateFromConfig,
   mergeDeep,
+  Hammer,
   date(time) {
     return time ? dayjs(time) : dayjs();
   },
@@ -113,6 +115,8 @@ export function getInternalApi(state) {
         console.log.call(console, ...args);
       }
     },
+
+    Hammer,
 
     mergeDeep,
 

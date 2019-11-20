@@ -94,11 +94,43 @@ export default function List(vido, props = {}) {
     }
   }
 
+  let mc,
+    moving = false,
+    lastY = 0,
+    lastX = 0;
+  function onPanStart(ev) {
+    moving = true;
+    lastY = ev.deltaY;
+    lastX = ev.deltaX;
+  }
+  function onPanMove(ev) {
+    if (!moving) return;
+    const movementY = ev.deltaY - lastY;
+    state.update('config.scroll.top', top => {
+      top -= movementY;
+      top = api.limitScroll('top', top);
+      return top;
+    });
+    lastY = ev.deltaY;
+    lastX = ev.deltaX;
+  }
+  function onPanEnd(ev) {
+    moving = false;
+    lastY = 0;
+    lastX = 0;
+  }
   componentActions.push(element => {
     state.update('_internal.elements.list', element);
+    mc = new api.Hammer(element, { pointers: 0, threshold: 0, direction: api.Hammer.DIRECTION_VERTICAL });
+    mc.on('panstart', onPanStart);
+    mc.on('panmove', onPanMove);
+    mc.on('panend', onPanEnd);
     getWidth(element);
     return {
-      update: getWidth
+      update: getWidth,
+      destroy(element) {
+        mc.remove(element, 'panstart panmove panend');
+      }
     };
   });
 
