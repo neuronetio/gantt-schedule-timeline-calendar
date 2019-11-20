@@ -508,6 +508,20 @@ function SaveAsImage(options = {}) {
  */
 function Selection(options = {}) {
     let vido, state, api, schedule;
+    const path = 'config.plugin.selection';
+    const rectClassName = 'gantt-schedule-timeline-caledar__plugin-selection-rect';
+    const rect = document.createElement('div');
+    rect.classList.add(rectClassName);
+    rect.style.visibility = 'hidden';
+    rect.style.left = '0px';
+    rect.style.top = '0px';
+    rect.style.width = '0px';
+    rect.style.height = '0px';
+    rect.style.background = 'rgba(0, 119, 192, 0.2)';
+    rect.style.border = '2px dashed rgba(0, 119, 192, 0.75)';
+    rect.style.position = 'absolute';
+    rect.style['user-select'] = 'none';
+    rect.style['pointer-events'] = 'none';
     const defaultOptions = {
         grid: false,
         items: true,
@@ -519,11 +533,18 @@ function Selection(options = {}) {
         deselecting() { },
         selected() { },
         deselected() { },
-        canSelect(type, currently) {
+        canSelect(type, currently, all) {
             return currently;
-        }
+        },
+        canDeselect(type, currently, all) {
+            return [];
+        },
+        getApi() { }
     };
     options = Object.assign(Object.assign({}, defaultOptions), options);
+    for (const styleProp in options.rectStyle) {
+        rect.style[styleProp] = options.rectStyle[styleProp];
+    }
     let selecting = {
         fromX: -1,
         fromY: -1,
@@ -540,32 +561,17 @@ function Selection(options = {}) {
         'chart-timeline-items-row': props => props.row.id,
         'chart-timeline-items-row-item': props => props.item.id
     };
-    const path = 'config.plugin.selection';
-    const rectClassName = 'gantt-schedule-timeline-caledar__plugin-selection-rect';
-    const rect = document.createElement('div');
-    rect.classList.add(rectClassName);
-    rect.style.visibility = 'hidden';
-    rect.style.left = '0px';
-    rect.style.top = '0px';
-    rect.style.width = '0px';
-    rect.style.height = '0px';
-    rect.style.background = 'rgba(0, 119, 192, 0.2)';
-    rect.style.border = '2px dashed rgba(0, 119, 192, 0.75)';
-    rect.style.position = 'absolute';
-    rect.style['user-select'] = 'none';
-    rect.style['pointer-events'] = 'none';
-    for (const styleProp in options.rectStyle) {
-        rect.style[styleProp] = options.rectStyle[styleProp];
-    }
     /**
-     * Selection action
-     * @param {Element} element
-     * @param {object|any} data
-     * @returns {object} with update and destroy
+     * Selection action class
      */
     class SelectionAction {
+        /**
+         * Selection action constructor
+         * @param {Element} element
+         * @param {object|any} data
+         */
         constructor(element, data) {
-            let previousSelect;
+            let previousSelect, api = {};
             this.chartTimeline = state.get('_internal.elements.chart-timeline');
             if (!this.chartTimeline.querySelector('.' + rectClassName)) {
                 this.chartTimeline.insertAdjacentElement('beforeend', rect);
@@ -575,32 +581,46 @@ function Selection(options = {}) {
             }
             /**
              * Clear selection
+             * @param {boolean} force
              */
-            function clearSelection() {
-                state.update(path, {
-                    selecting: {
-                        'chart-timeline-grid-rows': [],
-                        'chart-timeline-grid-row-blocks': [],
-                        'chart-timeline-items-rows': [],
-                        'chart-timeline-items-row-items': []
-                    },
-                    selected: {
-                        'chart-timeline-grid-rows': [],
-                        'chart-timeline-grid-row-blocks': [],
-                        'chart-timeline-items-rows': [],
-                        'chart-timeline-items-row-items': []
-                    }
+            function clearSelection(force = false) {
+                let selectingState;
+                state.update(path, currently => {
+                    selectingState = {
+                        selecting: {
+                            'chart-timeline-grid-rows': [],
+                            'chart-timeline-grid-row-blocks': [],
+                            'chart-timeline-items-rows': [],
+                            'chart-timeline-items-row-items': []
+                        },
+                        selected: {
+                            'chart-timeline-grid-rows': force
+                                ? []
+                                : options.canDeselect('chart-timeline-grid-rows', currently.selected['chart-timeline-grid-rows'], currently),
+                            'chart-timeline-grid-row-blocks': force
+                                ? []
+                                : options.canDeselect('chart-timeline-grid-row-blocks', currently.selected['chart-timeline-grid-row-blocks'], currently),
+                            'chart-timeline-items-rows': force
+                                ? []
+                                : options.canDeselect('chart-timeline-items-rows', currently.selected['chart-timeline-items-rows'], currently),
+                            'chart-timeline-items-row-items': force
+                                ? []
+                                : options.canDeselect('chart-timeline-items-rows', currently.selected['chart-timeline-items-rows'], currently)
+                        }
+                    };
+                    return selectingState;
                 });
                 state.update('_internal.chart.grid.rowsWithBlocks', function clearRowsWithBlocks(rowsWithBlocks) {
                     for (const row of rowsWithBlocks) {
                         for (const block of row.blocks) {
-                            block.selected = false;
+                            block.selected = selectingState.selected['chart-timeline-grid-row-blocks'].includes(block.id);
                             block.selecting = false;
                         }
                     }
                     return rowsWithBlocks;
                 });
             }
+            api.clearSelection = clearSelection;
             /**
              * Clone current selection state
              * @param {object} currentSelect
@@ -676,12 +696,13 @@ function Selection(options = {}) {
                 const selectingResult = [];
                 const currentlySelectingData = [];
                 const all = elements[type + 's'];
-                const currentSelecting = state.get(`${path}.selecting.${type}s`);
+                const currentAll = state.get(path);
+                const currentSelecting = currentAll.selecting[type + 's'];
                 for (const element of all) {
                     const boundingRect = element.getBoundingClientRect();
                     if (isInside(boundingRect, rectBoundingRect)) {
                         currentlySelectingData.push(element.vido);
-                        const canSelect = options.canSelect(type, currentlySelectingData);
+                        const canSelect = options.canSelect(type, currentlySelectingData, currentAll);
                         if (canSelect.includes(element.vido)) {
                             if (!currentSelecting.includes(getId(element.vido))) {
                                 options.selecting(element.vido, type);
@@ -708,6 +729,7 @@ function Selection(options = {}) {
                 if (!selecting.selecting) {
                     return;
                 }
+                clearSelection();
                 saveAndSwapIfNeeded(ev);
                 rect.style.left = selecting.fromX + 'px';
                 rect.style.top = selecting.fromY + 'px';
@@ -763,6 +785,11 @@ function Selection(options = {}) {
             const endSelect = ev => {
                 if (selecting.selecting) {
                     ev.stopPropagation();
+                    if (selecting.fromX === ev.x - this.left && selecting.fromY === ev.y - this.top) {
+                        selecting.selecting = false;
+                        rect.style.visibility = 'hidden';
+                        return;
+                    }
                 }
                 else {
                     clearSelection();
@@ -856,6 +883,7 @@ function Selection(options = {}) {
             element.addEventListener('mousedown', this.mouseDown);
             document.addEventListener('mousemove', schedule(this.mouseMove));
             document.body.addEventListener('mouseup', this.mouseUp);
+            options.getApi(api);
         }
         update() {
             const bounding = this.chartTimeline.getBoundingClientRect();

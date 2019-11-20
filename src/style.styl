@@ -6,7 +6,7 @@ $bg-dark-5 = rgba(177, 184, 189, 0.75)
 
 //$dot = hsl(192, 15%, 80%)
 $dot = #e0eff2
-$grid = hsla(192, 15%, 94%, 0.75)
+$grid = 1px solid hsla(192, 15%, 94%, 0.75)
 
 $font-color = #606060
 $font-color-2 = #707070
@@ -113,8 +113,8 @@ $item-content-padding = 5px
       vertical-align: middle
       line-height: var(--height)
     &-column-row
-      border-bottom: 1px solid $grid
-      border-right: 1px solid $grid
+      border-bottom: $grid
+      border-right: $grid
       will-change: height
       &-content
         width: calc( var(--width) - var(--expander-padding-width) - var(--expander-size) )
@@ -247,19 +247,19 @@ $item-content-padding = 5px
           display: flex
           text-align:center
           user-select: none
-          pointer-events: none
+          pointer-events: all
           will-change: opacity, height
           &-block
-            pointer-events: auto
+            pointer-events: all
             flex-grow: 0
             flex-shrink: 0
             margin: auto 0
             vertical-align: middle
             overflow: hidden
-            border-right: 1px solid $grid
-            border-bottom: 1px solid $grid
+            border-right: $grid
+            border-bottom: $grid
             &-content
-              pointer-events: auto
+              pointer-events: al
               width: 100%
               height: 100%
               background: transparent
@@ -281,11 +281,11 @@ $item-content-padding = 5px
         top: 0
         width: 100%
         height: 100%
-        pointer-events: none
+        pointer-events: none !important
         overflow: hidden
         &-row
           overflow: hidden
-          pointer-events: none
+          pointer-events: none !important
           will-change: opacity, height
           &-item
             overflow: hidden
