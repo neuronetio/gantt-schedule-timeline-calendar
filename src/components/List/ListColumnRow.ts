@@ -8,8 +8,27 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
+/**
+ * Save element
+ * @param {HTMLElement} element
+ * @param {object} data
+ */
+function saveElement(element, data) {
+  data.state.update('_internal.elements.list-column-rows', elements => {
+    if (typeof elements === 'undefined') {
+      elements = [];
+    }
+    if (!elements.includes(element)) {
+      elements.push(element);
+    }
+    return elements;
+  });
+}
+
 export default function ListColumnRow(vido, props) {
-  const { api, state, onDestroy, actions, update, html, createComponent, onChange, StyleMap, unsafeHTML } = vido;
+  const { api, state, onDestroy, Actions, update, html, createComponent, onChange, StyleMap, unsafeHTML } = vido;
+
+  const actionProps = { ...props, api, state };
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListColumnRow', value => (wrapper = value)));
@@ -53,6 +72,9 @@ export default function ListColumnRow(vido, props) {
       return;
     }
     props = changedProps;
+    for (const prop in props) {
+      actionProps[prop] = props[prop];
+    }
     const rowId = props.rowId;
     const columnId = props.columnId;
     if (rowSub) {
@@ -135,11 +157,14 @@ export default function ListColumnRow(vido, props) {
     return row[column.data];
   }
 
-  const actionProps = { column, row, api, state };
+  if (!componentActions.includes(saveElement)) componentActions.push();
+
+  const actions = Actions.create(componentActions, actionProps);
+
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} style=${styleMap} data-actions=${actions(componentActions, actionProps)}>
+        <div class=${className} style=${styleMap} data-actions=${actions}>
           ${column.expander ? ListExpander.html() : null}
           <div class=${className + '-content'}>
             ${column.isHTML ? getHtml() : getText()}

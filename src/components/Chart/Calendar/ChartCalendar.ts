@@ -9,7 +9,7 @@
  */
 
 export default function ChartCalendar(vido, props) {
-  const { api, state, onDestroy, actions, update, reuseComponents, html, StyleMap } = vido;
+  const { api, state, onDestroy, Actions, update, reuseComponents, html, StyleMap } = vido;
   const componentName = 'chart-calendar';
   const componentActions = api.getActions(componentName);
   const actionProps = { ...props, api, state };
@@ -71,13 +71,14 @@ export default function ChartCalendar(vido, props) {
   });
 
   componentActions.push(element => {
-    state.update('_internal.elements.calendar', element);
+    state.update('_internal.elements.chart-calendar', element);
   });
 
+  const actions = Actions.create(componentActions, actionProps);
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap}>
+        <div class=${className} data-actions=${actions} style=${styleMap}>
           <div class=${className + '-dates ' + className + '-dates--months'}>${monthComponents.map(m => m.html())}</div>
           <div class=${className + '-dates ' + className + '-dates--days'}>${dayComponents.map(d => d.html())}</div>
           </div>

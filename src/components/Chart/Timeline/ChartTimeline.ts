@@ -9,7 +9,7 @@
  */
 
 export default function ChartTimeline(vido, props) {
-  const { api, state, onDestroy, actions, update, html, createComponent, StyleMap } = vido;
+  const { api, state, onDestroy, Actions, update, html, createComponent, StyleMap } = vido;
   const componentName = 'chart-timeline';
   const componentActions = api.getActions(componentName);
   const actionProps = { ...props, api, state };
@@ -63,15 +63,11 @@ export default function ChartTimeline(vido, props) {
     state.update('_internal.elements.chart-timeline', element);
   });
 
+  const actions = Actions.create(componentActions, actionProps);
   return templateProps =>
     wrapper(
       html`
-        <div
-          class=${className}
-          style=${styleMap}
-          data-actions=${actions(componentActions, actionProps)}
-          @wheel=${api.onScroll}
-        >
+        <div class=${className} style=${styleMap} data-actions=${actions} @wheel=${api.onScroll}>
           <div class=${classNameInner} style=${innerStyleMap}>
             ${Grid.html()}${Items.html()}
           </div>

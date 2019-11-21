@@ -10,34 +10,30 @@
 
 /**
  * Bind element action
- * @param {Element} element
- * @param {any} data
- * @returns {object} with update and destroy
  */
-const bindElementAction = (element, data) => {
-  data.state.update(
-    '_internal.elements.chart-timeline-items-row-items',
-    function updateRowItems(items) {
-      if (typeof items === 'undefined') {
-        items = [];
-      }
-      items.push(element);
-      return items;
-    },
-    { only: null }
-  );
-  return {
-    update() {},
-    destroy(element) {
-      data.state.update('_internal.elements.chart-timeline-items-row-items', items => {
-        return items.filter(el => el !== element);
-      });
-    }
-  };
-};
+class BindElementAction {
+  constructor(element, data) {
+    data.state.update(
+      '_internal.elements.chart-timeline-items-row-items',
+      function updateRowItems(items) {
+        if (typeof items === 'undefined') {
+          items = [];
+        }
+        items.push(element);
+        return items;
+      },
+      { only: null }
+    );
+  }
+  destroy(element, data) {
+    data.state.update('_internal.elements.chart-timeline-items-row-items', items => {
+      return items.filter(el => el !== element);
+    });
+  }
+}
 
 function ChartTimelineItemsRowItem(vido, props) {
-  const { api, state, onDestroy, actions, update, html, onChange, unsafeHTML, StyleMap } = vido;
+  const { api, state, onDestroy, Actions, update, html, onChange, unsafeHTML, StyleMap } = vido;
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
   let styleMap = new StyleMap({ width: '', height: '', left: '', opacity: '1', pointerEvents: 'auto' }),
@@ -135,14 +131,16 @@ function ChartTimelineItemsRowItem(vido, props) {
     })
   );
 
-  if (componentActions.indexOf(bindElementAction) === -1) {
-    componentActions.push(bindElementAction);
+  if (componentActions.indexOf(BindElementAction) === -1) {
+    componentActions.push(BindElementAction);
   }
+
+  const actions = Actions.create(componentActions, actionProps);
 
   return templateProps => {
     return wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap}>
+        <div class=${className} data-actions=${actions} style=${styleMap}>
           <div class=${contentClassName} style=${contentStyleMap}>
             <div class=${labelClassName}>
               ${props.item.isHtml ? unsafeHTML(props.item.label) : props.item.label}

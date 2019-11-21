@@ -315,6 +315,32 @@ export function getInternalApi(state) {
       return { x, y, z, event };
     },
 
+    normalizePointerEvent(event) {
+      let x = 0,
+        y = 0;
+      switch (event.type) {
+        case 'wheel':
+          const wheel = this.normalizeMouseWheelEvent(event);
+          x = wheel.x;
+          y = wheel.y;
+          break;
+        case 'touchstart':
+        case 'touchmove':
+          x = event.touches[0].screenX;
+          y = event.touches[0].screenY;
+          break;
+        case 'touchend':
+          x = event.changedTouches[0].screenX;
+          y = event.changedTouches[0].screenY;
+          break;
+        default:
+          x = event.x;
+          y = event.y;
+          break;
+      }
+      return { x, y, event };
+    },
+
     limitScroll(which, scroll) {
       if (which === 'top') {
         const height = state.get('_internal.list.rowsHeight') - state.get('_internal.height');

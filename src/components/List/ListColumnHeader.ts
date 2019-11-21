@@ -9,7 +9,9 @@
  */
 
 export default function ListColumnHeader(vido, props) {
-  const { api, state, onDestroy, actions, update, createComponent, html, cache, StyleMap } = vido;
+  const { api, state, onDestroy, onChange, Actions, update, createComponent, html, cache, StyleMap } = vido;
+
+  const actionProps = { ...props, api, state };
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListColumnHeader', value => (wrapper = value)));
@@ -30,25 +32,41 @@ export default function ListColumnHeader(vido, props) {
   onDestroy(ListExpander.destroy);
 
   let column;
-  onDestroy(
-    state.subscribe(`config.list.columns.data.${props.columnId}`, val => {
+  let columnSub = state.subscribe(`config.list.columns.data.${props.columnId}`, val => {
+    column = val;
+    update();
+  });
+
+  onDestroy(columnSub);
+
+  onChange(changedProps => {
+    props = changedProps;
+    for (const prop in props) {
+      actionProps[prop] = props[prop];
+    }
+    if (columnSub) columnSub();
+    columnSub = state.subscribe(`config.list.columns.data.${props.columnId}`, val => {
       column = val;
       update();
+    });
+  });
+
+  let className, contentClass;
+  onDestroy(
+    state.subscribe('config.classNames', () => {
+      className = api.getClass(componentName);
+      contentClass = api.getClass(componentName + '-content');
     })
   );
 
-  let className,
-    contentClass,
-    styleMap = new StyleMap({
-      height: '',
-      '--height': '',
-      '--paddings-count': ''
-    });
+  const styleMap = new StyleMap({
+    height: '',
+    '--height': '',
+    '--paddings-count': ''
+  });
   onDestroy(
-    state.subscribeAll(['config.classNames', 'config.headerHeight'], () => {
+    state.subscribeAll(['config.headerHeight', 'config.list.columns.percent'], () => {
       const value = state.get('config');
-      className = api.getClass(componentName, { column });
-      contentClass = api.getClass(componentName + '-content', { column });
       styleMap.style['height'] = value.headerHeight + 'px';
       styleMap.style['--height'] = value.headerHeight + 'px';
       styleMap.style['--paddings-count'] = '1';
@@ -72,12 +90,13 @@ export default function ListColumnHeader(vido, props) {
     `;
   }
 
-  const actionProps = { column, api, state };
+  const actions = Actions.create(componentActions, actionProps);
+
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} style=${styleMap} data-actions=${actions(componentActions, actionProps)}>
-          ${cache(typeof column.expander === 'boolean' && column.expander ? withExpander() : withoutExpander())}
+        <div class=${className} style=${styleMap} data-actions=${actions}>
+          ${cache(column.expander ? withExpander() : withoutExpander())}
         </div>
       `,
       { vido, props, templateProps }

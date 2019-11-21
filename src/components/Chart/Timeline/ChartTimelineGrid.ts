@@ -9,7 +9,7 @@
  */
 
 export default function ChartTimelineGrid(vido, props) {
-  const { api, state, onDestroy, actions, update, html, reuseComponents, StyleMap } = vido;
+  const { api, state, onDestroy, Actions, update, html, reuseComponents, StyleMap } = vido;
   const componentName = 'chart-timeline-grid';
   const componentActions = api.getActions(componentName);
   const actionProps = { api, state };
@@ -119,10 +119,11 @@ export default function ChartTimelineGrid(vido, props) {
     rowsComponents.forEach(row => row.destroy());
   });
 
+  const actions = Actions.create(componentActions, actionProps);
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap}>
+        <div class=${className} data-actions=${actions} style=${styleMap}>
           ${rowsComponents.map(r => r.html())}
         </div>
       `,

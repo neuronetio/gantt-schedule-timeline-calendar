@@ -9,8 +9,9 @@
  */
 
 export default function ListToggle(vido, props) {
-  const { api, state, onDestroy, actions, update, html, onChange, cache } = vido;
+  const { api, state, onDestroy, Actions, update, html, onChange, cache } = vido;
   const componentName = 'list-expander-toggle';
+  const actionProps = { ...props, api, state };
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListToggle', value => (wrapper = value)));
@@ -47,6 +48,9 @@ export default function ListToggle(vido, props) {
     let expandedSub;
     function onPropsChange(changedProps) {
       props = changedProps;
+      for (const prop in props) {
+        actionProps[prop] = props[prop];
+      }
       if (expandedSub) expandedSub();
       expandedSub = state.subscribe(`config.list.rows.${props.row.id}.expanded`, expandedChange);
     }
@@ -85,7 +89,6 @@ export default function ListToggle(vido, props) {
     }
   }
 
-  const actionProps = { row: props.row, api, state };
   const getIcon = () => {
     if (iconChild) {
       if (props.row?._internal?.children?.length === 0) {
@@ -103,10 +106,13 @@ export default function ListToggle(vido, props) {
     }
     return '';
   };
+
+  const actions = Actions.create(componentActions, actionProps);
+
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-action=${actions(componentActions, actionProps)} @click=${toggle}>
+        <div class=${className} data-action=${actions} @click=${toggle}>
           ${cache(getIcon())}
         </div>
       `,

@@ -2428,47 +2428,62 @@
         let app, element;
         let shouldUpdateCount = 0;
         const resolved = Promise.resolve();
-        /**
-         * Get actions for component instance as directives
-         *
-         * @param {string} instance
-         * @returns {function} directive that will execute actions
-         */
-        function getActions(instance) {
-            return directive(function actionsByInstanceDirective(createFunctions, props = {}) {
-                return function actions(part) {
-                    const element = part.committer.element;
-                    for (const create of createFunctions) {
-                        if (typeof create === 'function') {
-                            let exists;
-                            if (actionsByInstance.has(instance)) {
-                                for (const action of actionsByInstance.get(instance)) {
-                                    if (action.componentAction.create === create && action.element === element) {
-                                        exists = action;
-                                        break;
-                                    }
+        class ActionsCollector extends Directive {
+            constructor(instance) {
+                super();
+                this.instance = instance;
+            }
+            set(actions, props, debug = false) {
+                this.actions = actions;
+                this.props = props; // must be mutable! (do not do this {...props})
+                // because we will modify action props with onChange and can reuse existin instance
+                if (debug) {
+                    console.log(this);
+                }
+                return this;
+            }
+            body(part) {
+                const element = part.committer.element;
+                for (const create of this.actions) {
+                    if (typeof create !== 'undefined') {
+                        let exists;
+                        if (actionsByInstance.has(this.instance)) {
+                            for (const action of actionsByInstance.get(this.instance)) {
+                                if (action.componentAction.create === create && action.element === element) {
+                                    exists = action;
+                                    break;
                                 }
-                            }
-                            if (!exists) {
-                                if (typeof element.vido !== 'undefined')
-                                    delete element.vido;
-                                const componentAction = { create, update() { }, destroy() { } };
-                                const action = { instance, componentAction, element, props };
-                                let byInstance = [];
-                                if (actionsByInstance.has(instance)) {
-                                    byInstance = actionsByInstance.get(instance);
-                                }
-                                byInstance.push(action);
-                                actionsByInstance.set(instance, byInstance);
-                            }
-                            else {
-                                exists.props = props;
                             }
                         }
+                        if (!exists) {
+                            // @ts-ignore
+                            if (typeof element.vido !== 'undefined')
+                                delete element.vido;
+                            const componentAction = { create, update() { }, destroy() { } };
+                            const action = { instance: this.instance, componentAction, element, props: this.props };
+                            let byInstance = [];
+                            if (actionsByInstance.has(this.instance)) {
+                                byInstance = actionsByInstance.get(this.instance);
+                            }
+                            byInstance.push(action);
+                            actionsByInstance.set(this.instance, byInstance);
+                        }
+                        else {
+                            exists.props = this.props;
+                        }
                     }
-                    part.setValue('');
-                };
-            });
+                }
+            }
+        }
+        class InstanceActionsCollector {
+            constructor(instance) {
+                this.instance = instance;
+            }
+            create(actions, props) {
+                const actionsInstance = new ActionsCollector(this.instance);
+                actionsInstance.set(actions, props);
+                return actionsInstance;
+            }
         }
         class PublicComponentMethods {
             constructor(instance, vidoInstance, props = {}) {
@@ -2551,22 +2566,6 @@
         vido.prototype.ifDefined = ifDefined;
         vido.prototype.repeat = repeat;
         vido.prototype.unsafeHTML = unsafeHTML;
-        /*vido.prototype.unsafeHTML = directive((value) => (part) => {
-          const previousValue = previousUnsafeValues.get(part);
-          if (
-            previousValue !== undefined &&
-            isPrimitive(value) &&
-            value === previousValue.value &&
-            part.value === previousValue.fragment
-          ) {
-            return;
-          }
-          const template = templateNode.cloneNode() as HTMLTemplateElement;
-          template.innerHTML = value; // innerHTML casts to string internally
-          const fragment = document.importNode(template.content, true);
-          part.setValue(fragment);
-          previousUnsafeValues.set(part, { value, fragment });
-        });*/
         vido.prototype.until = until;
         vido.prototype.schedule = schedule;
         vido.prototype.actionsByInstance = (componentActions, props) => { };
@@ -2729,7 +2728,7 @@
             let vidoInstance;
             vidoInstance = new vido();
             vidoInstance.instance = instance;
-            vidoInstance.actions = getActions(instance);
+            vidoInstance.Actions = new InstanceActionsCollector(instance);
             const publicMethods = new PublicComponentMethods(instance, vidoInstance, props);
             const internalMethods = new InternalComponentMethods(instance, vidoInstance, component(vidoInstance, props));
             components.set(instance, internalMethods);
@@ -2810,7 +2809,7 @@
                     if (action.element.vido === undefined) {
                         const componentAction = action.componentAction;
                         const create = componentAction.create;
-                        if (typeof create === 'function') {
+                        if (typeof create !== 'undefined') {
                             let result;
                             if (((_a = create.prototype) === null || _a === void 0 ? void 0 : _a.update) === undefined && ((_b = create.prototype) === null || _b === void 0 ? void 0 : _b.destroy) === undefined) {
                                 result = create(action.element, action.props);
@@ -3816,7 +3815,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function Main(vido, props = {}) {
-        const { api, state, onDestroy, actions, update, createComponent, html, StyleMap } = vido;
+        const { api, state, onDestroy, Actions, update, createComponent, html, StyleMap } = vido;
         const componentName = api.name;
         let ListComponent;
         onDestroy(state.subscribe('config.components.List', value => (ListComponent = value)));
@@ -3860,7 +3859,7 @@
         /**
          * Height change
          */
-        const heightChange = () => {
+        function heightChange() {
             const config = state.get('config');
             const scrollBarHeight = state.get('_internal.scrollBarHeight');
             const height = config.height - config.headerHeight - scrollBarHeight;
@@ -3870,20 +3869,20 @@
             verticalScrollStyleMap.style.width = scrollBarHeight + 'px';
             verticalScrollStyleMap.style['margin-top'] = config.headerHeight + 'px';
             update();
-        };
+        }
         onDestroy(state.subscribeAll(['config.height', 'config.headerHeight', '_internal.scrollBarHeight'], heightChange));
         /**
          * Resizer active change
          * @param {boolean} active
          */
-        const resizerActiveChange = active => {
+        function resizerActiveChange(active) {
             resizerActive = active;
             className = api.getClass(api.name);
             if (resizerActive) {
                 className += ` ${api.name}__list-column-header-resizer--active`;
             }
             update();
-        };
+        }
         onDestroy(state.subscribe('_internal.list.columns.resizer.active', resizerActiveChange));
         /**
          * Generate tree
@@ -4089,7 +4088,7 @@
          * Handle scroll Event
          * @param {MouseEvent} event
          */
-        const handleEvent = (event) => {
+        function handleEvent(event) {
             //event.stopPropagation();
             if (event.type === 'scroll') {
                 // @ts-ignore
@@ -4134,7 +4133,7 @@
                     });
                 }
             }
-        };
+        }
         const onScroll = {
             handleEvent: handleEvent,
             passive: true,
@@ -4144,34 +4143,40 @@
          * Stop scroll / wheel to sink into parent elements
          * @param {Event} event
          */
-        const onScrollStop = (event) => {
+        function onScrollStop(event) {
             event.stopPropagation();
             event.stopImmediatePropagation();
             event.preventDefault();
-        };
+        }
         const dimensions = { width: 0, height: 0 };
         let ro;
         /**
          * Resize action
          * @param {Element} element
          */
-        const resizeAction = (element) => {
-            if (!ro) {
-                ro = new index((entries, observer) => {
-                    const width = element.clientWidth;
-                    const height = element.clientHeight;
-                    if (dimensions.width !== width || dimensions.height !== height) {
-                        dimensions.width = width;
-                        dimensions.height = height;
-                        state.update('_internal.dimensions', dimensions);
-                    }
-                });
-                ro.observe(element);
-                state.update('_internal.elements.main', element);
+        class ResizeAction {
+            constructor(element) {
+                if (!ro) {
+                    ro = new index((entries, observer) => {
+                        const width = element.clientWidth;
+                        const height = element.clientHeight;
+                        if (dimensions.width !== width || dimensions.height !== height) {
+                            dimensions.width = width;
+                            dimensions.height = height;
+                            state.update('_internal.dimensions', dimensions);
+                        }
+                    });
+                    ro.observe(element);
+                    state.update('_internal.elements.main', element);
+                }
             }
-        };
-        if (!componentActions.includes(resizeAction)) {
-            componentActions.push(resizeAction);
+            update() { }
+            destroy(element) {
+                ro.unobserve(element);
+            }
+        }
+        if (!componentActions.includes(ResizeAction)) {
+            componentActions.push(ResizeAction);
         }
         onDestroy(() => {
             ro.disconnect();
@@ -4194,6 +4199,9 @@
             state.update('_internal.elements.vertical-scroll-inner', element);
         };
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
+        const mainActions = Actions.create(componentActions, actionProps);
+        const verticalScrollActions = Actions.create([bindScrollElement]);
+        const verticalScrollAreaActions = Actions.create([bindScrollInnerElement]);
         return templateProps => wrapper(html `
         <div
           data-info-url="https://github.com/neuronetio/gantt-schedule-timeline-calendar"
@@ -4201,7 +4209,7 @@
           style=${styleMap}
           @scroll=${onScrollStop}
           @wheel=${onScrollStop}
-          data-actions=${actions(componentActions, actionProps)}
+          data-actions=${mainActions}
         >
           ${List.html()}${Chart.html()}
           <div
@@ -4209,9 +4217,9 @@
             style=${verticalScrollStyleMap}
             @scroll=${onScroll}
             @wheel=${onScroll}
-            data-action=${actions([bindScrollElement])}
+            data-action=${verticalScrollActions}
           >
-            <div style=${verticalScrollAreaStyleMap} data-actions=${actions([bindScrollInnerElement])} />
+            <div style=${verticalScrollAreaStyleMap} data-actions=${verticalScrollAreaActions} />
           </div>
         </div>
       `, { props, vido, templateProps });
@@ -4227,7 +4235,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function List(vido, props = {}) {
-        const { api, state, onDestroy, actions, update, reuseComponents, html, schedule, StyleMap } = vido;
+        const { api, state, onDestroy, Actions, update, reuseComponents, html, schedule, StyleMap } = vido;
         const componentName = 'list';
         const componentActions = api.getActions(componentName);
         let wrapper;
@@ -4295,53 +4303,85 @@
                 state.update('_internal.elements.list', element);
             }
         }
-        let mc, moving = false, lastY = 0, lastX = 0;
-        function onPanStart(ev) {
-            moving = true;
-            lastY = ev.deltaY;
-            lastX = ev.deltaX;
+        let moving = '', initialX = 0, initialY = 0, lastY = 0, lastX = 0;
+        function onPointerStart(ev) {
+            moving = 'xy';
+            const normalized = api.normalizePointerEvent(ev);
+            lastX = normalized.x;
+            lastY = normalized.y;
+            initialX = normalized.x;
+            initialY = normalized.y;
         }
-        function onPanMove(ev) {
-            if (!moving)
+        function handleX(normalized) {
+            let movementX = normalized.x - lastX;
+            state.update('config.list.columns.percent', percent => {
+                percent += movementX;
+                if (percent < 0)
+                    percent = 0;
+                if (percent > 100)
+                    percent = 100;
+                return percent;
+            });
+            lastY = normalized.y;
+            lastX = normalized.x;
+        }
+        function handleY(normalized) {
+            let movementY = normalized.y - lastY;
+            movementY *= state.get('config.scroll.yMultiplier');
+            if (Math.abs(normalized.y - initialY) < 10)
                 return;
-            const movementY = ev.deltaY - lastY;
             state.update('config.scroll.top', top => {
                 top -= movementY;
                 top = api.limitScroll('top', top);
                 return top;
             });
-            lastY = ev.deltaY;
-            lastX = ev.deltaX;
+            lastY = normalized.y;
+            lastX = normalized.x;
         }
-        function onPanEnd(ev) {
-            moving = false;
+        function onPointerMove(ev) {
+            if (!moving)
+                return;
+            ev.stopPropagation();
+            const normalized = api.normalizePointerEvent(ev);
+            if (moving === 'x' || (moving === 'xy' && Math.abs(normalized.x - initialX) > 10)) {
+                moving = 'x';
+                return handleX(normalized);
+            }
+            if (moving === 'y' || (moving === 'xy' && Math.abs(normalized.y - initialY) > 10)) {
+                moving = 'y';
+                return handleY(normalized);
+            }
+        }
+        function onPointerEnd(ev) {
+            moving = '';
             lastY = 0;
             lastX = 0;
         }
         componentActions.push(element => {
             state.update('_internal.elements.list', element);
-            mc = new api.Hammer(element, { pointers: 0, threshold: 0, direction: api.Hammer.DIRECTION_VERTICAL });
-            mc.on('panstart', onPanStart);
-            mc.on('panmove', onPanMove);
-            mc.on('panend', onPanEnd);
+            element.addEventListener('touchstart', onPointerStart);
+            document.addEventListener('touchmove', onPointerMove);
+            document.addEventListener('touchend', onPointerEnd);
+            element.addEventListener('mousedown', onPointerStart);
+            document.addEventListener('mousemove', onPointerMove);
+            document.addEventListener('mouseup', onPointerEnd);
             getWidth(element);
             return {
                 update: getWidth,
                 destroy(element) {
-                    mc.remove(element, 'panstart panmove panend');
+                    element.removeEventListener('touchstart', onPointerStart);
+                    document.removeEventListener('touchmove', onPointerMove);
+                    document.removeEventListener('touchend', onPointerEnd);
+                    element.removeEventListener('mousedown', onPointerStart);
+                    document.removeEventListener('mousemove', onPointerMove);
+                    document.removeEventListener('mouseup', onPointerEnd);
                 }
             };
         });
-        const actionProps = Object.assign(Object.assign({}, props), { api, state });
+        const actions = Actions.create(componentActions, Object.assign(Object.assign({}, props), { api, state }));
         return templateProps => wrapper(list.columns.percent > 0
             ? html `
-            <div
-              class=${className}
-              data-actions=${actions(componentActions, actionProps)}
-              style=${styleMap}
-              @scroll=${onScroll}
-              @wheel=${onScroll}
-            >
+            <div class=${className} data-actions=${actions} style=${styleMap} @scroll=${onScroll} @wheel=${onScroll}>
               ${listColumns.map(c => c.html())}
             </div>
           `
@@ -4358,18 +4398,14 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumn(vido, props) {
-        const { api, state, onDestroy, actions, update, createComponent, reuseComponents, html, StyleMap } = vido;
+        const { api, state, onDestroy, onChange, Actions, update, createComponent, reuseComponents, html, StyleMap } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListColumn', value => (wrapper = value)));
         let ListColumnRowComponent;
         onDestroy(state.subscribe('config.components.ListColumnRow', value => (ListColumnRowComponent = value)));
         let ListColumnHeaderComponent;
         onDestroy(state.subscribe('config.components.ListColumnHeader', value => (ListColumnHeaderComponent = value)));
-        let column, columnPath = `config.list.columns.data.${props.columnId}`;
-        onDestroy(state.subscribe(columnPath, function columnChanged(val) {
-            column = val;
-            update();
-        }));
+        const actionProps = Object.assign(Object.assign({}, props), { api, state });
         const componentName = 'list-column';
         const rowsComponentName = componentName + '-rows';
         const componentActions = api.getActions(componentName);
@@ -4378,11 +4414,11 @@
         const widthStyleMap = new StyleMap({ width: '', '--width': '' });
         const containerStyleMap = new StyleMap({ width: '', height: '' });
         const scrollCompensationStyleMap = new StyleMap({ width: '', height: '' });
-        onDestroy(state.subscribe('config.classNames', value => {
-            className = api.getClass(componentName, { column });
-            classNameContainer = api.getClass(rowsComponentName, { column });
+        let column, columnPath = `config.list.columns.data.${props.columnId}`;
+        let columnSub = state.subscribe(columnPath, function columnChanged(val) {
+            column = val;
             update();
-        }));
+        });
         let width;
         function calculateStyle() {
             const list = state.get('config.list');
@@ -4398,7 +4434,7 @@
             scrollCompensationStyleMap.style.height = height + Math.abs(compensation) + 'px';
             scrollCompensationStyleMap.style.transform = `translate(0px, ${compensation}px)`;
         }
-        onDestroy(state.subscribeAll([
+        let styleSub = state.subscribeAll([
             'config.list.columns.percent',
             'config.list.columns.resizer.width',
             `config.list.columns.data.${column.id}.width`,
@@ -4406,7 +4442,43 @@
             '_internal.height',
             'config.scroll.compensation',
             '_internal.list.width'
-        ], calculateStyle, { bulk: true }));
+        ], calculateStyle, { bulk: true });
+        const ListColumnHeader = createComponent(ListColumnHeaderComponent, { columnId: props.columnId });
+        onDestroy(ListColumnHeader.destroy);
+        onChange(changedProps => {
+            props = changedProps;
+            for (const prop in props) {
+                actionProps[prop] = props[prop];
+            }
+            if (columnSub)
+                columnSub();
+            columnPath = `config.list.columns.data.${props.columnId}`;
+            columnSub = state.subscribe(columnPath, function columnChanged(val) {
+                column = val;
+                update();
+            });
+            if (styleSub)
+                styleSub();
+            styleSub = state.subscribeAll([
+                'config.list.columns.percent',
+                'config.list.columns.resizer.width',
+                `config.list.columns.data.${column.id}.width`,
+                '_internal.chart.dimensions.width',
+                '_internal.height',
+                'config.scroll.compensation',
+                '_internal.list.width'
+            ], calculateStyle, { bulk: true });
+            ListColumnHeader.change(props);
+        });
+        onDestroy(() => {
+            columnSub();
+            styleSub();
+        });
+        onDestroy(state.subscribe('config.classNames', value => {
+            className = api.getClass(componentName);
+            classNameContainer = api.getClass(rowsComponentName);
+            update();
+        }));
         let visibleRows = [];
         const visibleRowsChange = val => {
             reuseComponents(visibleRows, val, row => row && { columnId: props.columnId, rowId: row.id, width }, ListColumnRowComponent);
@@ -4416,21 +4488,26 @@
         onDestroy(function rowsDestroy() {
             visibleRows.forEach(row => row.destroy());
         });
-        const ListColumnHeader = createComponent(ListColumnHeaderComponent, { columnId: props.columnId });
-        onDestroy(ListColumnHeader.destroy);
         function getRowHtml(row) {
             return row.html();
         }
-        const componentActionsProps = { column, state: state, api: api };
-        const rowActionsProps = { api, state };
+        componentActions.push(element => {
+            state.update('_internal.elements.list-columns', elements => {
+                if (typeof elements === 'undefined') {
+                    elements = [];
+                }
+                if (!elements.includes(element)) {
+                    elements.push(element);
+                }
+                return elements;
+            });
+        });
+        const headerActions = Actions.create(componentActions, { column, state: state, api: api });
+        const rowActions = Actions.create(rowsActions, { api, state });
         return templateProps => wrapper(html `
-        <div class=${className} data-actions=${actions(componentActions, componentActionsProps)} style=${widthStyleMap}>
+        <div class=${className} data-actions=${headerActions} style=${widthStyleMap}>
           ${ListColumnHeader.html()}
-          <div
-            class=${classNameContainer}
-            style=${containerStyleMap}
-            data-actions=${actions(rowsActions, rowActionsProps)}
-          >
+          <div class=${classNameContainer} style=${containerStyleMap} data-actions=${rowActions}>
             <div class=${classNameContainer + '--scroll-compensation'} style=${scrollCompensationStyleMap}>
               ${visibleRows.map(getRowHtml)}
             </div>
@@ -4449,7 +4526,8 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnHeader(vido, props) {
-        const { api, state, onDestroy, actions, update, createComponent, html, cache, StyleMap } = vido;
+        const { api, state, onDestroy, onChange, Actions, update, createComponent, html, cache, StyleMap } = vido;
+        const actionProps = Object.assign(Object.assign({}, props), { api, state });
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListColumnHeader', value => (wrapper = value)));
         const componentName = 'list-column-header';
@@ -4463,19 +4541,35 @@
         const ListExpander = createComponent(ListExpanderComponent, {});
         onDestroy(ListExpander.destroy);
         let column;
-        onDestroy(state.subscribe(`config.list.columns.data.${props.columnId}`, val => {
+        let columnSub = state.subscribe(`config.list.columns.data.${props.columnId}`, val => {
             column = val;
             update();
+        });
+        onDestroy(columnSub);
+        onChange(changedProps => {
+            props = changedProps;
+            for (const prop in props) {
+                actionProps[prop] = props[prop];
+            }
+            if (columnSub)
+                columnSub();
+            columnSub = state.subscribe(`config.list.columns.data.${props.columnId}`, val => {
+                column = val;
+                update();
+            });
+        });
+        let className, contentClass;
+        onDestroy(state.subscribe('config.classNames', () => {
+            className = api.getClass(componentName);
+            contentClass = api.getClass(componentName + '-content');
         }));
-        let className, contentClass, styleMap = new StyleMap({
+        const styleMap = new StyleMap({
             height: '',
             '--height': '',
             '--paddings-count': ''
         });
-        onDestroy(state.subscribeAll(['config.classNames', 'config.headerHeight'], () => {
+        onDestroy(state.subscribeAll(['config.headerHeight', 'config.list.columns.percent'], () => {
             const value = state.get('config');
-            className = api.getClass(componentName, { column });
-            contentClass = api.getClass(componentName + '-content', { column });
             styleMap.style['height'] = value.headerHeight + 'px';
             styleMap.style['--height'] = value.headerHeight + 'px';
             styleMap.style['--paddings-count'] = '1';
@@ -4495,10 +4589,10 @@
       </div>
     `;
         }
-        const actionProps = { column, api, state };
+        const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
-        <div class=${className} style=${styleMap} data-actions=${actions(componentActions, actionProps)}>
-          ${cache(typeof column.expander === 'boolean' && column.expander ? withExpander() : withoutExpander())}
+        <div class=${className} style=${styleMap} data-actions=${actions}>
+          ${cache(column.expander ? withExpander() : withoutExpander())}
         </div>
       `, { vido, props, templateProps });
     }
@@ -4513,7 +4607,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnHeaderResizer(vido, props) {
-        const { api, state, onDestroy, update, html, actions, cache, StyleMap } = vido;
+        const { api, state, onDestroy, update, html, Actions, cache, StyleMap } = vido;
         const componentName = 'list-column-header-resizer';
         const componentActions = api.getActions(componentName);
         let wrapper;
@@ -4599,9 +4693,9 @@
         onDestroy(() => document.body.removeEventListener('mousemove', onMouseMove));
         document.body.addEventListener('mouseup', onMouseUp);
         onDestroy(() => document.body.removeEventListener('mouseup', onMouseUp));
-        const actionProps = { column, api, state };
+        const actions = Actions.create(componentActions, { column, api, state });
         return templateProps => wrapper(html `
-        <div class=${className} data-actions=${actions(componentActions, actionProps)}>
+        <div class=${className} data-actions=${actions}>
           <div class=${containerClass}>
             ${cache(column.header.html
         ? html `
@@ -4627,8 +4721,25 @@
      * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
+    /**
+     * Save element
+     * @param {HTMLElement} element
+     * @param {object} data
+     */
+    function saveElement(element, data) {
+        data.state.update('_internal.elements.list-column-rows', elements => {
+            if (typeof elements === 'undefined') {
+                elements = [];
+            }
+            if (!elements.includes(element)) {
+                elements.push(element);
+            }
+            return elements;
+        });
+    }
     function ListColumnRow(vido, props) {
-        const { api, state, onDestroy, actions, update, html, createComponent, onChange, StyleMap, unsafeHTML } = vido;
+        const { api, state, onDestroy, Actions, update, html, createComponent, onChange, StyleMap, unsafeHTML } = vido;
+        const actionProps = Object.assign(Object.assign({}, props), { api, state });
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListColumnRow', value => (wrapper = value)));
         let ListExpanderComponent;
@@ -4664,6 +4775,9 @@
                 return;
             }
             props = changedProps;
+            for (const prop in props) {
+                actionProps[prop] = props[prop];
+            }
             const rowId = props.rowId;
             const columnId = props.columnId;
             if (rowSub) {
@@ -4739,9 +4853,11 @@
                 return column.data(row);
             return row[column.data];
         }
-        const actionProps = { column, row, api, state };
+        if (!componentActions.includes(saveElement))
+            componentActions.push();
+        const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
-        <div class=${className} style=${styleMap} data-actions=${actions(componentActions, actionProps)}>
+        <div class=${className} style=${styleMap} data-actions=${actions}>
           ${column.expander ? ListExpander.html() : null}
           <div class=${className + '-content'}>
             ${column.isHTML ? getHtml() : getText()}
@@ -4760,9 +4876,10 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListExpander(vido, props) {
-        const { api, state, onDestroy, actions, update, html, createComponent, onChange } = vido;
+        const { api, state, onDestroy, Actions, update, html, createComponent, onChange } = vido;
         const componentName = 'list-expander';
         const componentActions = api.getActions(componentName);
+        const actionProps = Object.assign(Object.assign({}, props), { api, state });
         let className;
         let ListToggleComponent;
         onDestroy(state.subscribe('config.components.ListToggle', value => (ListToggleComponent = value)));
@@ -4777,15 +4894,18 @@
         if (props.row) {
             function onPropsChange(changedProps) {
                 props = changedProps;
+                for (const prop in props) {
+                    actionProps[prop] = props[prop];
+                }
                 ListToggle.change(props);
             }
             onChange(onPropsChange);
             onDestroy(function listExpanderDestroy() {
             });
         }
-        const actionProps = { row: props.row, api, state };
+        const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
-        <div class=${className} data-action=${actions(componentActions, actionProps)}>
+        <div class=${className} data-action=${actions}>
           ${ListToggle.html()}
         </div>
       `, { vido, props, templateProps });
@@ -4801,8 +4921,9 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListToggle(vido, props) {
-        const { api, state, onDestroy, actions, update, html, onChange, cache } = vido;
+        const { api, state, onDestroy, Actions, update, html, onChange, cache } = vido;
         const componentName = 'list-expander-toggle';
+        const actionProps = Object.assign(Object.assign({}, props), { api, state });
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListToggle', value => (wrapper = value)));
         const componentActions = api.getActions(componentName);
@@ -4832,6 +4953,9 @@
             let expandedSub;
             function onPropsChange(changedProps) {
                 props = changedProps;
+                for (const prop in props) {
+                    actionProps[prop] = props[prop];
+                }
                 if (expandedSub)
                     expandedSub();
                 expandedSub = state.subscribe(`config.list.rows.${props.row.id}.expanded`, expandedChange);
@@ -4868,7 +4992,6 @@
                 }, { only: ['*.expanded'] });
             }
         }
-        const actionProps = { row: props.row, api, state };
         const getIcon = () => {
             var _a, _b, _c;
             if (iconChild) {
@@ -4887,8 +5010,9 @@
             }
             return '';
         };
+        const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
-        <div class=${className} data-action=${actions(componentActions, actionProps)} @click=${toggle}>
+        <div class=${className} data-action=${actions} @click=${toggle}>
           ${cache(getIcon())}
         </div>
       `, { vido, props, templateProps });
@@ -4904,7 +5028,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function Chart(vido, props = {}) {
-        const { api, state, onDestroy, actions, update, html, StyleMap, createComponent } = vido;
+        const { api, state, onDestroy, Actions, update, html, StyleMap, createComponent } = vido;
         const componentName = 'chart';
         const ChartCalendarComponent = state.get('config.components.ChartCalendar');
         const ChartTimelineComponent = state.get('config.components.ChartTimeline');
@@ -5011,20 +5135,14 @@
         onDestroy(() => {
             ro.disconnect();
         });
+        const actions = Actions.create(componentActions, { api, state });
+        const scrollActions = Actions.create([bindElement]);
+        const scrollAreaActions = Actions.create([bindInnerScroll]);
         return templateProps => wrapper(html `
-        <div class=${className} data-actions=${actions(componentActions, { api, state })} @wheel=${onWheel}>
+        <div class=${className} data-actions=${actions} @wheel=${onWheel}>
           ${Calendar.html()}${Timeline.html()}
-          <div
-            class=${classNameScroll}
-            style=${scrollStyleMap}
-            data-actions=${actions([bindElement])}
-            @scroll=${onScroll}
-          >
-            <div
-              class=${classNameScrollInner}
-              style=${scrollInnerStyleMap}
-              data-actions=${actions([bindInnerScroll])}
-            />
+          <div class=${classNameScroll} style=${scrollStyleMap} data-actions=${scrollActions} @scroll=${onScroll}>
+            <div class=${classNameScrollInner} style=${scrollInnerStyleMap} data-actions=${scrollAreaActions} />
           </div>
         </div>
       `, { vido, props: {}, templateProps });
@@ -5040,7 +5158,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ChartCalendar(vido, props) {
-        const { api, state, onDestroy, actions, update, reuseComponents, html, StyleMap } = vido;
+        const { api, state, onDestroy, Actions, update, reuseComponents, html, StyleMap } = vido;
         const componentName = 'chart-calendar';
         const componentActions = api.getActions(componentName);
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
@@ -5076,10 +5194,11 @@
             dayComponents.forEach(c => c.destroy());
         });
         componentActions.push(element => {
-            state.update('_internal.elements.calendar', element);
+            state.update('_internal.elements.chart-calendar', element);
         });
+        const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
-        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap}>
+        <div class=${className} data-actions=${actions} style=${styleMap}>
           <div class=${className + '-dates ' + className + '-dates--months'}>${monthComponents.map(m => m.html())}</div>
           <div class=${className + '-dates ' + className + '-dates--days'}>${dayComponents.map(d => d.html())}</div>
           </div>
@@ -5096,8 +5215,24 @@
      * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
+    /**
+     * Save element
+     * @param {HTMLElement} element
+     * @param {object} data
+     */
+    function saveElement$1(element, data) {
+        data.state.update('_internal.elements.chart-calendar-dates', elements => {
+            if (typeof elements === 'undefined') {
+                elements = [];
+            }
+            if (!elements.includes(element)) {
+                elements.push(element);
+            }
+            return elements;
+        });
+    }
     function ChartCalendarDate(vido, props) {
-        const { api, state, onDestroy, actions, update, onChange, html, StyleMap } = vido;
+        const { api, state, onDestroy, Actions, update, onChange, html, StyleMap } = vido;
         const componentName = 'chart-calendar-date';
         const componentActions = api.getActions(componentName);
         let wrapper;
@@ -5395,11 +5530,14 @@
         onDestroy(() => {
             timeSub();
         });
+        if (!componentActions.includes(saveElement$1))
+            componentActions.push(saveElement$1);
+        const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
         <div
           class=${className + ' ' + className + '--' + props.period + current}
           style=${styleMap}
-          data-actions=${actions(componentActions, actionProps)}
+          data-actions=${actions}
         >
           ${htmlFormatted}
         </div>
@@ -5416,7 +5554,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ChartTimeline(vido, props) {
-        const { api, state, onDestroy, actions, update, html, createComponent, StyleMap } = vido;
+        const { api, state, onDestroy, Actions, update, html, createComponent, StyleMap } = vido;
         const componentName = 'chart-timeline';
         const componentActions = api.getActions(componentName);
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
@@ -5457,13 +5595,9 @@
         componentActions.push(element => {
             state.update('_internal.elements.chart-timeline', element);
         });
+        const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
-        <div
-          class=${className}
-          style=${styleMap}
-          data-actions=${actions(componentActions, actionProps)}
-          @wheel=${api.onScroll}
-        >
+        <div class=${className} style=${styleMap} data-actions=${actions} @wheel=${api.onScroll}>
           <div class=${classNameInner} style=${innerStyleMap}>
             ${Grid.html()}${Items.html()}
           </div>
@@ -5481,7 +5615,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ChartTimelineGrid(vido, props) {
-        const { api, state, onDestroy, actions, update, html, reuseComponents, StyleMap } = vido;
+        const { api, state, onDestroy, Actions, update, html, reuseComponents, StyleMap } = vido;
         const componentName = 'chart-timeline-grid';
         const componentActions = api.getActions(componentName);
         const actionProps = { api, state };
@@ -5574,8 +5708,9 @@
         onDestroy(() => {
             rowsComponents.forEach(row => row.destroy());
         });
+        const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
-        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap}>
+        <div class=${className} data-actions=${actions} style=${styleMap}>
           ${rowsComponents.map(r => r.html())}
         </div>
       `, { props, vido, templateProps });
@@ -5614,7 +5749,7 @@
         };
     }
     function ChartTimelineGridRow(vido, props) {
-        const { api, state, onDestroy, actions, update, html, reuseComponents, onChange, StyleMap } = vido;
+        const { api, state, onDestroy, Actions, update, html, reuseComponents, onChange, StyleMap } = vido;
         const componentName = 'chart-timeline-grid-row';
         const actionProps = Object.assign(Object.assign({}, props), { api,
             state });
@@ -5674,9 +5809,10 @@
         if (componentActions.indexOf(bindElementAction) === -1) {
             componentActions.push(bindElementAction);
         }
+        const actions = Actions.create(componentActions, actionProps);
         return templateProps => {
             return wrapper(html `
-        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap}>
+        <div class=${className} data-actions=${actions} style=${styleMap}>
           ${rowsBlocksComponents.map(r => r.html())}
         </div>
       `, { vido, props, templateProps });
@@ -5713,9 +5849,9 @@
         };
     };
     const ChartTimelineGridRowBlock = (vido, props) => {
-        const { api, state, onDestroy, actions, update, html, onChange, StyleMap } = vido;
+        const { api, state, onDestroy, Actions, update, html, onChange, StyleMap } = vido;
         const componentName = 'chart-timeline-grid-row-block';
-        let actionProps = Object.assign(Object.assign({}, props), { api,
+        const actionProps = Object.assign(Object.assign({}, props), { api,
             state });
         const componentActions = api.getActions(componentName);
         let wrapper;
@@ -5747,7 +5883,9 @@
                 return update();
             }
             props = changedProps;
-            actionProps = Object.assign(Object.assign({}, props), { api, state });
+            for (const prop in props) {
+                actionProps[prop] = props[prop];
+            }
             updateClassName(props.time);
             styleMap.style = {};
             styleMap.style.width = props.time.width + 'px';
@@ -5768,9 +5906,10 @@
         if (componentActions.indexOf(bindElementAction$1) === -1) {
             componentActions.push(bindElementAction$1);
         }
+        const actions = Actions.create(componentActions, actionProps);
         return templateProps => {
             return wrapper(html `
-        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap}>
+        <div class=${className} data-actions=${actions} style=${styleMap}>
           <div class=${classNameContent} />
         </div>
       `, { props, vido, templateProps });
@@ -5787,7 +5926,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ChartTimelineItems(vido, props = {}) {
-        const { api, state, onDestroy, actions, update, html, reuseComponents, StyleMap } = vido;
+        const { api, state, onDestroy, Actions, update, html, reuseComponents, StyleMap } = vido;
         const componentName = 'chart-timeline-items';
         const componentActions = api.getActions(componentName);
         let wrapper;
@@ -5819,9 +5958,9 @@
         onDestroy(function destroyRows() {
             rowsComponents.forEach(row => row.destroy());
         });
-        const actionProps = { api, state };
+        const actions = Actions.create(componentActions, { api, state });
         return templateProps => wrapper(html `
-        <div class=${className} style=${styleMap} data-actions=${actions(componentActions, actionProps)}>
+        <div class=${className} style=${styleMap} data-actions=${actions}>
           ${rowsComponents.map(r => r.html())}
         </div>
       `, { props, vido, templateProps });
@@ -5860,7 +5999,7 @@
         };
     };
     const ChartTimelineItemsRow = (vido, props) => {
-        const { api, state, onDestroy, actions, update, html, onChange, reuseComponents, StyleMap } = vido;
+        const { api, state, onDestroy, Actions, update, html, onChange, reuseComponents, StyleMap } = vido;
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRow', value => (wrapper = value)));
@@ -5933,9 +6072,10 @@
         if (!componentActions.includes(bindElementAction$2)) {
             componentActions.push(bindElementAction$2);
         }
+        const actions = Actions.create(componentActions, actionProps);
         return templateProps => {
             return wrapper(html `
-        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap}>
+        <div class=${className} data-actions=${actions} style=${styleMap}>
           ${itemComponents.map(i => i.html())}
         </div>
       `, { props, vido, templateProps });
@@ -5953,29 +6093,25 @@
      */
     /**
      * Bind element action
-     * @param {Element} element
-     * @param {any} data
-     * @returns {object} with update and destroy
      */
-    const bindElementAction$3 = (element, data) => {
-        data.state.update('_internal.elements.chart-timeline-items-row-items', function updateRowItems(items) {
-            if (typeof items === 'undefined') {
-                items = [];
-            }
-            items.push(element);
-            return items;
-        }, { only: null });
-        return {
-            update() { },
-            destroy(element) {
-                data.state.update('_internal.elements.chart-timeline-items-row-items', items => {
-                    return items.filter(el => el !== element);
-                });
-            }
-        };
-    };
+    class BindElementAction {
+        constructor(element, data) {
+            data.state.update('_internal.elements.chart-timeline-items-row-items', function updateRowItems(items) {
+                if (typeof items === 'undefined') {
+                    items = [];
+                }
+                items.push(element);
+                return items;
+            }, { only: null });
+        }
+        destroy(element, data) {
+            data.state.update('_internal.elements.chart-timeline-items-row-items', items => {
+                return items.filter(el => el !== element);
+            });
+        }
+    }
     function ChartTimelineItemsRowItem(vido, props) {
-        const { api, state, onDestroy, actions, update, html, onChange, unsafeHTML, StyleMap } = vido;
+        const { api, state, onDestroy, Actions, update, html, onChange, unsafeHTML, StyleMap } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
         let styleMap = new StyleMap({ width: '', height: '', left: '', opacity: '1', pointerEvents: 'auto' }), contentStyleMap = new StyleMap({ width: '', height: '' }), itemLeftPx = 0, itemWidthPx = 0, leave = false;
@@ -6067,12 +6203,13 @@
         onDestroy(state.subscribe('_internal.chart.time', bulk => {
             updateItem();
         }));
-        if (componentActions.indexOf(bindElementAction$3) === -1) {
-            componentActions.push(bindElementAction$3);
+        if (componentActions.indexOf(BindElementAction) === -1) {
+            componentActions.push(BindElementAction);
         }
+        const actions = Actions.create(componentActions, actionProps);
         return templateProps => {
             return wrapper(html `
-        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap}>
+        <div class=${className} data-actions=${actions} style=${styleMap}>
           <div class=${contentClassName} style=${contentStyleMap}>
             <div class=${labelClassName}>
               ${props.item.isHtml ? unsafeHTML(props.item.label) : props.item.label}
@@ -6230,8 +6367,8 @@
             scroll: {
                 top: 0,
                 left: 0,
-                xMultiplier: 1.5,
-                yMultiplier: 1,
+                xMultiplier: 3,
+                yMultiplier: 3,
                 percent: {
                     top: 0,
                     left: 0
@@ -10125,6 +10262,32 @@
           y *= scale;
           z *= scale;
           return { x, y, z, event };
+        },
+
+        normalizePointerEvent(event) {
+          let x = 0,
+            y = 0;
+          switch (event.type) {
+            case 'wheel':
+              const wheel = this.normalizeMouseWheelEvent(event);
+              x = wheel.x;
+              y = wheel.y;
+              break;
+            case 'touchstart':
+            case 'touchmove':
+              x = event.touches[0].screenX;
+              y = event.touches[0].screenY;
+              break;
+            case 'touchend':
+              x = event.changedTouches[0].screenX;
+              y = event.changedTouches[0].screenY;
+              break;
+            default:
+              x = event.x;
+              y = event.y;
+              break;
+          }
+          return { x, y, event };
         },
 
         limitScroll(which, scroll) {

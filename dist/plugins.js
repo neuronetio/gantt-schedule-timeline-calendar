@@ -1058,9 +1058,10 @@ function CalendarScroll(options = {}) {
             this.mc.on('panmove', this.onPanMove);
             this.mc.on('panend', this.onPanEnd);
             element.style.cursor = 'move';
+            const horizontalScroll = state.get('_internal.elements.horizontal-scroll');
             // @ts-ignore
-            if (options.hideScroll) {
-                state.get('_internal.elements.horizontal-scroll').style.visibility = 'hidden';
+            if (options.hideScroll && horizontalScroll) {
+                horizontalScroll.style.visibility = 'hidden';
             }
         }
         onPanStart(ev) {

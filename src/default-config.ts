@@ -170,8 +170,8 @@ function defaultConfig() {
     scroll: {
       top: 0,
       left: 0,
-      xMultiplier: 1.5,
-      yMultiplier: 1,
+      xMultiplier: 3,
+      yMultiplier: 3,
       percent: {
         top: 0,
         left: 0

@@ -11,7 +11,7 @@ import { Directive } from '../../../../lit-html/lit-html';
  */
 
 export default function List(vido, props = {}) {
-  const { api, state, onDestroy, actions, update, reuseComponents, html, schedule, StyleMap } = vido;
+  const { api, state, onDestroy, Actions, update, reuseComponents, html, schedule, StyleMap } = vido;
 
   const componentName = 'list';
   const componentActions = api.getActions(componentName);
@@ -94,58 +94,95 @@ export default function List(vido, props = {}) {
     }
   }
 
-  let mc,
-    moving = false,
+  let moving = '',
+    initialX = 0,
+    initialY = 0,
     lastY = 0,
     lastX = 0;
-  function onPanStart(ev) {
-    moving = true;
-    lastY = ev.deltaY;
-    lastX = ev.deltaX;
+
+  function onPointerStart(ev) {
+    moving = 'xy';
+    const normalized = api.normalizePointerEvent(ev);
+    lastX = normalized.x;
+    lastY = normalized.y;
+    initialX = normalized.x;
+    initialY = normalized.y;
   }
-  function onPanMove(ev) {
-    if (!moving) return;
-    const movementY = ev.deltaY - lastY;
+
+  function handleX(normalized) {
+    let movementX = normalized.x - lastX;
+    state.update('config.list.columns.percent', percent => {
+      percent += movementX;
+      if (percent < 0) percent = 0;
+      if (percent > 100) percent = 100;
+      return percent;
+    });
+    lastY = normalized.y;
+    lastX = normalized.x;
+  }
+
+  function handleY(normalized) {
+    let movementY = normalized.y - lastY;
+    movementY *= state.get('config.scroll.yMultiplier');
+    if (Math.abs(normalized.y - initialY) < 10) return;
     state.update('config.scroll.top', top => {
       top -= movementY;
       top = api.limitScroll('top', top);
       return top;
     });
-    lastY = ev.deltaY;
-    lastX = ev.deltaX;
+    lastY = normalized.y;
+    lastX = normalized.x;
   }
-  function onPanEnd(ev) {
-    moving = false;
+
+  function onPointerMove(ev) {
+    if (!moving) return;
+    ev.stopPropagation();
+    const normalized = api.normalizePointerEvent(ev);
+    if (moving === 'x' || (moving === 'xy' && Math.abs(normalized.x - initialX) > 10)) {
+      moving = 'x';
+      return handleX(normalized);
+    }
+    if (moving === 'y' || (moving === 'xy' && Math.abs(normalized.y - initialY) > 10)) {
+      moving = 'y';
+      return handleY(normalized);
+    }
+  }
+
+  function onPointerEnd(ev) {
+    moving = '';
     lastY = 0;
     lastX = 0;
   }
+
   componentActions.push(element => {
     state.update('_internal.elements.list', element);
-    mc = new api.Hammer(element, { pointers: 0, threshold: 0, direction: api.Hammer.DIRECTION_VERTICAL });
-    mc.on('panstart', onPanStart);
-    mc.on('panmove', onPanMove);
-    mc.on('panend', onPanEnd);
+    element.addEventListener('touchstart', onPointerStart);
+    document.addEventListener('touchmove', onPointerMove);
+    document.addEventListener('touchend', onPointerEnd);
+    element.addEventListener('mousedown', onPointerStart);
+    document.addEventListener('mousemove', onPointerMove);
+    document.addEventListener('mouseup', onPointerEnd);
     getWidth(element);
     return {
       update: getWidth,
       destroy(element) {
-        mc.remove(element, 'panstart panmove panend');
+        element.removeEventListener('touchstart', onPointerStart);
+        document.removeEventListener('touchmove', onPointerMove);
+        document.removeEventListener('touchend', onPointerEnd);
+        element.removeEventListener('mousedown', onPointerStart);
+        document.removeEventListener('mousemove', onPointerMove);
+        document.removeEventListener('mouseup', onPointerEnd);
       }
     };
   });
 
-  const actionProps = { ...props, api, state };
+  const actions = Actions.create(componentActions, { ...props, api, state });
+
   return templateProps =>
     wrapper(
       list.columns.percent > 0
         ? html`
-            <div
-              class=${className}
-              data-actions=${actions(componentActions, actionProps)}
-              style=${styleMap}
-              @scroll=${onScroll}
-              @wheel=${onScroll}
-            >
+            <div class=${className} data-actions=${actions} style=${styleMap} @scroll=${onScroll} @wheel=${onScroll}>
               ${listColumns.map(c => c.html())}
             </div>
           `

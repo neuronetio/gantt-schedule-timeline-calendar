@@ -11,7 +11,7 @@
 import ResizeObserver from 'resize-observer-polyfill';
 
 export default function Main(vido, props = {}) {
-  const { api, state, onDestroy, actions, update, createComponent, html, StyleMap } = vido;
+  const { api, state, onDestroy, Actions, update, createComponent, html, StyleMap } = vido;
   const componentName = api.name;
 
   let ListComponent;
@@ -68,7 +68,7 @@ export default function Main(vido, props = {}) {
   /**
    * Height change
    */
-  const heightChange = () => {
+  function heightChange() {
     const config = state.get('config');
     const scrollBarHeight = state.get('_internal.scrollBarHeight');
     const height = config.height - config.headerHeight - scrollBarHeight;
@@ -78,21 +78,21 @@ export default function Main(vido, props = {}) {
     verticalScrollStyleMap.style.width = scrollBarHeight + 'px';
     verticalScrollStyleMap.style['margin-top'] = config.headerHeight + 'px';
     update();
-  };
+  }
   onDestroy(state.subscribeAll(['config.height', 'config.headerHeight', '_internal.scrollBarHeight'], heightChange));
 
   /**
    * Resizer active change
    * @param {boolean} active
    */
-  const resizerActiveChange = active => {
+  function resizerActiveChange(active) {
     resizerActive = active;
     className = api.getClass(api.name);
     if (resizerActive) {
       className += ` ${api.name}__list-column-header-resizer--active`;
     }
     update();
-  };
+  }
   onDestroy(state.subscribe('_internal.list.columns.resizer.active', resizerActiveChange));
 
   /**
@@ -329,7 +329,7 @@ export default function Main(vido, props = {}) {
    * Handle scroll Event
    * @param {MouseEvent} event
    */
-  const handleEvent = (event: MouseEvent) => {
+  function handleEvent(event: MouseEvent) {
     //event.stopPropagation();
     if (event.type === 'scroll') {
       // @ts-ignore
@@ -371,7 +371,7 @@ export default function Main(vido, props = {}) {
         });
       }
     }
-  };
+  }
 
   const onScroll = {
     handleEvent: handleEvent,
@@ -383,11 +383,11 @@ export default function Main(vido, props = {}) {
    * Stop scroll / wheel to sink into parent elements
    * @param {Event} event
    */
-  const onScrollStop = (event: Event) => {
+  function onScrollStop(event: Event) {
     event.stopPropagation();
     event.stopImmediatePropagation();
     event.preventDefault();
-  };
+  }
 
   const dimensions = { width: 0, height: 0 };
   let ro;
@@ -395,23 +395,29 @@ export default function Main(vido, props = {}) {
    * Resize action
    * @param {Element} element
    */
-  const resizeAction = (element: Element) => {
-    if (!ro) {
-      ro = new ResizeObserver((entries, observer) => {
-        const width = element.clientWidth;
-        const height = element.clientHeight;
-        if (dimensions.width !== width || dimensions.height !== height) {
-          dimensions.width = width;
-          dimensions.height = height;
-          state.update('_internal.dimensions', dimensions);
-        }
-      });
-      ro.observe(element);
-      state.update('_internal.elements.main', element);
+  class ResizeAction {
+    constructor(element: HTMLElement) {
+      if (!ro) {
+        ro = new ResizeObserver((entries, observer) => {
+          const width = element.clientWidth;
+          const height = element.clientHeight;
+          if (dimensions.width !== width || dimensions.height !== height) {
+            dimensions.width = width;
+            dimensions.height = height;
+            state.update('_internal.dimensions', dimensions);
+          }
+        });
+        ro.observe(element);
+        state.update('_internal.elements.main', element);
+      }
     }
-  };
-  if (!componentActions.includes(resizeAction)) {
-    componentActions.push(resizeAction);
+    update() {}
+    destroy(element) {
+      ro.unobserve(element);
+    }
+  }
+  if (!componentActions.includes(ResizeAction)) {
+    componentActions.push(ResizeAction);
   }
 
   onDestroy(() => {
@@ -438,6 +444,10 @@ export default function Main(vido, props = {}) {
   };
 
   const actionProps = { ...props, api, state };
+  const mainActions = Actions.create(componentActions, actionProps);
+  const verticalScrollActions = Actions.create([bindScrollElement]);
+  const verticalScrollAreaActions = Actions.create([bindScrollInnerElement]);
+
   return templateProps =>
     wrapper(
       html`
@@ -447,7 +457,7 @@ export default function Main(vido, props = {}) {
           style=${styleMap}
           @scroll=${onScrollStop}
           @wheel=${onScrollStop}
-          data-actions=${actions(componentActions, actionProps)}
+          data-actions=${mainActions}
         >
           ${List.html()}${Chart.html()}
           <div
@@ -455,9 +465,9 @@ export default function Main(vido, props = {}) {
             style=${verticalScrollStyleMap}
             @scroll=${onScroll}
             @wheel=${onScroll}
-            data-action=${actions([bindScrollElement])}
+            data-action=${verticalScrollActions}
           >
-            <div style=${verticalScrollAreaStyleMap} data-actions=${actions([bindScrollInnerElement])} />
+            <div style=${verticalScrollAreaStyleMap} data-actions=${verticalScrollAreaActions} />
           </div>
         </div>
       `,

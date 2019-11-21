@@ -9,9 +9,10 @@
  */
 
 export default function ListExpander(vido, props) {
-  const { api, state, onDestroy, actions, update, html, createComponent, onChange } = vido;
+  const { api, state, onDestroy, Actions, update, html, createComponent, onChange } = vido;
   const componentName = 'list-expander';
   const componentActions = api.getActions(componentName);
+  const actionProps = { ...props, api, state };
   let className;
 
   let ListToggleComponent;
@@ -33,6 +34,9 @@ export default function ListExpander(vido, props) {
     let parentSub;
     function onPropsChange(changedProps) {
       props = changedProps;
+      for (const prop in props) {
+        actionProps[prop] = props[prop];
+      }
       ListToggle.change(props);
     }
     onChange(onPropsChange);
@@ -41,11 +45,12 @@ export default function ListExpander(vido, props) {
     });
   }
 
-  const actionProps = { row: props.row, api, state };
+  const actions = Actions.create(componentActions, actionProps);
+
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-action=${actions(componentActions, actionProps)}>
+        <div class=${className} data-action=${actions}>
           ${ListToggle.html()}
         </div>
       `,

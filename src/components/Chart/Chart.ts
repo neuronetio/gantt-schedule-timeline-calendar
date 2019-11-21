@@ -11,7 +11,7 @@
 import ResizeObserver from 'resize-observer-polyfill';
 
 export default function Chart(vido, props = {}) {
-  const { api, state, onDestroy, actions, update, html, StyleMap, createComponent } = vido;
+  const { api, state, onDestroy, Actions, update, html, StyleMap, createComponent } = vido;
   const componentName = 'chart';
 
   const ChartCalendarComponent = state.get('config.components.ChartCalendar');
@@ -143,22 +143,17 @@ export default function Chart(vido, props = {}) {
     ro.disconnect();
   });
 
+  const actions = Actions.create(componentActions, { api, state });
+  const scrollActions = Actions.create([bindElement]);
+  const scrollAreaActions = Actions.create([bindInnerScroll]);
+
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, { api, state })} @wheel=${onWheel}>
+        <div class=${className} data-actions=${actions} @wheel=${onWheel}>
           ${Calendar.html()}${Timeline.html()}
-          <div
-            class=${classNameScroll}
-            style=${scrollStyleMap}
-            data-actions=${actions([bindElement])}
-            @scroll=${onScroll}
-          >
-            <div
-              class=${classNameScrollInner}
-              style=${scrollInnerStyleMap}
-              data-actions=${actions([bindInnerScroll])}
-            />
+          <div class=${classNameScroll} style=${scrollStyleMap} data-actions=${scrollActions} @scroll=${onScroll}>
+            <div class=${classNameScrollInner} style=${scrollInnerStyleMap} data-actions=${scrollAreaActions} />
           </div>
         </div>
       `,

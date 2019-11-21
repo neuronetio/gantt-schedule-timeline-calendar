@@ -9,7 +9,7 @@
  */
 
 export default function ListColumn(vido, props) {
-  const { api, state, onDestroy, actions, update, createComponent, reuseComponents, html, StyleMap } = vido;
+  const { api, state, onDestroy, onChange, Actions, update, createComponent, reuseComponents, html, StyleMap } = vido;
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListColumn', value => (wrapper = value)));
@@ -19,14 +19,7 @@ export default function ListColumn(vido, props) {
   let ListColumnHeaderComponent;
   onDestroy(state.subscribe('config.components.ListColumnHeader', value => (ListColumnHeaderComponent = value)));
 
-  let column,
-    columnPath = `config.list.columns.data.${props.columnId}`;
-  onDestroy(
-    state.subscribe(columnPath, function columnChanged(val) {
-      column = val;
-      update();
-    })
-  );
+  const actionProps = { ...props, api, state };
 
   const componentName = 'list-column';
   const rowsComponentName = componentName + '-rows';
@@ -38,13 +31,14 @@ export default function ListColumn(vido, props) {
   const containerStyleMap = new StyleMap({ width: '', height: '' });
   const scrollCompensationStyleMap = new StyleMap({ width: '', height: '' });
 
-  onDestroy(
-    state.subscribe('config.classNames', value => {
-      className = api.getClass(componentName, { column });
-      classNameContainer = api.getClass(rowsComponentName, { column });
-      update();
-    })
-  );
+  let column,
+    columnPath = `config.list.columns.data.${props.columnId}`;
+
+  let columnSub = state.subscribe(columnPath, function columnChanged(val) {
+    column = val;
+    update();
+  });
+
   let width;
   function calculateStyle() {
     const list = state.get('config.list');
@@ -60,8 +54,38 @@ export default function ListColumn(vido, props) {
     scrollCompensationStyleMap.style.height = height + Math.abs(compensation) + 'px';
     scrollCompensationStyleMap.style.transform = `translate(0px, ${compensation}px)`;
   }
-  onDestroy(
-    state.subscribeAll(
+  let styleSub = state.subscribeAll(
+    [
+      'config.list.columns.percent',
+      'config.list.columns.resizer.width',
+      `config.list.columns.data.${column.id}.width`,
+      '_internal.chart.dimensions.width',
+      '_internal.height',
+      'config.scroll.compensation',
+      '_internal.list.width'
+    ],
+    calculateStyle,
+    { bulk: true }
+  );
+
+  const ListColumnHeader = createComponent(ListColumnHeaderComponent, { columnId: props.columnId });
+  onDestroy(ListColumnHeader.destroy);
+
+  onChange(changedProps => {
+    props = changedProps;
+    for (const prop in props) {
+      actionProps[prop] = props[prop];
+    }
+    if (columnSub) columnSub();
+
+    columnPath = `config.list.columns.data.${props.columnId}`;
+    columnSub = state.subscribe(columnPath, function columnChanged(val) {
+      column = val;
+      update();
+    });
+
+    if (styleSub) styleSub();
+    styleSub = state.subscribeAll(
       [
         'config.list.columns.percent',
         'config.list.columns.resizer.width',
@@ -73,7 +97,22 @@ export default function ListColumn(vido, props) {
       ],
       calculateStyle,
       { bulk: true }
-    )
+    );
+
+    ListColumnHeader.change(props);
+  });
+
+  onDestroy(() => {
+    columnSub();
+    styleSub();
+  });
+
+  onDestroy(
+    state.subscribe('config.classNames', value => {
+      className = api.getClass(componentName);
+      classNameContainer = api.getClass(rowsComponentName);
+      update();
+    })
   );
 
   let visibleRows = [];
@@ -92,24 +131,31 @@ export default function ListColumn(vido, props) {
     visibleRows.forEach(row => row.destroy());
   });
 
-  const ListColumnHeader = createComponent(ListColumnHeaderComponent, { columnId: props.columnId });
-  onDestroy(ListColumnHeader.destroy);
-
   function getRowHtml(row) {
     return row.html();
   }
-  const componentActionsProps = { column, state: state, api: api };
-  const rowActionsProps = { api, state };
+
+  componentActions.push(element => {
+    state.update('_internal.elements.list-columns', elements => {
+      if (typeof elements === 'undefined') {
+        elements = [];
+      }
+      if (!elements.includes(element)) {
+        elements.push(element);
+      }
+      return elements;
+    });
+  });
+
+  const headerActions = Actions.create(componentActions, { column, state: state, api: api });
+  const rowActions = Actions.create(rowsActions, { api, state });
+
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, componentActionsProps)} style=${widthStyleMap}>
+        <div class=${className} data-actions=${headerActions} style=${widthStyleMap}>
           ${ListColumnHeader.html()}
-          <div
-            class=${classNameContainer}
-            style=${containerStyleMap}
-            data-actions=${actions(rowsActions, rowActionsProps)}
-          >
+          <div class=${classNameContainer} style=${containerStyleMap} data-actions=${rowActions}>
             <div class=${classNameContainer + '--scroll-compensation'} style=${scrollCompensationStyleMap}>
               ${visibleRows.map(getRowHtml)}
             </div>

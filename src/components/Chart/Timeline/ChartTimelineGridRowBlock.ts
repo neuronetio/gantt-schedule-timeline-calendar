@@ -45,9 +45,9 @@ interface Props {
 }
 
 const ChartTimelineGridRowBlock = (vido, props: Props) => {
-  const { api, state, onDestroy, actions, update, html, onChange, StyleMap } = vido;
+  const { api, state, onDestroy, Actions, update, html, onChange, StyleMap } = vido;
   const componentName = 'chart-timeline-grid-row-block';
-  let actionProps = {
+  const actionProps = {
     ...props,
     api,
     state
@@ -85,7 +85,9 @@ const ChartTimelineGridRowBlock = (vido, props: Props) => {
       return update();
     }
     props = changedProps;
-    actionProps = { ...props, api, state };
+    for (const prop in props) {
+      actionProps[prop] = props[prop];
+    }
     updateClassName(props.time);
     styleMap.style = {};
     styleMap.style.width = props.time.width + 'px';
@@ -101,13 +103,14 @@ const ChartTimelineGridRowBlock = (vido, props: Props) => {
     update();
   }
   onChange(onPropsChange);
-  if (componentActions.indexOf(bindElementAction) === -1) {
+  if (!componentActions.includes(bindElementAction)) {
     componentActions.push(bindElementAction);
   }
+  const actions = Actions.create(componentActions, actionProps);
   return templateProps => {
     return wrapper(
       html`
-        <div class=${className} data-actions=${actions(componentActions, actionProps)} style=${styleMap}>
+        <div class=${className} data-actions=${actions} style=${styleMap}>
           <div class=${classNameContent} />
         </div>
       `,

@@ -9,7 +9,7 @@
  */
 
 export default function ChartTimelineItems(vido, props = {}) {
-  const { api, state, onDestroy, actions, update, html, reuseComponents, StyleMap } = vido;
+  const { api, state, onDestroy, Actions, update, html, reuseComponents, StyleMap } = vido;
   const componentName = 'chart-timeline-items';
   const componentActions = api.getActions(componentName);
   let wrapper;
@@ -54,11 +54,12 @@ export default function ChartTimelineItems(vido, props = {}) {
     rowsComponents.forEach(row => row.destroy());
   });
 
-  const actionProps = { api, state };
+  const actions = Actions.create(componentActions, { api, state });
+
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} style=${styleMap} data-actions=${actions(componentActions, actionProps)}>
+        <div class=${className} style=${styleMap} data-actions=${actions}>
           ${rowsComponents.map(r => r.html())}
         </div>
       `,
