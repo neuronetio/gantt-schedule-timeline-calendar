@@ -48,9 +48,7 @@ export default function ListColumn(vido, props) {
     const height = state.get('_internal.height');
     widthStyleMap.style.width = width + 'px';
     widthStyleMap.style['--width'] = width + 'px';
-    containerStyleMap.style.width = width + 'px';
     containerStyleMap.style.height = height + 'px';
-    scrollCompensationStyleMap.style.width = width + 'px';
     scrollCompensationStyleMap.style.height = height + Math.abs(compensation) + 'px';
     scrollCompensationStyleMap.style.transform = `translate(0px, ${compensation}px)`;
   }

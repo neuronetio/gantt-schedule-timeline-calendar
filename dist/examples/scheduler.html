@@ -21,9 +21,6 @@
     <link rel="stylesheet" href="../style.css" title="gstc" />
     <style title="gstc">
       .gantt-schedule-timeline-calendar__chart-timeline-items-row-item {
-        line-height: calc(var(--row-height) - 10px);
-      }
-      .gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content {
         border-radius: 10px;
         border: none;
         background: #f75c4c;
@@ -31,7 +28,7 @@
         /*border: 1px solid #e74c3c;*/
       }
       .gantt-schedule-timeline-calendar__chart-timeline-items-row-item--row_2-item_2
-        .gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content {
+        .gantt-schedule-timeline-calendar__chart-timeline-items-row-item {
         background: #f39c12;
         border: 1px solid #f1892d;
       }
@@ -219,7 +216,7 @@
        */
       class GridBlockAction {
         constructor(element, data) {
-          const content = element.firstElementChild;
+          const content = element;
           // on create
           content.insertAdjacentHTML('beforeend', '<div class="dolar-bg-content">$</div>');
           const bg = (this.bg = content.querySelector('.dolar-bg-content'));
@@ -266,19 +263,19 @@
 
       let config = {
         plugins: [
-          ItemHold({
-            time: 1000,
-            movementThreshold: 2,
-            action(element, item) {
-              alert(`item ${item.label} holded for 1s!`);
-            }
-          }),
           ItemMovement({
             moveable: true,
             resizeable: true,
             collisionDetection: true,
             snapStart,
             snapEnd
+          }),
+          ItemHold({
+            time: 1000,
+            movementThreshold: 2,
+            action(element, item) {
+              alert(`item ${item.label} holded for 1s!`);
+            }
           }),
           SaveAsImage(),
           Selection({

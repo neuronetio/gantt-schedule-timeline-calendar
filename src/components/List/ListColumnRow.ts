@@ -26,9 +26,23 @@ function saveElement(element, data) {
 }
 
 export default function ListColumnRow(vido, props) {
-  const { api, state, onDestroy, Actions, update, html, createComponent, onChange, StyleMap, unsafeHTML } = vido;
+  const {
+    api,
+    state,
+    onDestroy,
+    Detach,
+    Actions,
+    update,
+    html,
+    createComponent,
+    onChange,
+    StyleMap,
+    unsafeHTML
+  } = vido;
 
   const actionProps = { ...props, api, state };
+  let shouldDetach = false;
+  const detach = new Detach(() => shouldDetach);
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListColumnRow', value => (wrapper = value)));
@@ -43,8 +57,6 @@ export default function ListColumnRow(vido, props) {
   let styleMap = new StyleMap(
     column.expander
       ? {
-          opacity: '1',
-          pointerEvents: 'auto',
           height: '',
           width: '',
           top: '',
@@ -53,24 +65,23 @@ export default function ListColumnRow(vido, props) {
           '--expander-size': ''
         }
       : {
-          opacity: '1',
-          pointerEvents: 'auto',
           height: '',
           width: '',
           top: '',
           '--height': ''
-        }
+        },
+    true
   );
   let rowSub, colSub;
   const ListExpander = createComponent(ListExpanderComponent, { row });
 
   const onPropsChange = (changedProps, options) => {
     if (options.leave) {
-      styleMap.style.opacity = '0';
-      styleMap.style.pointerEvents = 'none';
+      shouldDetach = true;
       update();
       return;
     }
+    shouldDetach = false;
     props = changedProps;
     for (const prop in props) {
       actionProps[prop] = props[prop];
@@ -90,10 +101,9 @@ export default function ListColumnRow(vido, props) {
       const expander = state.get('config.list.expander');
       // @ts-ignore
       styleMap.style = {}; // we must reset style because of user specified styling
-      styleMap.style['opacity'] = '1';
-      styleMap.style['pointerEvents'] = 'auto';
       styleMap.style['height'] = row.height + 'px';
       styleMap.style['--height'] = row.height + 'px';
+      styleMap.style['width'] = column.width + 'px';
       if (column.expander) {
         styleMap.style['--expander-padding-width'] = expander.padding * (row._internal.parents.length + 1) + 'px';
       }
@@ -164,7 +174,7 @@ export default function ListColumnRow(vido, props) {
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} style=${styleMap} data-actions=${actions}>
+        <div detach=${detach} class=${className} style=${styleMap} data-actions=${actions}>
           ${column.expander ? ListExpander.html() : null}
           <div class=${className + '-content'}>
             ${column.isHTML ? getHtml() : getText()}

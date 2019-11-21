@@ -492,14 +492,14 @@ export default function Selection(options: Options = {}) {
   /**
    * Update selection
    * @param {any} data
-   * @param {Element} element
+   * @param {HTMLElement} element
    * @param {string[]} selecting
    * @param {string[]} selected
    * @param {string} classNameSelecting
    * @param {string} classNameSelected
    */
   function updateSelection(
-    element: Element,
+    element: HTMLElement,
     selecting: string[],
     selected: string[],
     classNameSelecting: string,
@@ -519,7 +519,7 @@ export default function Selection(options: Options = {}) {
 
   /**
    * Grid row block action
-   * @param {Element} element
+   * @param {HTMLElement} element
    * @param {object} data
    * @returns {object} with update and destroy functions
    */
@@ -527,13 +527,13 @@ export default function Selection(options: Options = {}) {
     classNameSelecting: string;
     classNameSelected: string;
 
-    constructor(element: Element, data: any) {
+    constructor(element: HTMLElement, data: any) {
       this.classNameSelecting = api.getClass('chart-timeline-grid-row-block') + '--selecting';
       this.classNameSelected = api.getClass('chart-timeline-grid-row-block') + '--selected';
       updateSelection(element, data.selecting, data.selected, this.classNameSelecting, this.classNameSelected);
     }
 
-    update(element: Element, data: any) {
+    update(element: HTMLElement, data: any) {
       updateSelection(element, data.selecting, data.selected, this.classNameSelecting, this.classNameSelected);
     }
 
@@ -553,7 +553,7 @@ export default function Selection(options: Options = {}) {
     classNameSelecting: string;
     classNameSelected: string;
 
-    constructor(element: Element, data: any) {
+    constructor(element: HTMLElement, data: any) {
       this.classNameSelecting = api.getClass('chart-timeline-items-row-item') + '--selecting';
       this.classNameSelected = api.getClass('chart-timeline-items-row-item') + '--selected';
       updateSelection(
@@ -565,7 +565,7 @@ export default function Selection(options: Options = {}) {
       );
     }
 
-    update(element: Element, data: any) {
+    update(element: HTMLElement, data: any) {
       updateSelection(
         element,
         data.item.selecting,
@@ -575,7 +575,7 @@ export default function Selection(options: Options = {}) {
       );
     }
 
-    destroy(element: Element, data: any) {
+    destroy(element: HTMLElement, data: any) {
       element.classList.remove(this.classNameSelecting);
       element.classList.remove(this.classNameSelected);
     }
@@ -595,6 +595,7 @@ export default function Selection(options: Options = {}) {
       }
     }
     block.selected = false;
+    block.selecting = false;
     return block;
   }
 

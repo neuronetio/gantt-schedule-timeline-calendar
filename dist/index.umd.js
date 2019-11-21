@@ -2569,19 +2569,30 @@
         vido.prototype.until = until;
         vido.prototype.schedule = schedule;
         vido.prototype.actionsByInstance = (componentActions, props) => { };
+        const toRemove = [], toUpdate = [];
         class StyleMap extends Directive {
-            constructor(styleInfo) {
+            constructor(styleInfo, detach = false) {
                 super();
                 this.previous = {};
                 this.style = styleInfo;
+                this.detach = detach;
+            }
+            setStyle(styleInfo) {
+                this.style = styleInfo;
+            }
+            setDetach(detach) {
+                this.detach = detach;
             }
             body(part) {
+                toRemove.length = 0;
+                toUpdate.length = 0;
                 // @ts-ignore
-                const style = part.committer.element.style;
+                const element = part.committer.element;
+                const style = element.style;
                 let previous = this.previous;
                 for (const name in previous) {
                     if (this.style[name] === undefined) {
-                        style.removeProperty(name);
+                        toRemove.push(name);
                     }
                 }
                 for (const name in this.style) {
@@ -2590,17 +2601,63 @@
                     if (prev !== undefined && prev === value) {
                         continue;
                     }
-                    if (!name.includes('-')) {
-                        style[name] = value;
-                    }
-                    else {
-                        style.setProperty(name, value);
-                    }
+                    toUpdate.push(name);
                 }
-                this.previous = Object.assign({}, this.style);
+                if (toRemove.length || toUpdate.length) {
+                    let parent, nextSibling;
+                    if (this.detach) {
+                        parent = element.parentNode;
+                        if (parent) {
+                            nextSibling = element.nextSibling;
+                            element.remove();
+                        }
+                    }
+                    for (const name of toRemove) {
+                        style.removeProperty(name);
+                    }
+                    for (const name of toUpdate) {
+                        const value = this.style[name];
+                        if (!name.includes('-')) {
+                            style[name] = value;
+                        }
+                        else {
+                            style.setProperty(name, value);
+                        }
+                    }
+                    if (this.detach && parent) {
+                        parent.insertBefore(element, nextSibling);
+                    }
+                    this.previous = Object.assign({}, this.style);
+                }
             }
         }
         vido.prototype.StyleMap = StyleMap;
+        const detached = new WeakMap();
+        class Detach extends Directive {
+            constructor(ifFn) {
+                super();
+                this.ifFn = ifFn;
+            }
+            body(part) {
+                const detach = this.ifFn();
+                const element = part.committer.element;
+                if (detach) {
+                    if (!detached.has(part)) {
+                        const nextSibling = element.nextSibling;
+                        detached.set(part, { element, nextSibling });
+                    }
+                    element.remove();
+                }
+                else {
+                    const data = detached.get(part);
+                    if (typeof data !== 'undefined' && data !== null) {
+                        data.nextSibling.parentNode.insertBefore(data.element, data.nextSibling);
+                        detached.delete(part);
+                    }
+                }
+            }
+        }
+        vido.prototype.Detach = Detach;
         vido.prototype.onDestroy = function onDestroy(fn) {
             this.destroyable.push(fn);
         };
@@ -4428,9 +4485,7 @@
             const height = state.get('_internal.height');
             widthStyleMap.style.width = width + 'px';
             widthStyleMap.style['--width'] = width + 'px';
-            containerStyleMap.style.width = width + 'px';
             containerStyleMap.style.height = height + 'px';
-            scrollCompensationStyleMap.style.width = width + 'px';
             scrollCompensationStyleMap.style.height = height + Math.abs(compensation) + 'px';
             scrollCompensationStyleMap.style.transform = `translate(0px, ${compensation}px)`;
         }
@@ -4738,8 +4793,10 @@
         });
     }
     function ListColumnRow(vido, props) {
-        const { api, state, onDestroy, Actions, update, html, createComponent, onChange, StyleMap, unsafeHTML } = vido;
+        const { api, state, onDestroy, Detach, Actions, update, html, createComponent, onChange, StyleMap, unsafeHTML } = vido;
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
+        let shouldDetach = false;
+        const detach = new Detach(() => shouldDetach);
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListColumnRow', value => (wrapper = value)));
         let ListExpanderComponent;
@@ -4748,8 +4805,6 @@
         let colPath = `config.list.columns.data.${props.columnId}`, column = state.get(colPath);
         let styleMap = new StyleMap(column.expander
             ? {
-                opacity: '1',
-                pointerEvents: 'auto',
                 height: '',
                 width: '',
                 top: '',
@@ -4758,22 +4813,20 @@
                 '--expander-size': ''
             }
             : {
-                opacity: '1',
-                pointerEvents: 'auto',
                 height: '',
                 width: '',
                 top: '',
                 '--height': ''
-            });
+            }, true);
         let rowSub, colSub;
         const ListExpander = createComponent(ListExpanderComponent, { row });
         const onPropsChange = (changedProps, options) => {
             if (options.leave) {
-                styleMap.style.opacity = '0';
-                styleMap.style.pointerEvents = 'none';
+                shouldDetach = true;
                 update();
                 return;
             }
+            shouldDetach = false;
             props = changedProps;
             for (const prop in props) {
                 actionProps[prop] = props[prop];
@@ -4793,10 +4846,9 @@
                 const expander = state.get('config.list.expander');
                 // @ts-ignore
                 styleMap.style = {}; // we must reset style because of user specified styling
-                styleMap.style['opacity'] = '1';
-                styleMap.style['pointerEvents'] = 'auto';
                 styleMap.style['height'] = row.height + 'px';
                 styleMap.style['--height'] = row.height + 'px';
+                styleMap.style['width'] = column.width + 'px';
                 if (column.expander) {
                     styleMap.style['--expander-padding-width'] = expander.padding * (row._internal.parents.length + 1) + 'px';
                 }
@@ -4857,7 +4909,7 @@
             componentActions.push();
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
-        <div class=${className} style=${styleMap} data-actions=${actions}>
+        <div detach=${detach} class=${className} style=${styleMap} data-actions=${actions}>
           ${column.expander ? ListExpander.html() : null}
           <div class=${className + '-content'}>
             ${column.isHTML ? getHtml() : getText()}
@@ -5574,23 +5626,37 @@
         }));
         let styleMap = new StyleMap({}), innerStyleMap = new StyleMap({});
         function calculateStyle() {
-            const compensation = state.get('config.scroll.compensation');
+            const periodDates = state.get(`_internal.chart.time.dates.day`);
+            if (!periodDates || periodDates.length === 0) {
+                return;
+            }
+            const xCompensation = periodDates[0].subPx;
+            const yCompensation = state.get('config.scroll.compensation');
             const width = state.get('_internal.chart.dimensions.width');
             const height = state.get('_internal.list.rowsHeight');
             styleMap.style.height = state.get('_internal.height') + 'px';
-            if (width)
+            if (width) {
                 styleMap.style.width = width + 'px';
+            }
+            else {
+                styleMap.style.width = '0px';
+            }
             innerStyleMap.style.height = height + 'px';
-            if (width)
+            if (width) {
                 innerStyleMap.style.width = width + 'px';
-            innerStyleMap.style.transform = `translate(0px, ${compensation}px)`;
+            }
+            else {
+                innerStyleMap.style.width = '0px';
+            }
+            innerStyleMap.style.transform = `translate(${xCompensation}px, ${yCompensation}px)`;
             update();
         }
         onDestroy(state.subscribeAll([
             '_internal.height',
             '_internal.chart.dimensions.width',
             '_internal.list.rowsHeight',
-            'config.scroll.compensation'
+            'config.scroll.compensation',
+            '_internal.chart.time.dates.day'
         ], calculateStyle));
         componentActions.push(element => {
             state.update('_internal.elements.chart-timeline', element);
@@ -5646,11 +5712,9 @@
             if (!periodDates || periodDates.length === 0) {
                 return;
             }
-            const xCompensation = periodDates[0].subPx;
             const yCompensation = state.get('config.scroll.compensation');
             styleMap.style.height = height + Math.abs(yCompensation) + 'px';
             styleMap.style.width = width + 'px';
-            styleMap.style.transform = `translate(-${xCompensation}px, 0px)`;
             let top = 0;
             rowsWithBlocks.length = 0;
             for (const row of visibleRows) {
@@ -5749,7 +5813,7 @@
         };
     }
     function ChartTimelineGridRow(vido, props) {
-        const { api, state, onDestroy, Actions, update, html, reuseComponents, onChange, StyleMap } = vido;
+        const { api, state, onDestroy, Detach, Actions, update, html, reuseComponents, onChange, StyleMap } = vido;
         const componentName = 'chart-timeline-grid-row';
         const actionProps = Object.assign(Object.assign({}, props), { api,
             state });
@@ -5764,26 +5828,24 @@
         let styleMap = new StyleMap({
             width: props.width + 'px',
             height: props.row.height + 'px',
-            opacity: '1',
-            pointerEvents: 'all',
             overflow: 'hidden'
-        });
+        }, true);
+        let shouldDetach = false;
+        const detach = new Detach(() => shouldDetach);
         let rowsBlocksComponents = [];
         const onPropsChange = (changedProps, options) => {
             var _a, _b, _c, _d, _e, _f, _g;
             if (options.leave) {
-                styleMap.style.opacity = '0';
-                styleMap.style.pointerEvents = 'none';
+                shouldDetach = true;
                 update();
                 return;
             }
+            shouldDetach = false;
             props = changedProps;
             reuseComponents(rowsBlocksComponents, props.blocks, block => block, GridBlockComponent);
             //const compensation = state.get('config.scroll.compensation');
             // @ts-ignore
-            styleMap.style = {};
-            styleMap.style.opacity = '1';
-            styleMap.style.pointerEvents = 'all';
+            styleMap.setStyle({});
             styleMap.style.height = props.row.height + 'px';
             styleMap.style.width = props.width + 'px';
             //styleMap.style.top = props.top + compensation + 'px';
@@ -5792,11 +5854,15 @@
                 const parent = rows[parentId];
                 const childrenStyle = (_c = (_b = (_a = parent.style) === null || _a === void 0 ? void 0 : _a.grid) === null || _b === void 0 ? void 0 : _b.row) === null || _c === void 0 ? void 0 : _c.children;
                 if (childrenStyle)
-                    styleMap.style = Object.assign(Object.assign({}, styleMap.style), childrenStyle);
+                    for (const name in childrenStyle) {
+                        styleMap.style[name] = childrenStyle[name];
+                    }
             }
             const currentStyle = (_g = (_f = (_e = (_d = props.row) === null || _d === void 0 ? void 0 : _d.style) === null || _e === void 0 ? void 0 : _e.grid) === null || _f === void 0 ? void 0 : _f.row) === null || _g === void 0 ? void 0 : _g.current;
             if (currentStyle)
-                styleMap.style = Object.assign(Object.assign({}, styleMap.style), currentStyle);
+                for (const name in currentStyle) {
+                    styleMap.style[name] = currentStyle[name];
+                }
             for (const prop in props) {
                 actionProps[prop] = props[prop];
             }
@@ -5812,7 +5878,7 @@
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => {
             return wrapper(html `
-        <div class=${className} data-actions=${actions} style=${styleMap}>
+        <div detach=${detach} class=${className} data-actions=${actions} style=${styleMap}>
           ${rowsBlocksComponents.map(r => r.html())}
         </div>
       `, { vido, props, templateProps });
@@ -5849,10 +5915,12 @@
         };
     };
     const ChartTimelineGridRowBlock = (vido, props) => {
-        const { api, state, onDestroy, Actions, update, html, onChange, StyleMap } = vido;
+        const { api, state, onDestroy, Detach, Actions, update, html, onChange, StyleMap } = vido;
         const componentName = 'chart-timeline-grid-row-block';
         const actionProps = Object.assign(Object.assign({}, props), { api,
             state });
+        let shouldDetach = false;
+        const detach = new Detach(() => shouldDetach);
         const componentActions = api.getActions(componentName);
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineGridRowBlock', value => {
@@ -5863,10 +5931,9 @@
             .date()
             .startOf('day')
             .valueOf();
-        let className, classNameContent;
+        let className;
         function updateClassName(time) {
             className = api.getClass(componentName);
-            classNameContent = className + '-content';
             if (time.leftGlobal === currentTime) {
                 className += ' current';
             }
@@ -5880,14 +5947,16 @@
         function onPropsChange(changedProps, options) {
             var _a, _b, _c, _d, _e, _f, _g;
             if (options.leave) {
+                shouldDetach = true;
                 return update();
             }
+            shouldDetach = false;
             props = changedProps;
             for (const prop in props) {
                 actionProps[prop] = props[prop];
             }
             updateClassName(props.time);
-            styleMap.style = {};
+            styleMap.setStyle({});
             styleMap.style.width = props.time.width + 'px';
             styleMap.style.height = props.row.height + 'px';
             const rows = state.get('config.list.rows');
@@ -5895,23 +5964,21 @@
                 const parent = rows[parentId];
                 const childrenStyle = (_c = (_b = (_a = parent.style) === null || _a === void 0 ? void 0 : _a.grid) === null || _b === void 0 ? void 0 : _b.block) === null || _c === void 0 ? void 0 : _c.children;
                 if (childrenStyle)
-                    styleMap.style = Object.assign(Object.assign({}, styleMap.style), childrenStyle);
+                    styleMap.setStyle(Object.assign(Object.assign({}, styleMap.style), childrenStyle));
             }
             const currentStyle = (_g = (_f = (_e = (_d = props.row) === null || _d === void 0 ? void 0 : _d.style) === null || _e === void 0 ? void 0 : _e.grid) === null || _f === void 0 ? void 0 : _f.block) === null || _g === void 0 ? void 0 : _g.current;
             if (currentStyle)
-                styleMap.style = Object.assign(Object.assign({}, styleMap.style), currentStyle);
+                styleMap.setStyle(Object.assign(Object.assign({}, styleMap.style), currentStyle));
             update();
         }
         onChange(onPropsChange);
-        if (componentActions.indexOf(bindElementAction$1) === -1) {
+        if (!componentActions.includes(bindElementAction$1)) {
             componentActions.push(bindElementAction$1);
         }
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => {
             return wrapper(html `
-        <div class=${className} data-actions=${actions} style=${styleMap}>
-          <div class=${classNameContent} />
-        </div>
+        <div detach=${detach} class=${className} data-actions=${actions} style=${styleMap}></div>
       `, { props, vido, templateProps });
         };
     };
@@ -5937,7 +6004,7 @@
             className = api.getClass(componentName);
             update();
         }));
-        let styleMap = new StyleMap({});
+        let styleMap = new StyleMap({}, true);
         const calculateStyle = () => {
             const width = state.get('_internal.chart.dimensions.width');
             const height = state.get('_internal.height');
@@ -5999,24 +6066,24 @@
         };
     };
     const ChartTimelineItemsRow = (vido, props) => {
-        const { api, state, onDestroy, Actions, update, html, onChange, reuseComponents, StyleMap } = vido;
+        const { api, state, onDestroy, Detach, Actions, update, html, onChange, reuseComponents, StyleMap } = vido;
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRow', value => (wrapper = value)));
         const ItemComponent = state.get('config.components.ChartTimelineItemsRowItem');
         let itemsPath = `_internal.flatTreeMapById.${props.row.id}._internal.items`;
         let rowSub, itemsSub;
-        let styleMap = new StyleMap({ opacity: '1', pointerEvents: 'auto', width: '', height: '' });
+        let styleMap = new StyleMap({ width: '', height: '' }, true);
         let itemComponents = [];
+        let shouldDetach = false;
+        const detach = new Detach(() => shouldDetach);
         const updateDom = () => {
             const chart = state.get('_internal.chart');
             //const compensation = state.get('config.scroll.compensation');
-            styleMap.style.opacity = '1';
-            styleMap.style.pointerEvents = 'auto';
+            shouldDetach = false;
             styleMap.style.width = chart.dimensions.width + 'px';
             if (!props) {
-                styleMap.style.opacity = '0';
-                styleMap.style.pointerEvents = 'none';
+                shouldDetach = true;
                 return;
             }
             styleMap.style.height = props.row.height + 'px';
@@ -6075,7 +6142,7 @@
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => {
             return wrapper(html `
-        <div class=${className} data-actions=${actions} style=${styleMap}>
+        <div detach=${detach} class=${className} data-actions=${actions} style=${styleMap}>
           ${itemComponents.map(i => i.html())}
         </div>
       `, { props, vido, templateProps });
@@ -6111,10 +6178,10 @@
         }
     }
     function ChartTimelineItemsRowItem(vido, props) {
-        const { api, state, onDestroy, Actions, update, html, onChange, unsafeHTML, StyleMap } = vido;
+        const { api, state, onDestroy, Detach, Actions, update, html, onChange, unsafeHTML, StyleMap } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
-        let styleMap = new StyleMap({ width: '', height: '', left: '', opacity: '1', pointerEvents: 'auto' }), contentStyleMap = new StyleMap({ width: '', height: '' }), itemLeftPx = 0, itemWidthPx = 0, leave = false;
+        let styleMap = new StyleMap({ width: '', height: '', left: '' }), itemLeftPx = 0, itemWidthPx = 0, leave = false;
         const actionProps = {
             item: props.item,
             row: props.row,
@@ -6123,6 +6190,7 @@
             api,
             state
         };
+        let shouldDetach = false;
         function updateItem() {
             var _a, _b, _c, _d, _e, _f, _g, _h;
             if (leave)
@@ -6136,51 +6204,42 @@
                 itemWidthPx = Math.round(itemWidthPx * 10) * 0.1;
             }
             const oldWidth = styleMap.style.width;
-            const oldHeight = styleMap.style.height;
-            //const oldTransform = styleMap.style.transform;
             const oldLeft = styleMap.style.left;
-            styleMap.style = {};
+            styleMap.setStyle({});
             const inViewPort = api.isItemInViewport(props.item, time.leftGlobal, time.rightGlobal);
-            styleMap.style.opacity = inViewPort ? '1' : '0';
-            styleMap.style.pointerEvents = inViewPort ? 'auto' : 'none';
+            shouldDetach = !inViewPort;
             if (inViewPort) {
                 // update style only when visible to prevent browser's recalculate style
                 styleMap.style.width = itemWidthPx + 'px';
-                styleMap.style.height = props.row.height + 'px';
-                //styleMap.style.transform = `translate(${itemLeftPx}px, 0px)`;
                 styleMap.style.left = itemLeftPx + 'px';
             }
             else {
                 styleMap.style.width = oldWidth;
-                styleMap.style.height = oldHeight;
                 styleMap.style.left = oldLeft;
-                //styleMap.style.transform = oldTransform;
             }
-            // @ts-ignore
-            contentStyleMap.style = { width: itemWidthPx + 'px', 'max-height': props.row.height + 'px' };
             const rows = state.get('config.list.rows');
             for (const parentId of props.row._internal.parents) {
                 const parent = rows[parentId];
                 const childrenStyle = (_c = (_b = (_a = parent.style) === null || _a === void 0 ? void 0 : _a.items) === null || _b === void 0 ? void 0 : _b.item) === null || _c === void 0 ? void 0 : _c.children;
                 if (childrenStyle)
-                    contentStyleMap.style = Object.assign(Object.assign({}, contentStyleMap.style), childrenStyle);
+                    styleMap.setStyle(Object.assign(Object.assign({}, styleMap.style), childrenStyle));
             }
             const currentRowItemsStyle = (_g = (_f = (_e = (_d = props.row) === null || _d === void 0 ? void 0 : _d.style) === null || _e === void 0 ? void 0 : _e.items) === null || _f === void 0 ? void 0 : _f.item) === null || _g === void 0 ? void 0 : _g.current;
             if (currentRowItemsStyle)
-                contentStyleMap.style = Object.assign(Object.assign({}, contentStyleMap), currentRowItemsStyle);
+                styleMap.setStyle(Object.assign(Object.assign({}, styleMap.style), currentRowItemsStyle));
             const currentStyle = (_h = props.item) === null || _h === void 0 ? void 0 : _h.style;
             if (currentStyle)
-                contentStyleMap.style = Object.assign(Object.assign({}, contentStyleMap.style), currentStyle);
+                styleMap.setStyle(Object.assign(Object.assign({}, styleMap.style), currentStyle));
             update();
         }
         function onPropsChange(changedProps, options) {
             if (options.leave) {
                 leave = true;
-                styleMap.style.opacity = '0';
-                styleMap.style.pointerEvents = 'none';
+                shouldDetach = true;
                 return update();
             }
             else {
+                shouldDetach = false;
                 leave = false;
             }
             props = changedProps;
@@ -6193,11 +6252,10 @@
         onChange(onPropsChange);
         const componentName = 'chart-timeline-items-row-item';
         const componentActions = api.getActions(componentName);
-        let className, contentClassName, labelClassName;
+        let className, labelClassName;
         onDestroy(state.subscribe('config.classNames', () => {
             className = api.getClass(componentName, props);
-            contentClassName = api.getClass(componentName + '-content', props);
-            labelClassName = api.getClass(componentName + '-content-label', props);
+            labelClassName = api.getClass(componentName + '-label', props);
             update();
         }));
         onDestroy(state.subscribe('_internal.chart.time', bulk => {
@@ -6207,13 +6265,12 @@
             componentActions.push(BindElementAction);
         }
         const actions = Actions.create(componentActions, actionProps);
+        const detach = new Detach(() => shouldDetach);
         return templateProps => {
             return wrapper(html `
-        <div class=${className} data-actions=${actions} style=${styleMap}>
-          <div class=${contentClassName} style=${contentStyleMap}>
-            <div class=${labelClassName}>
-              ${props.item.isHtml ? unsafeHTML(props.item.label) : props.item.label}
-            </div>
+        <div detach=${detach} class=${className} data-actions=${actions} style=${styleMap}>
+          <div class=${labelClassName}>
+            ${props.item.isHtml ? unsafeHTML(props.item.label) : props.item.label}
           </div>
         </div>
       `, { vido, props, templateProps });

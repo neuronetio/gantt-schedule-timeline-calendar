@@ -22,14 +22,8 @@ function ItemHold(options = {}) {
             setTimeout(() => {
                 if (typeof holding[item.id] !== 'undefined') {
                     let exec = true;
-                    let xMovement = holding[item.id].x - mouse.x;
-                    if (Math.sign(xMovement) === -1) {
-                        xMovement = -xMovement;
-                    }
-                    let yMovement = holding[item.id].y - mouse.y;
-                    if (Math.sign(yMovement) === -1) {
-                        yMovement = -yMovement;
-                    }
+                    const xMovement = Math.abs(holding[item.id].x - mouse.x);
+                    const yMovement = Math.abs(holding[item.id].y - mouse.y);
                     if (xMovement > options.movementThreshold) {
                         exec = false;
                     }
@@ -111,11 +105,10 @@ function ItemMovement(options = {}) {
     /**
      * Add moving functionality to items as action
      *
-     * @param {Element} node DOM Node
+     * @param {HTMLElement} node DOM Node
      * @param {Object} data
      */
-    function action(node, data) {
-        let element = node.querySelector('.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content');
+    function action(element, data) {
         if (!options.moveable && !options.resizeable) {
             return;
         }
@@ -152,16 +145,17 @@ function ItemMovement(options = {}) {
             }
             const ghost = element.cloneNode(true);
             const style = getComputedStyle(element);
+            const compensation = state.get('config.scroll.compensation');
             ghost.style.position = 'absolute';
             ghost.style.left = ev.x - ganttLeft - movement.itemLeftCompensation + 'px';
-            const itemTop = ev.y - ganttTop - data.row.top - element.offsetTop;
+            const itemTop = ev.y - ganttTop - element.offsetTop - compensation + parseInt(style['margin-top']);
             movement.itemTop = itemTop;
             ghost.style.top = ev.y - ganttTop - itemTop + 'px';
             ghost.style.width = style.width;
             ghost.style['box-shadow'] = '10px 10px 6px #00000020';
             const height = element.clientHeight + 'px';
             ghost.style.height = height;
-            ghost.style['line-height'] = height;
+            ghost.style['line-height'] = element.clientHeight - 18 + 'px';
             ghost.style.opacity = '0.6';
             ghost.style.transform = 'scale(1.05, 1.05)';
             state.get('_internal.elements.chart-timeline').appendChild(ghost);
@@ -172,9 +166,9 @@ function ItemMovement(options = {}) {
             if (options.ghostNode) {
                 const movement = getMovement(data);
                 const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
-                const compensation = state.get('config.scroll.compensation');
                 movement.ghost.style.left = left + 'px';
-                movement.ghost.style.top = ev.y - movement.ganttTop - movement.itemTop + compensation + 'px';
+                movement.ghost.style.top =
+                    ev.y - movement.ganttTop - movement.itemTop + parseInt(getComputedStyle(element)['margin-top']) + 'px';
             }
         }
         function destroyGhost(itemId) {
@@ -202,10 +196,10 @@ function ItemMovement(options = {}) {
         }
         state = data.state;
         api = data.api;
-        const resizerHTML = `<div class="${api.getClass('chart-timeline-items-row-item-content-resizer')}">${options.resizerContent}</div>`;
+        const resizerHTML = `<div class="${api.getClass('chart-timeline-items-row-item-resizer')}">${options.resizerContent}</div>`;
         // @ts-ignore
         element.insertAdjacentHTML('beforeend', resizerHTML);
-        const resizerEl = element.querySelector('.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content-resizer');
+        const resizerEl = element.querySelector('.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-resizer');
         if (!isResizeable(data)) {
             resizerEl.style.visibility = 'hidden';
         }
@@ -217,8 +211,6 @@ function ItemMovement(options = {}) {
             if (ev.button !== 0) {
                 return;
             }
-            // @ts-ignore
-            element = node.querySelector('.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-content');
             const movement = getMovement(data);
             movement.moving = true;
             const item = state.get(`config.chart.items.${data.item.id}`);
@@ -279,7 +271,6 @@ function ItemMovement(options = {}) {
             return false;
         }
         function movementX(ev, row, item, zoom, timePerPixel) {
-            ev.stopPropagation();
             const movement = getMovement(data);
             const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
             moveGhost(data, ev);
@@ -298,7 +289,6 @@ function ItemMovement(options = {}) {
             }
         }
         function resizeX(ev, row, item, zoom, timePerPixel) {
-            ev.stopPropagation();
             if (!isResizeable(data)) {
                 return;
             }
@@ -323,7 +313,6 @@ function ItemMovement(options = {}) {
             }
         }
         function movementY(ev, row, item, zoom, timePerPixel) {
-            ev.stopPropagation();
             moveGhost(data, ev);
             const movement = getMovement(data);
             const top = ev.y - movement.ganttTop;
@@ -345,7 +334,6 @@ function ItemMovement(options = {}) {
             const movement = getMovement(data);
             let item, rowId, row, zoom, timePerPixel;
             if (movement.moving || movement.resizing) {
-                ev.stopPropagation();
                 item = state.get(`config.chart.items.${data.item.id}`);
                 rowId = state.get(`config.chart.items.${data.item.id}.rowId`);
                 row = state.get(`config.list.rows.${rowId}`);
@@ -901,7 +889,7 @@ function Selection(options = {}) {
     /**
      * Update selection
      * @param {any} data
-     * @param {Element} element
+     * @param {HTMLElement} element
      * @param {string[]} selecting
      * @param {string[]} selected
      * @param {string} classNameSelecting
@@ -923,7 +911,7 @@ function Selection(options = {}) {
     }
     /**
      * Grid row block action
-     * @param {Element} element
+     * @param {HTMLElement} element
      * @param {object} data
      * @returns {object} with update and destroy functions
      */
@@ -975,6 +963,7 @@ function Selection(options = {}) {
             }
         }
         block.selected = false;
+        block.selecting = false;
         return block;
     }
     return function initialize(mainVido) {

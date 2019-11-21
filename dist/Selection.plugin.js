@@ -408,7 +408,7 @@
       /**
        * Update selection
        * @param {any} data
-       * @param {Element} element
+       * @param {HTMLElement} element
        * @param {string[]} selecting
        * @param {string[]} selected
        * @param {string} classNameSelecting
@@ -430,7 +430,7 @@
       }
       /**
        * Grid row block action
-       * @param {Element} element
+       * @param {HTMLElement} element
        * @param {object} data
        * @returns {object} with update and destroy functions
        */
@@ -482,6 +482,7 @@
               }
           }
           block.selected = false;
+          block.selecting = false;
           return block;
       }
       return function initialize(mainVido) {

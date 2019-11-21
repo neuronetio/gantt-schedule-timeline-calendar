@@ -45,13 +45,16 @@ interface Props {
 }
 
 const ChartTimelineGridRowBlock = (vido, props: Props) => {
-  const { api, state, onDestroy, Actions, update, html, onChange, StyleMap } = vido;
+  const { api, state, onDestroy, Detach, Actions, update, html, onChange, StyleMap } = vido;
   const componentName = 'chart-timeline-grid-row-block';
   const actionProps = {
     ...props,
     api,
     state
   };
+
+  let shouldDetach = false;
+  const detach = new Detach(() => shouldDetach);
 
   const componentActions = api.getActions(componentName);
   let wrapper;
@@ -82,24 +85,26 @@ const ChartTimelineGridRowBlock = (vido, props: Props) => {
    */
   function onPropsChange(changedProps, options) {
     if (options.leave) {
+      shouldDetach = true;
       return update();
     }
+    shouldDetach = false;
     props = changedProps;
     for (const prop in props) {
       actionProps[prop] = props[prop];
     }
     updateClassName(props.time);
-    styleMap.style = {};
+    styleMap.setStyle({});
     styleMap.style.width = props.time.width + 'px';
     styleMap.style.height = props.row.height + 'px';
     const rows = state.get('config.list.rows');
     for (const parentId of props.row._internal.parents) {
       const parent = rows[parentId];
       const childrenStyle = parent.style?.grid?.block?.children;
-      if (childrenStyle) styleMap.style = { ...styleMap.style, ...childrenStyle };
+      if (childrenStyle) styleMap.setStyle({ ...styleMap.style, ...childrenStyle });
     }
     const currentStyle = props.row?.style?.grid?.block?.current;
-    if (currentStyle) styleMap.style = { ...styleMap.style, ...currentStyle };
+    if (currentStyle) styleMap.setStyle({ ...styleMap.style, ...currentStyle });
     update();
   }
   onChange(onPropsChange);
@@ -110,9 +115,7 @@ const ChartTimelineGridRowBlock = (vido, props: Props) => {
   return templateProps => {
     return wrapper(
       html`
-        <div class=${className} data-actions=${actions} style=${styleMap}>
-          <div class=${classNameContent} />
-        </div>
+        <div detach=${detach} class=${className} data-actions=${actions} style=${styleMap}></div>
       `,
       { props, vido, templateProps }
     );

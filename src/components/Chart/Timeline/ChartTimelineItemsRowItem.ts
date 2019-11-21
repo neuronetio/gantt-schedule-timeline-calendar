@@ -33,11 +33,10 @@ class BindElementAction {
 }
 
 function ChartTimelineItemsRowItem(vido, props) {
-  const { api, state, onDestroy, Actions, update, html, onChange, unsafeHTML, StyleMap } = vido;
+  const { api, state, onDestroy, Detach, Actions, update, html, onChange, unsafeHTML, StyleMap } = vido;
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
-  let styleMap = new StyleMap({ width: '', height: '', left: '', opacity: '1', pointerEvents: 'auto' }),
-    contentStyleMap = new StyleMap({ width: '', height: '' }),
+  let styleMap = new StyleMap({ width: '', height: '', left: '' }),
     itemLeftPx = 0,
     itemWidthPx = 0,
     leave = false;
@@ -49,6 +48,7 @@ function ChartTimelineItemsRowItem(vido, props) {
     api,
     state
   };
+  let shouldDetach = false;
 
   function updateItem() {
     if (leave) return;
@@ -61,47 +61,38 @@ function ChartTimelineItemsRowItem(vido, props) {
       itemWidthPx = Math.round(itemWidthPx * 10) * 0.1;
     }
     const oldWidth = styleMap.style.width;
-    const oldHeight = styleMap.style.height;
-    //const oldTransform = styleMap.style.transform;
     const oldLeft = styleMap.style.left;
-    styleMap.style = {};
+    styleMap.setStyle({});
     const inViewPort = api.isItemInViewport(props.item, time.leftGlobal, time.rightGlobal);
-    styleMap.style.opacity = inViewPort ? '1' : '0';
-    styleMap.style.pointerEvents = inViewPort ? 'auto' : 'none';
+    shouldDetach = !inViewPort;
     if (inViewPort) {
       // update style only when visible to prevent browser's recalculate style
       styleMap.style.width = itemWidthPx + 'px';
-      styleMap.style.height = props.row.height + 'px';
-      //styleMap.style.transform = `translate(${itemLeftPx}px, 0px)`;
       styleMap.style.left = itemLeftPx + 'px';
     } else {
       styleMap.style.width = oldWidth;
-      styleMap.style.height = oldHeight;
       styleMap.style.left = oldLeft;
-      //styleMap.style.transform = oldTransform;
     }
-    // @ts-ignore
-    contentStyleMap.style = { width: itemWidthPx + 'px', 'max-height': props.row.height + 'px' };
     const rows = state.get('config.list.rows');
     for (const parentId of props.row._internal.parents) {
       const parent = rows[parentId];
       const childrenStyle = parent.style?.items?.item?.children;
-      if (childrenStyle) contentStyleMap.style = { ...contentStyleMap.style, ...childrenStyle };
+      if (childrenStyle) styleMap.setStyle({ ...styleMap.style, ...childrenStyle });
     }
     const currentRowItemsStyle = props.row?.style?.items?.item?.current;
-    if (currentRowItemsStyle) contentStyleMap.style = { ...contentStyleMap, ...currentRowItemsStyle };
+    if (currentRowItemsStyle) styleMap.setStyle({ ...styleMap.style, ...currentRowItemsStyle });
     const currentStyle = props.item?.style;
-    if (currentStyle) contentStyleMap.style = { ...contentStyleMap.style, ...currentStyle };
+    if (currentStyle) styleMap.setStyle({ ...styleMap.style, ...currentStyle });
     update();
   }
 
   function onPropsChange(changedProps, options) {
     if (options.leave) {
       leave = true;
-      styleMap.style.opacity = '0';
-      styleMap.style.pointerEvents = 'none';
+      shouldDetach = true;
       return update();
     } else {
+      shouldDetach = false;
       leave = false;
     }
     props = changedProps;
@@ -119,8 +110,7 @@ function ChartTimelineItemsRowItem(vido, props) {
   onDestroy(
     state.subscribe('config.classNames', () => {
       className = api.getClass(componentName, props);
-      contentClassName = api.getClass(componentName + '-content', props);
-      labelClassName = api.getClass(componentName + '-content-label', props);
+      labelClassName = api.getClass(componentName + '-label', props);
       update();
     })
   );
@@ -137,14 +127,14 @@ function ChartTimelineItemsRowItem(vido, props) {
 
   const actions = Actions.create(componentActions, actionProps);
 
+  const detach = new Detach(() => shouldDetach);
+
   return templateProps => {
     return wrapper(
       html`
-        <div class=${className} data-actions=${actions} style=${styleMap}>
-          <div class=${contentClassName} style=${contentStyleMap}>
-            <div class=${labelClassName}>
-              ${props.item.isHtml ? unsafeHTML(props.item.label) : props.item.label}
-            </div>
+        <div detach=${detach} class=${className} data-actions=${actions} style=${styleMap}>
+          <div class=${labelClassName}>
+            ${props.item.isHtml ? unsafeHTML(props.item.label) : props.item.label}
           </div>
         </div>
       `,

@@ -37,14 +37,27 @@ export default function ChartTimeline(vido, props) {
   let styleMap = new StyleMap({}),
     innerStyleMap = new StyleMap({});
   function calculateStyle() {
-    const compensation = state.get('config.scroll.compensation');
+    const periodDates = state.get(`_internal.chart.time.dates.day`);
+    if (!periodDates || periodDates.length === 0) {
+      return;
+    }
+    const xCompensation = periodDates[0].subPx;
+    const yCompensation = state.get('config.scroll.compensation');
     const width = state.get('_internal.chart.dimensions.width');
     const height = state.get('_internal.list.rowsHeight');
     styleMap.style.height = state.get('_internal.height') + 'px';
-    if (width) styleMap.style.width = width + 'px';
+    if (width) {
+      styleMap.style.width = width + 'px';
+    } else {
+      styleMap.style.width = '0px';
+    }
     innerStyleMap.style.height = height + 'px';
-    if (width) innerStyleMap.style.width = width + 'px';
-    innerStyleMap.style.transform = `translate(0px, ${compensation}px)`;
+    if (width) {
+      innerStyleMap.style.width = width + 'px';
+    } else {
+      innerStyleMap.style.width = '0px';
+    }
+    innerStyleMap.style.transform = `translate(${xCompensation}px, ${yCompensation}px)`;
     update();
   }
   onDestroy(
@@ -53,7 +66,8 @@ export default function ChartTimeline(vido, props) {
         '_internal.height',
         '_internal.chart.dimensions.width',
         '_internal.list.rowsHeight',
-        'config.scroll.compensation'
+        'config.scroll.compensation',
+        '_internal.chart.time.dates.day'
       ],
       calculateStyle
     )

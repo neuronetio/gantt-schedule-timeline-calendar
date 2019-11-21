@@ -242,6 +242,7 @@ $item-content-padding = 5px
       &-inner
         will-change: transform
       &-grid
+        overflow: hidden
         & *
           user-select: none
         &-row
@@ -259,17 +260,12 @@ $item-content-padding = 5px
             overflow: hidden
             border-right: $grid
             border-bottom: $grid
-            &-content
-              pointer-events: all
-              width: 100%
-              height: 100%
-              background: transparent
-              will-change: width, height, contents
-            &--selecting > div
-              border: 1px solid rgb(0,119, 192)
-            &--selected > div
-              border: 1px solid rgb(0,119, 192)
-              background: rgba(0,119, 192, 0.2)
+            &--selecting
+              background: rgba(0,119, 192, 0.5)
+            &--selecting:last-child
+              border-right: 1px solid red
+            &--selected
+              background: rgba(0,119, 192, 0.75)
             &.current
               background: $bg-dark-2
       &-dependency-lines
@@ -294,36 +290,30 @@ $item-content-padding = 5px
             overflow: hidden
             position: absolute // must be here - movement
             pointer-events: auto
-            padding: 4px 0px
-            height: 100%
+            padding: 4px 4px
             user-select: none
-            will-change: left, opacity, height
+            //will-change: left, opacity, height
+            background: #E74C3C
+            color: white
+            display: flex
+            height: calc(var(--row-height) - 8px);
+            margin-top: 4px
+            line-height: calc(var(--row-height) - 18px)
+            will-change: contents
+            &-label
+              flex-grow: 1
+              overflow: hidden
+              text-overflow: ellipsis
+              white-space: nowrap
+            &-resizer
+              width: 8px
+              background: rgba(255,255,255,0.1)
+              cursor: ew-resize
+              flex-shrink: 0
+              will-change: visibility
             /*&--selecting
               border: 1px solid rgb(0,119, 192)
             &--selected
               border: 1px solid rgb(0,119, 192)*/
             &--moving
               opacity: 0.5
-            &-content
-              overflow: hidden
-              user-select: none
-              background: #E74C3C
-              color: white
-              vertical-align: middle
-              padding: 0px 4px
-              //border: 1px solid #D73C2C
-              display: flex
-              height: 100%
-              line-height: calc(var(--row-height) - 10px)
-              will-change: contents
-              &-label
-                flex-grow: 1
-                overflow: hidden
-                text-overflow: ellipsis
-                white-space: nowrap
-              &-resizer
-                width: 8px
-                background: rgba(255,255,255,0.1)
-                cursor: ew-resize
-                flex-shrink: 0
-                will-change: visibility

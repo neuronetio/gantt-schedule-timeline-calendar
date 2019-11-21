@@ -37,7 +37,7 @@ const bindElementAction = (element, data) => {
 };
 
 const ChartTimelineItemsRow = (vido, props) => {
-  const { api, state, onDestroy, Actions, update, html, onChange, reuseComponents, StyleMap } = vido;
+  const { api, state, onDestroy, Detach, Actions, update, html, onChange, reuseComponents, StyleMap } = vido;
   const actionProps = { ...props, api, state };
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRow', value => (wrapper = value)));
@@ -49,18 +49,19 @@ const ChartTimelineItemsRow = (vido, props) => {
 
   let element,
     scrollLeft,
-    styleMap = new StyleMap({ opacity: '1', pointerEvents: 'auto', width: '', height: '' });
+    styleMap = new StyleMap({ width: '', height: '' }, true);
   let itemComponents = [];
+
+  let shouldDetach = false;
+  const detach = new Detach(() => shouldDetach);
 
   const updateDom = () => {
     const chart = state.get('_internal.chart');
     //const compensation = state.get('config.scroll.compensation');
-    styleMap.style.opacity = '1';
-    styleMap.style.pointerEvents = 'auto';
+    shouldDetach = false;
     styleMap.style.width = chart.dimensions.width + 'px';
     if (!props) {
-      styleMap.style.opacity = '0';
-      styleMap.style.pointerEvents = 'none';
+      shouldDetach = true;
       return;
     }
     styleMap.style.height = props.row.height + 'px';
@@ -133,7 +134,7 @@ const ChartTimelineItemsRow = (vido, props) => {
   return templateProps => {
     return wrapper(
       html`
-        <div class=${className} data-actions=${actions} style=${styleMap}>
+        <div detach=${detach} class=${className} data-actions=${actions} style=${styleMap}>
           ${itemComponents.map(i => i.html())}
         </div>
       `,

@@ -28,14 +28,8 @@
               setTimeout(() => {
                   if (typeof holding[item.id] !== 'undefined') {
                       let exec = true;
-                      let xMovement = holding[item.id].x - mouse.x;
-                      if (Math.sign(xMovement) === -1) {
-                          xMovement = -xMovement;
-                      }
-                      let yMovement = holding[item.id].y - mouse.y;
-                      if (Math.sign(yMovement) === -1) {
-                          yMovement = -yMovement;
-                      }
+                      const xMovement = Math.abs(holding[item.id].x - mouse.x);
+                      const yMovement = Math.abs(holding[item.id].y - mouse.y);
                       if (xMovement > options.movementThreshold) {
                           exec = false;
                       }

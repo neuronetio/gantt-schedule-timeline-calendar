@@ -8,7 +8,13 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-export default function ItemHold(options = {}) {
+export interface Options {
+  time?: number;
+  movementThreshold?: number;
+  action?: (element: HTMLElement, data: any) => void;
+}
+
+export default function ItemHold(options: Options = {}) {
   const defaultOptions = {
     time: 1000,
     movementThreshold: 2,
@@ -25,14 +31,8 @@ export default function ItemHold(options = {}) {
       setTimeout(() => {
         if (typeof holding[item.id] !== 'undefined') {
           let exec = true;
-          let xMovement = holding[item.id].x - mouse.x;
-          if (Math.sign(xMovement) === -1) {
-            xMovement = -xMovement;
-          }
-          let yMovement = holding[item.id].y - mouse.y;
-          if (Math.sign(yMovement) === -1) {
-            yMovement = -yMovement;
-          }
+          const xMovement = Math.abs(holding[item.id].x - mouse.x);
+          const yMovement = Math.abs(holding[item.id].y - mouse.y);
           if (xMovement > options.movementThreshold) {
             exec = false;
           }
