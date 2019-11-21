@@ -280,7 +280,7 @@
   text-align: center;
   user-select: none;
   pointer-events: all;
-  will-change: opacity, height;
+  will-change: height;
 }
 .gantt-schedule-timeline-calendar__chart-timeline-grid-row-block {
   pointer-events: all;
