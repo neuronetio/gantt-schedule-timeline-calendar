@@ -11,7 +11,7 @@
 import ResizeObserver from 'resize-observer-polyfill';
 
 export default function Main(vido, props = {}) {
-  const { api, state, onDestroy, Actions, update, createComponent, html, StyleMap } = vido;
+  const { api, state, onDestroy, Actions, update, createComponent, html, StyleMap, schedule } = vido;
   const componentName = api.name;
 
   let ListComponent;
@@ -290,7 +290,7 @@ export default function Main(vido, props = {}) {
         '_internal.list.width',
         '_internal.chart.dimensions'
       ],
-      recalculateTimes,
+      schedule(recalculateTimes),
       { bulk: true }
     )
   );

@@ -11,7 +11,7 @@ import { Directive } from '../../../../lit-html/lit-html';
  */
 
 export default function List(vido, props = {}) {
-  const { api, state, onDestroy, Actions, update, reuseComponents, html, schedule, StyleMap } = vido;
+  const { api, state, onDestroy, Actions, update, reuseComponents, html, schedule, StyleMap, cache } = vido;
 
   const componentName = 'list';
   const componentActions = api.getActions(componentName);
@@ -90,7 +90,6 @@ export default function List(vido, props = {}) {
         width = 0;
       }
       state.update('_internal.list.width', width);
-      state.update('_internal.elements.list', element);
     }
   }
 
@@ -101,6 +100,8 @@ export default function List(vido, props = {}) {
     lastX = 0;
 
   function onPointerStart(ev) {
+    if (ev.type === 'mousedown' && ev.button !== 0) return;
+    ev.stopPropagation();
     moving = 'xy';
     const normalized = api.normalizePointerEvent(ev);
     lastX = normalized.x;
@@ -135,17 +136,19 @@ export default function List(vido, props = {}) {
   }
 
   function onPointerMove(ev) {
-    if (!moving) return;
     ev.stopPropagation();
-    const normalized = api.normalizePointerEvent(ev);
-    if (moving === 'x' || (moving === 'xy' && Math.abs(normalized.x - initialX) > 10)) {
-      moving = 'x';
-      return handleX(normalized);
-    }
-    if (moving === 'y' || (moving === 'xy' && Math.abs(normalized.y - initialY) > 10)) {
-      moving = 'y';
-      return handleY(normalized);
-    }
+    schedule(() => {
+      if (moving === '' || (ev.type === 'mousemove' && ev.button !== 0)) return;
+      const normalized = api.normalizePointerEvent(ev);
+      if (moving === 'x' || (moving === 'xy' && Math.abs(normalized.x - initialX) > 10)) {
+        moving = 'x';
+        return handleX(normalized);
+      }
+      if (moving === 'y' || (moving === 'xy' && Math.abs(normalized.y - initialY) > 10)) {
+        moving = 'y';
+        return handleY(normalized);
+      }
+    })();
   }
 
   function onPointerEnd(ev) {
@@ -154,39 +157,46 @@ export default function List(vido, props = {}) {
     lastX = 0;
   }
 
-  componentActions.push(element => {
-    state.update('_internal.elements.list', element);
-    element.addEventListener('touchstart', onPointerStart);
-    document.addEventListener('touchmove', onPointerMove);
-    document.addEventListener('touchend', onPointerEnd);
-    element.addEventListener('mousedown', onPointerStart);
-    document.addEventListener('mousemove', onPointerMove);
-    document.addEventListener('mouseup', onPointerEnd);
-    getWidth(element);
-    return {
-      update: getWidth,
-      destroy(element) {
-        element.removeEventListener('touchstart', onPointerStart);
-        document.removeEventListener('touchmove', onPointerMove);
-        document.removeEventListener('touchend', onPointerEnd);
-        element.removeEventListener('mousedown', onPointerStart);
-        document.removeEventListener('mousemove', onPointerMove);
-        document.removeEventListener('mouseup', onPointerEnd);
-      }
-    };
-  });
+  class ListAction {
+    constructor(element) {
+      state.update('_internal.elements.list', element);
+      element.addEventListener('touchstart', onPointerStart);
+      document.addEventListener('touchmove', onPointerMove);
+      document.addEventListener('touchend', onPointerEnd);
+      element.addEventListener('mousedown', onPointerStart);
+      document.addEventListener('mousemove', onPointerMove);
+      document.addEventListener('mouseup', onPointerEnd);
+      getWidth(element);
+    }
+    update(element) {
+      return getWidth(element);
+    }
+    destroy(element) {
+      element.removeEventListener('touchstart', onPointerStart);
+      document.removeEventListener('touchmove', onPointerMove);
+      document.removeEventListener('touchend', onPointerEnd);
+      element.removeEventListener('mousedown', onPointerStart);
+      document.removeEventListener('mousemove', onPointerMove);
+      document.removeEventListener('mouseup', onPointerEnd);
+    }
+  }
+  if (!componentActions.includes(ListAction)) {
+    componentActions.push(ListAction);
+  }
 
   const actions = Actions.create(componentActions, { ...props, api, state });
 
   return templateProps =>
     wrapper(
-      list.columns.percent > 0
-        ? html`
-            <div class=${className} data-actions=${actions} style=${styleMap} @scroll=${onScroll} @wheel=${onScroll}>
-              ${listColumns.map(c => c.html())}
-            </div>
-          `
-        : null,
+      cache(
+        list.columns.percent > 0
+          ? html`
+              <div class=${className} data-actions=${actions} style=${styleMap} @scroll=${onScroll} @wheel=${onScroll}>
+                ${listColumns.map(c => c.html())}
+              </div>
+            `
+          : null
+      ),
       { vido, props: {}, templateProps }
     );
 }

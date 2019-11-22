@@ -115,6 +115,7 @@
 .gantt-schedule-timeline-calendar__list-column-row {
   border-bottom: 1px solid rgba(237,241,242,0.75);
   border-right: 1px solid rgba(237,241,242,0.75);
+  width: var(--width);
   will-change: height;
 }
 .gantt-schedule-timeline-calendar__list-column-row-content {
@@ -130,6 +131,7 @@
   font-weight: 500;
   color: #707070;
   height: var(--height);
+  width: var(--width);
   line-height: var(--height);
   display: flex;
 }

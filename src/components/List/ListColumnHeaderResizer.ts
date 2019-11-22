@@ -9,7 +9,7 @@
  */
 
 export default function ListColumnHeaderResizer(vido, props) {
-  const { api, state, onDestroy, update, html, Actions, cache, StyleMap } = vido;
+  const { api, state, onDestroy, update, html, Actions, cache, schedule, StyleMap } = vido;
 
   const componentName = 'list-column-header-resizer';
   const componentActions = api.getActions(componentName);
@@ -82,6 +82,7 @@ export default function ListColumnHeaderResizer(vido, props) {
   const columnWidthPath = `config.list.columns.data.${column.id}.width`;
 
   function onMouseDown(event) {
+    event.stopPropagation();
     isMoving = true;
     state.update('_internal.list.columns.resizer.active', true);
     if (isMoving) {
@@ -95,6 +96,7 @@ export default function ListColumnHeaderResizer(vido, props) {
 
   function onMouseMove(event) {
     if (isMoving) {
+      event.stopPropagation();
       let minWidth = state.get('config.list.columns.minWidth');
       if (typeof column.minWidth === 'number') {
         minWidth = column.minWidth;
@@ -111,6 +113,7 @@ export default function ListColumnHeaderResizer(vido, props) {
 
   function onMouseUp(event) {
     if (isMoving) {
+      event.stopPropagation();
       state.update('_internal.list.columns.resizer.active', false);
       state.update(columnWidthPath, left);
       isMoving = false;
@@ -118,7 +121,7 @@ export default function ListColumnHeaderResizer(vido, props) {
   }
 
   document.body.addEventListener('mousemove', onMouseMove);
-  onDestroy(() => document.body.removeEventListener('mousemove', onMouseMove));
+  onDestroy(() => document.body.removeEventListener('mousemove', schedule(onMouseMove)));
   document.body.addEventListener('mouseup', onMouseUp);
   onDestroy(() => document.body.removeEventListener('mouseup', onMouseUp));
 

@@ -9,7 +9,7 @@
  */
 
 export default function CalendarScroll(options = {}) {
-  let state, api;
+  let state, api, schedule;
   const defaultOptions = {
     speed: 1,
     hideScroll: false,
@@ -22,14 +22,16 @@ export default function CalendarScroll(options = {}) {
     lastX: number = 0;
     mc: any;
 
-    constructor(element: HTMLElement, data: any) {
-      this.onPanStart = this.onPanStart.bind(this);
-      this.onPanMove = this.onPanMove.bind(this);
-      this.onPanEnd = this.onPanEnd.bind(this);
-      this.mc = new api.Hammer(element);
-      this.mc.on('panstart', this.onPanStart);
-      this.mc.on('panmove', this.onPanMove);
-      this.mc.on('panend', this.onPanEnd);
+    constructor(element: HTMLElement) {
+      this.onPointerStart = this.onPointerStart.bind(this);
+      this.onPointerMove = this.onPointerMove.bind(this);
+      this.onPointerEnd = this.onPointerEnd.bind(this);
+      element.addEventListener('touchstart', this.onPointerStart);
+      document.addEventListener('touchmove', this.onPointerMove);
+      document.addEventListener('touchend', this.onPointerEnd);
+      element.addEventListener('mousedown', this.onPointerStart);
+      document.addEventListener('mousemove', this.onPointerMove);
+      document.addEventListener('mouseup', this.onPointerEnd);
       element.style.cursor = 'move';
       const horizontalScroll = state.get('_internal.elements.horizontal-scroll');
       // @ts-ignore
@@ -38,41 +40,54 @@ export default function CalendarScroll(options = {}) {
       }
     }
 
-    onPanStart(ev) {
+    onPointerStart(ev) {
+      if (ev.type === 'mousedown' && ev.button !== 0) return;
+      ev.stopPropagation();
       this.isMoving = true;
-      this.lastX = ev.deltaX;
+      const normalized = api.normalizePointerEvent(ev);
+      this.lastX = normalized.x;
     }
 
-    onPanMove(ev) {
-      const movedX = ev.deltaX - this.lastX;
-      const time = state.get('_internal.chart.time');
-      // @ts-ignore
-      const movedTime = -Math.round(movedX * time.timePerPixel * options.speed);
-      state.update('config.chart.time', configTime => {
-        if (configTime.from === 0) configTime.from = time.from;
-        if (configTime.to === 0) configTime.to = time.to;
-        configTime.from += movedTime;
-        configTime.to += movedTime;
+    onPointerMove(ev) {
+      schedule(() => {
+        if (!this.isMoving) return;
+        const normalized = api.normalizePointerEvent(ev);
+        const movedX = normalized.x - this.lastX;
+        const time = state.get('_internal.chart.time');
         // @ts-ignore
-        options.onChange(configTime);
-        return configTime;
-      });
-      this.lastX = ev.deltaX;
+        const movedTime = -Math.round(movedX * time.timePerPixel * options.speed);
+        state.update('config.chart.time', configTime => {
+          if (configTime.from === 0) configTime.from = time.from;
+          if (configTime.to === 0) configTime.to = time.to;
+          configTime.from += movedTime;
+          configTime.to += movedTime;
+          // @ts-ignore
+          options.onChange(configTime);
+          return configTime;
+        });
+        this.lastX = normalized.x;
+      })();
     }
 
-    onPanEnd(ev) {
+    onPointerEnd(ev) {
       this.isMoving = false;
       this.lastX = 0;
     }
 
     destroy(element: HTMLElement, data: any) {
-      this.mc.off(element);
+      element.removeEventListener('touchstart', this.onPointerStart);
+      document.removeEventListener('touchmove', this.onPointerMove);
+      document.removeEventListener('touchend', this.onPointerEnd);
+      element.removeEventListener('mousedown', this.onPointerStart);
+      document.removeEventListener('mousemove', this.onPointerMove);
+      document.removeEventListener('mouseup', this.onPointerEnd);
     }
   }
 
   return function initialize(vido) {
     api = vido.api;
     state = vido.state;
+    schedule = vido.schedule;
     state.update('config.actions.chart-calendar', actions => {
       actions.push(CalendarScrollAction);
       return actions;

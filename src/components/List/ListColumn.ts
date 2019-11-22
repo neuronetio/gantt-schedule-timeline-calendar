@@ -75,7 +75,7 @@ export default function ListColumn(vido, props) {
       actionProps[prop] = props[prop];
     }
     if (columnSub) columnSub();
-
+    ListColumnHeader.change({ columnId: props.columnId });
     columnPath = `config.list.columns.data.${props.columnId}`;
     columnSub = state.subscribe(columnPath, function columnChanged(val) {
       column = val;

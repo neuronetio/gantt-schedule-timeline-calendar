@@ -58,7 +58,6 @@ export default function ListColumnRow(vido, props) {
     column.expander
       ? {
           height: '',
-          width: '',
           top: '',
           '--height': '',
           '--expander-padding-width': '',
@@ -66,7 +65,6 @@ export default function ListColumnRow(vido, props) {
         }
       : {
           height: '',
-          width: '',
           top: '',
           '--height': ''
         },
@@ -96,40 +94,44 @@ export default function ListColumnRow(vido, props) {
     }
     rowPath = `_internal.flatTreeMapById.${rowId}`;
     colPath = `config.list.columns.data.${columnId}`;
-    rowSub = state.subscribeAll([rowPath, 'config.list.expander'], bulk => {
-      row = state.get(rowPath);
-      const expander = state.get('config.list.expander');
-      // @ts-ignore
-      styleMap.style = {}; // we must reset style because of user specified styling
-      styleMap.style['height'] = row.height + 'px';
-      styleMap.style['--height'] = row.height + 'px';
-      styleMap.style['width'] = column.width + 'px';
-      if (column.expander) {
-        styleMap.style['--expander-padding-width'] = expander.padding * (row._internal.parents.length + 1) + 'px';
-      }
-      for (let parentId of row._internal.parents) {
-        const parent = state.get(`_internal.flatTreeMapById.${parentId}`);
-        if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
-          if (typeof parent.style.children === 'object') {
-            const childrenStyle = parent.style.children;
-            for (const name in childrenStyle) {
-              styleMap.style[name] = childrenStyle[name];
+    rowSub = state.subscribeAll(
+      [rowPath, colPath, 'config.list.expander'],
+      bulk => {
+        column = state.get(colPath);
+        row = state.get(rowPath);
+        const expander = state.get('config.list.expander');
+        // @ts-ignore
+        styleMap.setStyle({}); // we must reset style because of user specified styling
+        styleMap.style['height'] = row.height + 'px';
+        styleMap.style['--height'] = row.height + 'px';
+        if (column.expander) {
+          styleMap.style['--expander-padding-width'] = expander.padding * (row._internal.parents.length + 1) + 'px';
+        }
+        for (let parentId of row._internal.parents) {
+          const parent = state.get(`_internal.flatTreeMapById.${parentId}`);
+          if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
+            if (typeof parent.style.children === 'object') {
+              const childrenStyle = parent.style.children;
+              for (const name in childrenStyle) {
+                styleMap.style[name] = childrenStyle[name];
+              }
             }
           }
         }
-      }
-      if (
-        typeof row.style === 'object' &&
-        row.style.constructor.name === 'Object' &&
-        typeof row.style.current === 'object'
-      ) {
-        const rowCurrentStyle = row.style.current;
-        for (const name in rowCurrentStyle) {
-          styleMap.style[name] = rowCurrentStyle[name];
+        if (
+          typeof row.style === 'object' &&
+          row.style.constructor.name === 'Object' &&
+          typeof row.style.current === 'object'
+        ) {
+          const rowCurrentStyle = row.style.current;
+          for (const name in rowCurrentStyle) {
+            styleMap.style[name] = rowCurrentStyle[name];
+          }
         }
-      }
-      update();
-    });
+        update();
+      },
+      { bulk: true }
+    );
 
     if (ListExpander) {
       ListExpander.change({ row });

@@ -21,7 +21,6 @@
     "@neuronet.io/vido": "^2.1.0",
     "dayjs": "^1.8.17",
     "deep-state-observer": "^3.0.39",
-    "hammerjs": "^2.0.8",
     "lit-html": "^1.1.2",
     "resize-observer-polyfill": "^1.5.1",
     "rollup-plugin-cjs-es": "^0.9.0"

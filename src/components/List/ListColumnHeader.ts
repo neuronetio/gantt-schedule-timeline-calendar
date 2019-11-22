@@ -65,7 +65,7 @@ export default function ListColumnHeader(vido, props) {
     '--paddings-count': ''
   });
   onDestroy(
-    state.subscribeAll(['config.headerHeight', 'config.list.columns.percent'], () => {
+    state.subscribe('config.headerHeight', () => {
       const value = state.get('config');
       styleMap.style['height'] = value.headerHeight + 'px';
       styleMap.style['--height'] = value.headerHeight + 'px';
