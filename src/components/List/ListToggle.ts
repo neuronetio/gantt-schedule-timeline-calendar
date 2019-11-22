@@ -93,15 +93,15 @@ export default function ListToggle(vido, props) {
     if (iconChild) {
       if (props.row?._internal?.children?.length === 0) {
         return html`
-          <img class=${classNameChild} src=${iconChild} />
+          <img width="16" height="16" class=${classNameChild} src=${iconChild} />
         `;
       }
       return expanded
         ? html`
-            <img class=${classNameOpen} src=${iconOpen} />
+            <img width="16" height="16" class=${classNameOpen} src=${iconOpen} />
           `
         : html`
-            <img class=${classNameClosed} src=${iconClosed} />
+            <img width="16" height="16" class=${classNameClosed} src=${iconClosed} />
           `;
     }
     return '';

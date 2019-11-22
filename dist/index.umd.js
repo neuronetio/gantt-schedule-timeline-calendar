@@ -4451,7 +4451,7 @@
                 ${listColumns.map(c => c.html())}
               </div>
             `
-            : null), { vido, props: {}, templateProps });
+            : ''), { vido, props: {}, templateProps });
     }
 
     /**
@@ -5060,15 +5060,15 @@
             if (iconChild) {
                 if (((_c = (_b = (_a = props.row) === null || _a === void 0 ? void 0 : _a._internal) === null || _b === void 0 ? void 0 : _b.children) === null || _c === void 0 ? void 0 : _c.length) === 0) {
                     return html `
-          <img class=${classNameChild} src=${iconChild} />
+          <img width="16" height="16" class=${classNameChild} src=${iconChild} />
         `;
                 }
                 return expanded
                     ? html `
-            <img class=${classNameOpen} src=${iconOpen} />
+            <img width="16" height="16" class=${classNameOpen} src=${iconOpen} />
           `
                     : html `
-            <img class=${classNameClosed} src=${iconClosed} />
+            <img width="16" height="16" class=${classNameClosed} src=${iconClosed} />
           `;
             }
             return '';

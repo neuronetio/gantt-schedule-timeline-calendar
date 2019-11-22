@@ -8,6 +8,7 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 function ItemHold(options = {}) {
+    let api;
     const defaultOptions = {
         time: 1000,
         movementThreshold: 2,
@@ -15,15 +16,18 @@ function ItemHold(options = {}) {
     };
     options = Object.assign(Object.assign({}, defaultOptions), options);
     const holding = {};
-    const mouse = { x: 0, y: 0 };
-    function onMouseDown(item, element, event) {
+    const pointer = { x: 0, y: 0 };
+    function onPointerDown(item, element, event) {
         if (typeof holding[item.id] === 'undefined') {
-            holding[item.id] = { x: event.x, y: event.y };
+            const normalized = api.normalizePointerEvent(event);
+            holding[item.id] = { x: normalized.x, y: normalized.y };
+            event.stopPropagation();
+            event.preventDefault();
             setTimeout(() => {
                 if (typeof holding[item.id] !== 'undefined') {
                     let exec = true;
-                    const xMovement = Math.abs(holding[item.id].x - mouse.x);
-                    const yMovement = Math.abs(holding[item.id].y - mouse.y);
+                    const xMovement = Math.abs(holding[item.id].x - pointer.x);
+                    const yMovement = Math.abs(holding[item.id].y - pointer.y);
                     if (xMovement > options.movementThreshold) {
                         exec = false;
                     }
@@ -38,37 +42,45 @@ function ItemHold(options = {}) {
             }, options.time);
         }
     }
-    function onMouseUp(itemId) {
+    function onPointerUp(itemId) {
         if (typeof holding[itemId] !== 'undefined') {
             delete holding[itemId];
         }
     }
     function action(element, data) {
-        function elementMouseDown(event) {
-            onMouseDown(data.item, element, event);
+        function elementPointerDown(event) {
+            onPointerDown(data.item, element, event);
         }
-        element.addEventListener('mousedown', elementMouseDown);
-        function mouseUp() {
-            onMouseUp(data.item.id);
+        element.addEventListener('mousedown', elementPointerDown);
+        element.addEventListener('touchstart', elementPointerDown);
+        function pointerUp() {
+            onPointerUp(data.item.id);
         }
-        document.addEventListener('mouseup', mouseUp);
-        function onMouseMove(event) {
-            mouse.x = event.x;
-            mouse.y = event.y;
+        document.addEventListener('mouseup', pointerUp);
+        document.addEventListener('touchend', pointerUp);
+        function onPointerMove(event) {
+            const normalized = api.normalizePointerEvent(event);
+            pointer.x = normalized.x;
+            pointer.y = normalized.y;
         }
-        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mousemove', onPointerMove);
+        document.addEventListener('touchmove', onPointerMove);
         return {
             update(element, changedData) {
                 data = changedData;
             },
             destroy(element, data) {
-                document.removeEventListener('mouseup', onMouseUp);
-                document.removeEventListener('mousemove', onMouseMove);
-                element.removeEventListener('mousedown', elementMouseDown);
+                document.removeEventListener('mouseup', onPointerUp);
+                document.removeEventListener('mousemove', onPointerMove);
+                element.removeEventListener('mousedown', elementPointerDown);
+                document.removeEventListener('touchend', onPointerUp);
+                document.removeEventListener('touchmove', onPointerMove);
+                element.removeEventListener('touchstart', elementPointerDown);
             }
         };
     }
     return function initialize(vido) {
+        api = vido.api;
         vido.state.update('config.actions.chart-timeline-items-row-item', actions => {
             actions.push(action);
             return actions;

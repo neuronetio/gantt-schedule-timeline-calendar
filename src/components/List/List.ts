@@ -195,7 +195,7 @@ export default function List(vido, props = {}) {
                 ${listColumns.map(c => c.html())}
               </div>
             `
-          : null
+          : ''
       ),
       { vido, props: {}, templateProps }
     );
