@@ -43,13 +43,14 @@ export default function ChartTimelineGrid(vido, props) {
     const width = state.get('_internal.chart.dimensions.width');
     const height = state.get('_internal.height');
     const periodDates = state.get(`_internal.chart.time.dates.${period}`);
-    const visibleRows = state.get('_internal.list.visibleRows');
     if (!periodDates || periodDates.length === 0) {
       return;
     }
-    const yCompensation = state.get('config.scroll.compensation');
+    const visibleRows = state.get('_internal.list.visibleRows');
+    const xCompensation = api.getCompensationX();
+    const yCompensation = api.getCompensationY();
     styleMap.style.height = height + Math.abs(yCompensation) + 'px';
-    styleMap.style.width = width + 'px';
+    styleMap.style.width = width + xCompensation + 'px';
 
     let top = 0;
     rowsWithBlocks.length = 0;

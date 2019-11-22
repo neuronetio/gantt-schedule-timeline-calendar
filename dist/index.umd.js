@@ -5626,12 +5626,8 @@
         }));
         let styleMap = new StyleMap({}), innerStyleMap = new StyleMap({});
         function calculateStyle() {
-            const periodDates = state.get(`_internal.chart.time.dates.day`);
-            if (!periodDates || periodDates.length === 0) {
-                return;
-            }
-            const xCompensation = periodDates[0].subPx;
-            const yCompensation = state.get('config.scroll.compensation');
+            const xCompensation = api.getCompensationX();
+            const yCompensation = api.getCompensationY();
             const width = state.get('_internal.chart.dimensions.width');
             const height = state.get('_internal.list.rowsHeight');
             styleMap.style.height = state.get('_internal.height') + 'px';
@@ -5643,12 +5639,12 @@
             }
             innerStyleMap.style.height = height + 'px';
             if (width) {
-                innerStyleMap.style.width = width + 'px';
+                innerStyleMap.style.width = width + xCompensation + 'px';
             }
             else {
                 innerStyleMap.style.width = '0px';
             }
-            innerStyleMap.style.transform = `translate(${xCompensation}px, ${yCompensation}px)`;
+            innerStyleMap.style.transform = `translate(-${xCompensation}px, ${yCompensation}px)`;
             update();
         }
         onDestroy(state.subscribeAll([
@@ -5708,13 +5704,14 @@
             const width = state.get('_internal.chart.dimensions.width');
             const height = state.get('_internal.height');
             const periodDates = state.get(`_internal.chart.time.dates.${period}`);
-            const visibleRows = state.get('_internal.list.visibleRows');
             if (!periodDates || periodDates.length === 0) {
                 return;
             }
-            const yCompensation = state.get('config.scroll.compensation');
+            const visibleRows = state.get('_internal.list.visibleRows');
+            const xCompensation = api.getCompensationX();
+            const yCompensation = api.getCompensationY();
             styleMap.style.height = height + Math.abs(yCompensation) + 'px';
-            styleMap.style.width = width + 'px';
+            styleMap.style.width = width + xCompensation + 'px';
             let top = 0;
             rowsWithBlocks.length = 0;
             for (const row of visibleRows) {
@@ -6008,11 +6005,17 @@
         const calculateStyle = () => {
             const width = state.get('_internal.chart.dimensions.width');
             const height = state.get('_internal.height');
-            const compensation = state.get('config.scroll.compensation');
-            styleMap.style.width = width + 'px';
-            styleMap.style.height = height + Math.abs(compensation) + 'px';
+            const yCompensation = api.getCompensationY();
+            const xCompensation = api.getCompensationX();
+            styleMap.style.width = width + xCompensation + 'px';
+            styleMap.style.height = height + Math.abs(yCompensation) + 'px';
         };
-        onDestroy(state.subscribeAll(['_internal.height', '_internal.chart.dimensions.width', 'config.scroll.compensation'], calculateStyle));
+        onDestroy(state.subscribeAll([
+            '_internal.height',
+            '_internal.chart.dimensions.width',
+            'config.scroll.compensation',
+            '_internal.chart.time.dates.day'
+        ], calculateStyle));
         let rowsComponents = [];
         const createRowComponents = () => {
             const visibleRows = state.get('_internal.list.visibleRows');
@@ -6081,7 +6084,8 @@
             const chart = state.get('_internal.chart');
             //const compensation = state.get('config.scroll.compensation');
             shouldDetach = false;
-            styleMap.style.width = chart.dimensions.width + 'px';
+            const xCompensation = api.getCompensationX();
+            styleMap.style.width = chart.dimensions.width + xCompensation + 'px';
             if (!props) {
                 shouldDetach = true;
                 return;
@@ -6205,13 +6209,14 @@
             }
             const oldWidth = styleMap.style.width;
             const oldLeft = styleMap.style.left;
+            const xCompensation = api.getCompensationX();
             styleMap.setStyle({});
             const inViewPort = api.isItemInViewport(props.item, time.leftGlobal, time.rightGlobal);
             shouldDetach = !inViewPort;
             if (inViewPort) {
                 // update style only when visible to prevent browser's recalculate style
                 styleMap.style.width = itemWidthPx + 'px';
-                styleMap.style.left = itemLeftPx + 'px';
+                styleMap.style.left = itemLeftPx + xCompensation + 'px';
             }
             else {
                 styleMap.style.width = oldWidth;
@@ -10403,6 +10408,18 @@
         getGridBlocksUnderRect(x, y, width, height) {
           const main = state.get('_internal.elements.main');
           if (!main) return [];
+        },
+
+        getCompensationX() {
+          const periodDates = state.get(`_internal.chart.time.dates.day`);
+          if (!periodDates || periodDates.length === 0) {
+            return 0;
+          }
+          return periodDates[0].subPx;
+        },
+
+        getCompensationY() {
+          return state.get('config.scroll.compensation');
         },
 
         /**

@@ -59,7 +59,8 @@ const ChartTimelineItemsRow = (vido, props) => {
     const chart = state.get('_internal.chart');
     //const compensation = state.get('config.scroll.compensation');
     shouldDetach = false;
-    styleMap.style.width = chart.dimensions.width + 'px';
+    const xCompensation = api.getCompensationX();
+    styleMap.style.width = chart.dimensions.width + xCompensation + 'px';
     if (!props) {
       shouldDetach = true;
       return;

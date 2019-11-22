@@ -62,13 +62,14 @@ function ChartTimelineItemsRowItem(vido, props) {
     }
     const oldWidth = styleMap.style.width;
     const oldLeft = styleMap.style.left;
+    const xCompensation = api.getCompensationX();
     styleMap.setStyle({});
     const inViewPort = api.isItemInViewport(props.item, time.leftGlobal, time.rightGlobal);
     shouldDetach = !inViewPort;
     if (inViewPort) {
       // update style only when visible to prevent browser's recalculate style
       styleMap.style.width = itemWidthPx + 'px';
-      styleMap.style.left = itemLeftPx + 'px';
+      styleMap.style.left = itemLeftPx + xCompensation + 'px';
     } else {
       styleMap.style.width = oldWidth;
       styleMap.style.left = oldLeft;
@@ -106,7 +107,7 @@ function ChartTimelineItemsRowItem(vido, props) {
 
   const componentName = 'chart-timeline-items-row-item';
   const componentActions = api.getActions(componentName);
-  let className, contentClassName, labelClassName;
+  let className, labelClassName;
   onDestroy(
     state.subscribe('config.classNames', () => {
       className = api.getClass(componentName, props);

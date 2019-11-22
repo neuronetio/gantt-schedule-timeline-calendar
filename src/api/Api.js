@@ -401,6 +401,18 @@ export function getInternalApi(state) {
       if (!main) return [];
     },
 
+    getCompensationX() {
+      const periodDates = state.get(`_internal.chart.time.dates.day`);
+      if (!periodDates || periodDates.length === 0) {
+        return 0;
+      }
+      return periodDates[0].subPx;
+    },
+
+    getCompensationY() {
+      return state.get('config.scroll.compensation');
+    },
+
     /**
      * Destroy things to release memory
      */

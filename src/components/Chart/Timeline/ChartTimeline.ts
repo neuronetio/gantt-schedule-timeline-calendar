@@ -37,12 +37,8 @@ export default function ChartTimeline(vido, props) {
   let styleMap = new StyleMap({}),
     innerStyleMap = new StyleMap({});
   function calculateStyle() {
-    const periodDates = state.get(`_internal.chart.time.dates.day`);
-    if (!periodDates || periodDates.length === 0) {
-      return;
-    }
-    const xCompensation = periodDates[0].subPx;
-    const yCompensation = state.get('config.scroll.compensation');
+    const xCompensation = api.getCompensationX();
+    const yCompensation = api.getCompensationY();
     const width = state.get('_internal.chart.dimensions.width');
     const height = state.get('_internal.list.rowsHeight');
     styleMap.style.height = state.get('_internal.height') + 'px';
@@ -53,11 +49,11 @@ export default function ChartTimeline(vido, props) {
     }
     innerStyleMap.style.height = height + 'px';
     if (width) {
-      innerStyleMap.style.width = width + 'px';
+      innerStyleMap.style.width = width + xCompensation + 'px';
     } else {
       innerStyleMap.style.width = '0px';
     }
-    innerStyleMap.style.transform = `translate(${xCompensation}px, ${yCompensation}px)`;
+    innerStyleMap.style.transform = `translate(-${xCompensation}px, ${yCompensation}px)`;
     update();
   }
   onDestroy(
