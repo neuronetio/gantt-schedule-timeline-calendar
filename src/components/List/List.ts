@@ -93,96 +93,16 @@ export default function List(vido, props = {}) {
     }
   }
 
-  let moving = '',
-    initialX = 0,
-    initialY = 0,
-    lastY = 0,
-    lastX = 0;
-
-  function onPointerStart(ev) {
-    if (ev.type === 'mousedown' && ev.button !== 0) return;
-    ev.stopPropagation();
-    moving = 'xy';
-    const normalized = api.normalizePointerEvent(ev);
-    lastX = normalized.x;
-    lastY = normalized.y;
-    initialX = normalized.x;
-    initialY = normalized.y;
-  }
-
-  function handleX(normalized) {
-    let movementX = normalized.x - lastX;
-    state.update('config.list.columns.percent', percent => {
-      percent += movementX;
-      if (percent < 0) percent = 0;
-      if (percent > 100) percent = 100;
-      return percent;
-    });
-    lastY = normalized.y;
-    lastX = normalized.x;
-  }
-
-  function handleY(normalized) {
-    let movementY = normalized.y - lastY;
-    movementY *= state.get('config.scroll.yMultiplier');
-    if (Math.abs(normalized.y - initialY) < 10) return;
-    state.update('config.scroll.top', top => {
-      top -= movementY;
-      top = api.limitScroll('top', top);
-      return top;
-    });
-    lastY = normalized.y;
-    lastX = normalized.x;
-  }
-
-  function onPointerMove(ev) {
-    ev.stopPropagation();
-    schedule(() => {
-      if (moving === '' || (ev.type === 'mousemove' && ev.button !== 0)) return;
-      const normalized = api.normalizePointerEvent(ev);
-      if (moving === 'x' || (moving === 'xy' && Math.abs(normalized.x - initialX) > 10)) {
-        moving = 'x';
-        return handleX(normalized);
-      }
-      if (moving === 'y' || (moving === 'xy' && Math.abs(normalized.y - initialY) > 10)) {
-        moving = 'y';
-        return handleY(normalized);
-      }
-    })();
-  }
-
-  function onPointerEnd(ev) {
-    moving = '';
-    lastY = 0;
-    lastX = 0;
-  }
-
   class ListAction {
     constructor(element) {
       state.update('_internal.elements.list', element);
-      element.addEventListener('touchstart', onPointerStart);
-      document.addEventListener('touchmove', onPointerMove);
-      document.addEventListener('touchend', onPointerEnd);
-      element.addEventListener('mousedown', onPointerStart);
-      document.addEventListener('mousemove', onPointerMove);
-      document.addEventListener('mouseup', onPointerEnd);
       getWidth(element);
     }
     update(element) {
       return getWidth(element);
     }
-    destroy(element) {
-      element.removeEventListener('touchstart', onPointerStart);
-      document.removeEventListener('touchmove', onPointerMove);
-      document.removeEventListener('touchend', onPointerEnd);
-      element.removeEventListener('mousedown', onPointerStart);
-      document.removeEventListener('mousemove', onPointerMove);
-      document.removeEventListener('mouseup', onPointerEnd);
-    }
   }
-  if (!componentActions.includes(ListAction)) {
-    componentActions.push(ListAction);
-  }
+  componentActions.push(ListAction);
 
   const actions = Actions.create(componentActions, { ...props, api, state });
 

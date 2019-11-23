@@ -108,9 +108,8 @@ const ChartTimelineGridRowBlock = (vido, props: Props) => {
     update();
   }
   onChange(onPropsChange);
-  if (!componentActions.includes(bindElementAction)) {
-    componentActions.push(bindElementAction);
-  }
+
+  componentActions.push(bindElementAction);
   const actions = Actions.create(componentActions, actionProps);
   return templateProps => {
     return wrapper(

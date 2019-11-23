@@ -71,6 +71,7 @@ function GSTC(options) {
   });
   // @ts-ignore
   const vido = Vido(state, api);
+  api.setVido(vido);
   const app = vido.createApp({ component: Main, props: vido, element: options.element });
   return { state, app };
 }

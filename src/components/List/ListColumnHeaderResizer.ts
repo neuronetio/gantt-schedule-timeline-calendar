@@ -9,10 +9,11 @@
  */
 
 export default function ListColumnHeaderResizer(vido, props) {
-  const { api, state, onDestroy, update, html, Actions, cache, schedule, StyleMap } = vido;
+  const { api, state, onDestroy, update, html, Actions, PointerAction, cache, StyleMap } = vido;
 
   const componentName = 'list-column-header-resizer';
-  const componentActions = api.getActions(componentName);
+  let componentActions = api.getActions(componentName);
+  let componentDotsActions = api.getActions(componentName + '-dots');
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListColumnHeaderResizer', value => (wrapper = value)));
@@ -29,7 +30,6 @@ export default function ListColumnHeaderResizer(vido, props) {
     containerClass,
     dotsClass,
     dotClass,
-    lineClass,
     calculatedWidth,
     dotsStyleMap = new StyleMap({ width: '' });
   let inRealTime = false;
@@ -39,7 +39,6 @@ export default function ListColumnHeaderResizer(vido, props) {
       containerClass = api.getClass(componentName + '-container', { column });
       dotsClass = api.getClass(componentName + '-dots', { column });
       dotClass = api.getClass(componentName + '-dots-dot', { column });
-      lineClass = api.getClass(componentName + '-line', { column });
       update();
     })
   );
@@ -81,51 +80,32 @@ export default function ListColumnHeaderResizer(vido, props) {
   });
   const columnWidthPath = `config.list.columns.data.${column.id}.width`;
 
-  function onMouseDown(event) {
-    event.stopPropagation();
-    isMoving = true;
-    state.update('_internal.list.columns.resizer.active', true);
-    if (isMoving) {
-      lineStyleMap.style['display'] = 'block';
-      lineStyleMap.style['--left'] = left + 'px';
-    } else {
-      lineStyleMap.style['display'] = 'none';
-      lineStyleMap.style['--left'] = '0px';
-    }
-  }
-
-  function onMouseMove(event) {
-    if (isMoving) {
-      event.stopPropagation();
-      let minWidth = state.get('config.list.columns.minWidth');
-      if (typeof column.minWidth === 'number') {
-        minWidth = column.minWidth;
-      }
-      left += event.movementX;
-      if (left < minWidth) {
-        left = minWidth;
-      }
-      if (inRealTime) {
-        state.update(columnWidthPath, left);
+  const actionProps = {
+    column,
+    api,
+    state,
+    pointerOptions: {
+      axis: 'x',
+      onMove({ movementX }) {
+        let minWidth = state.get('config.list.columns.minWidth');
+        if (typeof column.minWidth === 'number') {
+          minWidth = column.minWidth;
+        }
+        left += movementX;
+        if (left < minWidth) {
+          left = minWidth;
+        }
+        if (inRealTime) {
+          state.update(columnWidthPath, left);
+        }
       }
     }
-  }
+  };
 
-  function onMouseUp(event) {
-    if (isMoving) {
-      event.stopPropagation();
-      state.update('_internal.list.columns.resizer.active', false);
-      state.update(columnWidthPath, left);
-      isMoving = false;
-    }
-  }
+  componentActions.push(PointerAction);
 
-  document.body.addEventListener('mousemove', onMouseMove);
-  onDestroy(() => document.body.removeEventListener('mousemove', schedule(onMouseMove)));
-  document.body.addEventListener('mouseup', onMouseUp);
-  onDestroy(() => document.body.removeEventListener('mouseup', onMouseUp));
-
-  const actions = Actions.create(componentActions, { column, api, state });
+  const actions = Actions.create(componentActions, actionProps);
+  const dotsActions = Actions.create(componentDotsActions, actionProps);
 
   return templateProps =>
     wrapper(
@@ -140,7 +120,7 @@ export default function ListColumnHeaderResizer(vido, props) {
                 : column.header.content
             )}
           </div>
-          <div class=${dotsClass} style=${dotsStyleMap} @mousedown=${onMouseDown}>
+          <div class=${dotsClass} style=${dotsStyleMap} data-actions=${dotsActions}>
             ${dots.map(
               dot =>
                 html`

@@ -243,6 +243,7 @@ $item-content-padding = 5px
       position: relative
       &-inner
         will-change: transform
+        overflow: hidden
       &-grid
         overflow: hidden
         & *
@@ -263,11 +264,11 @@ $item-content-padding = 5px
             border-right: $grid
             border-bottom: $grid
             &--selecting
-              background: rgba(0,119, 192, 0.5)
+              background: rgba(0,119, 192, 0.5) !important
             &--selecting:last-child
               border-right: 1px solid red
             &--selected
-              background: rgba(0,119, 192, 0.75)
+              background: rgba(0,119, 192, 0.75) !important
             &.current
               background: $bg-dark-2
       &-dependency-lines

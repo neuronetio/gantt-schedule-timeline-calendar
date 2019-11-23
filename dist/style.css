@@ -270,6 +270,7 @@
 }
 .gantt-schedule-timeline-calendar__chart-timeline-inner {
   will-change: transform;
+  overflow: hidden;
 }
 .gantt-schedule-timeline-calendar__chart-timeline-grid {
   overflow: hidden;
@@ -295,13 +296,13 @@
   border-bottom: 1px solid rgba(237,241,242,0.75);
 }
 .gantt-schedule-timeline-calendar__chart-timeline-grid-row-block--selecting {
-  background: rgba(0,119,192,0.5);
+  background: rgba(0,119,192,0.5) !important;
 }
 .gantt-schedule-timeline-calendar__chart-timeline-grid-row-block--selecting:last-child {
   border-right: 1px solid #f00;
 }
 .gantt-schedule-timeline-calendar__chart-timeline-grid-row-block--selected {
-  background: rgba(0,119,192,0.75);
+  background: rgba(0,119,192,0.75) !important;
 }
 .gantt-schedule-timeline-calendar__chart-timeline-grid-row-block.current {
   background: #f9fafb;

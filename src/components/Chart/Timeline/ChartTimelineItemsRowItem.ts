@@ -8,32 +8,8 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-/**
- * Bind element action
- */
-class BindElementAction {
-  constructor(element, data) {
-    data.state.update(
-      '_internal.elements.chart-timeline-items-row-items',
-      function updateRowItems(items) {
-        if (typeof items === 'undefined') {
-          items = [];
-        }
-        items.push(element);
-        return items;
-      },
-      { only: null }
-    );
-  }
-  destroy(element, data) {
-    data.state.update('_internal.elements.chart-timeline-items-row-items', items => {
-      return items.filter(el => el !== element);
-    });
-  }
-}
-
 function ChartTimelineItemsRowItem(vido, props) {
-  const { api, state, onDestroy, Detach, Actions, update, html, onChange, unsafeHTML, StyleMap } = vido;
+  const { api, state, onDestroy, Detach, Action, Actions, update, html, onChange, unsafeHTML, StyleMap } = vido;
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
   let styleMap = new StyleMap({ width: '', height: '', left: '' }),
@@ -122,9 +98,32 @@ function ChartTimelineItemsRowItem(vido, props) {
     })
   );
 
-  if (componentActions.indexOf(BindElementAction) === -1) {
-    componentActions.push(BindElementAction);
+  /**
+   * Bind element action
+   */
+  class BindElementAction extends Action {
+    constructor(element, data) {
+      super();
+      data.state.update(
+        '_internal.elements.chart-timeline-items-row-items',
+        function updateRowItems(items) {
+          if (typeof items === 'undefined') {
+            items = [];
+          }
+          items.push(element);
+          return items;
+        },
+        { only: null }
+      );
+    }
+    destroy(element, data) {
+      data.state.update('_internal.elements.chart-timeline-items-row-items', items => {
+        return items.filter(el => el !== element);
+      });
+    }
   }
+
+  componentActions.push(BindElementAction);
 
   const actions = Actions.create(componentActions, actionProps);
 

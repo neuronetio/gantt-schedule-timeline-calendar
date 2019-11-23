@@ -34,6 +34,7 @@ export const actionNames = [
   'list-expander',
   'list-expander-toggle',
   'list-column-header-resizer',
+  'list-column-header-resizer-dots',
   'list-column-row',
   'chart',
   'chart-calendar',

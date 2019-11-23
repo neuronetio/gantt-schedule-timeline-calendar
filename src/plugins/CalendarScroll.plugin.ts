@@ -8,6 +8,8 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
+import { Action } from '@neuronet.io/vido';
+
 export default function CalendarScroll(options = {}) {
   let state, api, schedule;
   const defaultOptions = {
@@ -17,12 +19,13 @@ export default function CalendarScroll(options = {}) {
   };
   options = { ...defaultOptions, ...options };
 
-  class CalendarScrollAction {
+  class CalendarScrollAction extends Action {
     isMoving: boolean = false;
     lastX: number = 0;
     mc: any;
 
     constructor(element: HTMLElement) {
+      super();
       this.onPointerStart = this.onPointerStart.bind(this);
       this.onPointerMove = this.onPointerMove.bind(this);
       this.onPointerEnd = this.onPointerEnd.bind(this);

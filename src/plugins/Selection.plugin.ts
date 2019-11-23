@@ -8,6 +8,8 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
+import { Action } from '@neuronet.io/vido';
+
 export interface RectStyle {
   [key: string]: any;
 }
@@ -109,7 +111,7 @@ export default function Selection(options: Options = {}) {
   /**
    * Selection action class
    */
-  class SelectionAction {
+  class SelectionAction extends Action {
     chartTimeline: Element;
     mouseDown: (ev: MouseEvent) => void;
     mouseMove: (ev: MouseEvent) => void;
@@ -123,15 +125,19 @@ export default function Selection(options: Options = {}) {
      * @param {object|any} data
      */
     constructor(element: Element, data: any) {
+      super();
       let previousSelect,
         api = {} as any;
-      this.chartTimeline = state.get('_internal.elements.chart-timeline');
-      if (!this.chartTimeline.querySelector('.' + rectClassName)) {
-        this.chartTimeline.insertAdjacentElement('beforeend', rect);
-        const bounding = this.chartTimeline.getBoundingClientRect();
-        this.left = bounding.left;
-        this.top = bounding.top;
-      }
+      data.state.subscribe('_internal.elements.chart-timeline', chartTimeline => {
+        if (chartTimeline === undefined) return;
+        this.chartTimeline = chartTimeline;
+        if (!this.chartTimeline.querySelector('.' + rectClassName)) {
+          this.chartTimeline.insertAdjacentElement('beforeend', rect);
+          const bounding = this.chartTimeline.getBoundingClientRect();
+          this.left = bounding.left;
+          this.top = bounding.top;
+        }
+      });
 
       /**
        * Clear selection
@@ -477,11 +483,6 @@ export default function Selection(options: Options = {}) {
       document.addEventListener('mouseup', this.mouseUp);
       options.getApi(api);
     }
-    update() {
-      const bounding = this.chartTimeline.getBoundingClientRect();
-      this.left = bounding.left;
-      this.top = bounding.top;
-    }
     destroy(element) {
       document.removeEventListener('mouseup', this.mouseUp);
       document.removeEventListener('mousemove', this.mouseMove);
@@ -523,11 +524,12 @@ export default function Selection(options: Options = {}) {
    * @param {object} data
    * @returns {object} with update and destroy functions
    */
-  class GridBlockAction {
+  class GridBlockAction extends Action {
     classNameSelecting: string;
     classNameSelected: string;
 
     constructor(element: HTMLElement, data: any) {
+      super();
       this.classNameSelecting = api.getClass('chart-timeline-grid-row-block') + '--selecting';
       this.classNameSelected = api.getClass('chart-timeline-grid-row-block') + '--selected';
       updateSelection(element, data.selecting, data.selected, this.classNameSelecting, this.classNameSelected);
@@ -549,11 +551,12 @@ export default function Selection(options: Options = {}) {
    * @param {object} data
    * @returns {object} with update and destroy functions
    */
-  class ItemAction {
+  class ItemAction extends Action {
     classNameSelecting: string;
     classNameSelected: string;
 
     constructor(element: HTMLElement, data: any) {
+      super();
       this.classNameSelecting = api.getClass('chart-timeline-items-row-item') + '--selecting';
       this.classNameSelected = api.getClass('chart-timeline-items-row-item') + '--selected';
       updateSelection(

@@ -12,6 +12,7 @@ export default function ChartTimeline(vido, props) {
   const { api, state, onDestroy, Actions, update, html, createComponent, StyleMap } = vido;
   const componentName = 'chart-timeline';
   const componentActions = api.getActions(componentName);
+
   const actionProps = { ...props, api, state };
 
   let wrapper;

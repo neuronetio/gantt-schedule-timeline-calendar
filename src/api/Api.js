@@ -104,9 +104,14 @@ export default publicApi;
 export function getInternalApi(state) {
   let $state = state.get();
   let unsubscribers = [];
+  let vido;
   const api = {
     name: lib,
     debug: false,
+
+    setVido(Vido) {
+      vido = Vido;
+    },
 
     log(...args) {
       if (this.debug) {
@@ -132,7 +137,7 @@ export function getInternalApi(state) {
       if (typeof actions === 'undefined') {
         actions = [];
       }
-      return actions;
+      return actions.slice();
     },
 
     isItemInViewport(item, left, right) {

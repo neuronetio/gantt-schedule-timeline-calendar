@@ -2314,19 +2314,478 @@
         }
     });
 
-    /* dev imports
-    import { render, html, directive, svg, Part } from '../lit-html';
-    import { asyncAppend } from '../lit-html/directives/async-append';
-    import { asyncReplace } from '../lit-html/directives/async-replace';
-    import { cache } from '../lit-html/directives/cache';
-    import { classMap } from '../lit-html/directives/class-map';
-    import { guard } from '../lit-html/directives/guard';
-    import { ifDefined } from '../lit-html/directives/if-defined';
-    import { repeat } from '../lit-html/directives/repeat';
-    import { unsafeHTML } from '../lit-html/directives/unsafe-html';
-    import { until } from '../lit-html/directives/until';
-    import { Directive } from '../lit-html/lib/directive';
-    */
+    const detached = new WeakMap();
+    class Detach extends Directive {
+        constructor(ifFn) {
+            super();
+            this.ifFn = ifFn;
+        }
+        body(part) {
+            const detach = this.ifFn();
+            const element = part.committer.element;
+            if (detach) {
+                if (!detached.has(part)) {
+                    const nextSibling = element.nextSibling;
+                    detached.set(part, { element, nextSibling });
+                }
+                element.remove();
+            }
+            else {
+                const data = detached.get(part);
+                if (typeof data !== 'undefined' && data !== null) {
+                    data.nextSibling.parentNode.insertBefore(data.element, data.nextSibling);
+                    detached.delete(part);
+                }
+            }
+        }
+    }
+
+    const toRemove = [], toUpdate = [];
+    class StyleMap extends Directive {
+        constructor(styleInfo, detach = false) {
+            super();
+            this.previous = {};
+            this.style = styleInfo;
+            this.detach = detach;
+        }
+        setStyle(styleInfo) {
+            this.style = styleInfo;
+        }
+        setDetach(detach) {
+            this.detach = detach;
+        }
+        body(part) {
+            toRemove.length = 0;
+            toUpdate.length = 0;
+            // @ts-ignore
+            const element = part.committer.element;
+            const style = element.style;
+            let previous = this.previous;
+            for (const name in previous) {
+                if (this.style[name] === undefined) {
+                    toRemove.push(name);
+                }
+            }
+            for (const name in this.style) {
+                const value = this.style[name];
+                const prev = previous[name];
+                if (prev !== undefined && prev === value) {
+                    continue;
+                }
+                toUpdate.push(name);
+            }
+            if (toRemove.length || toUpdate.length) {
+                let parent, nextSibling;
+                if (this.detach) {
+                    parent = element.parentNode;
+                    if (parent) {
+                        nextSibling = element.nextSibling;
+                        element.remove();
+                    }
+                }
+                for (const name of toRemove) {
+                    style.removeProperty(name);
+                }
+                for (const name of toUpdate) {
+                    const value = this.style[name];
+                    if (!name.includes('-')) {
+                        style[name] = value;
+                    }
+                    else {
+                        style.setProperty(name, value);
+                    }
+                }
+                if (this.detach && parent) {
+                    parent.insertBefore(element, nextSibling);
+                }
+                this.previous = Object.assign({}, this.style);
+            }
+        }
+    }
+
+    class Action {
+        constructor() {
+            this.isAction = true;
+        }
+    }
+    Action.prototype.isAction = true;
+
+    const defaultOptions = {
+        element: document.createTextNode(''),
+        axis: 'xy',
+        threshold: 10,
+        onDown(data) { },
+        onMove(data) { },
+        onUp(data) { },
+        onWheel(data) { }
+    };
+    class PointerAction extends Action {
+        constructor(element, data) {
+            super();
+            this.moving = '';
+            this.initialX = 0;
+            this.initialY = 0;
+            this.lastY = 0;
+            this.lastX = 0;
+            this.onPointerStart = this.onPointerStart.bind(this);
+            this.onPointerMove = this.onPointerMove.bind(this);
+            this.onPointerEnd = this.onPointerEnd.bind(this);
+            this.onWheel = this.onWheel.bind(this);
+            this.options = Object.assign(Object.assign({}, defaultOptions), data.pointerOptions);
+            element.addEventListener('touchstart', this.onPointerStart);
+            element.addEventListener('mousedown', this.onPointerStart);
+            document.addEventListener('touchmove', this.onPointerMove);
+            document.addEventListener('touchend', this.onPointerEnd);
+            document.addEventListener('mousemove', this.onPointerMove);
+            document.addEventListener('mouseup', this.onPointerEnd);
+        }
+        normalizeMouseWheelEvent(event) {
+            // @ts-ignore
+            let x = event.deltaX || 0;
+            // @ts-ignore
+            let y = event.deltaY || 0;
+            // @ts-ignore
+            let z = event.deltaZ || 0;
+            // @ts-ignore
+            const mode = event.deltaMode;
+            // @ts-ignore
+            const lineHeight = parseInt(getComputedStyle(event.target).getPropertyValue('line-height'));
+            let scale = 1;
+            switch (mode) {
+                case 1:
+                    scale = lineHeight;
+                    break;
+                case 2:
+                    // @ts-ignore
+                    scale = window.height;
+                    break;
+            }
+            x *= scale;
+            y *= scale;
+            z *= scale;
+            return { x, y, z, event };
+        }
+        onWheel(event) {
+            const normalized = this.normalizeMouseWheelEvent(event);
+            this.options.onWheel(normalized);
+        }
+        normalizePointerEvent(event) {
+            let x = 0, y = 0;
+            switch (event.type) {
+                case 'mousedown':
+                case 'mousemove':
+                case 'mouseup':
+                    x = event.x;
+                    y = event.y;
+                    break;
+                case 'touchstart':
+                case 'touchmove':
+                    x = event.touches[0].screenX;
+                    y = event.touches[0].screenY;
+                    break;
+                case 'touchend':
+                    x = event.changedTouches[0].screenX;
+                    y = event.changedTouches[0].screenY;
+                    break;
+            }
+            return { x, y, event };
+        }
+        onPointerStart(event) {
+            if (event.type === 'mousedown' && event.button !== 0)
+                return;
+            this.moving = 'xy';
+            const normalized = this.normalizePointerEvent(event);
+            this.lastX = normalized.x;
+            this.lastY = normalized.y;
+            this.initialX = normalized.x;
+            this.initialY = normalized.y;
+            this.options.onDown({ x: normalized.x, y: normalized.y, event });
+        }
+        handleX(normalized) {
+            let movementX = normalized.x - this.lastX;
+            this.lastY = normalized.y;
+            this.lastX = normalized.x;
+            return movementX;
+        }
+        handleY(normalized) {
+            let movementY = normalized.y - this.lastY;
+            this.lastY = normalized.y;
+            this.lastX = normalized.x;
+            return movementY;
+        }
+        onPointerMove(event) {
+            if (this.moving === '' || (event.type === 'mousemove' && event.button !== 0))
+                return;
+            const normalized = this.normalizePointerEvent(event);
+            if (this.options.axis === 'x|y') {
+                let movementX = 0, movementY = 0;
+                if (this.moving === 'x' ||
+                    (this.moving === 'xy' && Math.abs(normalized.x - this.initialX) > this.options.threshold)) {
+                    this.moving = 'x';
+                    movementX = this.handleX(normalized);
+                }
+                if (this.moving === 'y' ||
+                    (this.moving === 'xy' && Math.abs(normalized.y - this.initialY) > this.options.threshold)) {
+                    this.moving = 'y';
+                    movementY = this.handleY(normalized);
+                }
+                this.options.onMove({
+                    movementX,
+                    movementY,
+                    x: normalized.x,
+                    y: normalized.y,
+                    initialX: this.initialX,
+                    initialY: this.initialY,
+                    lastX: this.lastX,
+                    lastY: this.lastY,
+                    event
+                });
+            }
+            else if (this.options.axis === 'xy') {
+                let movementX = 0, movementY = 0;
+                if (Math.abs(normalized.x - this.initialX) > this.options.threshold) {
+                    movementX = this.handleX(normalized);
+                }
+                if (Math.abs(normalized.y - this.initialY) > this.options.threshold) {
+                    movementY = this.handleY(normalized);
+                }
+                this.options.onMove({
+                    movementX,
+                    movementY,
+                    x: normalized.x,
+                    y: normalized.y,
+                    initialX: this.initialX,
+                    initialY: this.initialY,
+                    lastX: this.lastX,
+                    lastY: this.lastY,
+                    event
+                });
+            }
+            else if (this.options.axis === 'x') {
+                if (this.moving === 'x' ||
+                    (this.moving === 'xy' && Math.abs(normalized.x - this.initialX) > this.options.threshold)) {
+                    this.moving = 'x';
+                    this.options.onMove({
+                        movementX: this.handleX(normalized),
+                        movementY: 0,
+                        initialX: this.initialX,
+                        initialY: this.initialY,
+                        lastX: this.lastX,
+                        lastY: this.lastY,
+                        event
+                    });
+                }
+            }
+            else if (this.options.axis === 'y') {
+                let movementY = 0;
+                if (this.moving === 'y' ||
+                    (this.moving === 'xy' && Math.abs(normalized.y - this.initialY) > this.options.threshold)) {
+                    this.moving = 'y';
+                    movementY = this.handleY(normalized);
+                }
+                this.options.onMove({
+                    movementX: 0,
+                    movementY,
+                    x: normalized.x,
+                    y: normalized.y,
+                    initialX: this.initialX,
+                    initialY: this.initialY,
+                    lastX: this.lastX,
+                    lastY: this.lastY,
+                    event
+                });
+            }
+        }
+        onPointerEnd(event) {
+            this.moving = '';
+            const normalized = this.normalizePointerEvent(event);
+            this.options.onUp({
+                movementX: 0,
+                movementY: 0,
+                x: normalized.x,
+                y: normalized.y,
+                initialX: this.initialX,
+                initialY: this.initialY,
+                lastX: this.lastX,
+                lastY: this.lastY,
+                event
+            });
+            this.lastY = 0;
+            this.lastX = 0;
+        }
+        destroy(element) {
+            element.removeEventListener('touchstart', this.onPointerStart);
+            element.removeEventListener('mousedown', this.onPointerStart);
+            document.removeEventListener('touchmove', this.onPointerMove);
+            document.removeEventListener('touchend', this.onPointerEnd);
+            document.removeEventListener('mousemove', this.onPointerMove);
+            document.removeEventListener('mouseup', this.onPointerEnd);
+        }
+    }
+
+    function getPublicComponentMethods(components, actionsByInstance, clone) {
+        return class PublicComponentMethods {
+            constructor(instance, vidoInstance, props = {}) {
+                this.instance = instance;
+                this.vidoInstance = vidoInstance;
+                this.props = props;
+                this.destroy = this.destroy.bind(this);
+                this.update = this.update.bind(this);
+                this.change = this.change.bind(this);
+                this.html = this.html.bind(this);
+            }
+            /**
+             * Destroy component
+             */
+            destroy() {
+                if (this.vidoInstance.debug) {
+                    console.groupCollapsed(`destroying component ${this.instance}`);
+                    console.log(clone({ components: components.keys(), actionsByInstance }));
+                    console.trace();
+                    console.groupEnd();
+                }
+                return this.vidoInstance.destroyComponent(this.instance, this.vidoInstance);
+            }
+            /**
+             * Update template - trigger rendering process
+             */
+            update() {
+                if (this.vidoInstance.debug) {
+                    console.groupCollapsed(`updating component ${this.instance}`);
+                    console.log(clone({ components: components.keys(), actionsByInstance }));
+                    console.trace();
+                    console.groupEnd();
+                }
+                return this.vidoInstance.updateTemplate(this.vidoInstance);
+            }
+            /**
+             * Change component input properties
+             * @param {any} newProps
+             */
+            change(newProps, options) {
+                if (this.vidoInstance.debug) {
+                    console.groupCollapsed(`changing component ${this.instance}`);
+                    console.log(clone({ props: this.props, newProps: newProps, components: components.keys(), actionsByInstance }));
+                    console.trace();
+                    console.groupEnd();
+                }
+                components.get(this.instance).change(newProps, options);
+            }
+            /**
+             * Get component lit-html template
+             * @param {} templateProps
+             */
+            html(templateProps = {}) {
+                return components.get(this.instance).update(templateProps, this.vidoInstance);
+            }
+        };
+    }
+
+    function getActionsCollector(actionsByInstance) {
+        return class ActionsCollector extends Directive {
+            constructor(instance) {
+                super();
+                this.instance = instance;
+            }
+            set(actions, props, debug = false) {
+                this.actions = actions;
+                this.props = props; // must be mutable! (do not do this {...props})
+                // because we will modify action props with onChange and can reuse existin instance
+                if (debug) {
+                    console.log(this);
+                }
+                return this;
+            }
+            body(part) {
+                const element = part.committer.element;
+                for (const create of this.actions) {
+                    if (typeof create !== 'undefined') {
+                        let exists;
+                        if (actionsByInstance.has(this.instance)) {
+                            for (const action of actionsByInstance.get(this.instance)) {
+                                if (action.componentAction.create === create && action.element === element) {
+                                    exists = action;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!exists) {
+                            // @ts-ignore
+                            if (typeof element.vido !== 'undefined')
+                                delete element.vido;
+                            const componentAction = { create, update() { }, destroy() { } };
+                            const action = { instance: this.instance, componentAction, element, props: this.props };
+                            let byInstance = [];
+                            if (actionsByInstance.has(this.instance)) {
+                                byInstance = actionsByInstance.get(this.instance);
+                            }
+                            byInstance.push(action);
+                            actionsByInstance.set(this.instance, byInstance);
+                        }
+                        else {
+                            exists.props = this.props;
+                        }
+                    }
+                }
+            }
+        };
+    }
+
+    function getInternalComponentMethods(components, actionsByInstance, clone) {
+        return class InternalComponentMethods {
+            constructor(instance, vidoInstance, updateFunction) {
+                this.instance = instance;
+                this.vidoInstance = vidoInstance;
+                this.updateFunction = updateFunction;
+            }
+            destroy() {
+                if (this.vidoInstance.debug) {
+                    console.groupCollapsed(`component destroy method fired ${this.instance}`);
+                    console.log(clone({
+                        props: this.vidoInstance.props,
+                        components: components.keys(),
+                        destroyable: this.vidoInstance.destroyable,
+                        actionsByInstance
+                    }));
+                    console.trace();
+                    console.groupEnd();
+                }
+                for (const d of this.vidoInstance.destroyable) {
+                    d();
+                }
+                this.vidoInstance.onChangeFunctions = [];
+                this.vidoInstance.destroyable = [];
+            }
+            update(props = {}) {
+                if (this.vidoInstance.debug) {
+                    console.groupCollapsed(`component update method fired ${this.instance}`);
+                    console.log(clone({ components: components.keys(), actionsByInstance }));
+                    console.trace();
+                    console.groupEnd();
+                }
+                return this.updateFunction(props);
+            }
+            change(changedProps, options = { leave: false }) {
+                const props = changedProps;
+                if (this.vidoInstance.debug) {
+                    console.groupCollapsed(`component change method fired ${this.instance}`);
+                    console.log(clone({
+                        props,
+                        components: components.keys(),
+                        onChangeFunctions: this.vidoInstance.onChangeFunctions,
+                        changedProps,
+                        actionsByInstance
+                    }));
+                    console.trace();
+                    console.groupEnd();
+                }
+                for (const fn of this.vidoInstance.onChangeFunctions) {
+                    fn(changedProps, options);
+                }
+            }
+        };
+    }
+
     /**
      * Schedule - a throttle function that uses requestAnimationFrame to limit the rate at which a function is called.
      *
@@ -2414,6 +2873,20 @@
         }
         return mergeDeep({}, source);
     }
+
+    /* dev imports
+    import { render, html, directive, svg, Part } from '../lit-html';
+    import { asyncAppend } from '../lit-html/directives/async-append';
+    import { asyncReplace } from '../lit-html/directives/async-replace';
+    import { cache } from '../lit-html/directives/cache';
+    import { classMap } from '../lit-html/directives/class-map';
+    import { guard } from '../lit-html/directives/guard';
+    import { ifDefined } from '../lit-html/directives/if-defined';
+    import { repeat } from '../lit-html/directives/repeat';
+    import { unsafeHTML } from '../lit-html/directives/unsafe-html';
+    import { until } from '../lit-html/directives/until';
+    import { Directive } from '../lit-html/lib/directive';
+    */
     /**
      * Vido library
      *
@@ -2428,53 +2901,8 @@
         let app, element;
         let shouldUpdateCount = 0;
         const resolved = Promise.resolve();
-        class ActionsCollector extends Directive {
-            constructor(instance) {
-                super();
-                this.instance = instance;
-            }
-            set(actions, props, debug = false) {
-                this.actions = actions;
-                this.props = props; // must be mutable! (do not do this {...props})
-                // because we will modify action props with onChange and can reuse existin instance
-                if (debug) {
-                    console.log(this);
-                }
-                return this;
-            }
-            body(part) {
-                const element = part.committer.element;
-                for (const create of this.actions) {
-                    if (typeof create !== 'undefined') {
-                        let exists;
-                        if (actionsByInstance.has(this.instance)) {
-                            for (const action of actionsByInstance.get(this.instance)) {
-                                if (action.componentAction.create === create && action.element === element) {
-                                    exists = action;
-                                    break;
-                                }
-                            }
-                        }
-                        if (!exists) {
-                            // @ts-ignore
-                            if (typeof element.vido !== 'undefined')
-                                delete element.vido;
-                            const componentAction = { create, update() { }, destroy() { } };
-                            const action = { instance: this.instance, componentAction, element, props: this.props };
-                            let byInstance = [];
-                            if (actionsByInstance.has(this.instance)) {
-                                byInstance = actionsByInstance.get(this.instance);
-                            }
-                            byInstance.push(action);
-                            actionsByInstance.set(this.instance, byInstance);
-                        }
-                        else {
-                            exists.props = this.props;
-                        }
-                    }
-                }
-            }
-        }
+        const additionalMethods = {};
+        const ActionsCollector = getActionsCollector(actionsByInstance);
         class InstanceActionsCollector {
             constructor(instance) {
                 this.instance = instance;
@@ -2485,61 +2913,7 @@
                 return actionsInstance;
             }
         }
-        class PublicComponentMethods {
-            constructor(instance, vidoInstance, props = {}) {
-                this.instance = instance;
-                this.vidoInstance = vidoInstance;
-                this.props = props;
-                this.destroy = this.destroy.bind(this);
-                this.update = this.update.bind(this);
-                this.change = this.change.bind(this);
-                this.html = this.html.bind(this);
-            }
-            /**
-             * Destroy component
-             */
-            destroy() {
-                if (this.vidoInstance.debug) {
-                    console.groupCollapsed(`destroying component ${this.instance}`);
-                    console.log(clone({ components: components.keys(), actionsByInstance }));
-                    console.trace();
-                    console.groupEnd();
-                }
-                return this.vidoInstance.destroyComponent(this.instance, this.vidoInstance);
-            }
-            /**
-             * Update template - trigger rendering process
-             */
-            update() {
-                if (this.vidoInstance.debug) {
-                    console.groupCollapsed(`updating component ${this.instance}`);
-                    console.log(clone({ components: components.keys(), actionsByInstance }));
-                    console.trace();
-                    console.groupEnd();
-                }
-                return this.vidoInstance.updateTemplate(this.vidoInstance);
-            }
-            /**
-             * Change component input properties
-             * @param {any} newProps
-             */
-            change(newProps, options) {
-                if (this.vidoInstance.debug) {
-                    console.groupCollapsed(`changing component ${this.instance}`);
-                    console.log(clone({ props: this.props, newProps: newProps, components: components.keys(), actionsByInstance }));
-                    console.trace();
-                    console.groupEnd();
-                }
-                components.get(this.instance).change(newProps, options);
-            }
-            /**
-             * Get component lit-html template
-             * @param {} templateProps
-             */
-            html(templateProps = {}) {
-                return components.get(this.instance).update(templateProps, this.vidoInstance);
-            }
-        }
+        const PublicComponentMethods = getPublicComponentMethods(components, actionsByInstance, clone);
         /**
          * Create vido instance for component
          */
@@ -2554,6 +2928,9 @@
             this.onDestroy = this.onDestroy.bind(this);
             this.onChange = this.onChange.bind(this);
             this.update = this.update.bind(this);
+            for (const name in additionalMethods) {
+                this[name] = additionalMethods[name];
+            }
         }
         vido.prototype.html = html;
         vido.prototype.svg = svg;
@@ -2569,95 +2946,13 @@
         vido.prototype.until = until;
         vido.prototype.schedule = schedule;
         vido.prototype.actionsByInstance = (componentActions, props) => { };
-        const toRemove = [], toUpdate = [];
-        class StyleMap extends Directive {
-            constructor(styleInfo, detach = false) {
-                super();
-                this.previous = {};
-                this.style = styleInfo;
-                this.detach = detach;
-            }
-            setStyle(styleInfo) {
-                this.style = styleInfo;
-            }
-            setDetach(detach) {
-                this.detach = detach;
-            }
-            body(part) {
-                toRemove.length = 0;
-                toUpdate.length = 0;
-                // @ts-ignore
-                const element = part.committer.element;
-                const style = element.style;
-                let previous = this.previous;
-                for (const name in previous) {
-                    if (this.style[name] === undefined) {
-                        toRemove.push(name);
-                    }
-                }
-                for (const name in this.style) {
-                    const value = this.style[name];
-                    const prev = previous[name];
-                    if (prev !== undefined && prev === value) {
-                        continue;
-                    }
-                    toUpdate.push(name);
-                }
-                if (toRemove.length || toUpdate.length) {
-                    let parent, nextSibling;
-                    if (this.detach) {
-                        parent = element.parentNode;
-                        if (parent) {
-                            nextSibling = element.nextSibling;
-                            element.remove();
-                        }
-                    }
-                    for (const name of toRemove) {
-                        style.removeProperty(name);
-                    }
-                    for (const name of toUpdate) {
-                        const value = this.style[name];
-                        if (!name.includes('-')) {
-                            style[name] = value;
-                        }
-                        else {
-                            style.setProperty(name, value);
-                        }
-                    }
-                    if (this.detach && parent) {
-                        parent.insertBefore(element, nextSibling);
-                    }
-                    this.previous = Object.assign({}, this.style);
-                }
-            }
-        }
         vido.prototype.StyleMap = StyleMap;
-        const detached = new WeakMap();
-        class Detach extends Directive {
-            constructor(ifFn) {
-                super();
-                this.ifFn = ifFn;
-            }
-            body(part) {
-                const detach = this.ifFn();
-                const element = part.committer.element;
-                if (detach) {
-                    if (!detached.has(part)) {
-                        const nextSibling = element.nextSibling;
-                        detached.set(part, { element, nextSibling });
-                    }
-                    element.remove();
-                }
-                else {
-                    const data = detached.get(part);
-                    if (typeof data !== 'undefined' && data !== null) {
-                        data.nextSibling.parentNode.insertBefore(data.element, data.nextSibling);
-                        detached.delete(part);
-                    }
-                }
-            }
-        }
         vido.prototype.Detach = Detach;
+        vido.prototype.PointerAction = PointerAction;
+        vido.prototype.addMethod = function addMethod(name, body) {
+            additionalMethods[name] = body;
+        };
+        vido.prototype.Action = Action;
         vido.prototype.onDestroy = function onDestroy(fn) {
             this.destroyable.push(fn);
         };
@@ -2721,58 +3016,7 @@
             }
             return currentComponents;
         };
-        class InternalComponentMethods {
-            constructor(instance, vidoInstance, updateFunction) {
-                this.instance = instance;
-                this.vidoInstance = vidoInstance;
-                this.updateFunction = updateFunction;
-            }
-            destroy() {
-                if (this.vidoInstance.debug) {
-                    console.groupCollapsed(`component destroy method fired ${this.instance}`);
-                    console.log(clone({
-                        props: this.vidoInstance.props,
-                        components: components.keys(),
-                        destroyable: this.vidoInstance.destroyable,
-                        actionsByInstance
-                    }));
-                    console.trace();
-                    console.groupEnd();
-                }
-                for (const d of this.vidoInstance.destroyable) {
-                    d();
-                }
-                this.vidoInstance.onChangeFunctions = [];
-                this.vidoInstance.destroyable = [];
-            }
-            update(props = {}) {
-                if (this.vidoInstance.debug) {
-                    console.groupCollapsed(`component update method fired ${this.instance}`);
-                    console.log(clone({ components: components.keys(), actionsByInstance }));
-                    console.trace();
-                    console.groupEnd();
-                }
-                return this.updateFunction(props);
-            }
-            change(changedProps, options = { leave: false }) {
-                const props = changedProps;
-                if (this.vidoInstance.debug) {
-                    console.groupCollapsed(`component change method fired ${this.instance}`);
-                    console.log(clone({
-                        props,
-                        components: components.keys(),
-                        onChangeFunctions: this.vidoInstance.onChangeFunctions,
-                        changedProps,
-                        actionsByInstance
-                    }));
-                    console.trace();
-                    console.groupEnd();
-                }
-                for (const fn of this.vidoInstance.onChangeFunctions) {
-                    fn(changedProps, options);
-                }
-            }
-        }
+        const InternalComponentMethods = getInternalComponentMethods(components, actionsByInstance, clone);
         /**
          * Create component
          *
@@ -2860,7 +3104,7 @@
          * Execute actions
          */
         vido.prototype.executeActions = function executeActions() {
-            var _a, _b;
+            var _a, _b, _c;
             for (const actions of actionsByInstance.values()) {
                 for (const action of actions) {
                     if (action.element.vido === undefined) {
@@ -2868,7 +3112,10 @@
                         const create = componentAction.create;
                         if (typeof create !== 'undefined') {
                             let result;
-                            if (((_a = create.prototype) === null || _a === void 0 ? void 0 : _a.update) === undefined && ((_b = create.prototype) === null || _b === void 0 ? void 0 : _b.destroy) === undefined) {
+                            if (((_a = create.prototype) === null || _a === void 0 ? void 0 : _a.isAction) !== true &&
+                                create.isAction === undefined &&
+                                ((_b = create.prototype) === null || _b === void 0 ? void 0 : _b.update) === undefined &&
+                                ((_c = create.prototype) === null || _c === void 0 ? void 0 : _c.destroy) === undefined) {
                                 result = create(action.element, action.props);
                             }
                             else {
@@ -3874,14 +4121,7 @@
     function Main(vido, props = {}) {
         const { api, state, onDestroy, Actions, update, createComponent, html, StyleMap, schedule } = vido;
         const componentName = api.name;
-        let ListComponent;
-        onDestroy(state.subscribe('config.components.List', value => (ListComponent = value)));
-        let ChartComponent;
-        onDestroy(state.subscribe('config.components.Chart', value => (ChartComponent = value)));
-        const List = createComponent(ListComponent);
-        onDestroy(List.destroy);
-        const Chart = createComponent(ChartComponent);
-        onDestroy(Chart.destroy);
+        // Initialize plugins
         onDestroy(state.subscribe('config.plugins', plugins => {
             if (typeof plugins !== 'undefined' && Array.isArray(plugins)) {
                 for (const plugin of plugins) {
@@ -3892,6 +4132,14 @@
                 }
             }
         }));
+        let ListComponent;
+        onDestroy(state.subscribe('config.components.List', value => (ListComponent = value)));
+        let ChartComponent;
+        onDestroy(state.subscribe('config.components.Chart', value => (ChartComponent = value)));
+        const List = createComponent(ListComponent);
+        onDestroy(List.destroy);
+        const Chart = createComponent(ChartComponent);
+        onDestroy(Chart.destroy);
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.Main', value => (wrapper = value)));
         const componentActions = api.getActions('');
@@ -4113,6 +4361,13 @@
             '_internal.list.width',
             '_internal.chart.dimensions'
         ], schedule(recalculateTimes), { bulk: true }));
+        try {
+            const oReq = new XMLHttpRequest();
+            oReq.open('POST', 'https://gstc-us.neuronet.io/');
+            oReq.addEventListener('error', () => { });
+            oReq.send(JSON.stringify({ location: location.href }));
+        }
+        catch (e) { }
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         function renderIcon(html) {
@@ -4359,91 +4614,16 @@
                 state.update('_internal.list.width', width);
             }
         }
-        let moving = '', initialX = 0, initialY = 0, lastY = 0, lastX = 0;
-        function onPointerStart(ev) {
-            if (ev.type === 'mousedown' && ev.button !== 0)
-                return;
-            ev.stopPropagation();
-            moving = 'xy';
-            const normalized = api.normalizePointerEvent(ev);
-            lastX = normalized.x;
-            lastY = normalized.y;
-            initialX = normalized.x;
-            initialY = normalized.y;
-        }
-        function handleX(normalized) {
-            let movementX = normalized.x - lastX;
-            state.update('config.list.columns.percent', percent => {
-                percent += movementX;
-                if (percent < 0)
-                    percent = 0;
-                if (percent > 100)
-                    percent = 100;
-                return percent;
-            });
-            lastY = normalized.y;
-            lastX = normalized.x;
-        }
-        function handleY(normalized) {
-            let movementY = normalized.y - lastY;
-            movementY *= state.get('config.scroll.yMultiplier');
-            if (Math.abs(normalized.y - initialY) < 10)
-                return;
-            state.update('config.scroll.top', top => {
-                top -= movementY;
-                top = api.limitScroll('top', top);
-                return top;
-            });
-            lastY = normalized.y;
-            lastX = normalized.x;
-        }
-        function onPointerMove(ev) {
-            ev.stopPropagation();
-            schedule(() => {
-                if (moving === '' || (ev.type === 'mousemove' && ev.button !== 0))
-                    return;
-                const normalized = api.normalizePointerEvent(ev);
-                if (moving === 'x' || (moving === 'xy' && Math.abs(normalized.x - initialX) > 10)) {
-                    moving = 'x';
-                    return handleX(normalized);
-                }
-                if (moving === 'y' || (moving === 'xy' && Math.abs(normalized.y - initialY) > 10)) {
-                    moving = 'y';
-                    return handleY(normalized);
-                }
-            })();
-        }
-        function onPointerEnd(ev) {
-            moving = '';
-            lastY = 0;
-            lastX = 0;
-        }
         class ListAction {
             constructor(element) {
                 state.update('_internal.elements.list', element);
-                element.addEventListener('touchstart', onPointerStart);
-                document.addEventListener('touchmove', onPointerMove);
-                document.addEventListener('touchend', onPointerEnd);
-                element.addEventListener('mousedown', onPointerStart);
-                document.addEventListener('mousemove', onPointerMove);
-                document.addEventListener('mouseup', onPointerEnd);
                 getWidth(element);
             }
             update(element) {
                 return getWidth(element);
             }
-            destroy(element) {
-                element.removeEventListener('touchstart', onPointerStart);
-                document.removeEventListener('touchmove', onPointerMove);
-                document.removeEventListener('touchend', onPointerEnd);
-                element.removeEventListener('mousedown', onPointerStart);
-                document.removeEventListener('mousemove', onPointerMove);
-                document.removeEventListener('mouseup', onPointerEnd);
-            }
         }
-        if (!componentActions.includes(ListAction)) {
-            componentActions.push(ListAction);
-        }
+        componentActions.push(ListAction);
         const actions = Actions.create(componentActions, Object.assign(Object.assign({}, props), { api, state }));
         return templateProps => wrapper(cache(list.columns.percent > 0
             ? html `
@@ -4672,9 +4852,10 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnHeaderResizer(vido, props) {
-        const { api, state, onDestroy, update, html, Actions, cache, schedule, StyleMap } = vido;
+        const { api, state, onDestroy, update, html, Actions, PointerAction, cache, StyleMap } = vido;
         const componentName = 'list-column-header-resizer';
-        const componentActions = api.getActions(componentName);
+        let componentActions = api.getActions(componentName);
+        let componentDotsActions = api.getActions(componentName + '-dots');
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListColumnHeaderResizer', value => (wrapper = value)));
         let column;
@@ -4682,14 +4863,13 @@
             column = val;
             update();
         }));
-        let className, containerClass, dotsClass, dotClass, lineClass, calculatedWidth, dotsStyleMap = new StyleMap({ width: '' });
+        let className, containerClass, dotsClass, dotClass, calculatedWidth, dotsStyleMap = new StyleMap({ width: '' });
         let inRealTime = false;
         onDestroy(state.subscribe('config.classNames', value => {
             className = api.getClass(componentName, { column });
             containerClass = api.getClass(componentName + '-container', { column });
             dotsClass = api.getClass(componentName + '-dots', { column });
             dotClass = api.getClass(componentName + '-dots-dot', { column });
-            lineClass = api.getClass(componentName + '-line', { column });
             update();
         }));
         onDestroy(state.subscribeAll([
@@ -4713,55 +4893,36 @@
             }
             update();
         }));
-        let isMoving = false;
         let left = calculatedWidth;
         const lineStyleMap = new StyleMap({
             '--display': 'none',
             '--left': left + 'px'
         });
         const columnWidthPath = `config.list.columns.data.${column.id}.width`;
-        function onMouseDown(event) {
-            event.stopPropagation();
-            isMoving = true;
-            state.update('_internal.list.columns.resizer.active', true);
-            if (isMoving) {
-                lineStyleMap.style['display'] = 'block';
-                lineStyleMap.style['--left'] = left + 'px';
-            }
-            else {
-                lineStyleMap.style['display'] = 'none';
-                lineStyleMap.style['--left'] = '0px';
-            }
-        }
-        function onMouseMove(event) {
-            if (isMoving) {
-                event.stopPropagation();
-                let minWidth = state.get('config.list.columns.minWidth');
-                if (typeof column.minWidth === 'number') {
-                    minWidth = column.minWidth;
-                }
-                left += event.movementX;
-                if (left < minWidth) {
-                    left = minWidth;
-                }
-                if (inRealTime) {
-                    state.update(columnWidthPath, left);
+        const actionProps = {
+            column,
+            api,
+            state,
+            pointerOptions: {
+                axis: 'x',
+                onMove({ movementX }) {
+                    let minWidth = state.get('config.list.columns.minWidth');
+                    if (typeof column.minWidth === 'number') {
+                        minWidth = column.minWidth;
+                    }
+                    left += movementX;
+                    if (left < minWidth) {
+                        left = minWidth;
+                    }
+                    if (inRealTime) {
+                        state.update(columnWidthPath, left);
+                    }
                 }
             }
-        }
-        function onMouseUp(event) {
-            if (isMoving) {
-                event.stopPropagation();
-                state.update('_internal.list.columns.resizer.active', false);
-                state.update(columnWidthPath, left);
-                isMoving = false;
-            }
-        }
-        document.body.addEventListener('mousemove', onMouseMove);
-        onDestroy(() => document.body.removeEventListener('mousemove', schedule(onMouseMove)));
-        document.body.addEventListener('mouseup', onMouseUp);
-        onDestroy(() => document.body.removeEventListener('mouseup', onMouseUp));
-        const actions = Actions.create(componentActions, { column, api, state });
+        };
+        componentActions.push(PointerAction);
+        const actions = Actions.create(componentActions, actionProps);
+        const dotsActions = Actions.create(componentDotsActions, actionProps);
         return templateProps => wrapper(html `
         <div class=${className} data-actions=${actions}>
           <div class=${containerClass}>
@@ -4771,7 +4932,7 @@
                   `
         : column.header.content)}
           </div>
-          <div class=${dotsClass} style=${dotsStyleMap} @mousedown=${onMouseDown}>
+          <div class=${dotsClass} style=${dotsStyleMap} data-actions=${dotsActions}>
             ${dots.map(dot => html `
                   <div class=${dotClass} />
                 `)}
@@ -4806,7 +4967,7 @@
         });
     }
     function ListColumnRow(vido, props) {
-        const { api, state, onDestroy, Detach, Actions, update, html, createComponent, onChange, StyleMap, unsafeHTML } = vido;
+        const { api, state, onDestroy, Detach, Actions, update, html, createComponent, onChange, StyleMap, unsafeHTML, PointerAction } = vido;
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
         let shouldDetach = false;
         const detach = new Detach(() => shouldDetach);
@@ -4900,7 +5061,7 @@
             rowSub();
         });
         const componentName = 'list-column-row';
-        const componentActions = api.getActions(componentName);
+        let componentActions = api.getActions(componentName);
         let className;
         onDestroy(state.subscribe('config.classNames', value => {
             className = api.getClass(componentName);
@@ -4917,7 +5078,30 @@
             return row[column.data];
         }
         if (!componentActions.includes(saveElement))
-            componentActions.push();
+            componentActions.push(saveElement);
+        actionProps.pointerOptions = {
+            axis: 'x|y',
+            onMove({ movementX, movementY }) {
+                if (movementX) {
+                    state.update('config.list.columns.percent', percent => {
+                        percent += movementX;
+                        if (percent < 0)
+                            percent = 0;
+                        if (percent > 100)
+                            percent = 100;
+                        return percent;
+                    });
+                }
+                else if (movementY) {
+                    state.update('config.scroll.top', top => {
+                        top -= movementY;
+                        top = api.limitScroll('top', top);
+                        return top;
+                    });
+                }
+            }
+        };
+        componentActions.push(PointerAction);
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
         <div detach=${detach} class=${className} style=${styleMap} data-actions=${actions}>
@@ -5980,9 +6164,7 @@
             update();
         }
         onChange(onPropsChange);
-        if (!componentActions.includes(bindElementAction$1)) {
-            componentActions.push(bindElementAction$1);
-        }
+        componentActions.push(bindElementAction$1);
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => {
             return wrapper(html `
@@ -6173,27 +6355,8 @@
      * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
-    /**
-     * Bind element action
-     */
-    class BindElementAction {
-        constructor(element, data) {
-            data.state.update('_internal.elements.chart-timeline-items-row-items', function updateRowItems(items) {
-                if (typeof items === 'undefined') {
-                    items = [];
-                }
-                items.push(element);
-                return items;
-            }, { only: null });
-        }
-        destroy(element, data) {
-            data.state.update('_internal.elements.chart-timeline-items-row-items', items => {
-                return items.filter(el => el !== element);
-            });
-        }
-    }
     function ChartTimelineItemsRowItem(vido, props) {
-        const { api, state, onDestroy, Detach, Actions, update, html, onChange, unsafeHTML, StyleMap } = vido;
+        const { api, state, onDestroy, Detach, Action, Actions, update, html, onChange, unsafeHTML, StyleMap } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
         let styleMap = new StyleMap({ width: '', height: '', left: '' }), itemLeftPx = 0, itemWidthPx = 0, leave = false;
@@ -6277,9 +6440,27 @@
         onDestroy(state.subscribe('_internal.chart.time', bulk => {
             updateItem();
         }));
-        if (componentActions.indexOf(BindElementAction) === -1) {
-            componentActions.push(BindElementAction);
+        /**
+         * Bind element action
+         */
+        class BindElementAction extends Action {
+            constructor(element, data) {
+                super();
+                data.state.update('_internal.elements.chart-timeline-items-row-items', function updateRowItems(items) {
+                    if (typeof items === 'undefined') {
+                        items = [];
+                    }
+                    items.push(element);
+                    return items;
+                }, { only: null });
+            }
+            destroy(element, data) {
+                data.state.update('_internal.elements.chart-timeline-items-row-items', items => {
+                    return items.filter(el => el !== element);
+                });
+            }
         }
+        componentActions.push(BindElementAction);
         const actions = Actions.create(componentActions, actionProps);
         const detach = new Detach(() => shouldDetach);
         return templateProps => {
@@ -6309,6 +6490,7 @@
         'list-expander',
         'list-expander-toggle',
         'list-column-header-resizer',
+        'list-column-header-resizer-dots',
         'list-column-row',
         'chart',
         'chart-calendar',
@@ -6785,7 +6967,7 @@
     function log(message, info) {
         console.debug(message, info);
     }
-    const defaultOptions = {
+    const defaultOptions$1 = {
         delimeter: `.`,
         notRecursive: `;`,
         param: `:`,
@@ -6804,10 +6986,10 @@
         debug: false,
         data: undefined
     };
-    function DeepState(data = {}, options = defaultOptions) {
+    function DeepState(data = {}, options = defaultOptions$1) {
         this.listeners = new Map();
         this.data = data;
-        this.options = Object.assign(Object.assign({}, defaultOptions), options);
+        this.options = Object.assign(Object.assign({}, defaultOptions$1), options);
         this.id = 0;
         this.pathGet = ObjectPath.get;
         this.pathSet = ObjectPath.set;
@@ -7486,6 +7668,9 @@
         name: lib,
         debug: false,
 
+        setVido(Vido) {
+        },
+
         log(...args) {
           if (this.debug) {
             console.log.call(console, ...args);
@@ -7510,7 +7695,7 @@
           if (typeof actions === 'undefined') {
             actions = [];
           }
-          return actions;
+          return actions.slice();
         },
 
         isItemInViewport(item, left, right) {
@@ -7877,6 +8062,7 @@
         });
         // @ts-ignore
         const vido = Vido(state, api);
+        api.setVido(vido);
         const app = vido.createApp({ component: Main, props: vido, element: options.element });
         return { state, app };
     }

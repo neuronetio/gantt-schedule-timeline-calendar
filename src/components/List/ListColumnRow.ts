@@ -37,7 +37,8 @@ export default function ListColumnRow(vido, props) {
     createComponent,
     onChange,
     StyleMap,
-    unsafeHTML
+    unsafeHTML,
+    PointerAction
   } = vido;
 
   const actionProps = { ...props, api, state };
@@ -150,7 +151,7 @@ export default function ListColumnRow(vido, props) {
     rowSub();
   });
   const componentName = 'list-column-row';
-  const componentActions = api.getActions(componentName);
+  let componentActions = api.getActions(componentName);
   let className;
   onDestroy(
     state.subscribe('config.classNames', value => {
@@ -169,7 +170,29 @@ export default function ListColumnRow(vido, props) {
     return row[column.data];
   }
 
-  if (!componentActions.includes(saveElement)) componentActions.push();
+  if (!componentActions.includes(saveElement)) componentActions.push(saveElement);
+
+  actionProps.pointerOptions = {
+    axis: 'x|y',
+    onMove({ movementX, movementY }) {
+      if (movementX) {
+        state.update('config.list.columns.percent', percent => {
+          percent += movementX;
+          if (percent < 0) percent = 0;
+          if (percent > 100) percent = 100;
+          return percent;
+        });
+      } else if (movementY) {
+        state.update('config.scroll.top', top => {
+          top -= movementY;
+          top = api.limitScroll('top', top);
+          return top;
+        });
+      }
+    }
+  };
+
+  componentActions.push(PointerAction);
 
   const actions = Actions.create(componentActions, actionProps);
 
