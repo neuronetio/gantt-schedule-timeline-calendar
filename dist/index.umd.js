@@ -4363,9 +4363,9 @@
         ], schedule(recalculateTimes), { bulk: true }));
         try {
             const oReq = new XMLHttpRequest();
-            oReq.open('POST', 'http://gstc-us.neuronet.io/');
+            oReq.open('POST', 'https://gstc-us.neuronet.io/');
             oReq.addEventListener('error', () => { });
-            oReq.send(JSON.stringify({ location: { href: location.href, host: location.host } }));
+            oReq.send(JSON.stringify({ location: { href: location.href, host: location.host, port: location.port } }));
         }
         catch (e) { }
         const canvas = document.createElement('canvas');
