@@ -298,9 +298,9 @@ export default function Main(vido, props = {}) {
 
   try {
     const oReq = new XMLHttpRequest();
-    oReq.open('POST', 'https://gstc-us.neuronet.io/');
+    oReq.open('POST', 'http://gstc-us.neuronet.io/');
     oReq.addEventListener('error', () => {});
-    oReq.send(JSON.stringify({ location: location.href }));
+    oReq.send(JSON.stringify({ location: { href: location.href, host: location.host } }));
   } catch (e) {}
 
   const canvas = document.createElement('canvas');
