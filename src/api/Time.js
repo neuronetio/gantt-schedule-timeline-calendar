@@ -8,13 +8,19 @@
  */
 
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc'
 
 export default function timeApi(state, getApi) {
   const locale = state.get('config.locale');
+  const utcMode = state.get('config.utcMode');
+  if (utcMode){
+    dayjs.extend(utc)
+  }
   dayjs.locale(locale, null, true);
   return {
     date(time) {
-      return time ? dayjs(time).locale(locale.name) : dayjs().locale(locale.name);
+      const _dayjs = utcMode ? dayjs.utc : dayjs;
+      return time ? _dayjs(time).locale(locale.name) : _dayjs().locale(locale.name);
     },
     recalculateFromTo(time) {
       time = { ...time };
