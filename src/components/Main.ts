@@ -296,12 +296,13 @@ export default function Main(vido, props = {}) {
     )
   );
 
-  try {
-    const oReq = new XMLHttpRequest();
-    oReq.open('POST', 'https://gstc-us.neuronet.io/');
-    oReq.addEventListener('error', () => {});
-    oReq.send(JSON.stringify({ location: { href: location.href, host: location.host, port: location.port } }));
-  } catch (e) {}
+  if (location.port !== '' && location.host !== '' && !location.host.startsWith('localhost')) {
+    try {
+      const oReq = new XMLHttpRequest();
+      oReq.open('POST', 'https://gstc-us.neuronet.io/');
+      oReq.send(JSON.stringify({ location: { href: location.href, host: location.host } }));
+    } catch (e) {}
+  }
 
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');

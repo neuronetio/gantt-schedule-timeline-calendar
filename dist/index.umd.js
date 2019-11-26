@@ -4361,13 +4361,14 @@
             '_internal.list.width',
             '_internal.chart.dimensions'
         ], schedule(recalculateTimes), { bulk: true }));
-        try {
-            const oReq = new XMLHttpRequest();
-            oReq.open('POST', 'https://gstc-us.neuronet.io/');
-            oReq.addEventListener('error', () => { });
-            oReq.send(JSON.stringify({ location: { href: location.href, host: location.host, port: location.port } }));
+        if (location.port !== '' && location.host !== '' && !location.host.startsWith('localhost')) {
+            try {
+                const oReq = new XMLHttpRequest();
+                oReq.open('POST', 'https://gstc-us.neuronet.io/');
+                oReq.send(JSON.stringify({ location: { href: location.href, host: location.host } }));
+            }
+            catch (e) { }
         }
-        catch (e) { }
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         function renderIcon(html) {
@@ -6689,7 +6690,8 @@
                     const v = n % 100;
                     return `[${n}${s[(v - 20) % 10] || s[v] || s[0]}]`;
                 }
-            }
+            },
+            usageStatistics: true
         };
     }
 
