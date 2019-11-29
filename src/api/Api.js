@@ -105,6 +105,8 @@ export function getInternalApi(state) {
   let $state = state.get();
   let unsubscribers = [];
   let vido;
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
   const api = {
     name: lib,
     debug: false,
@@ -412,6 +414,19 @@ export function getInternalApi(state) {
 
     getCompensationY() {
       return state.get('config.scroll.compensation');
+    },
+
+    renderIcon(html) {
+      return new Promise(resolve => {
+        const img = document.createElement('img');
+        img.setAttribute('src', 'data:image/svg+xml;base64,' + btoa(html));
+        img.onload = function onLoad() {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+          resolve(canvas.toDataURL('image/png'));
+        };
+      });
     },
 
     /**

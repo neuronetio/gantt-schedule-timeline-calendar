@@ -1,5 +1,3 @@
-import { Directive } from '../../../../lit-html/lit-html';
-
 /**
  * List component
  *
@@ -21,6 +19,17 @@ export default function List(vido, props = {}) {
 
   let ListColumnComponent;
   onDestroy(state.subscribe('config.components.ListColumn', value => (ListColumnComponent = value)));
+
+  async function renderIcons() {
+    const icons = state.get('config.list.expander.icons');
+    const rendered = {};
+    for (const iconName in icons) {
+      const html = icons[iconName];
+      rendered[iconName] = await api.renderIcon(html);
+    }
+    state.update('_internal.list.expander.icons', rendered);
+  }
+  renderIcons();
 
   let className;
   let list, percent;

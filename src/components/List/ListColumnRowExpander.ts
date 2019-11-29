@@ -1,5 +1,5 @@
 /**
- * ListExpander component
+ * ListColumnRowExpander component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -8,20 +8,28 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-export default function ListExpander(vido, props) {
+export default function ListColumnRowExpander(vido, props) {
   const { api, state, onDestroy, Actions, update, html, createComponent, onChange } = vido;
-  const componentName = 'list-expander';
+  const componentName = 'list-column-row-expander';
   const componentActions = api.getActions(componentName);
   const actionProps = { ...props, api, state };
   let className;
 
-  let ListToggleComponent;
-  onDestroy(state.subscribe('config.components.ListToggle', value => (ListToggleComponent = value)));
-  const ListToggle = createComponent(ListToggleComponent, props.row ? { row: props.row } : {});
-  onDestroy(ListToggle.destroy);
+  let ListColumnRowExpanderToggleComponent;
+  onDestroy(
+    state.subscribe(
+      'config.components.ListColumnRowExpanderToggle',
+      value => (ListColumnRowExpanderToggleComponent = value)
+    )
+  );
+  const ListColumnRowExpanderToggle = createComponent(
+    ListColumnRowExpanderToggleComponent,
+    props.row ? { row: props.row } : {}
+  );
+  onDestroy(ListColumnRowExpanderToggle.destroy);
 
   let wrapper;
-  onDestroy(state.subscribe('config.wrappers.ListExpander', value => (wrapper = value)));
+  onDestroy(state.subscribe('config.wrappers.ListColumnRowExpander', value => (wrapper = value)));
 
   onDestroy(
     state.subscribe('config.classNames', value => {
@@ -37,7 +45,7 @@ export default function ListExpander(vido, props) {
       for (const prop in props) {
         actionProps[prop] = props[prop];
       }
-      ListToggle.change(props);
+      ListColumnRowExpanderToggle.change(props);
     }
     onChange(onPropsChange);
     onDestroy(function listExpanderDestroy() {
@@ -51,7 +59,7 @@ export default function ListExpander(vido, props) {
     wrapper(
       html`
         <div class=${className} data-action=${actions}>
-          ${ListToggle.html()}
+          ${ListColumnRowExpanderToggle.html()}
         </div>
       `,
       { vido, props, templateProps }

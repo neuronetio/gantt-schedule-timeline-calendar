@@ -13,7 +13,8 @@ import ListColumn from './components/List/ListColumn';
 import ListColumnHeader from './components/List/ListColumnHeader';
 import ListColumnHeaderResizer from './components/List/ListColumnHeaderResizer';
 import ListColumnRow from './components/List/ListColumnRow';
-import ListExpander from './components/List/ListExpander';
+import ListColumnRowExpander from './components/List/ListColumnRowExpander';
+import ListColumnRowExpanderToggle from './components/List/ListColumnRowExpanderToggle';
 import ListToggle from './components/List/ListToggle';
 import Chart from './components/Chart/Chart';
 import ChartCalendar from './components/Chart/Calendar/ChartCalendar';
@@ -31,11 +32,12 @@ export const actionNames = [
   'list',
   'list-column',
   'list-column-header',
-  'list-expander',
-  'list-expander-toggle',
   'list-column-header-resizer',
   'list-column-header-resizer-dots',
   'list-column-row',
+  'list-column-row-expander',
+  'list-column-row-expander-toggle',
+  'list-toggle',
   'chart',
   'chart-calendar',
   'chart-calendar-date',
@@ -69,7 +71,8 @@ function defaultConfig() {
       ListColumnHeader,
       ListColumnHeaderResizer,
       ListColumnRow,
-      ListExpander,
+      ListColumnRowExpander,
+      ListColumnRowExpanderToggle,
       ListToggle,
       Chart,
       ChartCalendar,
@@ -101,7 +104,10 @@ function defaultConfig() {
       ListColumnRow(input) {
         return input;
       },
-      ListExpander(input) {
+      ListColumnRowExpander(input) {
+        return input;
+      },
+      ListColumnRowExpanderToggle(input) {
         return input;
       },
       ListToggle(input) {
@@ -165,6 +171,15 @@ function defaultConfig() {
             '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>',
           closed:
             '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>'
+        }
+      },
+      toggle: {
+        display: true,
+        icons: {
+          open:
+            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/><path d="M0 0h24v24H0z" fill="none"/></svg>',
+          close:
+            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'
         }
       }
     },

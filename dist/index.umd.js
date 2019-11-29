@@ -3158,30 +3158,6 @@
         return new vido();
     }
 
-    /*! *****************************************************************************
-    Copyright (c) Microsoft Corporation. All rights reserved.
-    Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-    this file except in compliance with the License. You may obtain a copy of the
-    License at http://www.apache.org/licenses/LICENSE-2.0
-
-    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-    WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-    MERCHANTABLITY OR NON-INFRINGEMENT.
-
-    See the Apache Version 2.0 License for specific language governing permissions
-    and limitations under the License.
-    ***************************************************************************** */
-
-    function __awaiter(thisArg, _arguments, P, generator) {
-        return new (P || (P = Promise))(function (resolve, reject) {
-            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-            function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-            step((generator = generator.apply(thisArg, _arguments || [])).next());
-        });
-    }
-
     /**
      * A collection of shims that provide minimal functionality of the ES6 collections.
      *
@@ -4369,32 +4345,6 @@
             }
             catch (e) { }
         }
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        function renderIcon(html) {
-            return new Promise(resolve => {
-                const img = document.createElement('img');
-                img.setAttribute('src', 'data:image/svg+xml;base64,' + btoa(html));
-                img.onload = function () {
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
-                    resolve(canvas.toDataURL('image/png'));
-                };
-            });
-        }
-        function renderIcons() {
-            return __awaiter(this, void 0, void 0, function* () {
-                const icons = state.get('config.list.expander.icons');
-                const rendered = {};
-                for (const iconName in icons) {
-                    const html = icons[iconName];
-                    rendered[iconName] = yield renderIcon(html);
-                }
-                state.update('_internal.list.expander.icons', rendered);
-            });
-        }
-        renderIcons();
         state.update('_internal.scrollBarHeight', api.getScrollBarHeight());
         let scrollTop = 0;
         /**
@@ -4402,7 +4352,6 @@
          * @param {MouseEvent} event
          */
         function handleEvent(event) {
-            //event.stopPropagation();
             if (event.type === 'scroll') {
                 // @ts-ignore
                 const top = event.target.scrollTop;
@@ -4538,6 +4487,30 @@
       `, { props, vido, templateProps });
     }
 
+    /*! *****************************************************************************
+    Copyright (c) Microsoft Corporation. All rights reserved.
+    Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+    this file except in compliance with the License. You may obtain a copy of the
+    License at http://www.apache.org/licenses/LICENSE-2.0
+
+    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+    WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+    MERCHANTABLITY OR NON-INFRINGEMENT.
+
+    See the Apache Version 2.0 License for specific language governing permissions
+    and limitations under the License.
+    ***************************************************************************** */
+
+    function __awaiter(thisArg, _arguments, P, generator) {
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+            function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+    }
+
     /**
      * List component
      *
@@ -4555,6 +4528,18 @@
         onDestroy(state.subscribe('config.wrappers.List', value => (wrapper = value)));
         let ListColumnComponent;
         onDestroy(state.subscribe('config.components.ListColumn', value => (ListColumnComponent = value)));
+        function renderIcons() {
+            return __awaiter(this, void 0, void 0, function* () {
+                const icons = state.get('config.list.expander.icons');
+                const rendered = {};
+                for (const iconName in icons) {
+                    const html = icons[iconName];
+                    rendered[iconName] = yield api.renderIcon(html);
+                }
+                state.update('_internal.list.expander.icons', rendered);
+            });
+        }
+        renderIcons();
         let className;
         let list, percent;
         function onListChange() {
@@ -4782,10 +4767,10 @@
         onDestroy(state.subscribe('config.components.ListColumnHeaderResizer', value => (ListColumnHeaderResizerComponent = value)));
         const ListColumnHeaderResizer = createComponent(ListColumnHeaderResizerComponent, { columnId: props.columnId });
         onDestroy(ListColumnHeaderResizer.destroy);
-        let ListExpanderComponent;
-        onDestroy(state.subscribe('config.components.ListExpander', value => (ListExpanderComponent = value)));
-        const ListExpander = createComponent(ListExpanderComponent, {});
-        onDestroy(ListExpander.destroy);
+        let ListColumnRowExpanderComponent;
+        onDestroy(state.subscribe('config.components.ListColumnRowExpander', value => (ListColumnRowExpanderComponent = value)));
+        const ListColumnRowExpander = createComponent(ListColumnRowExpanderComponent, {});
+        onDestroy(ListColumnRowExpander.destroy);
         let column;
         let columnSub = state.subscribe(`config.list.columns.data.${props.columnId}`, val => {
             column = val;
@@ -4824,7 +4809,7 @@
         function withExpander() {
             return html `
       <div class=${contentClass}>
-        ${ListExpander.html()}${ListColumnHeaderResizer.html(column)}
+        ${ListColumnRowExpander.html()}${ListColumnHeaderResizer.html(column)}
       </div>
     `;
         }
@@ -4974,8 +4959,8 @@
         const detach = new Detach(() => shouldDetach);
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListColumnRow', value => (wrapper = value)));
-        let ListExpanderComponent;
-        onDestroy(state.subscribe('config.components.ListExpander', value => (ListExpanderComponent = value)));
+        let ListColumnRowExpanderComponent;
+        onDestroy(state.subscribe('config.components.ListColumnRowExpander', value => (ListColumnRowExpanderComponent = value)));
         let rowPath = `_internal.flatTreeMapById.${props.rowId}`, row = state.get(rowPath);
         let colPath = `config.list.columns.data.${props.columnId}`, column = state.get(colPath);
         let styleMap = new StyleMap(column.expander
@@ -4992,7 +4977,7 @@
                 '--height': ''
             }, true);
         let rowSub, colSub;
-        const ListExpander = createComponent(ListExpanderComponent, { row });
+        const ListColumnRowExpander = createComponent(ListColumnRowExpanderComponent, { row });
         const onPropsChange = (changedProps, options) => {
             if (options.leave) {
                 shouldDetach = true;
@@ -5046,8 +5031,8 @@
                 }
                 update();
             }, { bulk: true });
-            if (ListExpander) {
-                ListExpander.change({ row });
+            if (ListColumnRowExpander) {
+                ListColumnRowExpander.change({ row });
             }
             colSub = state.subscribe(colPath, val => {
                 column = val;
@@ -5056,8 +5041,8 @@
         };
         onChange(onPropsChange);
         onDestroy(() => {
-            if (ListExpander)
-                ListExpander.destroy();
+            if (ListColumnRowExpander)
+                ListColumnRowExpander.destroy();
             colSub();
             rowSub();
         });
@@ -5106,7 +5091,7 @@
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
         <div detach=${detach} class=${className} style=${styleMap} data-actions=${actions}>
-          ${column.expander ? ListExpander.html() : null}
+          ${column.expander ? ListColumnRowExpander.html() : null}
           <div class=${className + '-content'}>
             ${column.isHTML ? getHtml() : getText()}
           </div>
@@ -5115,7 +5100,7 @@
     }
 
     /**
-     * ListExpander component
+     * ListColumnRowExpander component
      *
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -5123,18 +5108,18 @@
      * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
-    function ListExpander(vido, props) {
+    function ListColumnRowExpander(vido, props) {
         const { api, state, onDestroy, Actions, update, html, createComponent, onChange } = vido;
-        const componentName = 'list-expander';
+        const componentName = 'list-column-row-expander';
         const componentActions = api.getActions(componentName);
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
         let className;
-        let ListToggleComponent;
-        onDestroy(state.subscribe('config.components.ListToggle', value => (ListToggleComponent = value)));
-        const ListToggle = createComponent(ListToggleComponent, props.row ? { row: props.row } : {});
-        onDestroy(ListToggle.destroy);
+        let ListColumnRowExpanderToggleComponent;
+        onDestroy(state.subscribe('config.components.ListColumnRowExpanderToggle', value => (ListColumnRowExpanderToggleComponent = value)));
+        const ListColumnRowExpanderToggle = createComponent(ListColumnRowExpanderToggleComponent, props.row ? { row: props.row } : {});
+        onDestroy(ListColumnRowExpanderToggle.destroy);
         let wrapper;
-        onDestroy(state.subscribe('config.wrappers.ListExpander', value => (wrapper = value)));
+        onDestroy(state.subscribe('config.wrappers.ListColumnRowExpander', value => (wrapper = value)));
         onDestroy(state.subscribe('config.classNames', value => {
             className = api.getClass(componentName);
             update();
@@ -5145,7 +5130,7 @@
                 for (const prop in props) {
                     actionProps[prop] = props[prop];
                 }
-                ListToggle.change(props);
+                ListColumnRowExpanderToggle.change(props);
             }
             onChange(onPropsChange);
             onDestroy(function listExpanderDestroy() {
@@ -5154,13 +5139,13 @@
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
         <div class=${className} data-action=${actions}>
-          ${ListToggle.html()}
+          ${ListColumnRowExpanderToggle.html()}
         </div>
       `, { vido, props, templateProps });
     }
 
     /**
-     * ListToggle component
+     * ListColumnRowExpanderToggle component
      *
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -5168,12 +5153,12 @@
      * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
-    function ListToggle(vido, props) {
+    function ListColumnRowExpanderToggle(vido, props) {
         const { api, state, onDestroy, Actions, update, html, onChange, cache } = vido;
-        const componentName = 'list-expander-toggle';
+        const componentName = 'list-column-row-expander-toggle';
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
         let wrapper;
-        onDestroy(state.subscribe('config.wrappers.ListToggle', value => (wrapper = value)));
+        onDestroy(state.subscribe('config.wrappers.ListColumnRowExpanderToggle', value => (wrapper = value)));
         const componentActions = api.getActions(componentName);
         let className, classNameChild, classNameOpen, classNameClosed;
         let expanded = false;
@@ -5264,6 +5249,51 @@
           ${cache(getIcon())}
         </div>
       `, { vido, props, templateProps });
+    }
+
+    /**
+     * ListToggle component
+     *
+     * @copyright Rafal Pospiech <https://neuronet.io>
+     * @author    Rafal Pospiech <neuronet.io@gmail.com>
+     * @package   gantt-schedule-timeline-calendar
+     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
+     */
+    function ListToggle(vido, props = {}) {
+        const { html, onDestroy, api, state, update } = vido;
+        const componentName = 'list-toggle';
+        let className;
+        onDestroy(state.subscribe('config.classNames', classNames => {
+            className = api.getClass(componentName);
+        }));
+        let wrapper;
+        onDestroy(state.subscribe('config.wrappers.ListToggle', ListToggleWrapper => (wrapper = ListToggleWrapper)));
+        let iconsSrc = {
+            open: '',
+            close: ''
+        };
+        function renderIcons() {
+            return __awaiter(this, void 0, void 0, function* () {
+                const icons = state.get('config.list.toggle.icons');
+                for (const iconName in icons) {
+                    const html = icons[iconName];
+                    iconsSrc[iconName] = yield api.renderIcon(html);
+                }
+                update();
+            });
+        }
+        renderIcons();
+        let open = true;
+        onDestroy(state.subscribe('config.list.columns.percent', percent => (percent === 0 ? (open = false) : (open = true))));
+        function toggle(ev) {
+            state.update('config.list.columns.percent', percent => {
+                return percent === 0 ? 100 : 0;
+            });
+        }
+        return templateProps => wrapper(html `
+        <div class=${className} @click=${toggle}><img src=${open ? iconsSrc.close : iconsSrc.open} /></div>
+      `, { props, vido, templateProps });
     }
 
     /**
@@ -5810,16 +5840,21 @@
         onDestroy(state.subscribe('config.wrappers.ChartTimeline', value => (wrapper = value)));
         const GridComponent = state.get('config.components.ChartTimelineGrid');
         const ItemsComponent = state.get('config.components.ChartTimelineItems');
+        const ListToggleComponent = state.get('config.components.ListToggle');
         const Grid = createComponent(GridComponent);
         onDestroy(Grid.destroy);
         const Items = createComponent(ItemsComponent);
         onDestroy(Items.destroy);
+        const ListToggle = createComponent(ListToggleComponent);
+        onDestroy(ListToggle.destroy);
         let className, classNameInner;
         onDestroy(state.subscribe('config.classNames', () => {
             className = api.getClass(componentName);
             classNameInner = api.getClass(componentName + '-inner');
             update();
         }));
+        let showToggle;
+        onDestroy(state.subscribe('config.list.toggle.display', val => (showToggle = val)));
         let styleMap = new StyleMap({}), innerStyleMap = new StyleMap({});
         function calculateStyle() {
             const xCompensation = api.getCompensationX();
@@ -5827,6 +5862,10 @@
             const width = state.get('_internal.chart.dimensions.width');
             const height = state.get('_internal.list.rowsHeight');
             styleMap.style.height = state.get('_internal.height') + 'px';
+            styleMap.style['--negative-compensation-x'] = xCompensation + 'px';
+            styleMap.style['--compensation-x'] = Math.round(Math.abs(xCompensation)) + 'px';
+            styleMap.style['--negative-compensation-y'] = yCompensation + 'px';
+            styleMap.style['--compensation-y'] = Math.abs(yCompensation) + 'px';
             if (width) {
                 styleMap.style.width = width + 'px';
             }
@@ -5857,7 +5896,7 @@
         return templateProps => wrapper(html `
         <div class=${className} style=${styleMap} data-actions=${actions} @wheel=${api.onScroll}>
           <div class=${classNameInner} style=${innerStyleMap}>
-            ${Grid.html()}${Items.html()}
+            ${Grid.html()}${Items.html()}${showToggle ? ListToggle.html() : ''}
           </div>
         </div>
       `, { props, vido, templateProps });
@@ -6488,11 +6527,12 @@
         'list',
         'list-column',
         'list-column-header',
-        'list-expander',
-        'list-expander-toggle',
         'list-column-header-resizer',
         'list-column-header-resizer-dots',
         'list-column-row',
+        'list-column-row-expander',
+        'list-column-row-expander-toggle',
+        'list-toggle',
         'chart',
         'chart-calendar',
         'chart-calendar-date',
@@ -6524,7 +6564,8 @@
                 ListColumnHeader,
                 ListColumnHeaderResizer,
                 ListColumnRow,
-                ListExpander,
+                ListColumnRowExpander,
+                ListColumnRowExpanderToggle,
                 ListToggle,
                 Chart,
                 ChartCalendar,
@@ -6556,7 +6597,10 @@
                 ListColumnRow(input) {
                     return input;
                 },
-                ListExpander(input) {
+                ListColumnRowExpander(input) {
+                    return input;
+                },
+                ListColumnRowExpanderToggle(input) {
                     return input;
                 },
                 ListToggle(input) {
@@ -6617,6 +6661,13 @@
                         child: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><ellipse ry="4" rx="4" id="svg_1" cy="12" cx="12" fill="#000000B0"/></svg>',
                         open: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>',
                         closed: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>'
+                    }
+                },
+                toggle: {
+                    display: true,
+                    icons: {
+                        open: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/><path d="M0 0h24v24H0z" fill="none"/></svg>',
+                        close: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'
                     }
                 }
             },
@@ -7675,6 +7726,8 @@
     function getInternalApi(state) {
       let $state = state.get();
       let unsubscribers = [];
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
       const api = {
         name: lib,
         debug: false,
@@ -7979,6 +8032,19 @@
 
         getCompensationY() {
           return state.get('config.scroll.compensation');
+        },
+
+        renderIcon(html) {
+          return new Promise(resolve => {
+            const img = document.createElement('img');
+            img.setAttribute('src', 'data:image/svg+xml;base64,' + btoa(html));
+            img.onload = function onLoad() {
+              canvas.width = img.width;
+              canvas.height = img.height;
+              ctx.drawImage(img, 0, 0);
+              resolve(canvas.toDataURL('image/png'));
+            };
+          });
         },
 
         /**

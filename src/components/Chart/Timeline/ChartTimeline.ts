@@ -20,11 +20,14 @@ export default function ChartTimeline(vido, props) {
 
   const GridComponent = state.get('config.components.ChartTimelineGrid');
   const ItemsComponent = state.get('config.components.ChartTimelineItems');
+  const ListToggleComponent = state.get('config.components.ListToggle');
 
   const Grid = createComponent(GridComponent);
   onDestroy(Grid.destroy);
   const Items = createComponent(ItemsComponent);
   onDestroy(Items.destroy);
+  const ListToggle = createComponent(ListToggleComponent);
+  onDestroy(ListToggle.destroy);
 
   let className, classNameInner;
   onDestroy(
@@ -35,6 +38,9 @@ export default function ChartTimeline(vido, props) {
     })
   );
 
+  let showToggle;
+  onDestroy(state.subscribe('config.list.toggle.display', val => (showToggle = val)));
+
   let styleMap = new StyleMap({}),
     innerStyleMap = new StyleMap({});
   function calculateStyle() {
@@ -43,6 +49,10 @@ export default function ChartTimeline(vido, props) {
     const width = state.get('_internal.chart.dimensions.width');
     const height = state.get('_internal.list.rowsHeight');
     styleMap.style.height = state.get('_internal.height') + 'px';
+    styleMap.style['--negative-compensation-x'] = xCompensation + 'px';
+    styleMap.style['--compensation-x'] = Math.round(Math.abs(xCompensation)) + 'px';
+    styleMap.style['--negative-compensation-y'] = yCompensation + 'px';
+    styleMap.style['--compensation-y'] = Math.abs(yCompensation) + 'px';
     if (width) {
       styleMap.style.width = width + 'px';
     } else {
@@ -80,7 +90,7 @@ export default function ChartTimeline(vido, props) {
       html`
         <div class=${className} style=${styleMap} data-actions=${actions} @wheel=${api.onScroll}>
           <div class=${classNameInner} style=${innerStyleMap}>
-            ${Grid.html()}${Items.html()}
+            ${Grid.html()}${Items.html()}${showToggle ? ListToggle.html() : ''}
           </div>
         </div>
       `,
