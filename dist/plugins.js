@@ -679,16 +679,17 @@ function Selection(options = {}) {
         constructor(element, data) {
             super();
             let previousSelect, api = {};
-            data.state.subscribe('_internal.elements.chart-timeline', chartTimeline => {
+            this.unsub = data.state.subscribeAll(['_internal.elements.chart-timeline', '_internal.chart.dimensions.width'], bulk => {
+                const chartTimeline = state.get('_internal.elements.chart-timeline');
                 if (chartTimeline === undefined)
                     return;
                 this.chartTimeline = chartTimeline;
                 if (!this.chartTimeline.querySelector('.' + rectClassName)) {
                     this.chartTimeline.insertAdjacentElement('beforeend', rect);
-                    const bounding = this.chartTimeline.getBoundingClientRect();
-                    this.left = bounding.left;
-                    this.top = bounding.top;
                 }
+                const bounding = this.chartTimeline.getBoundingClientRect();
+                this.left = bounding.left;
+                this.top = bounding.top;
             });
             /**
              * Clear selection
