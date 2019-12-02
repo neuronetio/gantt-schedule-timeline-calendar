@@ -118,8 +118,10 @@ export default function Main(vido, props = {}) {
     }
     const treeMap = api.makeTreeMap(rows, items);
     state.update('_internal.treeMap', treeMap);
-    state.update('_internal.flatTreeMapById', api.getFlatTreeMapById(treeMap));
-    state.update('_internal.flatTreeMap', api.flattenTreeMap(treeMap));
+    const flatTreeMapById = api.getFlatTreeMapById(treeMap);
+    state.update('_internal.flatTreeMapById', flatTreeMapById);
+    const flatTreeMap = api.flattenTreeMap(treeMap);
+    state.update('_internal.flatTreeMap', flatTreeMap);
     update();
   }
 
@@ -149,7 +151,7 @@ export default function Main(vido, props = {}) {
     state.update('_internal.list.rowsWithParentsExpanded', rowsWithParentsExpanded);
     update();
   }
-  onDestroy(state.subscribeAll(['config.list.rows.*.expanded', '_internal.treeMap;'], prepareExpanded, { bulk: true }));
+  onDestroy(state.subscribe('config.list.rows.*.expanded', prepareExpanded, { bulk: true }));
 
   /**
    * Generate visible rows
@@ -204,7 +206,7 @@ export default function Main(vido, props = {}) {
    * @param {string} period
    * @param {object} internalTime
    */
-  const generateAndAddPeriodDates = (period, internalTime) => {
+  const generateAndAddPeriodDates = (period: string, internalTime) => {
     const dates = [];
     let leftGlobal = internalTime.leftGlobal;
     const rightGlobal = internalTime.rightGlobal;

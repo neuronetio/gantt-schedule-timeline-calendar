@@ -4187,8 +4187,10 @@
             }
             const treeMap = api.makeTreeMap(rows, items);
             state.update('_internal.treeMap', treeMap);
-            state.update('_internal.flatTreeMapById', api.getFlatTreeMapById(treeMap));
-            state.update('_internal.flatTreeMap', api.flattenTreeMap(treeMap));
+            const flatTreeMapById = api.getFlatTreeMapById(treeMap);
+            state.update('_internal.flatTreeMapById', flatTreeMapById);
+            const flatTreeMap = api.flattenTreeMap(treeMap);
+            state.update('_internal.flatTreeMap', flatTreeMap);
             update();
         }
         onDestroy(state.subscribeAll(['config.list.rows;', 'config.chart.items;', 'config.list.rows.*.parentId', 'config.chart.items.*.rowId'], generateTree, { bulk: true }));
@@ -4203,7 +4205,7 @@
             state.update('_internal.list.rowsWithParentsExpanded', rowsWithParentsExpanded);
             update();
         }
-        onDestroy(state.subscribeAll(['config.list.rows.*.expanded', '_internal.treeMap;'], prepareExpanded, { bulk: true }));
+        onDestroy(state.subscribe('config.list.rows.*.expanded', prepareExpanded, { bulk: true }));
         /**
          * Generate visible rows
          */
