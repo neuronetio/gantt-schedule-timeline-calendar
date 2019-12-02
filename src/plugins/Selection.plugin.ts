@@ -192,12 +192,13 @@ export default function Selection(options: Options = {}) {
           return selectingState;
         });
         state.update('_internal.chart.grid.rowsWithBlocks', function clearRowsWithBlocks(rowsWithBlocks) {
-          for (const row of rowsWithBlocks) {
-            for (const block of row.blocks) {
-              block.selected = selectingState.selected['chart-timeline-grid-row-blocks'].includes(block.id);
-              block.selecting = false;
+          if (rowsWithBlocks)
+            for (const row of rowsWithBlocks) {
+              for (const block of row.blocks) {
+                block.selected = selectingState.selected['chart-timeline-grid-row-blocks'].includes(block.id);
+                block.selecting = false;
+              }
             }
-          }
           return rowsWithBlocks;
         });
       }
@@ -291,6 +292,7 @@ export default function Selection(options: Options = {}) {
         const selectingResult = [];
         const currentlySelectingData = [];
         const all = elements[type + 's'];
+        if (!all) return [];
         const currentAll = state.get(path);
         const currentSelecting = currentAll.selecting[type + 's'];
         for (const element of all) {
@@ -359,20 +361,21 @@ export default function Selection(options: Options = {}) {
         state.update('_internal.chart.grid.rowsWithBlocks', function updateRowsWithBlocks(rowsWithBlocks) {
           const nowBlocks = nowSelecting['chart-timeline-grid-row-blocks'];
           const nowRows = nowSelecting['chart-timeline-grid-rows'];
-          for (const row of rowsWithBlocks) {
-            if (nowRows.includes(row.id)) {
-              row.selecting = true;
-            } else {
-              row.selecting = false;
-            }
-            for (const block of row.blocks) {
-              if (nowBlocks.includes(block.id)) {
-                block.selecting = true;
+          if (rowsWithBlocks)
+            for (const row of rowsWithBlocks) {
+              if (nowRows.includes(row.id)) {
+                row.selecting = true;
               } else {
-                block.selecting = false;
+                row.selecting = false;
+              }
+              for (const block of row.blocks) {
+                if (nowBlocks.includes(block.id)) {
+                  block.selecting = true;
+                } else {
+                  block.selecting = false;
+                }
               }
             }
-          }
           return rowsWithBlocks;
         });
       };
@@ -410,11 +413,12 @@ export default function Selection(options: Options = {}) {
         });
         const elements = state.get('_internal.elements');
         for (const type in selectionTypesIdGetters) {
-          for (const element of elements[type + 's']) {
-            if (currentSelect.selecting[type + 's'].includes(element.vido.id)) {
-              options.deselecting(element.vido, type);
+          if (elements[type + 's'])
+            for (const element of elements[type + 's']) {
+              if (currentSelect.selecting[type + 's'].includes(element.vido.id)) {
+                options.deselecting(element.vido, type);
+              }
             }
-          }
         }
         state.update('config.chart.items', function updateItems(items) {
           const now = currentSelect.selecting['chart-timeline-items-row-items'];
@@ -429,21 +433,22 @@ export default function Selection(options: Options = {}) {
           return items;
         });
         state.update('_internal.chart.grid.rowsWithBlocks', function updateRowsWithBlocks(rowsWithBlocks) {
-          for (const row of rowsWithBlocks) {
-            for (const block of row.blocks) {
-              if (currentSelect.selecting['chart-timeline-grid-row-blocks'].includes(block.id)) {
-                if (typeof block.selected === 'undefined' || !block.selected) {
-                  options.selected(block, 'chart-timeline-grid-row-block');
+          if (rowsWithBlocks)
+            for (const row of rowsWithBlocks) {
+              for (const block of row.blocks) {
+                if (currentSelect.selecting['chart-timeline-grid-row-blocks'].includes(block.id)) {
+                  if (typeof block.selected === 'undefined' || !block.selected) {
+                    options.selected(block, 'chart-timeline-grid-row-block');
+                  }
+                  block.selected = true;
+                } else {
+                  if (previousSelect.selected['chart-timeline-grid-row-blocks'].includes(block.id)) {
+                    options.deselected(block, 'chart-timeline-grid-row-block');
+                  }
+                  block.selected = false;
                 }
-                block.selected = true;
-              } else {
-                if (previousSelect.selected['chart-timeline-grid-row-blocks'].includes(block.id)) {
-                  options.deselected(block, 'chart-timeline-grid-row-block');
-                }
-                block.selected = false;
               }
             }
-          }
           return rowsWithBlocks;
         });
       };

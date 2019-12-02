@@ -122,7 +122,7 @@
           columns
         },
         chart: {
-          items,
+          items: {},
           time: {
             period: 'day'
           }
@@ -151,7 +151,7 @@
 
       function deleteRow() {
         GSTCState.update('config.list.rows', rows => {
-          delete rows['10'];
+          if (rows['10']) delete rows['10'];
           return rows;
         });
       }
