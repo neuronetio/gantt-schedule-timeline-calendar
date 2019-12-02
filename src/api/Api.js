@@ -242,7 +242,9 @@ export function getInternalApi(state) {
             continue next;
           }
         }
-        rowsWithParentsExpanded.push(rowId);
+        if(rows[parentId]){
+          rowsWithParentsExpanded.push(rowId);
+        }
       }
       return rowsWithParentsExpanded;
     },
