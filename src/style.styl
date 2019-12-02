@@ -60,7 +60,22 @@ $item-content-padding = 5px
     flex-grow: 0
     flex-shrink: 0
     user-select: none
-    &-expander
+    &-toggle
+      position: fixed
+      left: var(--compensation-x)
+      top: var(--compensation-y)
+      overflow: hidden
+      cursor: pointer
+      padding: 14px
+      background: white
+      border-bottom-right-radius: 20px
+      box-shadow: 0px 0px 10px rgba(0,0,0,0.15)
+      opacity: 0.75
+      &:hover
+        opacity:1
+      img
+        opacity: 0.75
+    &-column-row-expander
       display: flex
       height: var(--height)
       width: calc(var(--expander-padding-width) + var(--expander-size))

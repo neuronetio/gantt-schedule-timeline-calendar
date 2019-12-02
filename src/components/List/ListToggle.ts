@@ -8,114 +8,48 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-export default function ListToggle(vido, props) {
-  const { api, state, onDestroy, Actions, update, html, onChange, cache } = vido;
-  const componentName = 'list-expander-toggle';
-  const actionProps = { ...props, api, state };
-
-  let wrapper;
-  onDestroy(state.subscribe('config.wrappers.ListToggle', value => (wrapper = value)));
-
-  const componentActions = api.getActions(componentName);
-  let className, classNameChild, classNameOpen, classNameClosed;
-  let expanded = false;
-  let iconChild, iconOpen, iconClosed;
+export default function ListToggle(vido, props = {}) {
+  const { html, onDestroy, api, state, update } = vido;
+  const componentName = 'list-toggle';
+  let className;
   onDestroy(
-    state.subscribe('config.classNames', value => {
+    state.subscribe('config.classNames', classNames => {
       className = api.getClass(componentName);
-      classNameChild = className + '-child';
-      classNameOpen = className + '-open';
-      classNameClosed = className + '-closed';
-      update();
     })
   );
-  onDestroy(
-    state.subscribe('_internal.list.expander.icons', icons => {
-      if (icons) {
-        iconChild = icons.child;
-        iconOpen = icons.open;
-        iconClosed = icons.closed;
-      }
-      update();
-    })
-  );
+  let wrapper;
+  onDestroy(state.subscribe('config.wrappers.ListToggle', ListToggleWrapper => (wrapper = ListToggleWrapper)));
 
-  if (props.row) {
-    function expandedChange(isExpanded) {
-      expanded = isExpanded;
-      update();
-    }
-    let expandedSub;
-    function onPropsChange(changedProps) {
-      props = changedProps;
-      for (const prop in props) {
-        actionProps[prop] = props[prop];
-      }
-      if (expandedSub) expandedSub();
-      expandedSub = state.subscribe(`config.list.rows.${props.row.id}.expanded`, expandedChange);
-    }
-    onChange(onPropsChange);
-    onDestroy(function listToggleDestroy() {
-      if (expandedSub) expandedSub();
-    });
-  } else {
-    function expandedChange(bulk) {
-      for (const rowExpanded of bulk) {
-        if (rowExpanded.value) {
-          expanded = true;
-          break;
-        }
-      }
-      update();
-    }
-    onDestroy(state.subscribe('config.list.rows.*.expanded', expandedChange, { bulk: true }));
-  }
-
-  function toggle() {
-    expanded = !expanded;
-    if (props.row) {
-      state.update(`config.list.rows.${props.row.id}.expanded`, expanded);
-    } else {
-      state.update(
-        `config.list.rows`,
-        rows => {
-          for (const rowId in rows) {
-            rows[rowId].expanded = expanded;
-          }
-          return rows;
-        },
-        { only: ['*.expanded'] }
-      );
-    }
-  }
-
-  const getIcon = () => {
-    if (iconChild) {
-      if (props.row?._internal?.children?.length === 0) {
-        return html`
-          <img width="16" height="16" class=${classNameChild} src=${iconChild} />
-        `;
-      }
-      return expanded
-        ? html`
-            <img width="16" height="16" class=${classNameOpen} src=${iconOpen} />
-          `
-        : html`
-            <img width="16" height="16" class=${classNameClosed} src=${iconClosed} />
-          `;
-    }
-    return '';
+  let iconsSrc = {
+    open: '',
+    close: ''
   };
+  async function renderIcons() {
+    const icons = state.get('config.list.toggle.icons');
+    for (const iconName in icons) {
+      const html = icons[iconName];
+      iconsSrc[iconName] = await api.renderIcon(html);
+    }
+    update();
+  }
+  renderIcons();
 
-  const actions = Actions.create(componentActions, actionProps);
+  let open = true;
+  onDestroy(
+    state.subscribe('config.list.columns.percent', percent => (percent === 0 ? (open = false) : (open = true)))
+  );
+
+  function toggle(ev) {
+    state.update('config.list.columns.percent', percent => {
+      return percent === 0 ? 100 : 0;
+    });
+  }
 
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-action=${actions} @click=${toggle}>
-          ${cache(getIcon())}
-        </div>
+        <div class=${className} @click=${toggle}><img src=${open ? iconsSrc.close : iconsSrc.open} /></div>
       `,
-      { vido, props, templateProps }
+      { props, vido, templateProps }
     );
 }

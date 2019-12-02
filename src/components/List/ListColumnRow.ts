@@ -48,8 +48,10 @@ export default function ListColumnRow(vido, props) {
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListColumnRow', value => (wrapper = value)));
 
-  let ListExpanderComponent;
-  onDestroy(state.subscribe('config.components.ListExpander', value => (ListExpanderComponent = value)));
+  let ListColumnRowExpanderComponent;
+  onDestroy(
+    state.subscribe('config.components.ListColumnRowExpander', value => (ListColumnRowExpanderComponent = value))
+  );
 
   let rowPath = `_internal.flatTreeMapById.${props.rowId}`,
     row = state.get(rowPath);
@@ -72,7 +74,7 @@ export default function ListColumnRow(vido, props) {
     true
   );
   let rowSub, colSub;
-  const ListExpander = createComponent(ListExpanderComponent, { row });
+  const ListColumnRowExpander = createComponent(ListColumnRowExpanderComponent, { row });
 
   const onPropsChange = (changedProps, options) => {
     if (options.leave) {
@@ -134,8 +136,8 @@ export default function ListColumnRow(vido, props) {
       { bulk: true }
     );
 
-    if (ListExpander) {
-      ListExpander.change({ row });
+    if (ListColumnRowExpander) {
+      ListColumnRowExpander.change({ row });
     }
 
     colSub = state.subscribe(colPath, val => {
@@ -146,7 +148,7 @@ export default function ListColumnRow(vido, props) {
   onChange(onPropsChange);
 
   onDestroy(() => {
-    if (ListExpander) ListExpander.destroy();
+    if (ListColumnRowExpander) ListColumnRowExpander.destroy();
     colSub();
     rowSub();
   });
@@ -200,7 +202,7 @@ export default function ListColumnRow(vido, props) {
     wrapper(
       html`
         <div detach=${detach} class=${className} style=${styleMap} data-actions=${actions}>
-          ${column.expander ? ListExpander.html() : null}
+          ${column.expander ? ListColumnRowExpander.html() : null}
           <div class=${className + '-content'}>
             ${column.isHTML ? getHtml() : getText()}
           </div>

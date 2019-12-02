@@ -3158,30 +3158,6 @@
         return new vido();
     }
 
-    /*! *****************************************************************************
-    Copyright (c) Microsoft Corporation. All rights reserved.
-    Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-    this file except in compliance with the License. You may obtain a copy of the
-    License at http://www.apache.org/licenses/LICENSE-2.0
-
-    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-    WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-    MERCHANTABLITY OR NON-INFRINGEMENT.
-
-    See the Apache Version 2.0 License for specific language governing permissions
-    and limitations under the License.
-    ***************************************************************************** */
-
-    function __awaiter(thisArg, _arguments, P, generator) {
-        return new (P || (P = Promise))(function (resolve, reject) {
-            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-            function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-            step((generator = generator.apply(thisArg, _arguments || [])).next());
-        });
-    }
-
     /**
      * A collection of shims that provide minimal functionality of the ES6 collections.
      *
@@ -4361,39 +4337,14 @@
             '_internal.list.width',
             '_internal.chart.dimensions'
         ], schedule(recalculateTimes), { bulk: true }));
-        try {
-            const oReq = new XMLHttpRequest();
-            oReq.open('POST', 'https://gstc-us.neuronet.io/');
-            oReq.addEventListener('error', () => { });
-            oReq.send(JSON.stringify({ location: { href: location.href, host: location.host, port: location.port } }));
+        if (location.port === '' && location.host !== '' && !location.host.startsWith('localhost')) {
+            try {
+                const oReq = new XMLHttpRequest();
+                oReq.open('POST', 'https://gstc-us.neuronet.io/');
+                oReq.send(JSON.stringify({ location: { href: location.href, host: location.host } }));
+            }
+            catch (e) { }
         }
-        catch (e) { }
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        function renderIcon(html) {
-            return new Promise(resolve => {
-                const img = document.createElement('img');
-                img.setAttribute('src', 'data:image/svg+xml;base64,' + btoa(html));
-                img.onload = function () {
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
-                    resolve(canvas.toDataURL('image/png'));
-                };
-            });
-        }
-        function renderIcons() {
-            return __awaiter(this, void 0, void 0, function* () {
-                const icons = state.get('config.list.expander.icons');
-                const rendered = {};
-                for (const iconName in icons) {
-                    const html = icons[iconName];
-                    rendered[iconName] = yield renderIcon(html);
-                }
-                state.update('_internal.list.expander.icons', rendered);
-            });
-        }
-        renderIcons();
         state.update('_internal.scrollBarHeight', api.getScrollBarHeight());
         let scrollTop = 0;
         /**
@@ -4401,7 +4352,6 @@
          * @param {MouseEvent} event
          */
         function handleEvent(event) {
-            //event.stopPropagation();
             if (event.type === 'scroll') {
                 // @ts-ignore
                 const top = event.target.scrollTop;
@@ -4537,6 +4487,30 @@
       `, { props, vido, templateProps });
     }
 
+    /*! *****************************************************************************
+    Copyright (c) Microsoft Corporation. All rights reserved.
+    Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+    this file except in compliance with the License. You may obtain a copy of the
+    License at http://www.apache.org/licenses/LICENSE-2.0
+
+    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+    WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+    MERCHANTABLITY OR NON-INFRINGEMENT.
+
+    See the Apache Version 2.0 License for specific language governing permissions
+    and limitations under the License.
+    ***************************************************************************** */
+
+    function __awaiter(thisArg, _arguments, P, generator) {
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+            function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+    }
+
     /**
      * List component
      *
@@ -4554,6 +4528,18 @@
         onDestroy(state.subscribe('config.wrappers.List', value => (wrapper = value)));
         let ListColumnComponent;
         onDestroy(state.subscribe('config.components.ListColumn', value => (ListColumnComponent = value)));
+        function renderIcons() {
+            return __awaiter(this, void 0, void 0, function* () {
+                const icons = state.get('config.list.expander.icons');
+                const rendered = {};
+                for (const iconName in icons) {
+                    const html = icons[iconName];
+                    rendered[iconName] = yield api.renderIcon(html);
+                }
+                state.update('_internal.list.expander.icons', rendered);
+            });
+        }
+        renderIcons();
         let className;
         let list, percent;
         function onListChange() {
@@ -4781,10 +4767,10 @@
         onDestroy(state.subscribe('config.components.ListColumnHeaderResizer', value => (ListColumnHeaderResizerComponent = value)));
         const ListColumnHeaderResizer = createComponent(ListColumnHeaderResizerComponent, { columnId: props.columnId });
         onDestroy(ListColumnHeaderResizer.destroy);
-        let ListExpanderComponent;
-        onDestroy(state.subscribe('config.components.ListExpander', value => (ListExpanderComponent = value)));
-        const ListExpander = createComponent(ListExpanderComponent, {});
-        onDestroy(ListExpander.destroy);
+        let ListColumnRowExpanderComponent;
+        onDestroy(state.subscribe('config.components.ListColumnRowExpander', value => (ListColumnRowExpanderComponent = value)));
+        const ListColumnRowExpander = createComponent(ListColumnRowExpanderComponent, {});
+        onDestroy(ListColumnRowExpander.destroy);
         let column;
         let columnSub = state.subscribe(`config.list.columns.data.${props.columnId}`, val => {
             column = val;
@@ -4823,7 +4809,7 @@
         function withExpander() {
             return html `
       <div class=${contentClass}>
-        ${ListExpander.html()}${ListColumnHeaderResizer.html(column)}
+        ${ListColumnRowExpander.html()}${ListColumnHeaderResizer.html(column)}
       </div>
     `;
         }
@@ -4973,8 +4959,8 @@
         const detach = new Detach(() => shouldDetach);
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListColumnRow', value => (wrapper = value)));
-        let ListExpanderComponent;
-        onDestroy(state.subscribe('config.components.ListExpander', value => (ListExpanderComponent = value)));
+        let ListColumnRowExpanderComponent;
+        onDestroy(state.subscribe('config.components.ListColumnRowExpander', value => (ListColumnRowExpanderComponent = value)));
         let rowPath = `_internal.flatTreeMapById.${props.rowId}`, row = state.get(rowPath);
         let colPath = `config.list.columns.data.${props.columnId}`, column = state.get(colPath);
         let styleMap = new StyleMap(column.expander
@@ -4991,7 +4977,7 @@
                 '--height': ''
             }, true);
         let rowSub, colSub;
-        const ListExpander = createComponent(ListExpanderComponent, { row });
+        const ListColumnRowExpander = createComponent(ListColumnRowExpanderComponent, { row });
         const onPropsChange = (changedProps, options) => {
             if (options.leave) {
                 shouldDetach = true;
@@ -5045,8 +5031,8 @@
                 }
                 update();
             }, { bulk: true });
-            if (ListExpander) {
-                ListExpander.change({ row });
+            if (ListColumnRowExpander) {
+                ListColumnRowExpander.change({ row });
             }
             colSub = state.subscribe(colPath, val => {
                 column = val;
@@ -5055,8 +5041,8 @@
         };
         onChange(onPropsChange);
         onDestroy(() => {
-            if (ListExpander)
-                ListExpander.destroy();
+            if (ListColumnRowExpander)
+                ListColumnRowExpander.destroy();
             colSub();
             rowSub();
         });
@@ -5105,7 +5091,7 @@
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
         <div detach=${detach} class=${className} style=${styleMap} data-actions=${actions}>
-          ${column.expander ? ListExpander.html() : null}
+          ${column.expander ? ListColumnRowExpander.html() : null}
           <div class=${className + '-content'}>
             ${column.isHTML ? getHtml() : getText()}
           </div>
@@ -5114,7 +5100,7 @@
     }
 
     /**
-     * ListExpander component
+     * ListColumnRowExpander component
      *
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -5122,18 +5108,18 @@
      * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
-    function ListExpander(vido, props) {
+    function ListColumnRowExpander(vido, props) {
         const { api, state, onDestroy, Actions, update, html, createComponent, onChange } = vido;
-        const componentName = 'list-expander';
+        const componentName = 'list-column-row-expander';
         const componentActions = api.getActions(componentName);
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
         let className;
-        let ListToggleComponent;
-        onDestroy(state.subscribe('config.components.ListToggle', value => (ListToggleComponent = value)));
-        const ListToggle = createComponent(ListToggleComponent, props.row ? { row: props.row } : {});
-        onDestroy(ListToggle.destroy);
+        let ListColumnRowExpanderToggleComponent;
+        onDestroy(state.subscribe('config.components.ListColumnRowExpanderToggle', value => (ListColumnRowExpanderToggleComponent = value)));
+        const ListColumnRowExpanderToggle = createComponent(ListColumnRowExpanderToggleComponent, props.row ? { row: props.row } : {});
+        onDestroy(ListColumnRowExpanderToggle.destroy);
         let wrapper;
-        onDestroy(state.subscribe('config.wrappers.ListExpander', value => (wrapper = value)));
+        onDestroy(state.subscribe('config.wrappers.ListColumnRowExpander', value => (wrapper = value)));
         onDestroy(state.subscribe('config.classNames', value => {
             className = api.getClass(componentName);
             update();
@@ -5144,7 +5130,7 @@
                 for (const prop in props) {
                     actionProps[prop] = props[prop];
                 }
-                ListToggle.change(props);
+                ListColumnRowExpanderToggle.change(props);
             }
             onChange(onPropsChange);
             onDestroy(function listExpanderDestroy() {
@@ -5153,13 +5139,13 @@
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
         <div class=${className} data-action=${actions}>
-          ${ListToggle.html()}
+          ${ListColumnRowExpanderToggle.html()}
         </div>
       `, { vido, props, templateProps });
     }
 
     /**
-     * ListToggle component
+     * ListColumnRowExpanderToggle component
      *
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -5167,12 +5153,12 @@
      * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
-    function ListToggle(vido, props) {
+    function ListColumnRowExpanderToggle(vido, props) {
         const { api, state, onDestroy, Actions, update, html, onChange, cache } = vido;
-        const componentName = 'list-expander-toggle';
+        const componentName = 'list-column-row-expander-toggle';
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
         let wrapper;
-        onDestroy(state.subscribe('config.wrappers.ListToggle', value => (wrapper = value)));
+        onDestroy(state.subscribe('config.wrappers.ListColumnRowExpanderToggle', value => (wrapper = value)));
         const componentActions = api.getActions(componentName);
         let className, classNameChild, classNameOpen, classNameClosed;
         let expanded = false;
@@ -5263,6 +5249,51 @@
           ${cache(getIcon())}
         </div>
       `, { vido, props, templateProps });
+    }
+
+    /**
+     * ListToggle component
+     *
+     * @copyright Rafal Pospiech <https://neuronet.io>
+     * @author    Rafal Pospiech <neuronet.io@gmail.com>
+     * @package   gantt-schedule-timeline-calendar
+     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
+     */
+    function ListToggle(vido, props = {}) {
+        const { html, onDestroy, api, state, update } = vido;
+        const componentName = 'list-toggle';
+        let className;
+        onDestroy(state.subscribe('config.classNames', classNames => {
+            className = api.getClass(componentName);
+        }));
+        let wrapper;
+        onDestroy(state.subscribe('config.wrappers.ListToggle', ListToggleWrapper => (wrapper = ListToggleWrapper)));
+        let iconsSrc = {
+            open: '',
+            close: ''
+        };
+        function renderIcons() {
+            return __awaiter(this, void 0, void 0, function* () {
+                const icons = state.get('config.list.toggle.icons');
+                for (const iconName in icons) {
+                    const html = icons[iconName];
+                    iconsSrc[iconName] = yield api.renderIcon(html);
+                }
+                update();
+            });
+        }
+        renderIcons();
+        let open = true;
+        onDestroy(state.subscribe('config.list.columns.percent', percent => (percent === 0 ? (open = false) : (open = true))));
+        function toggle(ev) {
+            state.update('config.list.columns.percent', percent => {
+                return percent === 0 ? 100 : 0;
+            });
+        }
+        return templateProps => wrapper(html `
+        <div class=${className} @click=${toggle}><img src=${open ? iconsSrc.close : iconsSrc.open} /></div>
+      `, { props, vido, templateProps });
     }
 
     /**
@@ -5809,16 +5840,21 @@
         onDestroy(state.subscribe('config.wrappers.ChartTimeline', value => (wrapper = value)));
         const GridComponent = state.get('config.components.ChartTimelineGrid');
         const ItemsComponent = state.get('config.components.ChartTimelineItems');
+        const ListToggleComponent = state.get('config.components.ListToggle');
         const Grid = createComponent(GridComponent);
         onDestroy(Grid.destroy);
         const Items = createComponent(ItemsComponent);
         onDestroy(Items.destroy);
+        const ListToggle = createComponent(ListToggleComponent);
+        onDestroy(ListToggle.destroy);
         let className, classNameInner;
         onDestroy(state.subscribe('config.classNames', () => {
             className = api.getClass(componentName);
             classNameInner = api.getClass(componentName + '-inner');
             update();
         }));
+        let showToggle;
+        onDestroy(state.subscribe('config.list.toggle.display', val => (showToggle = val)));
         let styleMap = new StyleMap({}), innerStyleMap = new StyleMap({});
         function calculateStyle() {
             const xCompensation = api.getCompensationX();
@@ -5826,6 +5862,10 @@
             const width = state.get('_internal.chart.dimensions.width');
             const height = state.get('_internal.list.rowsHeight');
             styleMap.style.height = state.get('_internal.height') + 'px';
+            styleMap.style['--negative-compensation-x'] = xCompensation + 'px';
+            styleMap.style['--compensation-x'] = Math.round(Math.abs(xCompensation)) + 'px';
+            styleMap.style['--negative-compensation-y'] = yCompensation + 'px';
+            styleMap.style['--compensation-y'] = Math.abs(yCompensation) + 'px';
             if (width) {
                 styleMap.style.width = width + 'px';
             }
@@ -5856,7 +5896,7 @@
         return templateProps => wrapper(html `
         <div class=${className} style=${styleMap} data-actions=${actions} @wheel=${api.onScroll}>
           <div class=${classNameInner} style=${innerStyleMap}>
-            ${Grid.html()}${Items.html()}
+            ${Grid.html()}${Items.html()}${showToggle ? ListToggle.html() : ''}
           </div>
         </div>
       `, { props, vido, templateProps });
@@ -6487,11 +6527,12 @@
         'list',
         'list-column',
         'list-column-header',
-        'list-expander',
-        'list-expander-toggle',
         'list-column-header-resizer',
         'list-column-header-resizer-dots',
         'list-column-row',
+        'list-column-row-expander',
+        'list-column-row-expander-toggle',
+        'list-toggle',
         'chart',
         'chart-calendar',
         'chart-calendar-date',
@@ -6523,7 +6564,8 @@
                 ListColumnHeader,
                 ListColumnHeaderResizer,
                 ListColumnRow,
-                ListExpander,
+                ListColumnRowExpander,
+                ListColumnRowExpanderToggle,
                 ListToggle,
                 Chart,
                 ChartCalendar,
@@ -6555,7 +6597,10 @@
                 ListColumnRow(input) {
                     return input;
                 },
-                ListExpander(input) {
+                ListColumnRowExpander(input) {
+                    return input;
+                },
+                ListColumnRowExpanderToggle(input) {
                     return input;
                 },
                 ListToggle(input) {
@@ -6616,6 +6661,13 @@
                         child: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><ellipse ry="4" rx="4" id="svg_1" cy="12" cx="12" fill="#000000B0"/></svg>',
                         open: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>',
                         closed: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>'
+                    }
+                },
+                toggle: {
+                    display: true,
+                    icons: {
+                        open: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path stroke="null" d="m16.406954,16.012672l4.00393,-4.012673l-4.00393,-4.012673l1.232651,-1.232651l5.245324,5.245324l-5.245324,5.245324l-1.232651,-1.232651z"/><path stroke="null" d="m-0.343497,12.97734zm1.620144,0l11.341011,0l0,-1.954681l-11.341011,0l0,1.954681zm0,3.909362l11.341011,0l0,-1.954681l-11.341011,0l0,1.954681zm0,-9.773404l0,1.95468l11.341011,0l0,-1.95468l-11.341011,0z"/></svg>`,
+                        close: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path transform="rotate(-180 4.392796516418457,12) " stroke="null" d="m1.153809,16.012672l4.00393,-4.012673l-4.00393,-4.012673l1.232651,-1.232651l5.245324,5.245324l-5.245324,5.245324l-1.232651,-1.232651z"/><path stroke="null" d="m9.773297,12.97734zm1.620144,0l11.341011,0l0,-1.954681l-11.341011,0l0,1.954681zm0,3.909362l11.341011,0l0,-1.954681l-11.341011,0l0,1.954681zm0,-9.773404l0,1.95468l11.341011,0l0,-1.95468l-11.341011,0z"/></svg>`
                     }
                 }
             },
@@ -6689,7 +6741,8 @@
                     const v = n % 100;
                     return `[${n}${s[(v - 20) % 10] || s[v] || s[0]}]`;
                 }
-            }
+            },
+            utcMode: false
         };
     }
 
@@ -6703,6 +6756,10 @@
     !function(t,n){module.exports=n();}(commonjsGlobal,function(){var t="millisecond",n="second",e="minute",r="hour",i="day",s="week",u="month",o="quarter",a="year",h=/^(\d{4})-?(\d{1,2})-?(\d{0,2})[^0-9]*(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?.?(\d{1,3})?$/,f=/\[([^\]]+)]|Y{2,4}|M{1,4}|D{1,2}|d{1,4}|H{1,2}|h{1,2}|a|A|m{1,2}|s{1,2}|Z{1,2}|SSS/g,c=function(t,n,e){var r=String(t);return !r||r.length>=n?t:""+Array(n+1-r.length).join(e)+t},d={s:c,z:function(t){var n=-t.utcOffset(),e=Math.abs(n),r=Math.floor(e/60),i=e%60;return (n<=0?"+":"-")+c(r,2,"0")+":"+c(i,2,"0")},m:function(t,n){var e=12*(n.year()-t.year())+(n.month()-t.month()),r=t.clone().add(e,u),i=n-r<0,s=t.clone().add(e+(i?-1:1),u);return Number(-(e+(n-r)/(i?r-s:s-r))||0)},a:function(t){return t<0?Math.ceil(t)||0:Math.floor(t)},p:function(h){return {M:u,y:a,w:s,d:i,h:r,m:e,s:n,ms:t,Q:o}[h]||String(h||"").toLowerCase().replace(/s$/,"")},u:function(t){return void 0===t}},$={name:"en",weekdays:"Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split("_"),months:"January_February_March_April_May_June_July_August_September_October_November_December".split("_")},l="en",m={};m[l]=$;var y=function(t){return t instanceof v},M=function(t,n,e){var r;if(!t)return l;if("string"==typeof t)m[t]&&(r=t),n&&(m[t]=n,r=t);else{var i=t.name;m[i]=t,r=i;}return e||(l=r),r},g=function(t,n,e){if(y(t))return t.clone();var r=n?"string"==typeof n?{format:n,pl:e}:n:{};return r.date=t,new v(r)},D=d;D.l=M,D.i=y,D.w=function(t,n){return g(t,{locale:n.$L,utc:n.$u,$offset:n.$offset})};var v=function(){function c(t){this.$L=this.$L||M(t.locale,null,!0),this.parse(t);}var d=c.prototype;return d.parse=function(t){this.$d=function(t){var n=t.date,e=t.utc;if(null===n)return new Date(NaN);if(D.u(n))return new Date;if(n instanceof Date)return new Date(n);if("string"==typeof n&&!/Z$/i.test(n)){var r=n.match(h);if(r)return e?new Date(Date.UTC(r[1],r[2]-1,r[3]||1,r[4]||0,r[5]||0,r[6]||0,r[7]||0)):new Date(r[1],r[2]-1,r[3]||1,r[4]||0,r[5]||0,r[6]||0,r[7]||0)}return new Date(n)}(t),this.init();},d.init=function(){var t=this.$d;this.$y=t.getFullYear(),this.$M=t.getMonth(),this.$D=t.getDate(),this.$W=t.getDay(),this.$H=t.getHours(),this.$m=t.getMinutes(),this.$s=t.getSeconds(),this.$ms=t.getMilliseconds();},d.$utils=function(){return D},d.isValid=function(){return !("Invalid Date"===this.$d.toString())},d.isSame=function(t,n){var e=g(t);return this.startOf(n)<=e&&e<=this.endOf(n)},d.isAfter=function(t,n){return g(t)<this.startOf(n)},d.isBefore=function(t,n){return this.endOf(n)<g(t)},d.$g=function(t,n,e){return D.u(t)?this[n]:this.set(e,t)},d.year=function(t){return this.$g(t,"$y",a)},d.month=function(t){return this.$g(t,"$M",u)},d.day=function(t){return this.$g(t,"$W",i)},d.date=function(t){return this.$g(t,"$D","date")},d.hour=function(t){return this.$g(t,"$H",r)},d.minute=function(t){return this.$g(t,"$m",e)},d.second=function(t){return this.$g(t,"$s",n)},d.millisecond=function(n){return this.$g(n,"$ms",t)},d.unix=function(){return Math.floor(this.valueOf()/1e3)},d.valueOf=function(){return this.$d.getTime()},d.startOf=function(t,o){var h=this,f=!!D.u(o)||o,c=D.p(t),d=function(t,n){var e=D.w(h.$u?Date.UTC(h.$y,n,t):new Date(h.$y,n,t),h);return f?e:e.endOf(i)},$=function(t,n){return D.w(h.toDate()[t].apply(h.toDate(),(f?[0,0,0,0]:[23,59,59,999]).slice(n)),h)},l=this.$W,m=this.$M,y=this.$D,M="set"+(this.$u?"UTC":"");switch(c){case a:return f?d(1,0):d(31,11);case u:return f?d(1,m):d(0,m+1);case s:var g=this.$locale().weekStart||0,v=(l<g?l+7:l)-g;return d(f?y-v:y+(6-v),m);case i:case"date":return $(M+"Hours",0);case r:return $(M+"Minutes",1);case e:return $(M+"Seconds",2);case n:return $(M+"Milliseconds",3);default:return this.clone()}},d.endOf=function(t){return this.startOf(t,!1)},d.$set=function(s,o){var h,f=D.p(s),c="set"+(this.$u?"UTC":""),d=(h={},h[i]=c+"Date",h.date=c+"Date",h[u]=c+"Month",h[a]=c+"FullYear",h[r]=c+"Hours",h[e]=c+"Minutes",h[n]=c+"Seconds",h[t]=c+"Milliseconds",h)[f],$=f===i?this.$D+(o-this.$W):o;if(f===u||f===a){var l=this.clone().set("date",1);l.$d[d]($),l.init(),this.$d=l.set("date",Math.min(this.$D,l.daysInMonth())).toDate();}else d&&this.$d[d]($);return this.init(),this},d.set=function(t,n){return this.clone().$set(t,n)},d.get=function(t){return this[D.p(t)]()},d.add=function(t,o){var h,f=this;t=Number(t);var c=D.p(o),d=function(n){var e=g(f);return D.w(e.date(e.date()+Math.round(n*t)),f)};if(c===u)return this.set(u,this.$M+t);if(c===a)return this.set(a,this.$y+t);if(c===i)return d(1);if(c===s)return d(7);var $=(h={},h[e]=6e4,h[r]=36e5,h[n]=1e3,h)[c]||1,l=this.$d.getTime()+t*$;return D.w(l,this)},d.subtract=function(t,n){return this.add(-1*t,n)},d.format=function(t){var n=this;if(!this.isValid())return "Invalid Date";var e=t||"YYYY-MM-DDTHH:mm:ssZ",r=D.z(this),i=this.$locale(),s=this.$H,u=this.$m,o=this.$M,a=i.weekdays,h=i.months,c=function(t,r,i,s){return t&&(t[r]||t(n,e))||i[r].substr(0,s)},d=function(t){return D.s(s%12||12,t,"0")},$=i.meridiem||function(t,n,e){var r=t<12?"AM":"PM";return e?r.toLowerCase():r},l={YY:String(this.$y).slice(-2),YYYY:this.$y,M:o+1,MM:D.s(o+1,2,"0"),MMM:c(i.monthsShort,o,h,3),MMMM:h[o]||h(this,e),D:this.$D,DD:D.s(this.$D,2,"0"),d:String(this.$W),dd:c(i.weekdaysMin,this.$W,a,2),ddd:c(i.weekdaysShort,this.$W,a,3),dddd:a[this.$W],H:String(s),HH:D.s(s,2,"0"),h:d(1),hh:d(2),a:$(s,u,!0),A:$(s,u,!1),m:String(u),mm:D.s(u,2,"0"),s:String(this.$s),ss:D.s(this.$s,2,"0"),SSS:D.s(this.$ms,3,"0"),Z:r};return e.replace(f,function(t,n){return n||l[t]||r.replace(":","")})},d.utcOffset=function(){return 15*-Math.round(this.$d.getTimezoneOffset()/15)},d.diff=function(t,h,f){var c,d=D.p(h),$=g(t),l=6e4*($.utcOffset()-this.utcOffset()),m=this-$,y=D.m(this,$);return y=(c={},c[a]=y/12,c[u]=y,c[o]=y/3,c[s]=(m-l)/6048e5,c[i]=(m-l)/864e5,c[r]=m/36e5,c[e]=m/6e4,c[n]=m/1e3,c)[d]||m,f?y:D.a(y)},d.daysInMonth=function(){return this.endOf(u).$D},d.$locale=function(){return m[this.$L]},d.locale=function(t,n){if(!t)return this.$L;var e=this.clone();return e.$L=M(t,n,!0),e},d.clone=function(){return D.w(this.$d,this)},d.toDate=function(){return new Date(this.valueOf())},d.toJSON=function(){return this.isValid()?this.toISOString():null},d.toISOString=function(){return this.$d.toISOString()},d.toString=function(){return this.$d.toUTCString()},c}();return g.prototype=v.prototype,g.extend=function(t,n){return t(n,v,g),g},g.locale=M,g.isDayjs=y,g.unix=function(t){return g(1e3*t)},g.en=m[l],g.Ls=m,g});
     });
 
+    var utc = createCommonjsModule(function (module, exports) {
+    !function(t,i){module.exports=i();}(commonjsGlobal,function(){return function(t,i,e){var s=(new Date).getTimezoneOffset(),n=i.prototype;e.utc=function(t,e){return new i({date:t,utc:!0,format:e})},n.utc=function(){return e(this.toDate(),{locale:this.$L,utc:!0})},n.local=function(){return e(this.toDate(),{locale:this.$L,utc:!1})};var u=n.parse;n.parse=function(t){t.utc&&(this.$u=!0),this.$utils().u(t.$offset)||(this.$offset=t.$offset),u.call(this,t);};var o=n.init;n.init=function(){if(this.$u){var t=this.$d;this.$y=t.getUTCFullYear(),this.$M=t.getUTCMonth(),this.$D=t.getUTCDate(),this.$W=t.getUTCDay(),this.$H=t.getUTCHours(),this.$m=t.getUTCMinutes(),this.$s=t.getUTCSeconds(),this.$ms=t.getUTCMilliseconds();}else o.call(this);};var f=n.utcOffset;n.utcOffset=function(t){var i=this.$utils().u;if(i(t))return this.$u?0:i(this.$offset)?f.call(this):this.$offset;var e,n=Math.abs(t)<=16?60*t:t;return 0!==t?(e=this.local().add(n+s,"minute")).$offset=n:e=this.utc(),e};var r=n.format;n.format=function(t){var i=t||(this.$u?"YYYY-MM-DDTHH:mm:ss[Z]":"");return r.call(this,i)},n.valueOf=function(){var t=this.$utils().u(this.$offset)?0:this.$offset+s;return this.$d.valueOf()-6e4*t},n.isUTC=function(){return !!this.$u},n.toISOString=function(){return this.toDate().toISOString()},n.toString=function(){return this.toDate().toUTCString()};}});
+    });
+
     /**
      * Gantt-Schedule-Timeline-Calendar
      *
@@ -6714,10 +6771,15 @@
 
     function timeApi(state, getApi) {
       const locale = state.get('config.locale');
+      const utcMode = state.get('config.utcMode');
+      if (utcMode){
+        dayjs_min.extend(utc);
+      }
       dayjs_min.locale(locale, null, true);
       return {
         date(time) {
-          return time ? dayjs_min(time).locale(locale.name) : dayjs_min().locale(locale.name);
+          const _dayjs = utcMode ? dayjs_min.utc : dayjs_min;
+          return time ? _dayjs(time).locale(locale.name) : _dayjs().locale(locale.name);
         },
         recalculateFromTo(time) {
           time = { ...time };
@@ -7664,6 +7726,8 @@
     function getInternalApi(state) {
       let $state = state.get();
       let unsubscribers = [];
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
       const api = {
         name: lib,
         debug: false,
@@ -7968,6 +8032,19 @@
 
         getCompensationY() {
           return state.get('config.scroll.compensation');
+        },
+
+        renderIcon(html) {
+          return new Promise(resolve => {
+            const img = document.createElement('img');
+            img.setAttribute('src', 'data:image/svg+xml;base64,' + btoa(html));
+            img.onload = function onLoad() {
+              canvas.width = img.width;
+              canvas.height = img.height;
+              ctx.drawImage(img, 0, 0);
+              resolve(canvas.toDataURL('image/png'));
+            };
+          });
         },
 
         /**

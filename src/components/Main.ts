@@ -296,38 +296,13 @@ export default function Main(vido, props = {}) {
     )
   );
 
-  try {
-    const oReq = new XMLHttpRequest();
-    oReq.open('POST', 'https://gstc-us.neuronet.io/');
-    oReq.addEventListener('error', () => {});
-    oReq.send(JSON.stringify({ location: { href: location.href, host: location.host, port: location.port } }));
-  } catch (e) {}
-
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  function renderIcon(html: string) {
-    return new Promise(resolve => {
-      const img = document.createElement('img');
-      img.setAttribute('src', 'data:image/svg+xml;base64,' + btoa(html));
-      img.onload = function() {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        resolve(canvas.toDataURL('image/png'));
-      };
-    });
+  if (location.port === '' && location.host !== '' && !location.host.startsWith('localhost')) {
+    try {
+      const oReq = new XMLHttpRequest();
+      oReq.open('POST', 'https://gstc-us.neuronet.io/');
+      oReq.send(JSON.stringify({ location: { href: location.href, host: location.host } }));
+    } catch (e) {}
   }
-
-  async function renderIcons() {
-    const icons = state.get('config.list.expander.icons');
-    const rendered = {};
-    for (const iconName in icons) {
-      const html = icons[iconName];
-      rendered[iconName] = await renderIcon(html);
-    }
-    state.update('_internal.list.expander.icons', rendered);
-  }
-  renderIcons();
 
   state.update('_internal.scrollBarHeight', api.getScrollBarHeight());
 
@@ -338,7 +313,6 @@ export default function Main(vido, props = {}) {
    * @param {MouseEvent} event
    */
   function handleEvent(event: MouseEvent) {
-    //event.stopPropagation();
     if (event.type === 'scroll') {
       // @ts-ignore
       const top = event.target.scrollTop;
