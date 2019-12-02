@@ -18,16 +18,15 @@
   "author": "Rafal Pospiech <neuronet.io@gmail.com>",
   "license": "GPL-3.0",
   "dependencies": {
-    "@neuronet.io/vido": "^2.2.3",
+    "@neuronet.io/vido": "^2.2.4",
     "dayjs": "^1.8.17",
     "deep-state-observer": "^3.0.39",
-    "lit-html": "^1.1.2",
-    "resize-observer-polyfill": "^1.5.1",
-    "rollup-plugin-cjs-es": "^0.9.0"
+    "resize-observer-polyfill": "^1.5.1"
   },
   "devDependencies": {
     "npm-run-all": "^4.1.5",
     "rollup": "^1.26.3",
+    "rollup-plugin-cjs-es": "^0.9.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-livereload": "^1.0.4",
     "rollup-plugin-node-resolve": "^5.2.0",
