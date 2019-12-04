@@ -650,7 +650,15 @@
             // tslint:disable-next-line:no-any
             !!(value && value[Symbol.iterator]);
     };
+    /**
+     * A global callback used to sanitize any value before inserting it into the
+     * DOM.
+     */
+    let sanitizeDOMValueImpl;
     const sanitizeDOMValue = (value, name, type, node) => {
+        if (sanitizeDOMValueImpl !== undefined) {
+            return sanitizeDOMValueImpl(value, name, type, node);
+        }
         return value;
     };
     /**
@@ -887,7 +895,7 @@
                 node.nodeType === 3 /* Node.TEXT_NODE */) {
                 // If we only have a single text node between the markers, we can just
                 // set its value, rather than replacing it.
-                const renderedValue = sanitizeDOMValue(value);
+                const renderedValue = sanitizeDOMValue(value, 'data', 'property', node);
                 node.data = typeof renderedValue === 'string' ?
                     renderedValue :
                     String(renderedValue);
@@ -899,7 +907,7 @@
                 // into the document, then we can sanitize its contentx.
                 const textNode = emptyTextNode.cloneNode();
                 this.__commitNode(textNode);
-                const renderedValue = sanitizeDOMValue(value);
+                const renderedValue = sanitizeDOMValue(value, 'textContent', 'property', textNode);
                 textNode.data = typeof renderedValue === 'string' ? renderedValue :
                     String(renderedValue);
             }
@@ -921,7 +929,7 @@
                 // We check for sanitizeDOMValue is to prevent this from
                 // being a breaking change to the library.
                 const parent = this.endNode.parentNode;
-                if (
+                if (sanitizeDOMValueImpl !== undefined && parent.nodeName === 'STYLE' ||
                     parent.nodeName === 'SCRIPT') {
                     this.__commitText('/* lit-html will not write ' +
                         'TemplateResults to scripts and styles */');
@@ -1332,7 +1340,7 @@
      * subject to an additional IP rights grant found at
      * http://polymer.github.io/PATENTS.txt
      */
-    var __asyncValues =  function (o) {
+    var __asyncValues = (undefined && undefined.__asyncValues) || function (o) {
         if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
         var m = o[Symbol.asyncIterator], i;
         return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
@@ -1439,7 +1447,7 @@
      * subject to an additional IP rights grant found at
      * http://polymer.github.io/PATENTS.txt
      */
-    var __asyncValues$1 =  function (o) {
+    var __asyncValues$1 = (undefined && undefined.__asyncValues) || function (o) {
         if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
         var m = o[Symbol.asyncIterator], i;
         return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
