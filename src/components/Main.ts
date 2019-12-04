@@ -125,12 +125,9 @@ export default function Main(vido, props = {}) {
     update();
   }
 
+  onDestroy(state.subscribeAll(['config.list.rows;', 'config.chart.items;'], generateTree));
   onDestroy(
-    state.subscribeAll(
-      ['config.list.rows;', 'config.chart.items;', 'config.list.rows.*.parentId', 'config.chart.items.*.rowId'],
-      generateTree,
-      { bulk: true }
-    )
+    state.subscribeAll(['config.list.rows.*.parentId', 'config.chart.items.*.rowId'], generateTree, { bulk: true })
   );
 
   /**
@@ -160,9 +157,10 @@ export default function Main(vido, props = {}) {
     const { visibleRows, compensation } = api.getVisibleRowsAndCompensation(
       state.get('_internal.list.rowsWithParentsExpanded')
     );
+    const smoothScroll = state.get('config.scroll.smooth');
     const current = state.get('_internal.list.visibleRows');
     let shouldUpdate = true;
-    state.update('config.scroll.compensation', -compensation);
+    state.update('config.scroll.compensation', smoothScroll ? -compensation : 0);
     if (visibleRows.length) {
       shouldUpdate = visibleRows.some((row, index) => {
         if (typeof current[index] === 'undefined') {
@@ -183,7 +181,7 @@ export default function Main(vido, props = {}) {
     }
     update();
   }
-  onDestroy(state.subscribeAll(['_internal.list.rowsWithParentsExpanded', 'config.scroll.top'], generateVisibleRows));
+  onDestroy(state.subscribeAll(['_internal.list.rowsWithParentsExpanded;', 'config.scroll.top'], generateVisibleRows));
 
   let elementScrollTop = 0;
   /**

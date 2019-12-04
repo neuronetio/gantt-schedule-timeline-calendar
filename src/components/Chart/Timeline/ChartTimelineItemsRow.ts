@@ -14,27 +14,24 @@
  * @param {any} data
  * @returns {object} with update and destroy
  */
-const bindElementAction = (element, data) => {
-  data.state.update(
-    '_internal.elements.chart-timeline-items-rows',
-    rows => {
-      if (typeof rows === 'undefined') {
-        rows = [];
-      }
-      rows.push(element);
-      return rows;
-    },
-    { only: null }
-  );
-  return {
-    update() {},
-    destroy(element) {
-      data.state.update('_internal.elements.chart-timeline-items-rows', rows => {
-        return rows.filter(el => el !== element);
-      });
-    }
+function bindElementAction(element, data) {
+  let shouldUpdate = false;
+  let rows = data.state.get('_internal.elements.chart-timeline-items-rows');
+  if (typeof rows === 'undefined') {
+    rows = [];
+    shouldUpdate = true;
+  }
+  if (!rows.includes(element)) {
+    rows.push(element);
+    shouldUpdate = true;
+  }
+  if (shouldUpdate) data.state.update('_internal.elements.chart-timeline-items-rows', rows, { only: null });
+  return function destroy(element) {
+    data.state.update('_internal.elements.chart-timeline-items-rows', rows => {
+      return rows.filter(el => el !== element);
+    });
   };
-};
+}
 
 const ChartTimelineItemsRow = (vido, props) => {
   const { api, state, onDestroy, Detach, Actions, update, html, onChange, reuseComponents, StyleMap } = vido;

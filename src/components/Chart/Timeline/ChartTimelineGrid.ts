@@ -8,6 +8,21 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
+/**
+ * Bind element
+ * @param {Element} element
+ */
+function bindElement(element: HTMLElement, data) {
+  const old = data.state.get('_internal.elements.chart-timeline-grid');
+  if (old !== element) data.state.update('_internal.elements.chart-timeline-grid', element);
+  return function destroy(element, data) {
+    data.state.update('_internal.elements', elements => {
+      delete elements['chart-timeline-grid'];
+      return elements;
+    });
+  };
+}
+
 export default function ChartTimelineGrid(vido, props) {
   const { api, state, onDestroy, Actions, update, html, reuseComponents, StyleMap } = vido;
   const componentName = 'chart-timeline-grid';
@@ -106,15 +121,8 @@ export default function ChartTimelineGrid(vido, props) {
   };
   onDestroy(state.subscribe('_internal.chart.grid.rowsWithBlocks', generateRowsComponents));
 
-  /**
-   * Bind element
-   * @param {Element} element
-   */
-  function bindElement(element: Element) {
-    state.update('_internal.elements.chart-timeline-grid', element);
-  }
   if (!componentActions.includes(bindElement)) {
-    componentActions.push();
+    componentActions.push(bindElement);
   }
 
   onDestroy(() => {

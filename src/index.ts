@@ -7,8 +7,8 @@
  * @license   GPL-3.0
  */
 
-import Vido from '@neuronet.io/vido/vido';
-//import Vido from '../../vido';
+//import Vido from '@neuronet.io/vido/vido';
+import Vido from '../../vido';
 import publicApi, { getInternalApi } from './api/Api';
 import Main from './components/Main';
 

@@ -73,23 +73,20 @@ export default function List(vido, props = {}) {
     })
   );
 
-  function onScrollHandler(event) {
+  function onScroll(event) {
     event.stopPropagation();
     event.preventDefault();
-    if (event.type === 'scroll') {
-      state.update('config.scroll.top', event.target.scrollTop);
-    } else {
-      const wheel = api.normalizeMouseWheelEvent(event);
-      state.update('config.scroll.top', top => {
-        return api.limitScroll('top', (top += wheel.y * state.get('config.scroll.yMultiplier')));
-      });
-    }
+    schedule(() => {
+      if (event.type === 'scroll') {
+        state.update('config.scroll.top', event.target.scrollTop);
+      } else {
+        const wheel = api.normalizeMouseWheelEvent(event);
+        state.update('config.scroll.top', top => {
+          return api.limitScroll('top', (top += wheel.y * state.get('config.scroll.yMultiplier')));
+        });
+      }
+    })();
   }
-
-  const onScroll = {
-    handleEvent: schedule(onScrollHandler),
-    passive: false
-  };
 
   let width;
   function getWidth(element) {

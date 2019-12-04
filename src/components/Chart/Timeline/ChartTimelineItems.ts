@@ -44,17 +44,14 @@ export default function ChartTimelineItems(vido, props = {}) {
       calculateStyle
     )
   );
+
   let rowsComponents = [];
-  const createRowComponents = () => {
+  function createRowComponents() {
     const visibleRows = state.get('_internal.list.visibleRows');
     reuseComponents(rowsComponents, visibleRows || [], row => ({ row }), ItemsRowComponent);
     update();
-  };
-  onDestroy(
-    state.subscribeAll(['_internal.list.visibleRows', 'config.chart.items', 'config.list.rows'], createRowComponents, {
-      bulk: true
-    })
-  );
+  }
+  onDestroy(state.subscribeAll(['_internal.list.visibleRows;', 'config.chart.items'], createRowComponents));
 
   onDestroy(function destroyRows() {
     rowsComponents.forEach(row => row.destroy());

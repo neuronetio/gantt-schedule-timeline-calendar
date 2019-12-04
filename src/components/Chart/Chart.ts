@@ -62,7 +62,7 @@ export default function Chart(vido, props = {}) {
     )
   );
 
-  const handleEvent = event => {
+  function onScroll(event) {
     let scrollLeft, scrollTop;
     if (event.type === 'scroll') {
       state.update('config.scroll.left', event.target.scrollLeft);
@@ -96,34 +96,23 @@ export default function Chart(vido, props = {}) {
       }
       state.update('config.scroll.percent.left', percent);
     }
-  };
+  }
 
-  const onScroll = {
-    handleEvent: handleEvent,
-    passive: true,
-    capture: false
-  };
-
-  const onWheel = {
-    handleEvent: handleEvent,
-    passive: true,
-    capture: false
-  };
-
-  const bindElement = element => {
+  function bindElement(element) {
     if (!scrollElement) {
       scrollElement = element;
       state.update('_internal.elements.horizontal-scroll', element);
     }
-  };
+  }
 
-  const bindInnerScroll = element => {
-    state.update('_internal.elements.horizontal-scroll-inner', element);
-  };
+  function bindInnerScroll(element) {
+    const old = state.get('_internal.elements.horizontal-scroll-inner');
+    if (old !== element) state.update('_internal.elements.horizontal-scroll-inner', element);
+  }
 
   let chartWidth = 0;
   let ro;
-  componentActions.push(element => {
+  componentActions.push(function bindElement(element) {
     if (!ro) {
       ro = new ResizeObserver((entries, observer) => {
         const width = element.clientWidth;
@@ -150,7 +139,7 @@ export default function Chart(vido, props = {}) {
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions} @wheel=${onWheel}>
+        <div class=${className} data-actions=${actions} @wheel=${onScroll}>
           ${Calendar.html()}${Timeline.html()}
           <div class=${classNameScroll} style=${scrollStyleMap} data-actions=${scrollActions} @scroll=${onScroll}>
             <div class=${classNameScrollInner} style=${scrollInnerStyleMap} data-actions=${scrollAreaActions} />

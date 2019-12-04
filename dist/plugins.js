@@ -218,7 +218,7 @@ function ItemMovement(options = {}) {
         else {
             resizerEl.style.visibility = 'visible';
         }
-        function labelMouseDown(ev) {
+        function labelDown(ev) {
             ev.stopPropagation();
             if (ev.button !== 0) {
                 return;
@@ -235,7 +235,7 @@ function ItemMovement(options = {}) {
             movement.itemLeftCompensation = ev.x - movement.ganttLeft - movement.itemX;
             createGhost(data, ev, ganttRect.left, ganttRect.top);
         }
-        function resizerMouseDown(ev) {
+        function resizerDown(ev) {
             ev.stopPropagation();
             if (ev.button !== 0) {
                 return;
@@ -398,8 +398,10 @@ function ItemMovement(options = {}) {
                 destroyGhost(itemId);
             }
         }
-        element.addEventListener('mousedown', labelMouseDown);
-        resizerEl.addEventListener('mousedown', resizerMouseDown, { capture: true });
+        element.addEventListener('mousedown', labelDown);
+        element.addEventListener('touchstart', labelDown);
+        resizerEl.addEventListener('mousedown', resizerDown, { capture: true });
+        resizerEl.addEventListener('touchstart', resizerDown);
         document.addEventListener('mousemove', documentMouseMove, { capture: true, passive: true });
         document.addEventListener('mouseup', documentMouseUp, { capture: true, passive: true });
         return {
@@ -412,8 +414,8 @@ function ItemMovement(options = {}) {
                 }
             },
             destroy(node, data) {
-                element.removeEventListener('mousedown', labelMouseDown);
-                resizerEl.removeEventListener('mousedown', resizerMouseDown);
+                element.removeEventListener('mousedown', labelDown);
+                resizerEl.removeEventListener('mousedown', resizerDown);
                 document.removeEventListener('mousemove', documentMouseMove);
                 document.removeEventListener('mouseup', documentMouseUp);
                 resizerEl.remove();

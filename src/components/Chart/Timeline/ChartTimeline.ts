@@ -43,6 +43,7 @@ export default function ChartTimeline(vido, props) {
 
   let styleMap = new StyleMap({}),
     innerStyleMap = new StyleMap({});
+
   function calculateStyle() {
     const xCompensation = api.getCompensationX();
     const yCompensation = api.getCompensationY();
@@ -67,6 +68,7 @@ export default function ChartTimeline(vido, props) {
     innerStyleMap.style.transform = `translate(-${xCompensation}px, ${yCompensation}px)`;
     update();
   }
+
   onDestroy(
     state.subscribeAll(
       [
@@ -80,8 +82,9 @@ export default function ChartTimeline(vido, props) {
     )
   );
 
-  componentActions.push(element => {
-    state.update('_internal.elements.chart-timeline', element);
+  componentActions.push(function getElement(element) {
+    const old = state.get('_internal.elements.chart-timeline');
+    if (old !== element) state.update('_internal.elements.chart-timeline', element);
   });
 
   const actions = Actions.create(componentActions, actionProps);

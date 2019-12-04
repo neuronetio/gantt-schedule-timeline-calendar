@@ -182,6 +182,7 @@ function defaultConfig() {
       }
     },
     scroll: {
+      smooth: false,
       top: 0,
       left: 0,
       xMultiplier: 3,

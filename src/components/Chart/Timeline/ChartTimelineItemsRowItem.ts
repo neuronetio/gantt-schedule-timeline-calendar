@@ -8,8 +8,32 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
+/**
+ * Bind element action
+ */
+class BindElementAction {
+  constructor(element, data) {
+    let shouldUpdate = false;
+    let items = data.state.get('_internal.elements.chart-timeline-items-row-items');
+    if (typeof items === 'undefined') {
+      items = [];
+      shouldUpdate = true;
+    }
+    if (!items.includes(element)) {
+      items.push(element);
+      shouldUpdate = true;
+    }
+    if (shouldUpdate) data.state.update('_internal.elements.chart-timeline-items-row-items', items, { only: null });
+  }
+  destroy(element, data) {
+    data.state.update('_internal.elements.chart-timeline-items-row-items', items => {
+      return items.filter(el => el !== element);
+    });
+  }
+}
+
 function ChartTimelineItemsRowItem(vido, props) {
-  const { api, state, onDestroy, Detach, Action, Actions, update, html, onChange, unsafeHTML, StyleMap } = vido;
+  const { api, state, onDestroy, Detach, Actions, update, html, onChange, unsafeHTML, StyleMap } = vido;
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
   let styleMap = new StyleMap({ width: '', height: '', left: '' }),
@@ -97,31 +121,6 @@ function ChartTimelineItemsRowItem(vido, props) {
       updateItem();
     })
   );
-
-  /**
-   * Bind element action
-   */
-  class BindElementAction extends Action {
-    constructor(element, data) {
-      super();
-      data.state.update(
-        '_internal.elements.chart-timeline-items-row-items',
-        function updateRowItems(items) {
-          if (typeof items === 'undefined') {
-            items = [];
-          }
-          items.push(element);
-          return items;
-        },
-        { only: null }
-      );
-    }
-    destroy(element, data) {
-      data.state.update('_internal.elements.chart-timeline-items-row-items', items => {
-        return items.filter(el => el !== element);
-      });
-    }
-  }
 
   componentActions.push(BindElementAction);
 

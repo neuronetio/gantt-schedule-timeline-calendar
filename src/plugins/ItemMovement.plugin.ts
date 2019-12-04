@@ -147,16 +147,16 @@ export default function ItemMovement(options: Options = {}) {
     }</div>`;
     // @ts-ignore
     element.insertAdjacentHTML('beforeend', resizerHTML);
-    const resizerEl = element.querySelector(
+    const resizerEl: HTMLElement = element.querySelector(
       '.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-resizer'
-    ) as HTMLElement;
+    );
     if (!isResizeable(data)) {
       resizerEl.style.visibility = 'hidden';
     } else {
       resizerEl.style.visibility = 'visible';
     }
 
-    function labelMouseDown(ev) {
+    function labelDown(ev) {
       ev.stopPropagation();
       if (ev.button !== 0) {
         return;
@@ -174,7 +174,7 @@ export default function ItemMovement(options: Options = {}) {
       createGhost(data, ev, ganttRect.left, ganttRect.top);
     }
 
-    function resizerMouseDown(ev) {
+    function resizerDown(ev) {
       ev.stopPropagation();
       if (ev.button !== 0) {
         return;
@@ -341,8 +341,10 @@ export default function ItemMovement(options: Options = {}) {
         destroyGhost(itemId);
       }
     }
-    element.addEventListener('mousedown', labelMouseDown);
-    resizerEl.addEventListener('mousedown', resizerMouseDown, { capture: true });
+    element.addEventListener('mousedown', labelDown);
+    element.addEventListener('touchstart', labelDown);
+    resizerEl.addEventListener('mousedown', resizerDown, { capture: true });
+    resizerEl.addEventListener('touchstart', resizerDown);
     document.addEventListener('mousemove', documentMouseMove, { capture: true, passive: true });
     document.addEventListener('mouseup', documentMouseUp, { capture: true, passive: true });
 
@@ -355,8 +357,8 @@ export default function ItemMovement(options: Options = {}) {
         }
       },
       destroy(node, data) {
-        element.removeEventListener('mousedown', labelMouseDown);
-        resizerEl.removeEventListener('mousedown', resizerMouseDown);
+        element.removeEventListener('mousedown', labelDown);
+        resizerEl.removeEventListener('mousedown', resizerDown);
         document.removeEventListener('mousemove', documentMouseMove);
         document.removeEventListener('mouseup', documentMouseUp);
         resizerEl.remove();

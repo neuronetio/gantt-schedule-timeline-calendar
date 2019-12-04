@@ -14,15 +14,23 @@
  * @param {object} data
  */
 function saveElement(element, data) {
-  data.state.update('_internal.elements.list-column-rows', elements => {
-    if (typeof elements === 'undefined') {
-      elements = [];
-    }
-    if (!elements.includes(element)) {
-      elements.push(element);
-    }
-    return elements;
-  });
+  let elements = data.state.get('_internal.elements.list-column-rows');
+  let shouldUpdate = false;
+  if (typeof elements === 'undefined') {
+    shouldUpdate = true;
+    elements = [];
+  }
+  if (!elements.includes(element)) {
+    elements.push(element);
+    shouldUpdate = true;
+  }
+  if (shouldUpdate) data.state.update('_internal.elements.list-column-rows', elements);
+
+  return function destroy(element, data) {
+    data.state.update('_internal.elements.list-column-rows', elements => {
+      return elements.filter(el => el !== element);
+    });
+  };
 }
 
 export default function ListColumnRow(vido, props) {
@@ -184,7 +192,8 @@ export default function ListColumnRow(vido, props) {
 
   actionProps.pointerOptions = {
     axis: 'x|y',
-    onMove({ movementX, movementY }) {
+    onMove({ event, movementX, movementY }) {
+      event.stopPropagation();
       if (movementX) {
         state.update('config.list.columns.percent', percent => {
           percent += movementX;

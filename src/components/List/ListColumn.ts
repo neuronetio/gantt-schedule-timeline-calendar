@@ -134,15 +134,22 @@ export default function ListColumn(vido, props) {
   }
 
   componentActions.push(element => {
-    state.update('_internal.elements.list-columns', elements => {
-      if (typeof elements === 'undefined') {
-        elements = [];
-      }
-      if (!elements.includes(element)) {
-        elements.push(element);
-      }
-      return elements;
-    });
+    let shouldUpdate = false;
+    let elements = state.get('_internal.elements.list-columns');
+    if (typeof elements === 'undefined') {
+      elements = [];
+      shouldUpdate = true;
+    }
+    if (!elements.includes(element)) {
+      elements.push(element);
+      shouldUpdate = true;
+    }
+    if (shouldUpdate) state.update('_internal.elements.list-columns', elements);
+    return function destroy(element, data) {
+      data.state.update('_internal.elements.list-columns', elements => {
+        return elements.filter(el => el !== element);
+      });
+    };
   });
 
   const headerActions = Actions.create(componentActions, { column, state: state, api: api });

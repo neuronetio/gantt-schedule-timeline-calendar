@@ -15,24 +15,21 @@
  * @returns {object} with update and destroy
  */
 function bindElementAction(element, data) {
-  data.state.update(
-    '_internal.elements.chart-timeline-grid-rows',
-    function updateGridRows(rows) {
-      if (typeof rows === 'undefined') {
-        rows = [];
-      }
-      rows.push(element);
-      return rows;
-    },
-    { only: null }
-  );
-  return {
-    update() {},
-    destroy(element) {
-      data.state.update('_internal.elements.chart-timeline-grid-rows', rows => {
-        return rows.filter(el => el !== element);
-      });
-    }
+  let shouldUpdate = false;
+  let rows = data.state.get('_internal.elements.chart-timeline-grid-rows');
+  if (typeof rows === 'undefined') {
+    rows = [];
+    shouldUpdate = true;
+  }
+  if (!rows.includes(element)) {
+    rows.push(element);
+    shouldUpdate = true;
+  }
+  if (shouldUpdate) data.state.update('_internal.elements.chart-timeline-grid-rows', rows, { only: null });
+  return function destroy(element) {
+    data.state.update('_internal.elements.chart-timeline-grid-rows', rows => {
+      return rows.filter(el => el !== element);
+    });
   };
 }
 
@@ -70,7 +67,7 @@ export default function ChartTimelineGridRow(vido, props) {
   const detach = new Detach(() => shouldDetach);
 
   let rowsBlocksComponents = [];
-  const onPropsChange = (changedProps, options) => {
+  function onPropsChange(changedProps, options) {
     if (options.leave || changedProps.row === undefined) {
       shouldDetach = true;
       reuseComponents(rowsBlocksComponents, [], block => block, GridBlockComponent);
@@ -101,7 +98,7 @@ export default function ChartTimelineGridRow(vido, props) {
       actionProps[prop] = props[prop];
     }
     update();
-  };
+  }
   onChange(onPropsChange);
 
   onDestroy(() => {

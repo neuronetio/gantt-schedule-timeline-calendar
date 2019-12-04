@@ -15,20 +15,19 @@
  * @returns {object} with update and destroy
  */
 
-const bindElementAction = (element, data) => {
-  data.state.update(
-    '_internal.elements.chart-timeline-grid-row-blocks',
-    blocks => {
-      if (typeof blocks === 'undefined') {
-        blocks = [];
-      }
-      blocks.push(element);
-      return blocks;
-    },
-    { only: null }
-  );
-
-  return element => {
+function bindElementAction(element, data) {
+  let shouldUpdate = false;
+  let blocks = data.state.get('_internal.elements.chart-timeline-grid-row-blocks');
+  if (typeof blocks === 'undefined') {
+    blocks = [];
+    shouldUpdate = true;
+  }
+  if (!blocks.includes(element)) {
+    blocks.push(element);
+    shouldUpdate = true;
+  }
+  if (shouldUpdate) data.state.update('_internal.elements.chart-timeline-grid-row-blocks', blocks, { only: null });
+  return function destroy(element) {
     data.state.update(
       '_internal.elements.chart-timeline-grid-row-blocks',
       blocks => {
@@ -37,7 +36,7 @@ const bindElementAction = (element, data) => {
       { only: [''] }
     );
   };
-};
+}
 
 interface Props {
   row: any;
