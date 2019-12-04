@@ -53,18 +53,18 @@ function ChartTimelineItemsRowItem(vido, props) {
     const rows = state.get('config.list.rows');
     for (const parentId of props.row._internal.parents) {
       const parent = rows[parentId];
-      const childrenStyle = parent.style?.items?.item?.children;
+      const childrenStyle = parent?.style?.items?.item?.children;
       if (childrenStyle) styleMap.setStyle({ ...styleMap.style, ...childrenStyle });
     }
-    const currentRowItemsStyle = props.row?.style?.items?.item?.current;
+    const currentRowItemsStyle = props?.row?.style?.items?.item?.current;
     if (currentRowItemsStyle) styleMap.setStyle({ ...styleMap.style, ...currentRowItemsStyle });
-    const currentStyle = props.item?.style;
+    const currentStyle = props?.item?.style;
     if (currentStyle) styleMap.setStyle({ ...styleMap.style, ...currentStyle });
     update();
   }
 
   function onPropsChange(changedProps, options) {
-    if (options.leave) {
+    if (options.leave || changedProps.row === undefined || changedProps.item === undefined) {
       leave = true;
       shouldDetach = true;
       return update();

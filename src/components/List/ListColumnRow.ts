@@ -77,7 +77,7 @@ export default function ListColumnRow(vido, props) {
   const ListColumnRowExpander = createComponent(ListColumnRowExpanderComponent, { row });
 
   const onPropsChange = (changedProps, options) => {
-    if (options.leave) {
+    if (options.leave || changedProps.rowId === undefined || changedProps.columnId === undefined) {
       shouldDetach = true;
       update();
       return;
@@ -102,6 +102,12 @@ export default function ListColumnRow(vido, props) {
       bulk => {
         column = state.get(colPath);
         row = state.get(rowPath);
+        if (column === undefined || row === undefined) {
+          shouldDetach = true;
+          update();
+          return;
+        }
+        if (column === undefined || row === undefined) return;
         const expander = state.get('config.list.expander');
         // @ts-ignore
         styleMap.setStyle({}); // we must reset style because of user specified styling
@@ -163,11 +169,13 @@ export default function ListColumnRow(vido, props) {
   );
 
   function getHtml() {
+    if (row === undefined) return null;
     if (typeof column.data === 'function') return unsafeHTML(column.data(row));
     return unsafeHTML(row[column.data]);
   }
 
   function getText() {
+    if (row === undefined) return null;
     if (typeof column.data === 'function') return column.data(row);
     return row[column.data];
   }

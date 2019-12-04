@@ -71,30 +71,28 @@ export default function ChartTimelineGridRow(vido, props) {
 
   let rowsBlocksComponents = [];
   const onPropsChange = (changedProps, options) => {
-    if (options.leave) {
+    if (options.leave || changedProps.row === undefined) {
       shouldDetach = true;
+      reuseComponents(rowsBlocksComponents, [], block => block, GridBlockComponent);
       update();
       return;
     }
     shouldDetach = false;
     props = changedProps;
     reuseComponents(rowsBlocksComponents, props.blocks, block => block, GridBlockComponent);
-    //const compensation = state.get('config.scroll.compensation');
-    // @ts-ignore
     styleMap.setStyle({});
     styleMap.style.height = props.row.height + 'px';
     styleMap.style.width = props.width + 'px';
-    //styleMap.style.top = props.top + compensation + 'px';
     const rows = state.get('config.list.rows');
     for (const parentId of props.row._internal.parents) {
       const parent = rows[parentId];
-      const childrenStyle = parent.style?.grid?.row?.children;
+      const childrenStyle = parent?.style?.grid?.row?.children;
       if (childrenStyle)
         for (const name in childrenStyle) {
           styleMap.style[name] = childrenStyle[name];
         }
     }
-    const currentStyle = props.row?.style?.grid?.row?.current;
+    const currentStyle = props?.row?.style?.grid?.row?.current;
     if (currentStyle)
       for (const name in currentStyle) {
         styleMap.style[name] = currentStyle[name];

@@ -236,6 +236,16 @@ export function getInternalApi(state) {
     },
 
     getRowsWithParentsExpanded(flatTreeMap, flatTreeMapById, rows) {
+      if (
+        !flatTreeMap ||
+        !flatTreeMapById ||
+        !rows ||
+        flatTreeMap.length === 0 ||
+        flatTreeMapById.length === 0 ||
+        Object.keys(rows).length === 0
+      ) {
+        return [];
+      }
       const rowsWithParentsExpanded = [];
       next: for (const rowId of flatTreeMap) {
         for (const parentId of flatTreeMapById[rowId]._internal.parents) {
@@ -251,8 +261,8 @@ export function getInternalApi(state) {
 
     getRowsHeight(rows) {
       let height = 0;
-      for (let row of rows) {
-        height += row.height;
+      for (const row of rows) {
+        if (row) height += row.height;
       }
       return height;
     },
@@ -271,6 +281,7 @@ export function getInternalApi(state) {
       let chartViewBottom = 0;
       let compensation = 0;
       for (const row of rowsWithParentsExpanded) {
+        if (row === undefined) continue;
         chartViewBottom = scrollTop + height;
         if (currentRowsOffset + row.height >= scrollTop && currentRowsOffset <= chartViewBottom) {
           row.top = rowOffset;

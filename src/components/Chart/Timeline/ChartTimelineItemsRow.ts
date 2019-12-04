@@ -82,12 +82,21 @@ const ChartTimelineItemsRow = (vido, props) => {
     if (typeof itemsSub === 'function') {
       itemsSub();
     }
-    rowSub = state.subscribe('_internal.chart', (bulk, eventInfo) => {
+    rowSub = state.subscribe('_internal.chart', value => {
+      if (value === undefined) {
+        shouldDetach = true;
+        return update();
+      }
       updateDom();
       update();
     });
     itemsSub = state.subscribe(itemsPath, value => {
-      itemComponents = reuseComponents(itemComponents, value, item => ({ row, item }), ItemComponent);
+      if (value === undefined) {
+        shouldDetach = true;
+        reuseComponents(itemComponents, [], item => ({ row, item }), ItemComponent);
+        return update();
+      }
+      reuseComponents(itemComponents, value, item => ({ row, item }), ItemComponent);
       updateDom();
       update();
     });
@@ -98,8 +107,8 @@ const ChartTimelineItemsRow = (vido, props) => {
    * @param {any} changedProps
    */
   const onPropsChange = (changedProps, options) => {
-    if (options.leave) {
-      updateDom();
+    if (options.leave || changedProps.row === undefined) {
+      shouldDetach = true;
       return update();
     }
     props = changedProps;

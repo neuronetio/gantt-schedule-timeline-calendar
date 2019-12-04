@@ -84,7 +84,7 @@ const ChartTimelineGridRowBlock = (vido, props: Props) => {
    * @param {any} changedProps
    */
   function onPropsChange(changedProps, options) {
-    if (options.leave) {
+    if (options.leave || changedProps.row === undefined) {
       shouldDetach = true;
       return update();
     }
@@ -95,15 +95,15 @@ const ChartTimelineGridRowBlock = (vido, props: Props) => {
     }
     updateClassName(props.time);
     styleMap.setStyle({});
-    styleMap.style.width = props.time.width + 'px';
-    styleMap.style.height = props.row.height + 'px';
+    styleMap.style.width = (props?.time?.width || 0) + 'px';
+    styleMap.style.height = (props?.row?.height || 0) + 'px';
     const rows = state.get('config.list.rows');
     for (const parentId of props.row._internal.parents) {
       const parent = rows[parentId];
-      const childrenStyle = parent.style?.grid?.block?.children;
+      const childrenStyle = parent?.style?.grid?.block?.children;
       if (childrenStyle) styleMap.setStyle({ ...styleMap.style, ...childrenStyle });
     }
-    const currentStyle = props.row?.style?.grid?.block?.current;
+    const currentStyle = props?.row?.style?.grid?.block?.current;
     if (currentStyle) styleMap.setStyle({ ...styleMap.style, ...currentStyle });
     update();
   }

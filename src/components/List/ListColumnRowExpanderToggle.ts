@@ -52,7 +52,7 @@ export default function ListColumnRowExpanderToggle(vido, props) {
         actionProps[prop] = props[prop];
       }
       if (expandedSub) expandedSub();
-      expandedSub = state.subscribe(`config.list.rows.${props.row.id}.expanded`, expandedChange);
+      if (props?.row?.id) expandedSub = state.subscribe(`config.list.rows.${props.row.id}.expanded`, expandedChange);
     }
     onChange(onPropsChange);
     onDestroy(function listToggleDestroy() {

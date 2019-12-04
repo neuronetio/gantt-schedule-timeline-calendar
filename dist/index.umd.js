@@ -2627,6 +2627,7 @@
         return class PublicComponentMethods {
             constructor(instance, vidoInstance, props = {}) {
                 this.instance = instance;
+                this.name = vidoInstance.name;
                 this.vidoInstance = vidoInstance;
                 this.props = props;
                 this.destroy = this.destroy.bind(this);
@@ -2975,6 +2976,9 @@
             const currentLen = currentComponents.length;
             const dataLen = dataArray.length;
             let leave = false;
+            if (leaveTail && (dataArray === undefined || dataArray.length === 0)) {
+                leave = true;
+            }
             let leaveStartingAt = 0;
             if (currentLen < dataLen) {
                 let diff = dataLen - currentLen;
@@ -3027,6 +3031,7 @@
             let vidoInstance;
             vidoInstance = new vido();
             vidoInstance.instance = instance;
+            vidoInstance.name = component.name;
             vidoInstance.Actions = new InstanceActionsCollector(instance);
             const publicMethods = new PublicComponentMethods(instance, vidoInstance, props);
             const internalMethods = new InternalComponentMethods(instance, vidoInstance, component(vidoInstance, props));
@@ -4203,7 +4208,7 @@
             state.update('_internal.list.rowsWithParentsExpanded', rowsWithParentsExpanded);
             update();
         }
-        onDestroy(state.subscribe('config.list.rows.*.expanded', prepareExpanded, { bulk: true }));
+        onDestroy(state.subscribeAll(['config.list.rows.*.expanded', '_internal.treeMap;'], prepareExpanded, { bulk: true }));
         /**
          * Generate visible rows
          */
@@ -4979,7 +4984,7 @@
         let rowSub, colSub;
         const ListColumnRowExpander = createComponent(ListColumnRowExpanderComponent, { row });
         const onPropsChange = (changedProps, options) => {
-            if (options.leave) {
+            if (options.leave || changedProps.rowId === undefined || changedProps.columnId === undefined) {
                 shouldDetach = true;
                 update();
                 return;
@@ -5002,6 +5007,13 @@
             rowSub = state.subscribeAll([rowPath, colPath, 'config.list.expander'], bulk => {
                 column = state.get(colPath);
                 row = state.get(rowPath);
+                if (column === undefined || row === undefined) {
+                    shouldDetach = true;
+                    update();
+                    return;
+                }
+                if (column === undefined || row === undefined)
+                    return;
                 const expander = state.get('config.list.expander');
                 // @ts-ignore
                 styleMap.setStyle({}); // we must reset style because of user specified styling
@@ -5054,11 +5066,15 @@
             update();
         }));
         function getHtml() {
+            if (row === undefined)
+                return null;
             if (typeof column.data === 'function')
                 return unsafeHTML(column.data(row));
             return unsafeHTML(row[column.data]);
         }
         function getText() {
+            if (row === undefined)
+                return null;
             if (typeof column.data === 'function')
                 return column.data(row);
             return row[column.data];
@@ -5185,13 +5201,15 @@
             }
             let expandedSub;
             function onPropsChange(changedProps) {
+                var _a, _b;
                 props = changedProps;
                 for (const prop in props) {
                     actionProps[prop] = props[prop];
                 }
                 if (expandedSub)
                     expandedSub();
-                expandedSub = state.subscribe(`config.list.rows.${props.row.id}.expanded`, expandedChange);
+                if ((_b = (_a = props) === null || _a === void 0 ? void 0 : _a.row) === null || _b === void 0 ? void 0 : _b.id)
+                    expandedSub = state.subscribe(`config.list.rows.${props.row.id}.expanded`, expandedChange);
             }
             onChange(onPropsChange);
             onDestroy(function listToggleDestroy() {
@@ -5940,6 +5958,7 @@
             const height = state.get('_internal.height');
             const periodDates = state.get(`_internal.chart.time.dates.${period}`);
             if (!periodDates || periodDates.length === 0) {
+                state.update('_internal.chart.grid.rowsWithBlocks', []);
                 return;
             }
             const visibleRows = state.get('_internal.list.visibleRows');
@@ -5985,10 +6004,13 @@
          * @param {array} rowsWithBlocks
          */
         const generateRowsComponents = rowsWithBlocks => {
-            if (rowsWithBlocks) {
+            if (rowsWithBlocks && rowsWithBlocks.length) {
                 reuseComponents(rowsComponents, rowsWithBlocks, row => row, GridRowComponent);
-                update();
             }
+            else {
+                reuseComponents(rowsComponents, [], row => row, GridRowComponent);
+            }
+            update();
         };
         onDestroy(state.subscribe('_internal.chart.grid.rowsWithBlocks', generateRowsComponents));
         /**
@@ -6066,31 +6088,29 @@
         const detach = new Detach(() => shouldDetach);
         let rowsBlocksComponents = [];
         const onPropsChange = (changedProps, options) => {
-            var _a, _b, _c, _d, _e, _f, _g;
-            if (options.leave) {
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+            if (options.leave || changedProps.row === undefined) {
                 shouldDetach = true;
+                reuseComponents(rowsBlocksComponents, [], block => block, GridBlockComponent);
                 update();
                 return;
             }
             shouldDetach = false;
             props = changedProps;
             reuseComponents(rowsBlocksComponents, props.blocks, block => block, GridBlockComponent);
-            //const compensation = state.get('config.scroll.compensation');
-            // @ts-ignore
             styleMap.setStyle({});
             styleMap.style.height = props.row.height + 'px';
             styleMap.style.width = props.width + 'px';
-            //styleMap.style.top = props.top + compensation + 'px';
             const rows = state.get('config.list.rows');
             for (const parentId of props.row._internal.parents) {
                 const parent = rows[parentId];
-                const childrenStyle = (_c = (_b = (_a = parent.style) === null || _a === void 0 ? void 0 : _a.grid) === null || _b === void 0 ? void 0 : _b.row) === null || _c === void 0 ? void 0 : _c.children;
+                const childrenStyle = (_d = (_c = (_b = (_a = parent) === null || _a === void 0 ? void 0 : _a.style) === null || _b === void 0 ? void 0 : _b.grid) === null || _c === void 0 ? void 0 : _c.row) === null || _d === void 0 ? void 0 : _d.children;
                 if (childrenStyle)
                     for (const name in childrenStyle) {
                         styleMap.style[name] = childrenStyle[name];
                     }
             }
-            const currentStyle = (_g = (_f = (_e = (_d = props.row) === null || _d === void 0 ? void 0 : _d.style) === null || _e === void 0 ? void 0 : _e.grid) === null || _f === void 0 ? void 0 : _f.row) === null || _g === void 0 ? void 0 : _g.current;
+            const currentStyle = (_j = (_h = (_g = (_f = (_e = props) === null || _e === void 0 ? void 0 : _e.row) === null || _f === void 0 ? void 0 : _f.style) === null || _g === void 0 ? void 0 : _g.grid) === null || _h === void 0 ? void 0 : _h.row) === null || _j === void 0 ? void 0 : _j.current;
             if (currentStyle)
                 for (const name in currentStyle) {
                     styleMap.style[name] = currentStyle[name];
@@ -6177,8 +6197,8 @@
          * @param {any} changedProps
          */
         function onPropsChange(changedProps, options) {
-            var _a, _b, _c, _d, _e, _f, _g;
-            if (options.leave) {
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
+            if (options.leave || changedProps.row === undefined) {
                 shouldDetach = true;
                 return update();
             }
@@ -6189,16 +6209,16 @@
             }
             updateClassName(props.time);
             styleMap.setStyle({});
-            styleMap.style.width = props.time.width + 'px';
-            styleMap.style.height = props.row.height + 'px';
+            styleMap.style.width = (((_b = (_a = props) === null || _a === void 0 ? void 0 : _a.time) === null || _b === void 0 ? void 0 : _b.width) || 0) + 'px';
+            styleMap.style.height = (((_d = (_c = props) === null || _c === void 0 ? void 0 : _c.row) === null || _d === void 0 ? void 0 : _d.height) || 0) + 'px';
             const rows = state.get('config.list.rows');
             for (const parentId of props.row._internal.parents) {
                 const parent = rows[parentId];
-                const childrenStyle = (_c = (_b = (_a = parent.style) === null || _a === void 0 ? void 0 : _a.grid) === null || _b === void 0 ? void 0 : _b.block) === null || _c === void 0 ? void 0 : _c.children;
+                const childrenStyle = (_h = (_g = (_f = (_e = parent) === null || _e === void 0 ? void 0 : _e.style) === null || _f === void 0 ? void 0 : _f.grid) === null || _g === void 0 ? void 0 : _g.block) === null || _h === void 0 ? void 0 : _h.children;
                 if (childrenStyle)
                     styleMap.setStyle(Object.assign(Object.assign({}, styleMap.style), childrenStyle));
             }
-            const currentStyle = (_g = (_f = (_e = (_d = props.row) === null || _d === void 0 ? void 0 : _d.style) === null || _e === void 0 ? void 0 : _e.grid) === null || _f === void 0 ? void 0 : _f.block) === null || _g === void 0 ? void 0 : _g.current;
+            const currentStyle = (_o = (_m = (_l = (_k = (_j = props) === null || _j === void 0 ? void 0 : _j.row) === null || _k === void 0 ? void 0 : _k.style) === null || _l === void 0 ? void 0 : _l.grid) === null || _m === void 0 ? void 0 : _m.block) === null || _o === void 0 ? void 0 : _o.current;
             if (currentStyle)
                 styleMap.setStyle(Object.assign(Object.assign({}, styleMap.style), currentStyle));
             update();
@@ -6252,7 +6272,7 @@
         let rowsComponents = [];
         const createRowComponents = () => {
             const visibleRows = state.get('_internal.list.visibleRows');
-            rowsComponents = reuseComponents(rowsComponents, visibleRows, row => ({ row }), ItemsRowComponent);
+            reuseComponents(rowsComponents, visibleRows || [], row => ({ row }), ItemsRowComponent);
             update();
         };
         onDestroy(state.subscribeAll(['_internal.list.visibleRows', 'config.chart.items', 'config.list.rows'], createRowComponents, {
@@ -6335,12 +6355,21 @@
             if (typeof itemsSub === 'function') {
                 itemsSub();
             }
-            rowSub = state.subscribe('_internal.chart', (bulk, eventInfo) => {
+            rowSub = state.subscribe('_internal.chart', value => {
+                if (value === undefined) {
+                    shouldDetach = true;
+                    return update();
+                }
                 updateDom();
                 update();
             });
             itemsSub = state.subscribe(itemsPath, value => {
-                itemComponents = reuseComponents(itemComponents, value, item => ({ row, item }), ItemComponent);
+                if (value === undefined) {
+                    shouldDetach = true;
+                    reuseComponents(itemComponents, [], item => ({ row, item }), ItemComponent);
+                    return update();
+                }
+                reuseComponents(itemComponents, value, item => ({ row, item }), ItemComponent);
                 updateDom();
                 update();
             });
@@ -6350,8 +6379,8 @@
          * @param {any} changedProps
          */
         const onPropsChange = (changedProps, options) => {
-            if (options.leave) {
-                updateDom();
+            if (options.leave || changedProps.row === undefined) {
+                shouldDetach = true;
                 return update();
             }
             props = changedProps;
@@ -6410,7 +6439,7 @@
         };
         let shouldDetach = false;
         function updateItem() {
-            var _a, _b, _c, _d, _e, _f, _g, _h;
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
             if (leave)
                 return;
             let time = state.get('_internal.chart.time');
@@ -6439,20 +6468,20 @@
             const rows = state.get('config.list.rows');
             for (const parentId of props.row._internal.parents) {
                 const parent = rows[parentId];
-                const childrenStyle = (_c = (_b = (_a = parent.style) === null || _a === void 0 ? void 0 : _a.items) === null || _b === void 0 ? void 0 : _b.item) === null || _c === void 0 ? void 0 : _c.children;
+                const childrenStyle = (_d = (_c = (_b = (_a = parent) === null || _a === void 0 ? void 0 : _a.style) === null || _b === void 0 ? void 0 : _b.items) === null || _c === void 0 ? void 0 : _c.item) === null || _d === void 0 ? void 0 : _d.children;
                 if (childrenStyle)
                     styleMap.setStyle(Object.assign(Object.assign({}, styleMap.style), childrenStyle));
             }
-            const currentRowItemsStyle = (_g = (_f = (_e = (_d = props.row) === null || _d === void 0 ? void 0 : _d.style) === null || _e === void 0 ? void 0 : _e.items) === null || _f === void 0 ? void 0 : _f.item) === null || _g === void 0 ? void 0 : _g.current;
+            const currentRowItemsStyle = (_j = (_h = (_g = (_f = (_e = props) === null || _e === void 0 ? void 0 : _e.row) === null || _f === void 0 ? void 0 : _f.style) === null || _g === void 0 ? void 0 : _g.items) === null || _h === void 0 ? void 0 : _h.item) === null || _j === void 0 ? void 0 : _j.current;
             if (currentRowItemsStyle)
                 styleMap.setStyle(Object.assign(Object.assign({}, styleMap.style), currentRowItemsStyle));
-            const currentStyle = (_h = props.item) === null || _h === void 0 ? void 0 : _h.style;
+            const currentStyle = (_l = (_k = props) === null || _k === void 0 ? void 0 : _k.item) === null || _l === void 0 ? void 0 : _l.style;
             if (currentStyle)
                 styleMap.setStyle(Object.assign(Object.assign({}, styleMap.style), currentStyle));
             update();
         }
         function onPropsChange(changedProps, options) {
-            if (options.leave) {
+            if (options.leave || changedProps.row === undefined || changedProps.item === undefined) {
                 leave = true;
                 shouldDetach = true;
                 return update();
@@ -7856,6 +7885,16 @@
         },
 
         getRowsWithParentsExpanded(flatTreeMap, flatTreeMapById, rows) {
+          if (
+            !flatTreeMap ||
+            !flatTreeMapById ||
+            !rows ||
+            flatTreeMap.length === 0 ||
+            flatTreeMapById.length === 0 ||
+            Object.keys(rows).length === 0
+          ) {
+            return [];
+          }
           const rowsWithParentsExpanded = [];
           next: for (const rowId of flatTreeMap) {
             for (const parentId of flatTreeMapById[rowId]._internal.parents) {
@@ -7871,8 +7910,8 @@
 
         getRowsHeight(rows) {
           let height = 0;
-          for (let row of rows) {
-            height += row.height;
+          for (const row of rows) {
+            if (row) height += row.height;
           }
           return height;
         },
@@ -7891,6 +7930,7 @@
           let chartViewBottom = 0;
           let compensation = 0;
           for (const row of rowsWithParentsExpanded) {
+            if (row === undefined) continue;
             chartViewBottom = scrollTop + height;
             if (currentRowsOffset + row.height >= scrollTop && currentRowsOffset <= chartViewBottom) {
               row.top = rowOffset;

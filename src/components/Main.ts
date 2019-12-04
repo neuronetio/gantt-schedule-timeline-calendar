@@ -151,7 +151,7 @@ export default function Main(vido, props = {}) {
     state.update('_internal.list.rowsWithParentsExpanded', rowsWithParentsExpanded);
     update();
   }
-  onDestroy(state.subscribe('config.list.rows.*.expanded', prepareExpanded, { bulk: true }));
+  onDestroy(state.subscribeAll(['config.list.rows.*.expanded', '_internal.treeMap;'], prepareExpanded, { bulk: true }));
 
   /**
    * Generate visible rows
