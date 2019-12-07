@@ -8,6 +8,29 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
+/**
+ * Bind element action
+ */
+class BindElementAction {
+  constructor(element, data) {
+    let shouldUpdate = false;
+    let elements = data.state.get('_internal.elements.list-columns');
+    if (typeof elements === 'undefined') {
+      elements = [];
+      shouldUpdate = true;
+    }
+    if (!elements.includes(element)) {
+      elements.push(element);
+      shouldUpdate = true;
+    }
+    if (shouldUpdate) data.state.update('_internal.elements.list-columns', elements);
+  }
+  destroy(element, data) {
+    data.state.update('_internal.elements.list-columns', elements => {
+      return elements.filter(el => el !== element);
+    });
+  }
+}
 export default function ListColumn(vido, props) {
   const { api, state, onDestroy, onChange, Actions, update, createComponent, reuseComponents, html, StyleMap } = vido;
 
@@ -133,25 +156,7 @@ export default function ListColumn(vido, props) {
     return row.html();
   }
 
-  componentActions.push(element => {
-    let shouldUpdate = false;
-    let elements = state.get('_internal.elements.list-columns');
-    if (typeof elements === 'undefined') {
-      elements = [];
-      shouldUpdate = true;
-    }
-    if (!elements.includes(element)) {
-      elements.push(element);
-      shouldUpdate = true;
-    }
-    if (shouldUpdate) state.update('_internal.elements.list-columns', elements);
-    return function destroy(element, data) {
-      data.state.update('_internal.elements.list-columns', elements => {
-        return elements.filter(el => el !== element);
-      });
-    };
-  });
-
+  componentActions.push(BindElementAction);
   const headerActions = Actions.create(componentActions, { column, state: state, api: api });
   const rowActions = Actions.create(rowsActions, { api, state });
 

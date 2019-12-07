@@ -25,14 +25,14 @@ export default function ChartTimelineItems(vido, props = {}) {
     })
   );
   let styleMap = new StyleMap({}, true);
-  const calculateStyle = () => {
+  function calculateStyle() {
     const width = state.get('_internal.chart.dimensions.width');
     const height = state.get('_internal.height');
     const yCompensation = api.getCompensationY();
     const xCompensation = api.getCompensationX();
     styleMap.style.width = width + xCompensation + 'px';
     styleMap.style.height = height + Math.abs(yCompensation) + 'px';
-  };
+  }
   onDestroy(
     state.subscribeAll(
       [

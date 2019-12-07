@@ -4606,8 +4606,8 @@
             }
         }
         class ListAction {
-            constructor(element) {
-                state.update('_internal.elements.list', element);
+            constructor(element, data) {
+                data.state.update('_internal.elements.list', element);
                 getWidth(element);
             }
             update(element) {
@@ -4634,6 +4634,30 @@
      * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
+    /**
+     * Bind element action
+     */
+    class BindElementAction {
+        constructor(element, data) {
+            let shouldUpdate = false;
+            let elements = data.state.get('_internal.elements.list-columns');
+            if (typeof elements === 'undefined') {
+                elements = [];
+                shouldUpdate = true;
+            }
+            if (!elements.includes(element)) {
+                elements.push(element);
+                shouldUpdate = true;
+            }
+            if (shouldUpdate)
+                data.state.update('_internal.elements.list-columns', elements);
+        }
+        destroy(element, data) {
+            data.state.update('_internal.elements.list-columns', elements => {
+                return elements.filter(el => el !== element);
+            });
+        }
+    }
     function ListColumn(vido, props) {
         const { api, state, onDestroy, onChange, Actions, update, createComponent, reuseComponents, html, StyleMap } = vido;
         let wrapper;
@@ -4727,25 +4751,7 @@
         function getRowHtml(row) {
             return row.html();
         }
-        componentActions.push(element => {
-            let shouldUpdate = false;
-            let elements = state.get('_internal.elements.list-columns');
-            if (typeof elements === 'undefined') {
-                elements = [];
-                shouldUpdate = true;
-            }
-            if (!elements.includes(element)) {
-                elements.push(element);
-                shouldUpdate = true;
-            }
-            if (shouldUpdate)
-                state.update('_internal.elements.list-columns', elements);
-            return function destroy(element, data) {
-                data.state.update('_internal.elements.list-columns', elements => {
-                    return elements.filter(el => el !== element);
-                });
-            };
-        });
+        componentActions.push(BindElementAction);
         const headerActions = Actions.create(componentActions, { column, state: state, api: api });
         const rowActions = Actions.create(rowsActions, { api, state });
         return templateProps => wrapper(html `
@@ -4950,28 +4956,28 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     /**
-     * Save element
-     * @param {HTMLElement} element
-     * @param {object} data
+     * Bind element action
      */
-    function saveElement(element, data) {
-        let elements = data.state.get('_internal.elements.list-column-rows');
-        let shouldUpdate = false;
-        if (typeof elements === 'undefined') {
-            shouldUpdate = true;
-            elements = [];
+    class BindElementAction$1 {
+        constructor(element, data) {
+            let elements = data.state.get('_internal.elements.list-column-rows');
+            let shouldUpdate = false;
+            if (typeof elements === 'undefined') {
+                shouldUpdate = true;
+                elements = [];
+            }
+            if (!elements.includes(element)) {
+                elements.push(element);
+                shouldUpdate = true;
+            }
+            if (shouldUpdate)
+                data.state.update('_internal.elements.list-column-rows', elements);
         }
-        if (!elements.includes(element)) {
-            elements.push(element);
-            shouldUpdate = true;
-        }
-        if (shouldUpdate)
-            data.state.update('_internal.elements.list-column-rows', elements);
-        return function destroy(element, data) {
+        destroy(element, data) {
             data.state.update('_internal.elements.list-column-rows', elements => {
                 return elements.filter(el => el !== element);
             });
-        };
+        }
     }
     function ListColumnRow(vido, props) {
         const { api, state, onDestroy, Detach, Actions, update, html, createComponent, onChange, StyleMap, unsafeHTML, PointerAction } = vido;
@@ -5002,6 +5008,10 @@
         const onPropsChange = (changedProps, options) => {
             if (options.leave || changedProps.rowId === undefined || changedProps.columnId === undefined) {
                 shouldDetach = true;
+                if (rowSub)
+                    rowSub();
+                if (colSub)
+                    colSub();
                 update();
                 return;
             }
@@ -5012,12 +5022,10 @@
             }
             const rowId = props.rowId;
             const columnId = props.columnId;
-            if (rowSub) {
+            if (rowSub)
                 rowSub();
-            }
-            if (colSub) {
+            if (colSub)
                 colSub();
-            }
             rowPath = `_internal.flatTreeMapById.${rowId}`;
             colPath = `config.list.columns.data.${columnId}`;
             rowSub = state.subscribeAll([rowPath, colPath, 'config.list.expander'], bulk => {
@@ -5095,8 +5103,8 @@
                 return column.data(row);
             return row[column.data];
         }
-        if (!componentActions.includes(saveElement))
-            componentActions.push(saveElement);
+        if (!componentActions.includes(BindElementAction$1))
+            componentActions.push(BindElementAction$1);
         actionProps.pointerOptions = {
             axis: 'x|y',
             onMove({ event, movementX, movementY }) {
@@ -5525,16 +5533,19 @@
      * @param {HTMLElement} element
      * @param {object} data
      */
-    function saveElement$1(element, data) {
-        data.state.update('_internal.elements.chart-calendar-dates', elements => {
-            if (typeof elements === 'undefined') {
-                elements = [];
-            }
-            if (!elements.includes(element)) {
-                elements.push(element);
-            }
-            return elements;
-        });
+    class BindElementAction$2 extends Action {
+        constructor(element, data) {
+            super();
+            data.state.update('_internal.elements.chart-calendar-dates', elements => {
+                if (typeof elements === 'undefined') {
+                    elements = [];
+                }
+                if (!elements.includes(element)) {
+                    elements.push(element);
+                }
+                return elements;
+            });
+        }
     }
     function ChartCalendarDate(vido, props) {
         const { api, state, onDestroy, Actions, update, onChange, html, StyleMap } = vido;
@@ -5835,8 +5846,8 @@
         onDestroy(() => {
             timeSub();
         });
-        if (!componentActions.includes(saveElement$1))
-            componentActions.push(saveElement$1);
+        if (!componentActions.includes(BindElementAction$2))
+            componentActions.push(BindElementAction$2);
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
         <div
@@ -5859,7 +5870,7 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ChartTimeline(vido, props) {
-        const { api, state, onDestroy, Actions, update, html, createComponent, StyleMap } = vido;
+        const { api, state, onDestroy, Action, Actions, update, html, createComponent, StyleMap } = vido;
         const componentName = 'chart-timeline';
         const componentActions = api.getActions(componentName);
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
@@ -5916,10 +5927,13 @@
             'config.scroll.compensation',
             '_internal.chart.time.dates.day'
         ], calculateStyle));
-        componentActions.push(function getElement(element) {
-            const old = state.get('_internal.elements.chart-timeline');
-            if (old !== element)
-                state.update('_internal.elements.chart-timeline', element);
+        componentActions.push(class BindElementAction extends Action {
+            constructor(element) {
+                super();
+                const old = state.get('_internal.elements.chart-timeline');
+                if (old !== element)
+                    state.update('_internal.elements.chart-timeline', element);
+            }
         });
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
@@ -5941,19 +5955,20 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     /**
-     * Bind element
-     * @param {Element} element
+     * Bind element action
      */
-    function bindElement(element, data) {
-        const old = data.state.get('_internal.elements.chart-timeline-grid');
-        if (old !== element)
-            data.state.update('_internal.elements.chart-timeline-grid', element);
-        return function destroy(element, data) {
+    class BindElementAction$3 {
+        constructor(element, data) {
+            const old = data.state.get('_internal.elements.chart-timeline-grid');
+            if (old !== element)
+                data.state.update('_internal.elements.chart-timeline-grid', element);
+        }
+        destroy(element, data) {
             data.state.update('_internal.elements', elements => {
                 delete elements['chart-timeline-grid'];
                 return elements;
             });
-        };
+        }
     }
     function ChartTimelineGrid(vido, props) {
         const { api, state, onDestroy, Actions, update, html, reuseComponents, StyleMap } = vido;
@@ -5979,7 +5994,7 @@
         /**
          * Generate blocks
          */
-        const generateBlocks = () => {
+        function generateBlocks() {
             const width = state.get('_internal.chart.dimensions.width');
             const height = state.get('_internal.height');
             const periodDates = state.get(`_internal.chart.time.dates.${period}`);
@@ -6016,7 +6031,7 @@
                 top += row.height;
             }
             state.update('_internal.chart.grid.rowsWithBlocks', rowsWithBlocks);
-        };
+        }
         onDestroy(state.subscribeAll([
             '_internal.list.visibleRows;',
             `_internal.chart.time.dates.${period};`,
@@ -6030,17 +6045,12 @@
          * @param {array} rowsWithBlocks
          */
         const generateRowsComponents = rowsWithBlocks => {
-            if (rowsWithBlocks && rowsWithBlocks.length) {
-                reuseComponents(rowsComponents, rowsWithBlocks, row => row, GridRowComponent);
-            }
-            else {
-                reuseComponents(rowsComponents, [], row => row, GridRowComponent);
-            }
+            reuseComponents(rowsComponents, rowsWithBlocks || [], row => row, GridRowComponent);
             update();
         };
         onDestroy(state.subscribe('_internal.chart.grid.rowsWithBlocks', generateRowsComponents));
-        if (!componentActions.includes(bindElement)) {
-            componentActions.push(bindElement);
+        if (!componentActions.includes(BindElementAction$3)) {
+            componentActions.push(BindElementAction$3);
         }
         onDestroy(() => {
             rowsComponents.forEach(row => row.destroy());
@@ -6064,28 +6074,27 @@
      */
     /**
      * Bind element action
-     * @param {Element} element
-     * @param {any} data
-     * @returns {object} with update and destroy
      */
-    function bindElementAction(element, data) {
-        let shouldUpdate = false;
-        let rows = data.state.get('_internal.elements.chart-timeline-grid-rows');
-        if (typeof rows === 'undefined') {
-            rows = [];
-            shouldUpdate = true;
+    class BindElementAction$4 {
+        constructor(element, data) {
+            let shouldUpdate = false;
+            let rows = data.state.get('_internal.elements.chart-timeline-grid-rows');
+            if (typeof rows === 'undefined') {
+                rows = [];
+                shouldUpdate = true;
+            }
+            if (!rows.includes(element)) {
+                rows.push(element);
+                shouldUpdate = true;
+            }
+            if (shouldUpdate)
+                data.state.update('_internal.elements.chart-timeline-grid-rows', rows, { only: null });
         }
-        if (!rows.includes(element)) {
-            rows.push(element);
-            shouldUpdate = true;
-        }
-        if (shouldUpdate)
-            data.state.update('_internal.elements.chart-timeline-grid-rows', rows, { only: null });
-        return function destroy(element) {
+        destroy(element, data) {
             data.state.update('_internal.elements.chart-timeline-grid-rows', rows => {
                 return rows.filter(el => el !== element);
             });
-        };
+        }
     }
     function ChartTimelineGridRow(vido, props) {
         const { api, state, onDestroy, Detach, Actions, update, html, reuseComponents, onChange, StyleMap } = vido;
@@ -6108,7 +6117,7 @@
         let shouldDetach = false;
         const detach = new Detach(() => shouldDetach);
         let rowsBlocksComponents = [];
-        function onPropsChange(changedProps, options) {
+        onChange(function onPropsChange(changedProps, options) {
             var _a, _b, _c, _d, _e, _f, _g, _h, _j;
             if (options.leave || changedProps.row === undefined) {
                 shouldDetach = true;
@@ -6140,13 +6149,12 @@
                 actionProps[prop] = props[prop];
             }
             update();
-        }
-        onChange(onPropsChange);
+        });
         onDestroy(() => {
             rowsBlocksComponents.forEach(rowBlock => rowBlock.destroy());
         });
-        if (componentActions.indexOf(bindElementAction) === -1) {
-            componentActions.push(bindElementAction);
+        if (componentActions.indexOf(BindElementAction$4) === -1) {
+            componentActions.push(BindElementAction$4);
         }
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => {
@@ -6173,24 +6181,26 @@
      * @param {any} data
      * @returns {object} with update and destroy
      */
-    function bindElementAction$1(element, data) {
-        let shouldUpdate = false;
-        let blocks = data.state.get('_internal.elements.chart-timeline-grid-row-blocks');
-        if (typeof blocks === 'undefined') {
-            blocks = [];
-            shouldUpdate = true;
+    class BindElementAction$5 {
+        constructor(element, data) {
+            let shouldUpdate = false;
+            let blocks = data.state.get('_internal.elements.chart-timeline-grid-row-blocks');
+            if (typeof blocks === 'undefined') {
+                blocks = [];
+                shouldUpdate = true;
+            }
+            if (!blocks.includes(element)) {
+                blocks.push(element);
+                shouldUpdate = true;
+            }
+            if (shouldUpdate)
+                data.state.update('_internal.elements.chart-timeline-grid-row-blocks', blocks, { only: null });
         }
-        if (!blocks.includes(element)) {
-            blocks.push(element);
-            shouldUpdate = true;
-        }
-        if (shouldUpdate)
-            data.state.update('_internal.elements.chart-timeline-grid-row-blocks', blocks, { only: null });
-        return function destroy(element) {
+        destroy(element, data) {
             data.state.update('_internal.elements.chart-timeline-grid-row-blocks', blocks => {
                 return blocks.filter(el => el !== element);
             }, { only: [''] });
-        };
+        }
     }
     const ChartTimelineGridRowBlock = (vido, props) => {
         const { api, state, onDestroy, Detach, Actions, update, html, onChange, StyleMap } = vido;
@@ -6250,7 +6260,7 @@
             update();
         }
         onChange(onPropsChange);
-        componentActions.push(bindElementAction$1);
+        componentActions.push(BindElementAction$5);
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => {
             return wrapper(html `
@@ -6281,14 +6291,14 @@
             update();
         }));
         let styleMap = new StyleMap({}, true);
-        const calculateStyle = () => {
+        function calculateStyle() {
             const width = state.get('_internal.chart.dimensions.width');
             const height = state.get('_internal.height');
             const yCompensation = api.getCompensationY();
             const xCompensation = api.getCompensationX();
             styleMap.style.width = width + xCompensation + 'px';
             styleMap.style.height = height + Math.abs(yCompensation) + 'px';
-        };
+        }
         onDestroy(state.subscribeAll([
             '_internal.height',
             '_internal.chart.dimensions.width',
@@ -6326,26 +6336,27 @@
      * Bind element action
      * @param {Element} element
      * @param {any} data
-     * @returns {object} with update and destroy
      */
-    function bindElementAction$2(element, data) {
-        let shouldUpdate = false;
-        let rows = data.state.get('_internal.elements.chart-timeline-items-rows');
-        if (typeof rows === 'undefined') {
-            rows = [];
-            shouldUpdate = true;
+    class BindElementAction$6 {
+        constructor(element, data) {
+            let shouldUpdate = false;
+            let rows = data.state.get('_internal.elements.chart-timeline-items-rows');
+            if (typeof rows === 'undefined') {
+                rows = [];
+                shouldUpdate = true;
+            }
+            if (!rows.includes(element)) {
+                rows.push(element);
+                shouldUpdate = true;
+            }
+            if (shouldUpdate)
+                data.state.update('_internal.elements.chart-timeline-items-rows', rows, { only: null });
         }
-        if (!rows.includes(element)) {
-            rows.push(element);
-            shouldUpdate = true;
-        }
-        if (shouldUpdate)
-            data.state.update('_internal.elements.chart-timeline-items-rows', rows, { only: null });
-        return function destroy(element) {
+        destroy(element, data) {
             data.state.update('_internal.elements.chart-timeline-items-rows', rows => {
                 return rows.filter(el => el !== element);
             });
-        };
+        }
     }
     const ChartTimelineItemsRow = (vido, props) => {
         const { api, state, onDestroy, Detach, Actions, update, html, onChange, reuseComponents, StyleMap } = vido;
@@ -6428,8 +6439,8 @@
             className = api.getClass(componentName, props);
             update();
         }));
-        if (!componentActions.includes(bindElementAction$2)) {
-            componentActions.push(bindElementAction$2);
+        if (!componentActions.includes(BindElementAction$6)) {
+            componentActions.push(BindElementAction$6);
         }
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => {
@@ -6453,7 +6464,7 @@
     /**
      * Bind element action
      */
-    class BindElementAction {
+    class BindElementAction$7 {
         constructor(element, data) {
             let shouldUpdate = false;
             let items = data.state.get('_internal.elements.chart-timeline-items-row-items');
@@ -6559,7 +6570,7 @@
         onDestroy(state.subscribe('_internal.chart.time', bulk => {
             updateItem();
         }));
-        componentActions.push(BindElementAction);
+        componentActions.push(BindElementAction$7);
         const actions = Actions.create(componentActions, actionProps);
         const detach = new Detach(() => shouldDetach);
         return templateProps => {

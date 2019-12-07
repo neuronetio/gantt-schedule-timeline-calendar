@@ -8,21 +8,26 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
+import Action from '@neuronet.io/vido/Action';
+
 /**
  * Save element
  * @param {HTMLElement} element
  * @param {object} data
  */
-function saveElement(element, data) {
-  data.state.update('_internal.elements.chart-calendar-dates', elements => {
-    if (typeof elements === 'undefined') {
-      elements = [];
-    }
-    if (!elements.includes(element)) {
-      elements.push(element);
-    }
-    return elements;
-  });
+class BindElementAction extends Action {
+  constructor(element, data) {
+    super();
+    data.state.update('_internal.elements.chart-calendar-dates', elements => {
+      if (typeof elements === 'undefined') {
+        elements = [];
+      }
+      if (!elements.includes(element)) {
+        elements.push(element);
+      }
+      return elements;
+    });
+  }
 }
 
 export default function ChartCalendarDate(vido, props) {
@@ -345,7 +350,7 @@ export default function ChartCalendarDate(vido, props) {
     timeSub();
   });
 
-  if (!componentActions.includes(saveElement)) componentActions.push(saveElement);
+  if (!componentActions.includes(BindElementAction)) componentActions.push(BindElementAction);
 
   const actions = Actions.create(componentActions, actionProps);
   return templateProps =>

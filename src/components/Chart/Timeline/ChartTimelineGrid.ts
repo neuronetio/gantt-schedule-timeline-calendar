@@ -9,18 +9,19 @@
  */
 
 /**
- * Bind element
- * @param {Element} element
+ * Bind element action
  */
-function bindElement(element: HTMLElement, data) {
-  const old = data.state.get('_internal.elements.chart-timeline-grid');
-  if (old !== element) data.state.update('_internal.elements.chart-timeline-grid', element);
-  return function destroy(element, data) {
+class BindElementAction {
+  constructor(element: HTMLElement, data) {
+    const old = data.state.get('_internal.elements.chart-timeline-grid');
+    if (old !== element) data.state.update('_internal.elements.chart-timeline-grid', element);
+  }
+  destroy(element, data) {
     data.state.update('_internal.elements', elements => {
       delete elements['chart-timeline-grid'];
       return elements;
     });
-  };
+  }
 }
 
 export default function ChartTimelineGrid(vido, props) {
@@ -51,10 +52,11 @@ export default function ChartTimelineGrid(vido, props) {
   const rowsWithBlocks = [];
   const formatCache = new Map();
   const styleMap = new StyleMap({});
+
   /**
    * Generate blocks
    */
-  const generateBlocks = () => {
+  function generateBlocks() {
     const width = state.get('_internal.chart.dimensions.width');
     const height = state.get('_internal.height');
     const periodDates = state.get(`_internal.chart.time.dates.${period}`);
@@ -91,7 +93,7 @@ export default function ChartTimelineGrid(vido, props) {
       top += row.height;
     }
     state.update('_internal.chart.grid.rowsWithBlocks', rowsWithBlocks);
-  };
+  }
   onDestroy(
     state.subscribeAll(
       [
@@ -112,17 +114,13 @@ export default function ChartTimelineGrid(vido, props) {
    * @param {array} rowsWithBlocks
    */
   const generateRowsComponents = rowsWithBlocks => {
-    if (rowsWithBlocks && rowsWithBlocks.length) {
-      reuseComponents(rowsComponents, rowsWithBlocks, row => row, GridRowComponent);
-    } else {
-      reuseComponents(rowsComponents, [], row => row, GridRowComponent);
-    }
+    reuseComponents(rowsComponents, rowsWithBlocks || [], row => row, GridRowComponent);
     update();
   };
   onDestroy(state.subscribe('_internal.chart.grid.rowsWithBlocks', generateRowsComponents));
 
-  if (!componentActions.includes(bindElement)) {
-    componentActions.push(bindElement);
+  if (!componentActions.includes(BindElementAction)) {
+    componentActions.push(BindElementAction);
   }
 
   onDestroy(() => {

@@ -9,28 +9,27 @@
  */
 
 /**
- * Save element
- * @param {HTMLElement} element
- * @param {object} data
+ * Bind element action
  */
-function saveElement(element, data) {
-  let elements = data.state.get('_internal.elements.list-column-rows');
-  let shouldUpdate = false;
-  if (typeof elements === 'undefined') {
-    shouldUpdate = true;
-    elements = [];
+class BindElementAction {
+  constructor(element, data) {
+    let elements = data.state.get('_internal.elements.list-column-rows');
+    let shouldUpdate = false;
+    if (typeof elements === 'undefined') {
+      shouldUpdate = true;
+      elements = [];
+    }
+    if (!elements.includes(element)) {
+      elements.push(element);
+      shouldUpdate = true;
+    }
+    if (shouldUpdate) data.state.update('_internal.elements.list-column-rows', elements);
   }
-  if (!elements.includes(element)) {
-    elements.push(element);
-    shouldUpdate = true;
-  }
-  if (shouldUpdate) data.state.update('_internal.elements.list-column-rows', elements);
-
-  return function destroy(element, data) {
+  destroy(element, data) {
     data.state.update('_internal.elements.list-column-rows', elements => {
       return elements.filter(el => el !== element);
     });
-  };
+  }
 }
 
 export default function ListColumnRow(vido, props) {
@@ -87,6 +86,8 @@ export default function ListColumnRow(vido, props) {
   const onPropsChange = (changedProps, options) => {
     if (options.leave || changedProps.rowId === undefined || changedProps.columnId === undefined) {
       shouldDetach = true;
+      if (rowSub) rowSub();
+      if (colSub) colSub();
       update();
       return;
     }
@@ -97,12 +98,8 @@ export default function ListColumnRow(vido, props) {
     }
     const rowId = props.rowId;
     const columnId = props.columnId;
-    if (rowSub) {
-      rowSub();
-    }
-    if (colSub) {
-      colSub();
-    }
+    if (rowSub) rowSub();
+    if (colSub) colSub();
     rowPath = `_internal.flatTreeMapById.${rowId}`;
     colPath = `config.list.columns.data.${columnId}`;
     rowSub = state.subscribeAll(
@@ -188,7 +185,7 @@ export default function ListColumnRow(vido, props) {
     return row[column.data];
   }
 
-  if (!componentActions.includes(saveElement)) componentActions.push(saveElement);
+  if (!componentActions.includes(BindElementAction)) componentActions.push(BindElementAction);
 
   actionProps.pointerOptions = {
     axis: 'x|y',

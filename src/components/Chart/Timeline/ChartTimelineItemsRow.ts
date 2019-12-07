@@ -12,25 +12,26 @@
  * Bind element action
  * @param {Element} element
  * @param {any} data
- * @returns {object} with update and destroy
  */
-function bindElementAction(element, data) {
-  let shouldUpdate = false;
-  let rows = data.state.get('_internal.elements.chart-timeline-items-rows');
-  if (typeof rows === 'undefined') {
-    rows = [];
-    shouldUpdate = true;
+class BindElementAction {
+  constructor(element, data) {
+    let shouldUpdate = false;
+    let rows = data.state.get('_internal.elements.chart-timeline-items-rows');
+    if (typeof rows === 'undefined') {
+      rows = [];
+      shouldUpdate = true;
+    }
+    if (!rows.includes(element)) {
+      rows.push(element);
+      shouldUpdate = true;
+    }
+    if (shouldUpdate) data.state.update('_internal.elements.chart-timeline-items-rows', rows, { only: null });
   }
-  if (!rows.includes(element)) {
-    rows.push(element);
-    shouldUpdate = true;
-  }
-  if (shouldUpdate) data.state.update('_internal.elements.chart-timeline-items-rows', rows, { only: null });
-  return function destroy(element) {
+  destroy(element, data) {
     data.state.update('_internal.elements.chart-timeline-items-rows', rows => {
       return rows.filter(el => el !== element);
     });
-  };
+  }
 }
 
 const ChartTimelineItemsRow = (vido, props) => {
@@ -132,8 +133,8 @@ const ChartTimelineItemsRow = (vido, props) => {
     })
   );
 
-  if (!componentActions.includes(bindElementAction)) {
-    componentActions.push(bindElementAction);
+  if (!componentActions.includes(BindElementAction)) {
+    componentActions.push(BindElementAction);
   }
 
   const actions = Actions.create(componentActions, actionProps);

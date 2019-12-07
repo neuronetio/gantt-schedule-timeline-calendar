@@ -15,19 +15,21 @@
  * @returns {object} with update and destroy
  */
 
-function bindElementAction(element, data) {
-  let shouldUpdate = false;
-  let blocks = data.state.get('_internal.elements.chart-timeline-grid-row-blocks');
-  if (typeof blocks === 'undefined') {
-    blocks = [];
-    shouldUpdate = true;
+class BindElementAction {
+  constructor(element, data) {
+    let shouldUpdate = false;
+    let blocks = data.state.get('_internal.elements.chart-timeline-grid-row-blocks');
+    if (typeof blocks === 'undefined') {
+      blocks = [];
+      shouldUpdate = true;
+    }
+    if (!blocks.includes(element)) {
+      blocks.push(element);
+      shouldUpdate = true;
+    }
+    if (shouldUpdate) data.state.update('_internal.elements.chart-timeline-grid-row-blocks', blocks, { only: null });
   }
-  if (!blocks.includes(element)) {
-    blocks.push(element);
-    shouldUpdate = true;
-  }
-  if (shouldUpdate) data.state.update('_internal.elements.chart-timeline-grid-row-blocks', blocks, { only: null });
-  return function destroy(element) {
+  destroy(element, data) {
     data.state.update(
       '_internal.elements.chart-timeline-grid-row-blocks',
       blocks => {
@@ -35,7 +37,7 @@ function bindElementAction(element, data) {
       },
       { only: [''] }
     );
-  };
+  }
 }
 
 interface Props {
@@ -108,7 +110,7 @@ const ChartTimelineGridRowBlock = (vido, props: Props) => {
   }
   onChange(onPropsChange);
 
-  componentActions.push(bindElementAction);
+  componentActions.push(BindElementAction);
   const actions = Actions.create(componentActions, actionProps);
   return templateProps => {
     return wrapper(

@@ -10,27 +10,26 @@
 
 /**
  * Bind element action
- * @param {Element} element
- * @param {any} data
- * @returns {object} with update and destroy
  */
-function bindElementAction(element, data) {
-  let shouldUpdate = false;
-  let rows = data.state.get('_internal.elements.chart-timeline-grid-rows');
-  if (typeof rows === 'undefined') {
-    rows = [];
-    shouldUpdate = true;
+class BindElementAction {
+  constructor(element, data) {
+    let shouldUpdate = false;
+    let rows = data.state.get('_internal.elements.chart-timeline-grid-rows');
+    if (typeof rows === 'undefined') {
+      rows = [];
+      shouldUpdate = true;
+    }
+    if (!rows.includes(element)) {
+      rows.push(element);
+      shouldUpdate = true;
+    }
+    if (shouldUpdate) data.state.update('_internal.elements.chart-timeline-grid-rows', rows, { only: null });
   }
-  if (!rows.includes(element)) {
-    rows.push(element);
-    shouldUpdate = true;
-  }
-  if (shouldUpdate) data.state.update('_internal.elements.chart-timeline-grid-rows', rows, { only: null });
-  return function destroy(element) {
+  destroy(element, data) {
     data.state.update('_internal.elements.chart-timeline-grid-rows', rows => {
       return rows.filter(el => el !== element);
     });
-  };
+  }
 }
 
 export default function ChartTimelineGridRow(vido, props) {
@@ -67,7 +66,7 @@ export default function ChartTimelineGridRow(vido, props) {
   const detach = new Detach(() => shouldDetach);
 
   let rowsBlocksComponents = [];
-  function onPropsChange(changedProps, options) {
+  onChange(function onPropsChange(changedProps, options) {
     if (options.leave || changedProps.row === undefined) {
       shouldDetach = true;
       reuseComponents(rowsBlocksComponents, [], block => block, GridBlockComponent);
@@ -98,15 +97,14 @@ export default function ChartTimelineGridRow(vido, props) {
       actionProps[prop] = props[prop];
     }
     update();
-  }
-  onChange(onPropsChange);
+  });
 
   onDestroy(() => {
     rowsBlocksComponents.forEach(rowBlock => rowBlock.destroy());
   });
 
-  if (componentActions.indexOf(bindElementAction) === -1) {
-    componentActions.push(bindElementAction);
+  if (componentActions.indexOf(BindElementAction) === -1) {
+    componentActions.push(BindElementAction);
   }
 
   const actions = Actions.create(componentActions, actionProps);

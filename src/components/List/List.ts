@@ -100,8 +100,8 @@ export default function List(vido, props = {}) {
   }
 
   class ListAction {
-    constructor(element) {
-      state.update('_internal.elements.list', element);
+    constructor(element, data) {
+      data.state.update('_internal.elements.list', element);
       getWidth(element);
     }
     update(element) {

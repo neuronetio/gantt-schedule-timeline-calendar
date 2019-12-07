@@ -123,9 +123,7 @@ function ChartTimelineItemsRowItem(vido, props) {
   );
 
   componentActions.push(BindElementAction);
-
   const actions = Actions.create(componentActions, actionProps);
-
   const detach = new Detach(() => shouldDetach);
 
   return templateProps => {

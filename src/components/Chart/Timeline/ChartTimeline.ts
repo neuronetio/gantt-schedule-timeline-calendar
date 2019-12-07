@@ -9,7 +9,7 @@
  */
 
 export default function ChartTimeline(vido, props) {
-  const { api, state, onDestroy, Actions, update, html, createComponent, StyleMap } = vido;
+  const { api, state, onDestroy, Action, Actions, update, html, createComponent, StyleMap } = vido;
   const componentName = 'chart-timeline';
   const componentActions = api.getActions(componentName);
 
@@ -82,10 +82,15 @@ export default function ChartTimeline(vido, props) {
     )
   );
 
-  componentActions.push(function getElement(element) {
-    const old = state.get('_internal.elements.chart-timeline');
-    if (old !== element) state.update('_internal.elements.chart-timeline', element);
-  });
+  componentActions.push(
+    class BindElementAction extends Action {
+      constructor(element) {
+        super();
+        const old = state.get('_internal.elements.chart-timeline');
+        if (old !== element) state.update('_internal.elements.chart-timeline', element);
+      }
+    }
+  );
 
   const actions = Actions.create(componentActions, actionProps);
   return templateProps =>

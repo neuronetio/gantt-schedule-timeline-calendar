@@ -103,7 +103,6 @@ export default function ListColumnHeaderResizer(vido, props) {
   };
 
   componentActions.push(PointerAction);
-
   const actions = Actions.create(componentActions, actionProps);
   const dotsActions = Actions.create(componentDotsActions, actionProps);
 
