@@ -593,12 +593,12 @@ try {
             return false;
         }
     };
-    // tslint:disable-next-line:no-any
+    // tslint:disable-next-line: no-any
     window.addEventListener('test', options, options);
-    // tslint:disable-next-line:no-any
+    // tslint:disable-next-line: no-any
     window.removeEventListener('test', options, options);
 }
-catch (_e) {
+catch (_e) { // eslint-disable-line no-empty
 }
 
 /**
