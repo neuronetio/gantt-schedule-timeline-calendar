@@ -60,6 +60,8 @@ $item-content-padding = 5px
     flex-grow: 0
     flex-shrink: 0
     user-select: none
+    > *
+      touch-action: none
     &-toggle
       position: fixed
       left: var(--compensation-x)
@@ -278,6 +280,7 @@ $item-content-padding = 5px
             overflow: hidden
             border-right: $grid
             border-bottom: $grid
+            touch-action: none
             &--selecting
               background: rgba(0,119, 192, 0.5) !important
             &--selecting:last-child
@@ -300,11 +303,14 @@ $item-content-padding = 5px
         height: 100%
         pointer-events: none !important
         overflow: hidden
+        touch-action: none
         &-row
           overflow: hidden
           pointer-events: none !important
           will-change: opacity, height
+          touch-action: none
           &-item
+            touch-action: none
             overflow: hidden
             position: absolute // must be here - movement
             pointer-events: auto
@@ -319,11 +325,13 @@ $item-content-padding = 5px
             line-height: calc(var(--row-height) - 18px)
             will-change: contents
             &-label
+              touch-action: none
               flex-grow: 1
               overflow: hidden
               text-overflow: ellipsis
               white-space: nowrap
             &-resizer
+              touch-action: none
               width: 8px
               background: rgba(255,255,255,0.1)
               cursor: ew-resize
@@ -334,4 +342,5 @@ $item-content-padding = 5px
             &--selected
               border: 1px solid rgb(0,119, 192)*/
             &--moving
+              touch-action: none
               opacity: 0.5

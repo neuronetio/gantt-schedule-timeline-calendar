@@ -5111,7 +5111,7 @@
                 event.stopPropagation();
                 if (movementX) {
                     state.update('config.list.columns.percent', percent => {
-                        percent += movementX;
+                        percent += movementX * state.get('config.scroll.xMultiplier');
                         if (percent < 0)
                             percent = 0;
                         if (percent > 100)
@@ -5121,7 +5121,7 @@
                 }
                 else if (movementY) {
                     state.update('config.scroll.top', top => {
-                        top -= movementY;
+                        top -= movementY * state.get('config.scroll.yMultiplier');
                         top = api.limitScroll('top', top);
                         return top;
                     });
@@ -8078,29 +8078,53 @@
         },
 
         normalizePointerEvent(event) {
-          let x = 0,
-            y = 0;
+          let result = { x: 0, y: 0, pageX: 0, pageY: 0, clientX: 0, clientY: 0, screenX: 0, screenY: 0 };
           switch (event.type) {
             case 'wheel':
               const wheel = this.normalizeMouseWheelEvent(event);
-              x = wheel.x;
-              y = wheel.y;
+              result.x = wheel.x;
+              result.y = wheel.y;
+              result.pageX = result.x;
+              result.pageY = result.y;
+              result.screenX = result.x;
+              result.screenY = result.y;
+              result.clientX = result.x;
+              result.clientY = result.y;
               break;
             case 'touchstart':
             case 'touchmove':
-              x = event.touches[0].screenX;
-              y = event.touches[0].screenY;
+              result.x = event.touches[0].screenX;
+              result.y = event.touches[0].screenY;
+              result.pageX = event.touches[0].pageX;
+              result.pageY = event.touches[0].pageY;
+              result.screenX = event.touches[0].screenX;
+              result.screenY = event.touches[0].screenY;
+              result.clientX = event.touches[0].clientX;
+              result.clientY = event.touches[0].clientY;
               break;
             case 'touchend':
-              x = event.changedTouches[0].screenX;
-              y = event.changedTouches[0].screenY;
+            case 'touchcancel':
+              result.x = event.changedTouches[0].screenX;
+              result.y = event.changedTouches[0].screenY;
+              result.pageX = event.changedTouches[0].pageX;
+              result.pageY = event.changedTouches[0].pageY;
+              result.screenX = event.changedTouches[0].screenX;
+              result.screenY = event.changedTouches[0].screenY;
+              result.clientX = event.changedTouches[0].clientX;
+              result.clientY = event.changedTouches[0].clientY;
               break;
             default:
-              x = event.x;
-              y = event.y;
+              result.x = event.x;
+              result.y = event.y;
+              result.pageX = event.pageX;
+              result.pageY = event.pageY;
+              result.screenX = event.screenX;
+              result.screenY = event.screenY;
+              result.clientX = event.clientX;
+              result.clientY = event.clientY;
               break;
           }
-          return { x, y, event };
+          return result;
         },
 
         limitScroll(which, scroll) {

@@ -117,15 +117,15 @@ function ItemMovement(options = {}) {
     /**
      * Add moving functionality to items as action
      *
-     * @param {HTMLElement} node DOM Node
+     * @param {HTMLElement} element DOM Node
      * @param {Object} data
      */
     function action(element, data) {
         if (!options.moveable && !options.resizeable) {
             return;
         }
-        let state;
-        let api;
+        const state = data.state;
+        const api = data.api;
         function isMoveable(data) {
             let moveable = options.moveable;
             if (data.item.hasOwnProperty('moveable') && moveable) {
@@ -150,7 +150,7 @@ function ItemMovement(options = {}) {
             }
             return movementState[itemId];
         }
-        function createGhost(data, ev, ganttLeft, ganttTop) {
+        function createGhost(data, normalized, ganttLeft, ganttTop) {
             const movement = getMovement(data);
             if (!options.ghostNode || typeof movement.ghost !== 'undefined') {
                 return;
@@ -159,10 +159,10 @@ function ItemMovement(options = {}) {
             const style = getComputedStyle(element);
             const compensation = state.get('config.scroll.compensation');
             ghost.style.position = 'absolute';
-            ghost.style.left = ev.x - ganttLeft - movement.itemLeftCompensation + 'px';
-            const itemTop = ev.y - ganttTop - element.offsetTop - compensation + parseInt(style['margin-top']);
+            ghost.style.left = normalized.clientX - ganttLeft - movement.itemLeftCompensation + 'px';
+            const itemTop = normalized.clientY - ganttTop - element.offsetTop - compensation + parseInt(style['margin-top']);
             movement.itemTop = itemTop;
-            ghost.style.top = ev.y - ganttTop - itemTop + 'px';
+            ghost.style.top = normalized.clientY - ganttTop - itemTop + 'px';
             ghost.style.width = style.width;
             ghost.style['box-shadow'] = '10px 10px 6px #00000020';
             const height = element.clientHeight + 'px';
@@ -174,13 +174,17 @@ function ItemMovement(options = {}) {
             movement.ghost = ghost;
             return ghost;
         }
-        function moveGhost(data, ev) {
+        function moveGhost(data, normalized) {
             if (options.ghostNode) {
                 const movement = getMovement(data);
-                const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
+                const left = normalized.clientX - movement.ganttLeft - movement.itemLeftCompensation;
                 movement.ghost.style.left = left + 'px';
                 movement.ghost.style.top =
-                    ev.y - movement.ganttTop - movement.itemTop + parseInt(getComputedStyle(element)['margin-top']) + 'px';
+                    normalized.clientY -
+                        movement.ganttTop -
+                        movement.itemTop +
+                        parseInt(getComputedStyle(element)['margin-top']) +
+                        'px';
             }
         }
         function destroyGhost(itemId) {
@@ -206,8 +210,6 @@ function ItemMovement(options = {}) {
             }
             return snapEnd;
         }
-        state = data.state;
-        api = data.api;
         const resizerHTML = `<div class="${api.getClass('chart-timeline-items-row-item-resizer')}">${options.resizerContent}</div>`;
         // @ts-ignore
         element.insertAdjacentHTML('beforeend', resizerHTML);
@@ -220,7 +222,8 @@ function ItemMovement(options = {}) {
         }
         function labelDown(ev) {
             ev.stopPropagation();
-            if (ev.button !== 0) {
+            const normalized = api.normalizePointerEvent(ev);
+            if (ev.type === 'mousedown' && ev.button !== 0) {
                 return;
             }
             const movement = getMovement(data);
@@ -232,14 +235,15 @@ function ItemMovement(options = {}) {
             movement.ganttTop = ganttRect.top;
             movement.ganttLeft = ganttRect.left;
             movement.itemX = Math.round((item.time.start - chartLeftTime) / timePerPixel);
-            movement.itemLeftCompensation = ev.x - movement.ganttLeft - movement.itemX;
-            createGhost(data, ev, ganttRect.left, ganttRect.top);
+            movement.itemLeftCompensation = normalized.clientX - movement.ganttLeft - movement.itemX;
+            createGhost(data, normalized, ganttRect.left, ganttRect.top);
         }
         function resizerDown(ev) {
             ev.stopPropagation();
-            if (ev.button !== 0) {
+            if (ev.type === 'mousedown' && ev.button !== 0) {
                 return;
             }
+            const normalized = api.normalizePointerEvent(ev);
             const movement = getMovement(data);
             movement.resizing = true;
             const item = state.get(`config.chart.items.${data.item.id}`);
@@ -249,7 +253,7 @@ function ItemMovement(options = {}) {
             movement.ganttTop = ganttRect.top;
             movement.ganttLeft = ganttRect.left;
             movement.itemX = (item.time.end - chartLeftTime) / timePerPixel;
-            movement.itemLeftCompensation = ev.x - movement.ganttLeft - movement.itemX;
+            movement.itemLeftCompensation = normalized.clientX - movement.ganttLeft - movement.itemX;
         }
         function isCollision(rowId, itemId, start, end) {
             if (!options.collisionDetection) {
@@ -282,10 +286,10 @@ function ItemMovement(options = {}) {
             }
             return false;
         }
-        function movementX(ev, row, item, zoom, timePerPixel) {
+        function movementX(normalized, row, item, zoom, timePerPixel) {
             const movement = getMovement(data);
-            const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
-            moveGhost(data, ev);
+            const left = normalized.clientX - movement.ganttLeft - movement.itemLeftCompensation;
+            moveGhost(data, normalized);
             const leftMs = state.get('_internal.chart.time.leftGlobal') + left * timePerPixel;
             const add = leftMs - item.time.start;
             const originalStart = item.time.start;
@@ -300,13 +304,13 @@ function ItemMovement(options = {}) {
                 });
             }
         }
-        function resizeX(ev, row, item, zoom, timePerPixel) {
+        function resizeX(normalized, row, item, zoom, timePerPixel) {
             if (!isResizeable(data)) {
                 return;
             }
             const time = state.get('_internal.chart.time');
             const movement = getMovement(data);
-            const left = ev.x - movement.ganttLeft - movement.itemLeftCompensation;
+            const left = normalized.clientX - movement.ganttLeft - movement.itemLeftCompensation;
             const leftMs = time.leftGlobal + left * timePerPixel;
             const add = leftMs - item.time.end;
             if (item.time.end + add < item.time.start) {
@@ -324,10 +328,10 @@ function ItemMovement(options = {}) {
                 });
             }
         }
-        function movementY(ev, row, item, zoom, timePerPixel) {
-            moveGhost(data, ev);
+        function movementY(normalized, row, item, zoom, timePerPixel) {
+            moveGhost(data, normalized);
             const movement = getMovement(data);
-            const top = ev.y - movement.ganttTop;
+            const top = normalized.clientY - movement.ganttTop;
             const visibleRows = state.get('_internal.list.visibleRows');
             const compensation = state.get('config.scroll.compensation');
             let index = 0;
@@ -342,8 +346,10 @@ function ItemMovement(options = {}) {
             }
             return index;
         }
-        function documentMouseMove(ev) {
+        function documentMove(ev) {
+            ev.stopPropagation();
             const movement = getMovement(data);
+            const normalized = api.normalizePointerEvent(ev);
             let item, rowId, row, zoom, timePerPixel;
             if (movement.moving || movement.resizing) {
                 item = state.get(`config.chart.items.${data.item.id}`);
@@ -355,12 +361,12 @@ function ItemMovement(options = {}) {
             const moveable = isMoveable(data);
             if (movement.moving) {
                 if (moveable === true || moveable === 'x' || (Array.isArray(moveable) && moveable.includes(rowId))) {
-                    movementX(ev, row, item, zoom, timePerPixel);
+                    movementX(normalized, row, item, zoom, timePerPixel);
                 }
                 if (!moveable || moveable === 'x') {
                     return;
                 }
-                let visibleRowsIndex = movementY(ev);
+                let visibleRowsIndex = movementY(normalized);
                 const visibleRows = state.get('_internal.list.visibleRows');
                 if (typeof visibleRows[visibleRowsIndex] === 'undefined') {
                     if (visibleRowsIndex > 0) {
@@ -382,10 +388,10 @@ function ItemMovement(options = {}) {
                 }
             }
             else if (movement.resizing && (typeof item.resizeable === 'undefined' || item.resizeable === true)) {
-                resizeX(ev, row, item, zoom, timePerPixel);
+                resizeX(normalized, row, item, zoom, timePerPixel);
             }
         }
-        function documentMouseUp(ev) {
+        function documentUp(ev) {
             const movement = getMovement(data);
             if (movement.moving || movement.resizing) {
                 ev.stopPropagation();
@@ -400,10 +406,13 @@ function ItemMovement(options = {}) {
         }
         element.addEventListener('mousedown', labelDown);
         element.addEventListener('touchstart', labelDown);
-        resizerEl.addEventListener('mousedown', resizerDown, { capture: true });
+        resizerEl.addEventListener('mousedown', resizerDown);
         resizerEl.addEventListener('touchstart', resizerDown);
-        document.addEventListener('mousemove', documentMouseMove, { capture: true, passive: true });
-        document.addEventListener('mouseup', documentMouseUp, { capture: true, passive: true });
+        document.addEventListener('mousemove', documentMove);
+        document.addEventListener('mouseup', documentUp);
+        document.addEventListener('touchmove', documentMove);
+        document.addEventListener('touchend', documentUp);
+        document.addEventListener('touchcancel', documentUp);
         return {
             update(node, changedData) {
                 if (!isResizeable(data) && resizerEl.style.visibility === 'visible') {
@@ -412,12 +421,18 @@ function ItemMovement(options = {}) {
                 else if (isResizeable(data) && resizerEl.style.visibility === 'hidden') {
                     resizerEl.style.visibility = 'visible';
                 }
+                data = changedData;
             },
             destroy(node, data) {
                 element.removeEventListener('mousedown', labelDown);
+                element.removeEventListener('touchstart', labelDown);
                 resizerEl.removeEventListener('mousedown', resizerDown);
-                document.removeEventListener('mousemove', documentMouseMove);
-                document.removeEventListener('mouseup', documentMouseUp);
+                resizerEl.removeEventListener('touchstart', resizerDown);
+                document.removeEventListener('mousemove', documentMove);
+                document.removeEventListener('mouseup', documentUp);
+                document.removeEventListener('touchmove', documentMove);
+                document.removeEventListener('touchend', documentUp);
+                document.removeEventListener('touchcancel', documentUp);
                 resizerEl.remove();
             }
         };

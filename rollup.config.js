@@ -54,7 +54,6 @@ const devFiles = [
       typescript({ target: 'es6' }),
       resolve({
         browser: true
-        //module: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
       !production && livereload('dist')
@@ -71,7 +70,6 @@ const devFiles = [
       typescript({ target: 'es6' }),
       resolve({
         browser: true
-        //module: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
       production &&
@@ -93,7 +91,6 @@ const devFiles = [
       typescript({ target: 'es6' }),
       resolve({
         browser: true
-        //module: true
       }),
       commonjs({ extensions: ['.js', '.ts'] })
     ]
@@ -110,7 +107,6 @@ const devFiles = [
       typescript({ target: 'es6' }),
       resolve({
         browser: true
-        //module: true
       }),
       commonjs({ extensions: ['.js', '.ts'] })
     ]
@@ -127,7 +123,6 @@ const devFiles = [
       typescript({ target: 'es6' }),
       resolve({
         browser: true
-        //module: true
       }),
       commonjs({ extensions: ['.js', '.ts'] })
     ]
@@ -144,7 +139,6 @@ const devFiles = [
       typescript({ target: 'es6' }),
       resolve({
         browser: true
-        //module: true
       }),
       commonjs({ extensions: ['.js', '.ts'] })
     ]
@@ -161,7 +155,6 @@ const devFiles = [
       typescript({ target: 'es6' }),
       resolve({
         browser: true
-        //module: true
       }),
       commonjs({ extensions: ['.js', '.ts'] })
     ]
@@ -178,7 +171,6 @@ const devFiles = [
       typescript({ target: 'es6' }),
       resolve({
         browser: true
-        //module: true
       }),
       commonjs({ extensions: ['.js', '.ts'] })
     ]
@@ -195,7 +187,6 @@ const devFiles = [
       typescript({ target: 'es6' }),
       resolve({
         browser: true
-        //module: true
       }),
       commonjs({ extensions: ['.js', '.ts'] })
     ]
@@ -220,7 +211,6 @@ const prodFiles = Array.prototype.concat(devFiles, [
       typescript({ target: 'es6' }),
       resolve({
         browser: true
-        //module: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
       terser({
@@ -240,7 +230,6 @@ const prodFiles = Array.prototype.concat(devFiles, [
       typescript({ target: 'es6' }),
       resolve({
         browser: true
-        //module: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
       terser({
@@ -262,7 +251,6 @@ const prodFiles = Array.prototype.concat(devFiles, [
       typescript({ target: 'es6' }),
       resolve({
         browser: true
-        //module: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
       production &&
@@ -285,7 +273,6 @@ const prodFiles = Array.prototype.concat(devFiles, [
       typescript({ target: 'es6' }),
       resolve({
         browser: true
-        //module: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
       production &&
@@ -308,7 +295,6 @@ const prodFiles = Array.prototype.concat(devFiles, [
       typescript({ target: 'es6' }),
       resolve({
         browser: true
-        //module: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
       production &&
@@ -331,7 +317,6 @@ const prodFiles = Array.prototype.concat(devFiles, [
       typescript({ target: 'es6' }),
       resolve({
         browser: true
-        //module: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
       production &&
@@ -354,7 +339,6 @@ const prodFiles = Array.prototype.concat(devFiles, [
       typescript({ target: 'es6' }),
       resolve({
         browser: true
-        //module: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
       production &&
@@ -377,7 +361,6 @@ const prodFiles = Array.prototype.concat(devFiles, [
       typescript({ target: 'es6' }),
       resolve({
         browser: true
-        //module: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
       production &&
