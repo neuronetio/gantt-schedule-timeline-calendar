@@ -416,15 +416,15 @@ function ItemMovement(options = {}) {
             document.addEventListener('pointerup', documentUp);
         }
         else {
-            element.addEventListener('mousedown', labelDown);
-            resizerEl.addEventListener('mousedown', resizerDown);
-            document.addEventListener('mousemove', documentMove);
-            document.addEventListener('mouseup', documentUp);
             element.addEventListener('touchstart', labelDown);
             resizerEl.addEventListener('touchstart', resizerDown);
             document.addEventListener('touchmove', documentMove);
             document.addEventListener('touchend', documentUp);
             document.addEventListener('touchcancel', documentUp);
+            element.addEventListener('mousedown', labelDown);
+            resizerEl.addEventListener('mousedown', resizerDown);
+            document.addEventListener('mousemove', documentMove);
+            document.addEventListener('mouseup', documentUp);
         }
         return {
             update(node, changedData) {

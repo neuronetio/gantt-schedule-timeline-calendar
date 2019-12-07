@@ -191,6 +191,7 @@ export default function ListColumnRow(vido, props) {
     axis: 'x|y',
     onMove({ event, movementX, movementY }) {
       event.stopPropagation();
+      event.preventDefault();
       if (movementX) {
         state.update('config.list.columns.percent', percent => {
           percent += movementX * state.get('config.scroll.xMultiplier');
