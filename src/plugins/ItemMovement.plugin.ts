@@ -159,8 +159,9 @@ export default function ItemMovement(options: Options = {}) {
 
     function labelDown(ev) {
       ev.stopPropagation();
+      ev.preventDefault();
       const normalized = api.normalizePointerEvent(ev);
-      if (ev.type === 'mousedown' && ev.button !== 0) {
+      if (ev.ponterType === 'mouse' && ev.button !== 0) {
         return;
       }
       const movement = getMovement(data);
@@ -178,7 +179,8 @@ export default function ItemMovement(options: Options = {}) {
 
     function resizerDown(ev) {
       ev.stopPropagation();
-      if (ev.type === 'mousedown' && ev.button !== 0) {
+      ev.preventDefault();
+      if (ev.pointerType === 'mouse' && ev.button !== 0) {
         return;
       }
       const normalized = api.normalizePointerEvent(ev);
@@ -295,6 +297,7 @@ export default function ItemMovement(options: Options = {}) {
       let item, rowId, row, zoom, timePerPixel;
       if (movement.moving || movement.resizing) {
         ev.stopPropagation();
+        ev.preventDefault();
         item = state.get(`config.chart.items.${data.item.id}`);
         rowId = state.get(`config.chart.items.${data.item.id}.rowId`);
         row = state.get(`config.list.rows.${rowId}`);
@@ -337,6 +340,7 @@ export default function ItemMovement(options: Options = {}) {
       const movement = getMovement(data);
       if (movement.moving || movement.resizing) {
         ev.stopPropagation();
+        ev.preventDefault();
       }
       movement.moving = false;
       movement.resizing = false;
