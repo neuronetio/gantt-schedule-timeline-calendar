@@ -2419,6 +2419,7 @@
         onUp(data) { },
         onWheel(data) { }
     };
+    const pointerEventsExists = typeof PointerEvent !== 'undefined';
     class PointerAction extends Action {
         constructor(element, data) {
             super();
@@ -2432,9 +2433,20 @@
             this.onPointerUp = this.onPointerUp.bind(this);
             this.onWheel = this.onWheel.bind(this);
             this.options = Object.assign(Object.assign({}, defaultOptions), data.pointerOptions);
-            element.addEventListener('pointerdown', this.onPointerStart);
-            document.addEventListener('pointermove', this.onPointerMove);
-            document.addEventListener('pointerup', this.onPointerUp);
+            if (pointerEventsExists) {
+                element.addEventListener('pointerdown', this.onPointerStart);
+                document.addEventListener('pointermove', this.onPointerMove);
+                document.addEventListener('pointerup', this.onPointerUp);
+            }
+            else {
+                element.addEventListener('mousedown', this.onPointerStart);
+                document.addEventListener('mousemove', this.onPointerMove);
+                document.addEventListener('mouseup', this.onPointerUp);
+                element.addEventListener('touchstart', this.onPointerStart);
+                document.addEventListener('touchmove', this.onPointerMove);
+                document.addEventListener('touchup', this.onPointerUp);
+                document.addEventListener('touchcancel', this.onPointerUp);
+            }
         }
         normalizeMouseWheelEvent(event) {
             // @ts-ignore
@@ -2507,7 +2519,7 @@
             return result;
         }
         onPointerStart(event) {
-            if (event.type === 'mousedown' && event.button !== 0)
+            if ((event.type === 'mousedown' || event.type === 'pointerdown') && event.button !== 0)
                 return;
             this.moving = 'xy';
             const normalized = this.normalizePointerEvent(event);
@@ -2530,7 +2542,7 @@
             return movementY;
         }
         onPointerMove(event) {
-            if (this.moving === '' || (event.type === 'mousemove' && event.button !== 0))
+            if (this.moving === '' || ((event.type === 'pointermove' || event.type === 'mousemove') && event.button !== 0))
                 return;
             const normalized = this.normalizePointerEvent(event);
             if (this.options.axis === 'x|y') {
@@ -2630,9 +2642,20 @@
             this.lastX = 0;
         }
         destroy(element) {
-            element.removeEventListener('pointerdown', this.onPointerStart);
-            document.removeEventListener('pointermove', this.onPointerMove);
-            document.removeEventListener('pointerup', this.onPointerUp);
+            if (pointerEventsExists) {
+                element.removeEventListener('pointerdown', this.onPointerStart);
+                document.removeEventListener('pointermove', this.onPointerMove);
+                document.removeEventListener('pointerup', this.onPointerUp);
+            }
+            else {
+                element.removeEventListener('mousedown', this.onPointerStart);
+                document.removeEventListener('mousemove', this.onPointerMove);
+                document.removeEventListener('mouseup', this.onPointerUp);
+                element.removeEventListener('touchstart', this.onPointerStart);
+                document.removeEventListener('touchmove', this.onPointerMove);
+                document.removeEventListener('touchup', this.onPointerUp);
+                document.removeEventListener('touchcancel', this.onPointerUp);
+            }
         }
     }
 

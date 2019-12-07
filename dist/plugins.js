@@ -97,6 +97,7 @@ function ItemHold(options = {}) {
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
+const pointerEventsExists = typeof PointerEvent !== 'undefined';
 function ItemMovement(options = {}) {
     const defaultOptions = {
         moveable: true,
@@ -224,7 +225,7 @@ function ItemMovement(options = {}) {
             ev.stopPropagation();
             ev.preventDefault();
             const normalized = api.normalizePointerEvent(ev);
-            if (ev.ponterType === 'mouse' && ev.button !== 0) {
+            if ((ev.type === 'pointerdown' || ev.type === 'mousedown') && ev.button !== 0) {
                 return;
             }
             const movement = getMovement(data);
@@ -242,7 +243,7 @@ function ItemMovement(options = {}) {
         function resizerDown(ev) {
             ev.stopPropagation();
             ev.preventDefault();
-            if (ev.pointerType === 'mouse' && ev.button !== 0) {
+            if ((ev.type === 'pointerdown' || ev.type === 'mousedown') && ev.button !== 0) {
                 return;
             }
             const normalized = api.normalizePointerEvent(ev);
@@ -408,10 +409,23 @@ function ItemMovement(options = {}) {
                 destroyGhost(itemId);
             }
         }
-        element.addEventListener('pointerdown', labelDown);
-        resizerEl.addEventListener('pointerdown', resizerDown);
-        document.addEventListener('pointermove', documentMove);
-        document.addEventListener('pointerup', documentUp);
+        if (pointerEventsExists) {
+            element.addEventListener('pointerdown', labelDown);
+            resizerEl.addEventListener('pointerdown', resizerDown);
+            document.addEventListener('pointermove', documentMove);
+            document.addEventListener('pointerup', documentUp);
+        }
+        else {
+            element.addEventListener('mousedown', labelDown);
+            resizerEl.addEventListener('mousedown', resizerDown);
+            document.addEventListener('mousemove', documentMove);
+            document.addEventListener('mouseup', documentUp);
+            element.addEventListener('touchstart', labelDown);
+            resizerEl.addEventListener('touchstart', resizerDown);
+            document.addEventListener('touchmove', documentMove);
+            document.addEventListener('touchend', documentUp);
+            document.addEventListener('touchcancel', documentUp);
+        }
         return {
             update(node, changedData) {
                 if (!isResizeable(changedData) && resizerEl.style.visibility === 'visible') {
@@ -423,10 +437,23 @@ function ItemMovement(options = {}) {
                 data = changedData;
             },
             destroy(node, data) {
-                element.removeEventListener('pointerdown', labelDown);
-                resizerEl.removeEventListener('pointerdown', resizerDown);
-                document.removeEventListener('pointermove', documentMove);
-                document.removeEventListener('pointerup', documentUp);
+                if (pointerEventsExists) {
+                    element.removeEventListener('pointerdown', labelDown);
+                    resizerEl.removeEventListener('pointerdown', resizerDown);
+                    document.removeEventListener('pointermove', documentMove);
+                    document.removeEventListener('pointerup', documentUp);
+                }
+                else {
+                    element.removeEventListener('mousedown', labelDown);
+                    resizerEl.removeEventListener('mousedown', resizerDown);
+                    document.removeEventListener('mousemove', documentMove);
+                    document.removeEventListener('mouseup', documentUp);
+                    element.removeEventListener('touchstart', labelDown);
+                    resizerEl.removeEventListener('touchstart', resizerDown);
+                    document.removeEventListener('touchmove', documentMove);
+                    document.removeEventListener('touchend', documentUp);
+                    document.removeEventListener('touchcancel', documentUp);
+                }
                 resizerEl.remove();
             }
         };

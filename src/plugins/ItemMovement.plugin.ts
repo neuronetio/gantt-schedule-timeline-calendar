@@ -19,6 +19,8 @@ export interface Options {
   ghostNode?: boolean;
 }
 
+const pointerEventsExists = typeof PointerEvent !== 'undefined';
+
 export default function ItemMovement(options: Options = {}) {
   const defaultOptions = {
     moveable: true,
@@ -161,7 +163,7 @@ export default function ItemMovement(options: Options = {}) {
       ev.stopPropagation();
       ev.preventDefault();
       const normalized = api.normalizePointerEvent(ev);
-      if (ev.ponterType === 'mouse' && ev.button !== 0) {
+      if ((ev.type === 'pointerdown' || ev.type === 'mousedown') && ev.button !== 0) {
         return;
       }
       const movement = getMovement(data);
@@ -180,7 +182,7 @@ export default function ItemMovement(options: Options = {}) {
     function resizerDown(ev) {
       ev.stopPropagation();
       ev.preventDefault();
-      if (ev.pointerType === 'mouse' && ev.button !== 0) {
+      if ((ev.type === 'pointerdown' || ev.type === 'mousedown') && ev.button !== 0) {
         return;
       }
       const normalized = api.normalizePointerEvent(ev);
@@ -350,10 +352,22 @@ export default function ItemMovement(options: Options = {}) {
         destroyGhost(itemId);
       }
     }
-    element.addEventListener('pointerdown', labelDown);
-    resizerEl.addEventListener('pointerdown', resizerDown);
-    document.addEventListener('pointermove', documentMove);
-    document.addEventListener('pointerup', documentUp);
+    if (pointerEventsExists) {
+      element.addEventListener('pointerdown', labelDown);
+      resizerEl.addEventListener('pointerdown', resizerDown);
+      document.addEventListener('pointermove', documentMove);
+      document.addEventListener('pointerup', documentUp);
+    } else {
+      element.addEventListener('mousedown', labelDown);
+      resizerEl.addEventListener('mousedown', resizerDown);
+      document.addEventListener('mousemove', documentMove);
+      document.addEventListener('mouseup', documentUp);
+      element.addEventListener('touchstart', labelDown);
+      resizerEl.addEventListener('touchstart', resizerDown);
+      document.addEventListener('touchmove', documentMove);
+      document.addEventListener('touchend', documentUp);
+      document.addEventListener('touchcancel', documentUp);
+    }
 
     return {
       update(node, changedData) {
@@ -365,10 +379,22 @@ export default function ItemMovement(options: Options = {}) {
         data = changedData;
       },
       destroy(node, data) {
-        element.removeEventListener('pointerdown', labelDown);
-        resizerEl.removeEventListener('pointerdown', resizerDown);
-        document.removeEventListener('pointermove', documentMove);
-        document.removeEventListener('pointerup', documentUp);
+        if (pointerEventsExists) {
+          element.removeEventListener('pointerdown', labelDown);
+          resizerEl.removeEventListener('pointerdown', resizerDown);
+          document.removeEventListener('pointermove', documentMove);
+          document.removeEventListener('pointerup', documentUp);
+        } else {
+          element.removeEventListener('mousedown', labelDown);
+          resizerEl.removeEventListener('mousedown', resizerDown);
+          document.removeEventListener('mousemove', documentMove);
+          document.removeEventListener('mouseup', documentUp);
+          element.removeEventListener('touchstart', labelDown);
+          resizerEl.removeEventListener('touchstart', resizerDown);
+          document.removeEventListener('touchmove', documentMove);
+          document.removeEventListener('touchend', documentUp);
+          document.removeEventListener('touchcancel', documentUp);
+        }
         resizerEl.remove();
       }
     };
