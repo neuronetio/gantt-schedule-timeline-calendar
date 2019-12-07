@@ -290,11 +290,11 @@ export default function ItemMovement(options: Options = {}) {
     }
 
     function documentMove(ev) {
-      ev.stopPropagation();
       const movement = getMovement(data);
       const normalized = api.normalizePointerEvent(ev);
       let item, rowId, row, zoom, timePerPixel;
       if (movement.moving || movement.resizing) {
+        ev.stopPropagation();
         item = state.get(`config.chart.items.${data.item.id}`);
         rowId = state.get(`config.chart.items.${data.item.id}.rowId`);
         row = state.get(`config.list.rows.${rowId}`);
@@ -346,35 +346,25 @@ export default function ItemMovement(options: Options = {}) {
         destroyGhost(itemId);
       }
     }
-    element.addEventListener('mousedown', labelDown);
-    element.addEventListener('touchstart', labelDown);
-    resizerEl.addEventListener('mousedown', resizerDown);
-    resizerEl.addEventListener('touchstart', resizerDown);
-    document.addEventListener('mousemove', documentMove);
-    document.addEventListener('mouseup', documentUp);
-    document.addEventListener('touchmove', documentMove);
-    document.addEventListener('touchend', documentUp);
-    document.addEventListener('touchcancel', documentUp);
+    element.addEventListener('pointerdown', labelDown);
+    resizerEl.addEventListener('pointerdown', resizerDown);
+    document.addEventListener('pointermove', documentMove);
+    document.addEventListener('pointerup', documentUp);
 
     return {
       update(node, changedData) {
-        if (!isResizeable(data) && resizerEl.style.visibility === 'visible') {
+        if (!isResizeable(changedData) && resizerEl.style.visibility === 'visible') {
           resizerEl.style.visibility = 'hidden';
-        } else if (isResizeable(data) && resizerEl.style.visibility === 'hidden') {
+        } else if (isResizeable(changedData) && resizerEl.style.visibility === 'hidden') {
           resizerEl.style.visibility = 'visible';
         }
         data = changedData;
       },
       destroy(node, data) {
-        element.removeEventListener('mousedown', labelDown);
-        element.removeEventListener('touchstart', labelDown);
-        resizerEl.removeEventListener('mousedown', resizerDown);
-        resizerEl.removeEventListener('touchstart', resizerDown);
-        document.removeEventListener('mousemove', documentMove);
-        document.removeEventListener('mouseup', documentUp);
-        document.removeEventListener('touchmove', documentMove);
-        document.removeEventListener('touchend', documentUp);
-        document.removeEventListener('touchcancel', documentUp);
+        element.removeEventListener('pointerdown', labelDown);
+        resizerEl.removeEventListener('pointerdown', resizerDown);
+        document.removeEventListener('pointermove', documentMove);
+        document.removeEventListener('pointerup', documentUp);
         resizerEl.remove();
       }
     };

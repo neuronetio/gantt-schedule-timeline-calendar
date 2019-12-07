@@ -345,15 +345,6 @@ export function getInternalApi(state) {
           break;
         case 'touchstart':
         case 'touchmove':
-          result.x = event.touches[0].screenX;
-          result.y = event.touches[0].screenY;
-          result.pageX = event.touches[0].pageX;
-          result.pageY = event.touches[0].pageY;
-          result.screenX = event.touches[0].screenX;
-          result.screenY = event.touches[0].screenY;
-          result.clientX = event.touches[0].clientX;
-          result.clientY = event.touches[0].clientY;
-          break;
         case 'touchend':
         case 'touchcancel':
           result.x = event.changedTouches[0].screenX;
