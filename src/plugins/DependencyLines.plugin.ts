@@ -8,7 +8,31 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-export default function DependencyLines(options = {}) {
+export type Type = 'straight' | 'quadratic' | 'cubic';
+
+export interface Options {
+  type: Type;
+}
+
+const defaultOptions: Options = {
+  type: 'quadratic'
+};
+
+export interface Point {
+  x: number;
+  y: number;
+}
+
+export type Points = Point[];
+
+/**
+ * Make quadratic path
+ * @param {Points} points
+ * @returns {html}
+ */
+function makeQuadraticPath(points: Points) {}
+
+export default function DependencyLines(options: Options = { ...defaultOptions }) {
   return function initialize(vido) {
     const state = vido.state;
     const api = vido.api;

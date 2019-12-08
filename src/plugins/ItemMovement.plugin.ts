@@ -352,6 +352,7 @@ export default function ItemMovement(options: Options = {}) {
         destroyGhost(itemId);
       }
     }
+
     if (pointerEventsExists) {
       element.addEventListener('pointerdown', labelDown);
       resizerEl.addEventListener('pointerdown', resizerDown);

@@ -13,7 +13,10 @@
    * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
    * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
    */
-  function DependencyLines(options = {}) {
+  const defaultOptions = {
+      type: 'quadratic'
+  };
+  function DependencyLines(options = Object.assign({}, defaultOptions)) {
       return function initialize(vido) {
           const state = vido.state;
           const api = vido.api;

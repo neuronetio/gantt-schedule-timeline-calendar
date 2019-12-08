@@ -27,6 +27,8 @@ import ChartTimelineItems from './components/Chart/Timeline/ChartTimelineItems';
 import ChartTimelineItemsRow from './components/Chart/Timeline/ChartTimelineItemsRow';
 import ChartTimelineItemsRowItem from './components/Chart/Timeline/ChartTimelineItemsRowItem';
 
+import { Config } from './types';
+
 export const actionNames = [
   '',
   'list',
@@ -57,7 +59,7 @@ function generateEmptyActions() {
 }
 
 // default configuration
-function defaultConfig() {
+function defaultConfig(): Config {
   const actions = generateEmptyActions();
   return {
     plugins: [],
@@ -247,7 +249,7 @@ function defaultConfig() {
         LLL: 'D MMMM YYYY HH:mm',
         LLLL: 'dddd, D MMMM YYYY HH:mm'
       },
-      ordinal: n => {
+      ordinal: (n: number) => {
         const s = ['th', 'st', 'nd', 'rd'];
         const v = n % 100;
         return `[${n}${s[(v - 20) % 10] || s[v] || s[0]}]`;

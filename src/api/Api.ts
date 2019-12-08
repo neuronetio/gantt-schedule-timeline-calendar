@@ -11,6 +11,7 @@ import defaultConfigFn from '../default-config';
 import timeApi from './Time';
 import State from 'deep-state-observer';
 import dayjs from 'dayjs';
+import { Config } from '../types';
 const lib = 'gantt-schedule-timeline-calendar';
 
 /**
@@ -81,8 +82,8 @@ function mergeActions(userConfig, defaultConfig) {
   return actions;
 }
 
-export function stateFromConfig(userConfig) {
-  const defaultConfig = defaultConfigFn();
+export function stateFromConfig(userConfig: Config) {
+  const defaultConfig: Config = defaultConfigFn();
   const actions = mergeActions(userConfig, defaultConfig);
   const state = { config: mergeDeep({}, defaultConfig, userConfig) };
   state.config.actions = actions;
