@@ -184,7 +184,7 @@
                     this.lastX = normalized.x;
                 })();
             }
-            onPointerEnd(ev) {
+            onPointerEnd() {
                 this.isMoving = false;
                 this.lastX = 0;
             }

@@ -91,7 +91,7 @@ export default function Selection(options: Options = {}) {
   for (const styleProp in options.rectStyle) {
     rect.style[styleProp] = options.rectStyle[styleProp];
   }
-  let selecting: SelectingData = {
+  const selecting: SelectingData = {
     fromX: -1,
     fromY: -1,
     toX: -1,
@@ -112,13 +112,13 @@ export default function Selection(options: Options = {}) {
    * Selection action class
    */
   class SelectionAction extends Action {
-    chartTimeline: Element;
-    mouseDown: (ev: MouseEvent) => void;
-    mouseMove: (ev: MouseEvent) => void;
-    mouseUp: (ev: MouseEvent) => void;
-    left: number;
-    top: number;
-    unsub: () => void;
+    private chartTimeline: Element;
+    private mouseDown: (ev: MouseEvent) => void;
+    private mouseMove: (ev: MouseEvent) => void;
+    private mouseUp: (ev: MouseEvent) => void;
+    private left: number;
+    private top: number;
+    private unsub: () => void;
 
     /**
      * Selection action constructor
@@ -127,8 +127,8 @@ export default function Selection(options: Options = {}) {
      */
     constructor(element: Element, data: any) {
       super();
-      let previousSelect,
-        api = {} as any;
+      let previousSelect;
+      const api = {} as any;
       this.unsub = data.state.subscribeAll(
         ['_internal.elements.chart-timeline', '_internal.chart.dimensions.width'],
         bulk => {
@@ -493,7 +493,8 @@ export default function Selection(options: Options = {}) {
       document.addEventListener('mouseup', this.mouseUp);
       options.getApi(api);
     }
-    destroy(element) {
+
+    public destroy(element) {
       document.removeEventListener('mouseup', this.mouseUp);
       document.removeEventListener('mousemove', this.mouseMove);
       element.removeEventListener('mousedown', this.mouseDown);
@@ -535,8 +536,8 @@ export default function Selection(options: Options = {}) {
    * @returns {object} with update and destroy functions
    */
   class GridBlockAction extends Action {
-    classNameSelecting: string;
-    classNameSelected: string;
+    private classNameSelecting: string;
+    private classNameSelected: string;
 
     constructor(element: HTMLElement, data: any) {
       super();
@@ -545,11 +546,11 @@ export default function Selection(options: Options = {}) {
       updateSelection(element, data.selecting, data.selected, this.classNameSelecting, this.classNameSelected);
     }
 
-    update(element: HTMLElement, data: any) {
+    public update(element: HTMLElement, data: any) {
       updateSelection(element, data.selecting, data.selected, this.classNameSelecting, this.classNameSelected);
     }
 
-    destroy(element: Element, changedData: any) {
+    public destroy(element: Element, changedData: any) {
       element.classList.remove(this.classNameSelecting);
       element.classList.remove(this.classNameSelected);
     }
@@ -562,8 +563,8 @@ export default function Selection(options: Options = {}) {
    * @returns {object} with update and destroy functions
    */
   class ItemAction extends Action {
-    classNameSelecting: string;
-    classNameSelected: string;
+    private classNameSelecting: string;
+    private classNameSelected: string;
 
     constructor(element: HTMLElement, data: any) {
       super();
@@ -578,7 +579,7 @@ export default function Selection(options: Options = {}) {
       );
     }
 
-    update(element: HTMLElement, data: any) {
+    public update(element: HTMLElement, data: any) {
       updateSelection(
         element,
         data.item.selecting,
@@ -588,7 +589,7 @@ export default function Selection(options: Options = {}) {
       );
     }
 
-    destroy(element: HTMLElement, data: any) {
+    public destroy(element: HTMLElement, data: any) {
       element.classList.remove(this.classNameSelecting);
       element.classList.remove(this.classNameSelected);
     }

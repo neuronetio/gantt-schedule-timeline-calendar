@@ -29,7 +29,8 @@ class BindElementAction {
     }
     if (shouldUpdate) data.state.update('_internal.elements.chart-timeline-grid-row-blocks', blocks, { only: null });
   }
-  destroy(element, data) {
+
+  public destroy(element, data) {
     data.state.update(
       '_internal.elements.chart-timeline-grid-row-blocks',
       blocks => {
@@ -70,16 +71,15 @@ const ChartTimelineGridRowBlock = (vido, props: Props) => {
     .date()
     .startOf('day')
     .valueOf();
-  let className, classNameContent;
+  let className;
   function updateClassName(time) {
     className = api.getClass(componentName);
-    classNameContent = className + '-content';
     if (time.leftGlobal === currentTime) {
       className += ' current';
     }
   }
   updateClassName(props.time);
-  let styleMap = new StyleMap({ width: '', height: '' });
+  const styleMap = new StyleMap({ width: '', height: '' });
   /**
    * On props change
    * @param {any} changedProps

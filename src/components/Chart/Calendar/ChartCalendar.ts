@@ -38,7 +38,7 @@ export default function ChartCalendar(vido, props) {
     })
   );
 
-  let dayComponents = [],
+  const dayComponents = [],
     monthComponents = [];
   onDestroy(
     state.subscribe(`_internal.chart.time.dates`, dates => {

@@ -24,7 +24,7 @@ export default function ChartTimelineItems(vido, props = {}) {
       update();
     })
   );
-  let styleMap = new StyleMap({}, true);
+  const styleMap = new StyleMap({}, true);
   function calculateStyle() {
     const width = state.get('_internal.chart.dimensions.width');
     const height = state.get('_internal.height');

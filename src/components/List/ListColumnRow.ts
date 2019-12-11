@@ -25,7 +25,7 @@ class BindElementAction {
     }
     if (shouldUpdate) data.state.update('_internal.elements.list-column-rows', elements);
   }
-  destroy(element, data) {
+  public destroy(element, data) {
     data.state.update('_internal.elements.list-column-rows', elements => {
       return elements.filter(el => el !== element);
     });
@@ -64,7 +64,7 @@ export default function ListColumnRow(vido, props) {
     row = state.get(rowPath);
   let colPath = `config.list.columns.data.${props.columnId}`,
     column = state.get(colPath);
-  let styleMap = new StyleMap(
+  const styleMap = new StyleMap(
     column.expander
       ? {
           height: '',
@@ -121,7 +121,7 @@ export default function ListColumnRow(vido, props) {
         if (column.expander) {
           styleMap.style['--expander-padding-width'] = expander.padding * (row._internal.parents.length + 1) + 'px';
         }
-        for (let parentId of row._internal.parents) {
+        for (const parentId of row._internal.parents) {
           const parent = state.get(`_internal.flatTreeMapById.${parentId}`);
           if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
             if (typeof parent.style.children === 'object') {

@@ -20,9 +20,8 @@ export default function CalendarScroll(options = {}) {
   options = { ...defaultOptions, ...options };
 
   class CalendarScrollAction extends Action {
-    isMoving: boolean = false;
-    lastX: number = 0;
-    mc: any;
+    isMoving = false;
+    lastX = 0;
 
     constructor(element: HTMLElement) {
       super();
@@ -43,7 +42,7 @@ export default function CalendarScroll(options = {}) {
       }
     }
 
-    onPointerStart(ev) {
+    private onPointerStart(ev) {
       if (ev.type === 'mousedown' && ev.button !== 0) return;
       ev.stopPropagation();
       this.isMoving = true;
@@ -51,7 +50,7 @@ export default function CalendarScroll(options = {}) {
       this.lastX = normalized.x;
     }
 
-    onPointerMove(ev) {
+    private onPointerMove(ev) {
       schedule(() => {
         if (!this.isMoving) return;
         const normalized = api.normalizePointerEvent(ev);
@@ -72,12 +71,12 @@ export default function CalendarScroll(options = {}) {
       })();
     }
 
-    onPointerEnd(ev) {
+    private onPointerEnd() {
       this.isMoving = false;
       this.lastX = 0;
     }
 
-    destroy(element: HTMLElement, data: any) {
+    public destroy(element: HTMLElement, data: any) {
       element.removeEventListener('touchstart', this.onPointerStart);
       document.removeEventListener('touchmove', this.onPointerMove);
       document.removeEventListener('touchend', this.onPointerEnd);

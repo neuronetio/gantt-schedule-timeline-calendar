@@ -25,7 +25,7 @@ class BindElementAction {
     }
     if (shouldUpdate) data.state.update('_internal.elements.chart-timeline-items-row-items', items, { only: null });
   }
-  destroy(element, data) {
+  public destroy(element, data) {
     data.state.update('_internal.elements.chart-timeline-items-row-items', items => {
       return items.filter(el => el !== element);
     });

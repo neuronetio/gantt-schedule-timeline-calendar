@@ -25,7 +25,7 @@ class BindElementAction {
     }
     if (shouldUpdate) data.state.update('_internal.elements.list-columns', elements);
   }
-  destroy(element, data) {
+  public destroy(element, data) {
     data.state.update('_internal.elements.list-columns', elements => {
       return elements.filter(el => el !== element);
     });

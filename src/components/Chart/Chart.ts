@@ -25,11 +25,8 @@ export default function Chart(vido, props = {}) {
   const Timeline = createComponent(ChartTimelineComponent);
   onDestroy(Timeline.destroy);
 
-  let className,
-    classNameScroll,
-    classNameScrollInner,
-    scrollElement,
-    scrollStyleMap = new StyleMap({}),
+  let className, classNameScroll, classNameScrollInner, scrollElement;
+  const scrollStyleMap = new StyleMap({}),
     scrollInnerStyleMap = new StyleMap({}),
     componentActions = api.getActions(componentName);
 

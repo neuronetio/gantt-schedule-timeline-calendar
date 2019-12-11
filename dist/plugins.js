@@ -694,7 +694,7 @@ function Selection(options = {}) {
     for (const styleProp in options.rectStyle) {
         rect.style[styleProp] = options.rectStyle[styleProp];
     }
-    let selecting = {
+    const selecting = {
         fromX: -1,
         fromY: -1,
         toX: -1,
@@ -721,7 +721,8 @@ function Selection(options = {}) {
          */
         constructor(element, data) {
             super();
-            let previousSelect, api = {};
+            let previousSelect;
+            const api = {};
             this.unsub = data.state.subscribeAll(['_internal.elements.chart-timeline', '_internal.chart.dimensions.width'], bulk => {
                 const chartTimeline = state.get('_internal.elements.chart-timeline');
                 if (chartTimeline === undefined)
@@ -1257,7 +1258,7 @@ function CalendarScroll(options = {}) {
                 this.lastX = normalized.x;
             })();
         }
-        onPointerEnd(ev) {
+        onPointerEnd() {
             this.isMoving = false;
             this.lastX = 0;
         }

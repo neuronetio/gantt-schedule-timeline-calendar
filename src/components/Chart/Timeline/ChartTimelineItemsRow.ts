@@ -27,7 +27,7 @@ class BindElementAction {
     }
     if (shouldUpdate) data.state.update('_internal.elements.chart-timeline-items-rows', rows, { only: null });
   }
-  destroy(element, data) {
+  public destroy(element, data) {
     data.state.update('_internal.elements.chart-timeline-items-rows', rows => {
       return rows.filter(el => el !== element);
     });
@@ -47,8 +47,8 @@ const ChartTimelineItemsRow = (vido, props) => {
 
   let element,
     scrollLeft,
-    styleMap = new StyleMap({ width: '', height: '' }, true);
-  let itemComponents = [];
+    itemComponents = [];
+  const styleMap = new StyleMap({ width: '', height: '' }, true);
 
   let shouldDetach = false;
   const detach = new Detach(() => shouldDetach);

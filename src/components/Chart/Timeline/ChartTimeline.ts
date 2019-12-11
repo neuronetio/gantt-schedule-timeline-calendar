@@ -41,7 +41,7 @@ export default function ChartTimeline(vido, props) {
   let showToggle;
   onDestroy(state.subscribe('config.list.toggle.display', val => (showToggle = val)));
 
-  let styleMap = new StyleMap({}),
+  const styleMap = new StyleMap({}),
     innerStyleMap = new StyleMap({});
 
   function calculateStyle() {

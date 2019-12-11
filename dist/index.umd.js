@@ -4987,8 +4987,8 @@
     function ListColumnHeaderResizer(vido, props) {
         const { api, state, onDestroy, update, html, schedule, Actions, PointerAction, cache, StyleMap } = vido;
         const componentName = 'list-column-header-resizer';
-        let componentActions = api.getActions(componentName);
-        let componentDotsActions = api.getActions(componentName + '-dots');
+        const componentActions = api.getActions(componentName);
+        const componentDotsActions = api.getActions(componentName + '-dots');
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListColumnHeaderResizer', value => (wrapper = value)));
         let column;
@@ -4996,7 +4996,8 @@
             column = val;
             update();
         }));
-        let className, containerClass, dotsClass, dotClass, calculatedWidth, dotsStyleMap = new StyleMap({ width: '' });
+        let className, containerClass, dotsClass, dotClass, calculatedWidth;
+        const dotsStyleMap = new StyleMap({ width: '' });
         let inRealTime = false;
         onDestroy(state.subscribe('config.classNames', value => {
             className = api.getClass(componentName, { column });
@@ -5026,11 +5027,13 @@
             }
             update();
         }));
-        let left = calculatedWidth;
+        /*
+        let isMoving = false;
         const lineStyleMap = new StyleMap({
-            '--display': 'none',
-            '--left': left + 'px'
-        });
+          '--display': 'none',
+          '--left': left + 'px'
+        });*/
+        let left = calculatedWidth;
         const columnWidthPath = `config.list.columns.data.${column.id}.width`;
         const actionProps = {
             column,
@@ -5118,7 +5121,7 @@
         onDestroy(state.subscribe('config.components.ListColumnRowExpander', value => (ListColumnRowExpanderComponent = value)));
         let rowPath = `_internal.flatTreeMapById.${props.rowId}`, row = state.get(rowPath);
         let colPath = `config.list.columns.data.${props.columnId}`, column = state.get(colPath);
-        let styleMap = new StyleMap(column.expander
+        const styleMap = new StyleMap(column.expander
             ? {
                 height: '',
                 top: '',
@@ -5174,7 +5177,7 @@
                 if (column.expander) {
                     styleMap.style['--expander-padding-width'] = expander.padding * (row._internal.parents.length + 1) + 'px';
                 }
-                for (let parentId of row._internal.parents) {
+                for (const parentId of row._internal.parents) {
                     const parent = state.get(`_internal.flatTreeMapById.${parentId}`);
                     if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
                         if (typeof parent.style.children === 'object') {
@@ -5483,7 +5486,8 @@
         onDestroy(Calendar.destroy);
         const Timeline = createComponent(ChartTimelineComponent);
         onDestroy(Timeline.destroy);
-        let className, classNameScroll, classNameScrollInner, scrollElement, scrollStyleMap = new StyleMap({}), scrollInnerStyleMap = new StyleMap({}), componentActions = api.getActions(componentName);
+        let className, classNameScroll, classNameScrollInner, scrollElement;
+        const scrollStyleMap = new StyleMap({}), scrollInnerStyleMap = new StyleMap({}), componentActions = api.getActions(componentName);
         onDestroy(state.subscribe('config.classNames', value => {
             className = api.getClass(componentName);
             classNameScroll = api.getClass('horizontal-scroll');
@@ -5614,7 +5618,7 @@
             styleMap.style['--calendar-height'] = headerHeight + 'px';
             update();
         }));
-        let dayComponents = [], monthComponents = [];
+        const dayComponents = [], monthComponents = [];
         onDestroy(state.subscribe(`_internal.chart.time.dates`, dates => {
             const currentDate = api.time.date().format('YYYY-MM-DD');
             let destroy;
@@ -5673,7 +5677,10 @@
         const componentActions = api.getActions(componentName);
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartCalendarDate', value => (wrapper = value)));
-        let className = api.getClass(componentName, props);
+        let className;
+        onDestroy(state.subscribe('config.classNames', () => {
+            className = api.getClass(componentName, props);
+        }));
         let current = '';
         if (api.time.date(props.date.leftGlobal).format('YYYY-MM-DD') === props.currentDate) {
             current = ' current';
@@ -5681,7 +5688,8 @@
         else {
             current = '';
         }
-        let time, htmlFormatted, styleMap = new StyleMap({ width: '', 'margin-left': '', visibility: 'visible' }), scrollStyleMap = new StyleMap({
+        let time, htmlFormatted;
+        const styleMap = new StyleMap({ width: '', 'margin-left': '', visibility: 'visible' }), scrollStyleMap = new StyleMap({
             overflow: 'hidden',
             'text-align': 'left',
             'margin-left': props.date.subPx + 8 + 'px'
@@ -6017,7 +6025,7 @@
         }));
         let showToggle;
         onDestroy(state.subscribe('config.list.toggle.display', val => (showToggle = val)));
-        let styleMap = new StyleMap({}), innerStyleMap = new StyleMap({});
+        const styleMap = new StyleMap({}), innerStyleMap = new StyleMap({});
         function calculateStyle() {
             const xCompensation = api.getCompensationX();
             const yCompensation = api.getCompensationY();
@@ -6347,7 +6355,7 @@
             }
         }
         updateClassName(props.time);
-        let styleMap = new StyleMap({ width: '', height: '' });
+        const styleMap = new StyleMap({ width: '', height: '' });
         /**
          * On props change
          * @param {any} changedProps
@@ -6410,7 +6418,7 @@
             className = api.getClass(componentName);
             update();
         }));
-        let styleMap = new StyleMap({}, true);
+        const styleMap = new StyleMap({}, true);
         function calculateStyle() {
             const width = state.get('_internal.chart.dimensions.width');
             const height = state.get('_internal.height');
@@ -6484,8 +6492,8 @@
         const ItemComponent = state.get('config.components.ChartTimelineItemsRowItem');
         let itemsPath = `_internal.flatTreeMapById.${props.row.id}._internal.items`;
         let rowSub, itemsSub;
-        let styleMap = new StyleMap({ width: '', height: '' }, true);
         let itemComponents = [];
+        const styleMap = new StyleMap({ width: '', height: '' }, true);
         let shouldDetach = false;
         const detach = new Detach(() => shouldDetach);
         const updateDom = () => {
@@ -7926,7 +7934,7 @@
                 }
                 else if (Array.isArray(source[key])) {
                     target[key] = [];
-                    for (let item of source[key]) {
+                    for (const item of source[key]) {
                         if (isObject$1(item)) {
                             target[key].push(mergeDeep$1({}, item));
                             continue;
@@ -8219,7 +8227,7 @@
                 return { x, y, z, event };
             },
             normalizePointerEvent(event) {
-                let result = { x: 0, y: 0, pageX: 0, pageY: 0, clientX: 0, clientY: 0, screenX: 0, screenY: 0 };
+                const result = { x: 0, y: 0, pageX: 0, pageY: 0, clientX: 0, clientY: 0, screenX: 0, screenY: 0 };
                 switch (event.type) {
                     case 'wheel':
                         const wheel = this.normalizeMouseWheelEvent(event);
@@ -8292,12 +8300,12 @@
                 outer.style.height = '100px';
                 outer.style.msOverflowStyle = 'scrollbar';
                 document.body.appendChild(outer);
-                var noScroll = outer.offsetHeight;
+                const noScroll = outer.offsetHeight;
                 outer.style.overflow = 'scroll';
-                var inner = document.createElement('div');
+                const inner = document.createElement('div');
                 inner.style.height = '100%';
                 outer.appendChild(inner);
-                var withScroll = inner.offsetHeight;
+                const withScroll = inner.offsetHeight;
                 outer.parentNode.removeChild(outer);
                 return noScroll - withScroll + 1; // +1 for scroll area inside scroll container
             },

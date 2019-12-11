@@ -12,8 +12,8 @@ export default function ListColumnHeaderResizer(vido, props) {
   const { api, state, onDestroy, update, html, schedule, Actions, PointerAction, cache, StyleMap } = vido;
 
   const componentName = 'list-column-header-resizer';
-  let componentActions = api.getActions(componentName);
-  let componentDotsActions = api.getActions(componentName + '-dots');
+  const componentActions = api.getActions(componentName);
+  const componentDotsActions = api.getActions(componentName + '-dots');
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListColumnHeaderResizer', value => (wrapper = value)));
@@ -26,12 +26,8 @@ export default function ListColumnHeaderResizer(vido, props) {
     })
   );
 
-  let className,
-    containerClass,
-    dotsClass,
-    dotClass,
-    calculatedWidth,
-    dotsStyleMap = new StyleMap({ width: '' });
+  let className, containerClass, dotsClass, dotClass, calculatedWidth;
+  const dotsStyleMap = new StyleMap({ width: '' });
   let inRealTime = false;
   onDestroy(
     state.subscribe('config.classNames', value => {
@@ -72,12 +68,13 @@ export default function ListColumnHeaderResizer(vido, props) {
     })
   );
 
+  /*
   let isMoving = false;
-  let left = calculatedWidth;
   const lineStyleMap = new StyleMap({
     '--display': 'none',
     '--left': left + 'px'
-  });
+  });*/
+  let left = calculatedWidth;
   const columnWidthPath = `config.list.columns.data.${column.id}.width`;
 
   const actionProps = {

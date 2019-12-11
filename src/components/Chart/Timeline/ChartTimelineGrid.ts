@@ -16,7 +16,7 @@ class BindElementAction {
     const old = data.state.get('_internal.elements.chart-timeline-grid');
     if (old !== element) data.state.update('_internal.elements.chart-timeline-grid', element);
   }
-  destroy(element, data) {
+  public destroy(element, data) {
     data.state.update('_internal.elements', elements => {
       delete elements['chart-timeline-grid'];
       return elements;

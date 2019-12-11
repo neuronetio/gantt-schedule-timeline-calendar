@@ -12,9 +12,9 @@ import utc from 'dayjs/plugin/utc';
 import { Locale } from '../types';
 
 export default class TimeApi {
-  locale: Locale;
-  utcMode = false;
-  state: any;
+  private locale: Locale;
+  private utcMode = false;
+  private state: any;
 
   constructor(state, getApi) {
     this.state = state;
@@ -27,12 +27,12 @@ export default class TimeApi {
     dayjs.locale(this.locale, null, true);
   }
 
-  date(time) {
+  public date(time) {
     const _dayjs = this.utcMode ? dayjs.utc : dayjs;
     return time ? _dayjs(time).locale(this.locale.name) : _dayjs().locale(this.locale.name);
   }
 
-  recalculateFromTo(time) {
+  public recalculateFromTo(time) {
     time = { ...time };
     if (time.from !== 0) {
       time.from = this.date(time.from)
@@ -75,7 +75,7 @@ export default class TimeApi {
     return time;
   }
 
-  timeToPixelOffset(miliseconds: number): number {
+  public timeToPixelOffset(miliseconds: number): number {
     return miliseconds / this.state.get('_internal.chart.time.timePerPixel');
   }
 }

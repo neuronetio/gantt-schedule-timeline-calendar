@@ -39,7 +39,12 @@ export default function ChartCalendarDate(vido, props) {
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartCalendarDate', value => (wrapper = value)));
 
-  let className = api.getClass(componentName, props);
+  let className;
+  onDestroy(
+    state.subscribe('config.classNames', () => {
+      className = api.getClass(componentName, props);
+    })
+  );
 
   let current = '';
   if (api.time.date(props.date.leftGlobal).format('YYYY-MM-DD') === props.currentDate) {
@@ -48,9 +53,8 @@ export default function ChartCalendarDate(vido, props) {
     current = '';
   }
 
-  let time,
-    htmlFormatted,
-    styleMap = new StyleMap({ width: '', 'margin-left': '', visibility: 'visible' }),
+  let time, htmlFormatted;
+  const styleMap = new StyleMap({ width: '', 'margin-left': '', visibility: 'visible' }),
     scrollStyleMap = new StyleMap({
       overflow: 'hidden',
       'text-align': 'left',

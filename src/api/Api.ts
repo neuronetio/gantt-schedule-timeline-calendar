@@ -44,7 +44,7 @@ export function mergeDeep(target, ...sources) {
         target[key] = mergeDeep(target[key], source[key]);
       } else if (Array.isArray(source[key])) {
         target[key] = [];
-        for (let item of source[key]) {
+        for (const item of source[key]) {
           if (isObject(item)) {
             target[key].push(mergeDeep({}, item));
             continue;
@@ -360,7 +360,7 @@ export function getInternalApi(state) {
     },
 
     normalizePointerEvent(event) {
-      let result = { x: 0, y: 0, pageX: 0, pageY: 0, clientX: 0, clientY: 0, screenX: 0, screenY: 0 };
+      const result = { x: 0, y: 0, pageX: 0, pageY: 0, clientX: 0, clientY: 0, screenX: 0, screenY: 0 };
       switch (event.type) {
         case 'wheel':
           const wheel = this.normalizeMouseWheelEvent(event);
@@ -434,12 +434,12 @@ export function getInternalApi(state) {
       outer.style.height = '100px';
       outer.style.msOverflowStyle = 'scrollbar';
       document.body.appendChild(outer);
-      var noScroll = outer.offsetHeight;
+      const noScroll = outer.offsetHeight;
       outer.style.overflow = 'scroll';
-      var inner = document.createElement('div');
+      const inner = document.createElement('div');
       inner.style.height = '100%';
       outer.appendChild(inner);
-      var withScroll = inner.offsetHeight;
+      const withScroll = inner.offsetHeight;
       outer.parentNode.removeChild(outer);
       return noScroll - withScroll + 1; // +1 for scroll area inside scroll container
     },
