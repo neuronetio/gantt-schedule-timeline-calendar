@@ -1380,7 +1380,7 @@
      * subject to an additional IP rights grant found at
      * http://polymer.github.io/PATENTS.txt
      */
-    var __asyncValues =  function (o) {
+    var __asyncValues = (undefined && undefined.__asyncValues) || function (o) {
         if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
         var m = o[Symbol.asyncIterator], i;
         return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
@@ -1487,7 +1487,7 @@
      * subject to an additional IP rights grant found at
      * http://polymer.github.io/PATENTS.txt
      */
-    var __asyncValues$1 =  function (o) {
+    var __asyncValues$1 = (undefined && undefined.__asyncValues) || function (o) {
         if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
         var m = o[Symbol.asyncIterator], i;
         return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
@@ -5653,13 +5653,6 @@
       `, { props, vido, templateProps });
     }
 
-    class Action$1 {
-        constructor() {
-            this.isAction = true;
-        }
-    }
-    Action$1.prototype.isAction = true;
-
     /**
      * ChartCalendarDate component
      *
@@ -5674,7 +5667,7 @@
      * @param {HTMLElement} element
      * @param {object} data
      */
-    class BindElementAction$2 extends Action$1 {
+    class BindElementAction$2 extends Action {
         constructor(element, data) {
             super();
             data.state.update('_internal.elements.chart-calendar-dates', elements => {
