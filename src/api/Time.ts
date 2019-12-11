@@ -52,7 +52,7 @@ export default class TimeApi {
       return time;
     }
     if (time.from === 0 || time.to === 0) {
-      for (let itemId in items) {
+      for (const itemId in items) {
         const item = items[itemId];
         if (from > item.time.start) {
           from = item.time.start;

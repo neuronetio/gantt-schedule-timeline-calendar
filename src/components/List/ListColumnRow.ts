@@ -164,7 +164,7 @@ export default function ListColumnRow(vido, props) {
     rowSub();
   });
   const componentName = 'list-column-row';
-  let componentActions = api.getActions(componentName);
+  const componentActions = api.getActions(componentName);
   let className;
   onDestroy(
     state.subscribe('config.classNames', value => {

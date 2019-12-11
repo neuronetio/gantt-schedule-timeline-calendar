@@ -522,6 +522,7 @@
                 document.removeEventListener('mouseup', this.mouseUp);
                 document.removeEventListener('mousemove', this.mouseMove);
                 element.removeEventListener('mousedown', this.mouseDown);
+                this.unsub();
             }
         }
         /**

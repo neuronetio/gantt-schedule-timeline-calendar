@@ -45,10 +45,8 @@ const ChartTimelineItemsRow = (vido, props) => {
   let itemsPath = `_internal.flatTreeMapById.${props.row.id}._internal.items`;
   let rowSub, itemsSub;
 
-  let element,
-    scrollLeft,
-    itemComponents = [];
-  const styleMap = new StyleMap({ width: '', height: '' }, true);
+  const itemComponents = [],
+    styleMap = new StyleMap({ width: '', height: '' }, true);
 
   let shouldDetach = false;
   const detach = new Detach(() => shouldDetach);
@@ -66,10 +64,6 @@ const ChartTimelineItemsRow = (vido, props) => {
     styleMap.style.height = props.row.height + 'px';
     //styleMap.style.top = props.row.top + compensation + 'px';
     styleMap.style['--row-height'] = props.row.height + 'px';
-    if (element && scrollLeft !== chart.time.leftPx) {
-      element.scrollLeft = chart.time.leftPx;
-      scrollLeft = chart.time.leftPx;
-    }
   };
 
   const updateRow = row => {

@@ -4265,7 +4265,8 @@
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.Main', value => (wrapper = value)));
         const componentActions = api.getActions('main');
-        let className, classNameVerticalScroll, styleMap = new StyleMap({}), verticalScrollStyleMap = new StyleMap({}), verticalScrollAreaStyleMap = new StyleMap({});
+        let className, classNameVerticalScroll;
+        const styleMap = new StyleMap({}), verticalScrollStyleMap = new StyleMap({}), verticalScrollAreaStyleMap = new StyleMap({});
         let verticalScrollBarElement;
         let rowsHeight = 0;
         let resizerActive = false;
@@ -4869,7 +4870,7 @@
             classNameContainer = api.getClass(rowsComponentName);
             update();
         }));
-        let visibleRows = [];
+        const visibleRows = [];
         const visibleRowsChange = val => {
             const destroy = reuseComponents(visibleRows, val, row => row && { columnId: props.columnId, rowId: row.id, width }, ListColumnRowComponent);
             update();
@@ -5214,7 +5215,7 @@
             rowSub();
         });
         const componentName = 'list-column-row';
-        let componentActions = api.getActions(componentName);
+        const componentActions = api.getActions(componentName);
         let className;
         onDestroy(state.subscribe('config.classNames', value => {
             className = api.getClass(componentName);
@@ -5611,7 +5612,8 @@
             className = api.getClass(componentName);
             update();
         }));
-        let headerHeight, styleMap = new StyleMap({ height: '', '--headerHeight': '' });
+        let headerHeight;
+        const styleMap = new StyleMap({ height: '', '--headerHeight': '' });
         onDestroy(state.subscribe('config.headerHeight', value => {
             headerHeight = value;
             styleMap.style['height'] = headerHeight + 'px';
@@ -6119,7 +6121,7 @@
         onDestroy(state.subscribe('config.chart.time.period', value => (period = value)));
         let onBlockCreate;
         onDestroy(state.subscribe('config.chart.grid.block.onCreate', onCreate => (onBlockCreate = onCreate)));
-        let rowsComponents = [];
+        const rowsComponents = [];
         const rowsWithBlocks = [];
         const formatCache = new Map();
         const styleMap = new StyleMap({});
@@ -6152,7 +6154,7 @@
                         format = api.time.date(time.leftGlobal).format('YYYY-MM-DD');
                         formatCache.set(time.leftGlobal, format);
                     }
-                    let id = row.id + ':' + format;
+                    const id = row.id + ':' + format;
                     let block = { id, time, row, top };
                     for (const onCreate of onBlockCreate) {
                         block = onCreate(block);
@@ -6236,15 +6238,18 @@
         }));
         const GridBlockComponent = state.get('config.components.ChartTimelineGridRowBlock');
         const componentActions = api.getActions(componentName);
-        let className = api.getClass(componentName);
-        let styleMap = new StyleMap({
+        let className;
+        onDestroy(state.subscribe('config.classNames', () => {
+            className = api.getClass(componentName);
+        }));
+        const styleMap = new StyleMap({
             width: props.width + 'px',
             height: props.row.height + 'px',
             overflow: 'hidden'
         }, true);
         let shouldDetach = false;
         const detach = new Detach(() => shouldDetach);
-        let rowsBlocksComponents = [];
+        const rowsBlocksComponents = [];
         onChange(function onPropsChange(changedProps, options) {
             var _a, _b, _c, _d, _e, _f, _g, _h, _j;
             if (options.leave || changedProps.row === undefined) {
@@ -6433,7 +6438,7 @@
             'config.scroll.compensation',
             '_internal.chart.time.dates.day'
         ], calculateStyle));
-        let rowsComponents = [];
+        const rowsComponents = [];
         function createRowComponents() {
             const visibleRows = state.get('_internal.list.visibleRows');
             const destroy = reuseComponents(rowsComponents, visibleRows || [], row => ({ row }), ItemsRowComponent);
@@ -6492,8 +6497,7 @@
         const ItemComponent = state.get('config.components.ChartTimelineItemsRowItem');
         let itemsPath = `_internal.flatTreeMapById.${props.row.id}._internal.items`;
         let rowSub, itemsSub;
-        let itemComponents = [];
-        const styleMap = new StyleMap({ width: '', height: '' }, true);
+        const itemComponents = [], styleMap = new StyleMap({ width: '', height: '' }, true);
         let shouldDetach = false;
         const detach = new Detach(() => shouldDetach);
         const updateDom = () => {
@@ -6613,8 +6617,8 @@
         const { api, state, onDestroy, Detach, Actions, update, html, onChange, unsafeHTML, StyleMap } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
-        let styleMap = new StyleMap({ width: '', height: '', left: '' }), itemLeftPx = 0, itemWidthPx = 0, leave = false;
-        const actionProps = {
+        let itemLeftPx = 0, itemWidthPx = 0, leave = false;
+        const styleMap = new StyleMap({ width: '', height: '', left: '' }), actionProps = {
             item: props.item,
             row: props.row,
             left: itemLeftPx,
@@ -6627,7 +6631,7 @@
             var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
             if (leave)
                 return;
-            let time = state.get('_internal.chart.time');
+            const time = state.get('_internal.chart.time');
             itemLeftPx = (props.item.time.start - time.leftGlobal) / time.timePerPixel;
             itemLeftPx = Math.round(itemLeftPx * 10) * 0.1;
             itemWidthPx = (props.item.time.end - props.item.time.start) / time.timePerPixel;
@@ -7006,7 +7010,7 @@
                 return time;
             }
             if (time.from === 0 || time.to === 0) {
-                for (let itemId in items) {
+                for (const itemId in items) {
                     const item = items[itemId];
                     if (from > item.time.start) {
                         from = item.time.start;

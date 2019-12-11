@@ -51,9 +51,14 @@ export default function ChartTimelineGridRow(vido, props) {
   const GridBlockComponent = state.get('config.components.ChartTimelineGridRowBlock');
 
   const componentActions = api.getActions(componentName);
-  let className = api.getClass(componentName);
+  let className;
+  onDestroy(
+    state.subscribe('config.classNames', () => {
+      className = api.getClass(componentName);
+    })
+  );
 
-  let styleMap = new StyleMap(
+  const styleMap = new StyleMap(
     {
       width: props.width + 'px',
       height: props.row.height + 'px',
@@ -65,7 +70,7 @@ export default function ChartTimelineGridRow(vido, props) {
   let shouldDetach = false;
   const detach = new Detach(() => shouldDetach);
 
-  let rowsBlocksComponents = [];
+  const rowsBlocksComponents = [];
   onChange(function onPropsChange(changedProps, options) {
     if (options.leave || changedProps.row === undefined) {
       shouldDetach = true;

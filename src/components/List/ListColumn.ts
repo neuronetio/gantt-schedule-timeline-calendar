@@ -136,7 +136,7 @@ export default function ListColumn(vido, props) {
     })
   );
 
-  let visibleRows = [];
+  const visibleRows = [];
   const visibleRowsChange = val => {
     const destroy = reuseComponents(
       visibleRows,

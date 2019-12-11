@@ -36,23 +36,23 @@ function ChartTimelineItemsRowItem(vido, props) {
   const { api, state, onDestroy, Detach, Actions, update, html, onChange, unsafeHTML, StyleMap } = vido;
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
-  let styleMap = new StyleMap({ width: '', height: '', left: '' }),
-    itemLeftPx = 0,
+  let itemLeftPx = 0,
     itemWidthPx = 0,
     leave = false;
-  const actionProps = {
-    item: props.item,
-    row: props.row,
-    left: itemLeftPx,
-    width: itemWidthPx,
-    api,
-    state
-  };
+  const styleMap = new StyleMap({ width: '', height: '', left: '' }),
+    actionProps = {
+      item: props.item,
+      row: props.row,
+      left: itemLeftPx,
+      width: itemWidthPx,
+      api,
+      state
+    };
   let shouldDetach = false;
 
   function updateItem() {
     if (leave) return;
-    let time = state.get('_internal.chart.time');
+    const time = state.get('_internal.chart.time');
     itemLeftPx = (props.item.time.start - time.leftGlobal) / time.timePerPixel;
     itemLeftPx = Math.round(itemLeftPx * 10) * 0.1;
     itemWidthPx = (props.item.time.end - props.item.time.start) / time.timePerPixel;

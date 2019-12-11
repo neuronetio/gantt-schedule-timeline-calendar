@@ -27,8 +27,8 @@ export default function ChartCalendar(vido, props) {
     })
   );
 
-  let headerHeight,
-    styleMap = new StyleMap({ height: '', '--headerHeight': '' });
+  let headerHeight;
+  const styleMap = new StyleMap({ height: '', '--headerHeight': '' });
   onDestroy(
     state.subscribe('config.headerHeight', value => {
       headerHeight = value;

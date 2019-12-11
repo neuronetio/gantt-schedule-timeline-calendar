@@ -48,7 +48,7 @@ export default function ChartTimelineGrid(vido, props) {
   let onBlockCreate;
   onDestroy(state.subscribe('config.chart.grid.block.onCreate', onCreate => (onBlockCreate = onCreate)));
 
-  let rowsComponents = [];
+  const rowsComponents = [];
   const rowsWithBlocks = [];
   const formatCache = new Map();
   const styleMap = new StyleMap({});
@@ -82,7 +82,7 @@ export default function ChartTimelineGrid(vido, props) {
           format = api.time.date(time.leftGlobal).format('YYYY-MM-DD');
           formatCache.set(time.leftGlobal, format);
         }
-        let id = row.id + ':' + format;
+        const id = row.id + ':' + format;
         let block = { id, time, row, top };
         for (const onCreate of onBlockCreate) {
           block = onCreate(block);

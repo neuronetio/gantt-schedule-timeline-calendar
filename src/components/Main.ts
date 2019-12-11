@@ -42,9 +42,8 @@ export default function Main(vido, props = {}) {
   onDestroy(state.subscribe('config.wrappers.Main', value => (wrapper = value)));
 
   const componentActions = api.getActions('main');
-  let className,
-    classNameVerticalScroll,
-    styleMap = new StyleMap({}),
+  let className, classNameVerticalScroll;
+  const styleMap = new StyleMap({}),
     verticalScrollStyleMap = new StyleMap({}),
     verticalScrollAreaStyleMap = new StyleMap({});
   let verticalScrollBarElement;
@@ -393,8 +392,8 @@ export default function Main(vido, props = {}) {
         state.update('_internal.elements.main', element);
       }
     }
-    update() {}
-    destroy(element) {
+    public update() {}
+    public destroy(element) {
       ro.unobserve(element);
     }
   }
