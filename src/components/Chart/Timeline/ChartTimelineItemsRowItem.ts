@@ -86,19 +86,15 @@ function ChartTimelineItemsRowItem(vido, props) {
     if (currentStyle) styleMap.setStyle({ ...styleMap.style, ...currentStyle });
     actionProps.left = itemLeftPx + xCompensation;
     actionProps.width = itemWidthPx;
-    slots.change(actionProps, { leave: false });
     update();
   }
 
   const componentName = 'chart-timeline-items-row-item';
-  let slots;
-  onDestroy(api.subscribeSlots(componentName, value => (slots = value), props));
 
   function onPropsChange(changedProps, options) {
     if (options.leave || changedProps.row === undefined || changedProps.item === undefined) {
       leave = true;
       shouldDetach = true;
-      slots.change(actionProps, options);
       return update();
     } else {
       shouldDetach = false;
@@ -107,7 +103,6 @@ function ChartTimelineItemsRowItem(vido, props) {
     props = changedProps;
     actionProps.item = props.item;
     actionProps.row = props.row;
-    slots.change(actionProps, options);
     updateItem();
   }
   onChange(onPropsChange);
@@ -136,11 +131,9 @@ function ChartTimelineItemsRowItem(vido, props) {
     return wrapper(
       html`
         <div detach=${detach} class=${className} data-actions=${actions} style=${styleMap}>
-          ${slots.get('before')}
           <div class=${labelClassName}>
             ${props.item.isHtml ? unsafeHTML(props.item.label) : props.item.label}
           </div>
-          ${slots.get('after')}
         </div>
       `,
       { vido, props, templateProps }

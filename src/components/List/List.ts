@@ -63,14 +63,17 @@ export default function List(vido, props = {}) {
 
   let listColumns = [];
   function onListColumnsDataChange(data) {
-    reuseComponents(listColumns, Object.values(data), column => ({ columnId: column.id }), ListColumnComponent);
+    const destroy = reuseComponents(
+      listColumns,
+      Object.values(data),
+      column => ({ columnId: column.id }),
+      ListColumnComponent
+    );
     update();
+    return destroy;
   }
   onDestroy(state.subscribe('config.list.columns.data;', onListColumnsDataChange));
 
-  onDestroy(() => {
-    listColumns.forEach(c => c.destroy());
-  });
   const styleMap = new StyleMap({
     height: '',
     '--expander-padding-width': '',

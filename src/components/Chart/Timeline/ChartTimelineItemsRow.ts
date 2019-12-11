@@ -133,9 +133,7 @@ const ChartTimelineItemsRow = (vido, props) => {
     })
   );
 
-  if (!componentActions.includes(BindElementAction)) {
-    componentActions.push(BindElementAction);
-  }
+  componentActions.push(BindElementAction);
 
   const actions = Actions.create(componentActions, actionProps);
 

@@ -99,7 +99,7 @@ export default function ChartTimelineGridRow(vido, props) {
     update();
   });
 
-  onDestroy(() => {
+  onDestroy(function destroy() {
     rowsBlocksComponents.forEach(rowBlock => rowBlock.destroy());
   });
 

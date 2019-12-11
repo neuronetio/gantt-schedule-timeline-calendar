@@ -48,14 +48,11 @@ export default function ChartTimelineItems(vido, props = {}) {
   let rowsComponents = [];
   function createRowComponents() {
     const visibleRows = state.get('_internal.list.visibleRows');
-    reuseComponents(rowsComponents, visibleRows || [], row => ({ row }), ItemsRowComponent);
+    const destroy = reuseComponents(rowsComponents, visibleRows || [], row => ({ row }), ItemsRowComponent);
     update();
+    return destroy;
   }
   onDestroy(state.subscribeAll(['_internal.list.visibleRows;', 'config.chart.items'], createRowComponents));
-
-  onDestroy(function destroyRows() {
-    rowsComponents.forEach(row => row.destroy());
-  });
 
   const actions = Actions.create(componentActions, { api, state });
 

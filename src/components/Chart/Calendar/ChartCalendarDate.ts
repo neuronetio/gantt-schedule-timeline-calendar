@@ -57,9 +57,6 @@ export default function ChartCalendarDate(vido, props) {
       'margin-left': props.date.subPx + 8 + 'px'
     });
 
-  let slots;
-  onDestroy(api.subscribeSlots(componentName, value => (slots = value), props));
-
   const updateDate = () => {
     if (!props) return;
     time = state.get('_internal.chart.time');
@@ -82,13 +79,13 @@ export default function ChartCalendarDate(vido, props) {
       case 'month':
         htmlFormatted = html`
           <div class=${className + '-content ' + className + '-content--month' + current} style=${scrollStyleMap}>
-            ${slots.get('before-month')}${dateMod.format('MMMM YYYY')}${slots.get('after-month')}
+            ${dateMod.format('MMMM YYYY')}
           </div>
         `;
         if (maxWidth <= 100) {
           htmlFormatted = html`
             <div class=${className + '-content ' + className + '-content--month' + current}>
-              ${slots.get('before-month')}${dateMod.format("MMM'YY")}${slots.get('after-month')}
+              ${dateMod.format("MMM'YY")}
             </div>
           `;
         }
@@ -97,35 +94,35 @@ export default function ChartCalendarDate(vido, props) {
         htmlFormatted = html`
           <div class=${className + '-content ' + className + '-content--day _0' + current}>
             <div class=${className + '-content ' + className + '-content--day-small' + current}>
-              ${slots.get('before-day')}${dateMod.format('DD')} ${dateMod.format('ddd')}${slots.get('after-day')}
+              ${dateMod.format('DD')} ${dateMod.format('ddd')}
             </div>
           </div>
         `;
         if (maxWidth >= 40 && maxWidth < 50) {
           htmlFormatted = html`
             <div class=${className + '-content ' + className + '-content--day _40' + current}>
-              ${slots.get('before-day')}${dateMod.format('DD')}${slots.get('after-day')}
+              ${dateMod.format('DD')}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${slots.get('before-day-word')}${dateMod.format('dd')}${slots.get('after-day-word')}
+              ${dateMod.format('dd')}
             </div>
           `;
         } else if (maxWidth >= 50 && maxWidth < 90) {
           htmlFormatted = html`
             <div class=${className + '-content ' + className + '-content--day _50' + current}>
-              ${slots.get('before-day')}${dateMod.format('DD')}${slots.get('after-day')}
+              ${dateMod.format('DD')}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${slots.get('before-day-word')}${dateMod.format('ddd')}${slots.get('after-day-word')}
+              ${dateMod.format('ddd')}
             </div>
           `;
         } else if (maxWidth >= 90 && maxWidth < 180) {
           htmlFormatted = html`
             <div class=${className + '-content ' + className + '-content--day _90' + current}>
-              ${slots.get('before-day')}${dateMod.format('DD')}${slots.get('after-day')}
+              ${dateMod.format('DD')}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${slots.get('before-day-word')}${dateMod.format('dddd')}${slots.get('after-day-word')}
+              ${dateMod.format('dddd')}
             </div>
           `;
         } else if (maxWidth >= 180 && maxWidth < 400) {
@@ -369,7 +366,7 @@ export default function ChartCalendarDate(vido, props) {
           style=${styleMap}
           data-actions=${actions}
         >
-          ${slots.get('before')}${htmlFormatted}${slots.get('after')}
+          ${htmlFormatted}
         </div>
       `,
       { props, vido, templateProps }

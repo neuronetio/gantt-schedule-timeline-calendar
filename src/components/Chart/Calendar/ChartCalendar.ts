@@ -38,17 +38,14 @@ export default function ChartCalendar(vido, props) {
     })
   );
 
-  let period;
-  onDestroy(state.subscribe('config.chart.time.period', value => (period = value)));
-
   let dayComponents = [],
-    monthComponents = [],
-    yearComponents = [];
+    monthComponents = [];
   onDestroy(
     state.subscribe(`_internal.chart.time.dates`, dates => {
       const currentDate = api.time.date().format('YYYY-MM-DD');
+      let destroy;
       if (typeof dates.day === 'object' && Array.isArray(dates.day) && dates.day.length) {
-        reuseComponents(
+        destroy = reuseComponents(
           dayComponents,
           dates.day,
           date => date && { period: 'day', date, currentDate },
@@ -56,7 +53,7 @@ export default function ChartCalendar(vido, props) {
         );
       }
       if (typeof dates.month === 'object' && Array.isArray(dates.month) && dates.month.length) {
-        reuseComponents(
+        destroy = reuseComponents(
           monthComponents,
           dates.month,
           date => date && { period: 'month', date, currentDate },
@@ -64,28 +61,21 @@ export default function ChartCalendar(vido, props) {
         );
       }
       update();
+      return destroy;
     })
   );
-  onDestroy(() => {
-    dayComponents.forEach(c => c.destroy());
-  });
 
   componentActions.push(element => {
     state.update('_internal.elements.chart-calendar', element);
   });
-
-  let slots;
-  onDestroy(api.subscribeSlots('chart-calendar', value => (slots = value), props));
 
   const actions = Actions.create(componentActions, actionProps);
   return templateProps =>
     wrapper(
       html`
         <div class=${className} data-actions=${actions} style=${styleMap}>
-          ${slots.get('before')}
           <div class=${className + '-dates ' + className + '-dates--months'}>${monthComponents.map(m => m.html())}</div>
           <div class=${className + '-dates ' + className + '-dates--days'}>${dayComponents.map(d => d.html())}</div>
-          ${slots.get('after')}
         </div>
       `,
       { props, vido, templateProps }

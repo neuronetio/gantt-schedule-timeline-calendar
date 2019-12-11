@@ -122,24 +122,55 @@ function ItemDependencyLine(vido, props) {
   return templateProps =>
     wrapper(
       html`
-        <div detach=${detach} class=${classNameHandle} style=${styleMapHandle}></div>
         <div detach=${detach} class=${classNameLine} style=${styleMapLine}>${lines.map(line => line)}</div>
       `,
       { templateProps, props, vido }
     );
 }
 
-export default function DependencyLines(options: Options = defaultOptions) {
+/**
+ * Dependency Lines Component
+ * @param vido
+ */
+function DependencyLinesComponent(vido) {
+  const { html, onDestroy, api, state, reuseComponents } = vido;
+
+  let className;
+  onDestroy(
+    state.subscribe('config.classNames', () => {
+      className = api.getClass('chart-timeline-dependency-lines');
+    })
+  );
+
+  let lines = [];
+  onDestroy(
+    state.subscribe('config.chart.items', items => {
+      const itemsArray = Object.values(items);
+      return reuseComponents(lines, itemsArray, item => item, ItemDependencyLine);
+    })
+  );
+
+  return templateProps =>
+    html`
+      <div class="${className}">${lines.map(line => line.html())}</div>
+    `;
+}
+
+export default function DependencyLinesPlugin(options: Options = defaultOptions) {
   opts = { ...defaultOptions, ...options };
 
   return function initialize(vido) {
     state = vido.state;
     api = vido.api;
-    /*state.update('config.slots.chart-timeline-items-row-item.after', after => {
-      if (!after.includes(ItemDependencyLine)) {
-        after.push(ItemDependencyLine);
-      }
-      return after;
-    });*/
+    const DependencyLines = vido.createComponent(DependencyLinesComponent);
+    state.update('config.wrappers.ChartTimelineGrid', gridWrapper => {
+      return function DependencyLinesGridWrapper(input, data) {
+        const output = vido.html`${input}${DependencyLines.html()}`;
+        return gridWrapper(output, data);
+      };
+    });
+    return function destroy() {
+      DependencyLines.destroy();
+    };
   };
 }

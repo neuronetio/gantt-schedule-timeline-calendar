@@ -138,19 +138,16 @@ export default function ListColumn(vido, props) {
 
   let visibleRows = [];
   const visibleRowsChange = val => {
-    reuseComponents(
+    const destroy = reuseComponents(
       visibleRows,
       val,
       row => row && { columnId: props.columnId, rowId: row.id, width },
       ListColumnRowComponent
     );
     update();
+    return destroy;
   };
   onDestroy(state.subscribe('_internal.list.visibleRows;', visibleRowsChange));
-
-  onDestroy(function rowsDestroy() {
-    visibleRows.forEach(row => row.destroy());
-  });
 
   function getRowHtml(row) {
     return row.html();

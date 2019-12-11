@@ -71,9 +71,6 @@
         body(_part) {
             // body of the directive
         }
-        runPart(part) {
-            return this.body(part);
-        }
     }
     const isDirective = (o) => {
         return o !== undefined && o !== null &&
@@ -786,7 +783,7 @@
                 // tslint:disable-next-line: no-any
                 if (directive.isClass) {
                     // tslint:disable-next-line: no-any
-                    directive.runPart(this);
+                    directive.body(this);
                 }
                 else {
                     directive(this);
@@ -871,7 +868,7 @@
                 // tslint:disable-next-line: no-any
                 if (directive.isClass) {
                     // tslint:disable-next-line: no-any
-                    directive.runPart(this);
+                    directive.body(this);
                 }
                 else {
                     directive(this);
@@ -1054,7 +1051,7 @@
                 // tslint:disable-next-line: no-any
                 if (directive.isClass) {
                     // tslint:disable-next-line: no-any
-                    directive.runPart(this);
+                    directive.body(this);
                 }
                 else {
                     directive(this);
@@ -1157,7 +1154,7 @@
                 // tslint:disable-next-line: no-any
                 if (directive.isClass) {
                     // tslint:disable-next-line: no-any
-                    directive.runPart(this);
+                    directive.body(this);
                 }
                 else {
                     directive(this);
@@ -1355,7 +1352,7 @@
     // IMPORTANT: do not change the property name or the assignment expression.
     // This line will be used in regexes to search for lit-html usage.
     // TODO(justinfagnani): inject version number at build time
-    (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.1.3');
+    (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.1.4');
     /**
      * Interprets a template literal as an HTML template that can efficiently
      * render to and update a container.
@@ -4249,8 +4246,8 @@
         // Initialize plugins
         onDestroy(state.subscribe('config.plugins', plugins => {
             if (typeof plugins !== 'undefined' && Array.isArray(plugins)) {
-                for (const plugin of plugins) {
-                    const destroyPlugin = plugin(vido);
+                for (const initializePlugin of plugins) {
+                    const destroyPlugin = initializePlugin(vido);
                     if (typeof destroyPlugin === 'function') {
                         onDestroy(destroyPlugin);
                     }
@@ -4634,7 +4631,7 @@
             style=${verticalScrollStyleMap}
             @scroll=${onScroll}
             @wheel=${onScroll}
-            data-action=${verticalScrollActions}
+            data-actions=${verticalScrollActions}
           >
             <div style=${verticalScrollAreaStyleMap} data-actions=${verticalScrollAreaActions} />
           </div>
@@ -4696,13 +4693,11 @@
         }));
         let listColumns = [];
         function onListColumnsDataChange(data) {
-            reuseComponents(listColumns, Object.values(data), column => ({ columnId: column.id }), ListColumnComponent);
+            const destroy = reuseComponents(listColumns, Object.values(data), column => ({ columnId: column.id }), ListColumnComponent);
             update();
+            return destroy;
         }
         onDestroy(state.subscribe('config.list.columns.data;', onListColumnsDataChange));
-        onDestroy(() => {
-            listColumns.forEach(c => c.destroy());
-        });
         const styleMap = new StyleMap({
             height: '',
             '--expander-padding-width': '',
@@ -4876,13 +4871,11 @@
         }));
         let visibleRows = [];
         const visibleRowsChange = val => {
-            reuseComponents(visibleRows, val, row => row && { columnId: props.columnId, rowId: row.id, width }, ListColumnRowComponent);
+            const destroy = reuseComponents(visibleRows, val, row => row && { columnId: props.columnId, rowId: row.id, width }, ListColumnRowComponent);
             update();
+            return destroy;
         };
         onDestroy(state.subscribe('_internal.list.visibleRows;', visibleRowsChange));
-        onDestroy(function rowsDestroy() {
-            visibleRows.forEach(row => row.destroy());
-        });
         function getRowHtml(row) {
             return row.html();
         }
@@ -5621,34 +5614,27 @@
             styleMap.style['--calendar-height'] = headerHeight + 'px';
             update();
         }));
-        let period;
-        onDestroy(state.subscribe('config.chart.time.period', value => (period = value)));
         let dayComponents = [], monthComponents = [];
         onDestroy(state.subscribe(`_internal.chart.time.dates`, dates => {
             const currentDate = api.time.date().format('YYYY-MM-DD');
+            let destroy;
             if (typeof dates.day === 'object' && Array.isArray(dates.day) && dates.day.length) {
-                reuseComponents(dayComponents, dates.day, date => date && { period: 'day', date, currentDate }, ChartCalendarDateComponent);
+                destroy = reuseComponents(dayComponents, dates.day, date => date && { period: 'day', date, currentDate }, ChartCalendarDateComponent);
             }
             if (typeof dates.month === 'object' && Array.isArray(dates.month) && dates.month.length) {
-                reuseComponents(monthComponents, dates.month, date => date && { period: 'month', date, currentDate }, ChartCalendarDateComponent);
+                destroy = reuseComponents(monthComponents, dates.month, date => date && { period: 'month', date, currentDate }, ChartCalendarDateComponent);
             }
             update();
+            return destroy;
         }));
-        onDestroy(() => {
-            dayComponents.forEach(c => c.destroy());
-        });
         componentActions.push(element => {
             state.update('_internal.elements.chart-calendar', element);
         });
-        let slots;
-        onDestroy(api.subscribeSlots('chart-calendar', value => (slots = value), props));
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
         <div class=${className} data-actions=${actions} style=${styleMap}>
-          ${slots.get('before')}
           <div class=${className + '-dates ' + className + '-dates--months'}>${monthComponents.map(m => m.html())}</div>
           <div class=${className + '-dates ' + className + '-dates--days'}>${dayComponents.map(d => d.html())}</div>
-          ${slots.get('after')}
         </div>
       `, { props, vido, templateProps });
     }
@@ -5700,8 +5686,6 @@
             'text-align': 'left',
             'margin-left': props.date.subPx + 8 + 'px'
         });
-        let slots;
-        onDestroy(api.subscribeSlots(componentName, value => (slots = value), props));
         const updateDate = () => {
             if (!props)
                 return;
@@ -5728,13 +5712,13 @@
                 case 'month':
                     htmlFormatted = html `
           <div class=${className + '-content ' + className + '-content--month' + current} style=${scrollStyleMap}>
-            ${slots.get('before-month')}${dateMod.format('MMMM YYYY')}${slots.get('after-month')}
+            ${dateMod.format('MMMM YYYY')}
           </div>
         `;
                     if (maxWidth <= 100) {
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--month' + current}>
-              ${slots.get('before-month')}${dateMod.format("MMM'YY")}${slots.get('after-month')}
+              ${dateMod.format("MMM'YY")}
             </div>
           `;
                     }
@@ -5743,37 +5727,37 @@
                     htmlFormatted = html `
           <div class=${className + '-content ' + className + '-content--day _0' + current}>
             <div class=${className + '-content ' + className + '-content--day-small' + current}>
-              ${slots.get('before-day')}${dateMod.format('DD')} ${dateMod.format('ddd')}${slots.get('after-day')}
+              ${dateMod.format('DD')} ${dateMod.format('ddd')}
             </div>
           </div>
         `;
                     if (maxWidth >= 40 && maxWidth < 50) {
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _40' + current}>
-              ${slots.get('before-day')}${dateMod.format('DD')}${slots.get('after-day')}
+              ${dateMod.format('DD')}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${slots.get('before-day-word')}${dateMod.format('dd')}${slots.get('after-day-word')}
+              ${dateMod.format('dd')}
             </div>
           `;
                     }
                     else if (maxWidth >= 50 && maxWidth < 90) {
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _50' + current}>
-              ${slots.get('before-day')}${dateMod.format('DD')}${slots.get('after-day')}
+              ${dateMod.format('DD')}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${slots.get('before-day-word')}${dateMod.format('ddd')}${slots.get('after-day-word')}
+              ${dateMod.format('ddd')}
             </div>
           `;
                     }
                     else if (maxWidth >= 90 && maxWidth < 180) {
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _90' + current}>
-              ${slots.get('before-day')}${dateMod.format('DD')}${slots.get('after-day')}
+              ${dateMod.format('DD')}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${slots.get('before-day-word')}${dateMod.format('dddd')}${slots.get('after-day-word')}
+              ${dateMod.format('dddd')}
             </div>
           `;
                     }
@@ -5995,7 +5979,7 @@
           style=${styleMap}
           data-actions=${actions}
         >
-          ${slots.get('before')}${htmlFormatted}${slots.get('after')}
+          ${htmlFormatted}
         </div>
       `, { props, vido, templateProps });
     }
@@ -6185,16 +6169,12 @@
          * @param {array} rowsWithBlocks
          */
         const generateRowsComponents = rowsWithBlocks => {
-            reuseComponents(rowsComponents, rowsWithBlocks || [], row => row, GridRowComponent);
+            const destroy = reuseComponents(rowsComponents, rowsWithBlocks || [], row => row, GridRowComponent);
             update();
+            return destroy;
         };
         onDestroy(state.subscribe('_internal.chart.grid.rowsWithBlocks', generateRowsComponents));
-        if (!componentActions.includes(BindElementAction$3)) {
-            componentActions.push(BindElementAction$3);
-        }
-        onDestroy(() => {
-            rowsComponents.forEach(row => row.destroy());
-        });
+        componentActions.push(BindElementAction$3);
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
         <div class=${className} data-actions=${actions} style=${styleMap}>
@@ -6290,7 +6270,7 @@
             }
             update();
         });
-        onDestroy(() => {
+        onDestroy(function destroy() {
             rowsBlocksComponents.forEach(rowBlock => rowBlock.destroy());
         });
         if (componentActions.indexOf(BindElementAction$4) === -1) {
@@ -6448,13 +6428,11 @@
         let rowsComponents = [];
         function createRowComponents() {
             const visibleRows = state.get('_internal.list.visibleRows');
-            reuseComponents(rowsComponents, visibleRows || [], row => ({ row }), ItemsRowComponent);
+            const destroy = reuseComponents(rowsComponents, visibleRows || [], row => ({ row }), ItemsRowComponent);
             update();
+            return destroy;
         }
         onDestroy(state.subscribeAll(['_internal.list.visibleRows;', 'config.chart.items'], createRowComponents));
-        onDestroy(function destroyRows() {
-            rowsComponents.forEach(row => row.destroy());
-        });
         const actions = Actions.create(componentActions, { api, state });
         return templateProps => wrapper(html `
         <div class=${className} style=${styleMap} data-actions=${actions}>
@@ -6579,9 +6557,7 @@
             className = api.getClass(componentName, props);
             update();
         }));
-        if (!componentActions.includes(BindElementAction$6)) {
-            componentActions.push(BindElementAction$6);
-        }
+        componentActions.push(BindElementAction$6);
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => {
             return wrapper(html `
@@ -6681,17 +6657,13 @@
                 styleMap.setStyle(Object.assign(Object.assign({}, styleMap.style), currentStyle));
             actionProps.left = itemLeftPx + xCompensation;
             actionProps.width = itemWidthPx;
-            slots.change(actionProps, { leave: false });
             update();
         }
         const componentName = 'chart-timeline-items-row-item';
-        let slots;
-        onDestroy(api.subscribeSlots(componentName, value => (slots = value), props));
         function onPropsChange(changedProps, options) {
             if (options.leave || changedProps.row === undefined || changedProps.item === undefined) {
                 leave = true;
                 shouldDetach = true;
-                slots.change(actionProps, options);
                 return update();
             }
             else {
@@ -6701,7 +6673,6 @@
             props = changedProps;
             actionProps.item = props.item;
             actionProps.row = props.row;
-            slots.change(actionProps, options);
             updateItem();
         }
         onChange(onPropsChange);
@@ -6721,11 +6692,9 @@
         return templateProps => {
             return wrapper(html `
         <div detach=${detach} class=${className} data-actions=${actions} style=${styleMap}>
-          ${slots.get('before')}
           <div class=${labelClassName}>
             ${props.item.isHtml ? unsafeHTML(props.item.label) : props.item.label}
           </div>
-          ${slots.get('after')}
         </div>
       `, { vido, props, templateProps });
         };
@@ -7507,8 +7476,9 @@
             const listenersCollection = this.getListenersCollection(listenerPath, listener);
             listenersCollection.count++;
             listenerPath = listenersCollection.path;
+            let additionalDestroys = [];
             if (!listenersCollection.isWildcard) {
-                fn(this.pathGet(this.split(this.cleanNotRecursivePath(listenerPath)), this.data), {
+                additionalDestroys.push(fn(this.pathGet(this.split(this.cleanNotRecursivePath(listenerPath)), this.data), {
                     type,
                     listener,
                     listenersCollection,
@@ -7519,7 +7489,7 @@
                     },
                     params: this.getParams(listenersCollection.paramsInfo, listenerPath),
                     options
-                });
+                }));
             }
             else {
                 const paths = this.scan.get(this.cleanNotRecursivePath(listenerPath));
@@ -7532,7 +7502,7 @@
                             value: paths[path]
                         });
                     }
-                    fn(bulkValue, {
+                    additionalDestroys.push(fn(bulkValue, {
                         type,
                         listener,
                         listenersCollection,
@@ -7543,11 +7513,11 @@
                         },
                         options,
                         params: undefined
-                    });
+                    }));
                 }
                 else {
                     for (const path in paths) {
-                        fn(paths[path], {
+                        additionalDestroys.push(fn(paths[path], {
                             type,
                             listener,
                             listenersCollection,
@@ -7558,17 +7528,21 @@
                             },
                             params: this.getParams(listenersCollection.paramsInfo, path),
                             options
-                        });
+                        }));
                     }
                 }
             }
             this.debugSubscribe(listener, listenersCollection, listenerPath);
-            return this.unsubscribe(listenerPath, this.id);
+            return this.unsubscribe(listenerPath, this.id, additionalDestroys);
         }
-        unsubscribe(path, id) {
+        unsubscribe(path, id, additionalDestroys) {
             const listeners = this.listeners;
             const listenersCollection = listeners.get(path);
             return function unsub() {
+                for (const destr of additionalDestroys) {
+                    if (typeof destr === "function")
+                        destr();
+                }
                 listenersCollection.listeners.delete(id);
                 listenersCollection.count--;
                 if (listenersCollection.count === 0) {

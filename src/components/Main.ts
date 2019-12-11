@@ -18,8 +18,8 @@ export default function Main(vido, props = {}) {
   onDestroy(
     state.subscribe('config.plugins', plugins => {
       if (typeof plugins !== 'undefined' && Array.isArray(plugins)) {
-        for (const plugin of plugins) {
-          const destroyPlugin = plugin(vido);
+        for (const initializePlugin of plugins) {
+          const destroyPlugin = initializePlugin(vido);
           if (typeof destroyPlugin === 'function') {
             onDestroy(destroyPlugin);
           }
@@ -450,7 +450,7 @@ export default function Main(vido, props = {}) {
             style=${verticalScrollStyleMap}
             @scroll=${onScroll}
             @wheel=${onScroll}
-            data-action=${verticalScrollActions}
+            data-actions=${verticalScrollActions}
           >
             <div style=${verticalScrollAreaStyleMap} data-actions=${verticalScrollAreaActions} />
           </div>
