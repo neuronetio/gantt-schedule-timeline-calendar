@@ -8,7 +8,7 @@
  */
 
 import defaultConfigFn from '../default-config';
-import timeApi from './Time';
+import TimeApi from './Time';
 import State from 'deep-state-observer';
 import dayjs from 'dayjs';
 import { Config } from '../types';
@@ -106,8 +106,7 @@ export function getInternalApi(state) {
   let $state = state.get();
   let unsubscribers = [];
   let vido;
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
+  const iconsCache = {};
   const api = {
     name: lib,
     debug: false,
@@ -141,6 +140,36 @@ export function getInternalApi(state) {
         actions = [];
       }
       return actions.slice();
+    },
+
+    getSlots(name, defaultSlots = { before: [], after: [] }) {
+      const slots = { ...defaultSlots };
+      const configSlots = state.get(`config.slots.${name}`);
+      for (const name in configSlots) {
+        slots[name] = configSlots[name] || [];
+      }
+      return slots;
+    },
+
+    subscribeSlots(name, callback: (slots) => void, props = null, content: any = null) {
+      let slots;
+      const unsub = state.subscribe(`config.slots.${name}`, value => {
+        if (!props) {
+          return callback(value);
+        }
+        if (value === undefined) return callback({});
+        if (typeof value === 'object' && Object.keys(value).length) {
+          slots = new vido.Slots();
+          for (const name in value) {
+            slots.addSlot(name, new vido.Slot(value[name] || [], props, content));
+          }
+          callback(slots);
+        }
+      });
+      return function destroy() {
+        unsub();
+        if (slots) slots.destroy();
+      };
     },
 
     isItemInViewport(item, left, right) {
@@ -392,9 +421,7 @@ export function getInternalApi(state) {
       }
     },
 
-    time: timeApi(state, function getApi() {
-      return api;
-    }),
+    time: new TimeApi(state, () => api),
 
     /**
      * Get scrollbar height - compute it from element
@@ -443,17 +470,10 @@ export function getInternalApi(state) {
       return state.get('config.scroll.compensation');
     },
 
-    renderIcon(html) {
-      return new Promise(resolve => {
-        const img = document.createElement('img');
-        img.setAttribute('src', 'data:image/svg+xml;base64,' + btoa(html));
-        img.onload = function onLoad() {
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-          resolve(canvas.toDataURL('image/png'));
-        };
-      });
+    getSVGIconSrc(svg) {
+      if (typeof iconsCache[svg] === 'string') return iconsCache[svg];
+      iconsCache[svg] = 'data:image/svg+xml;base64,' + btoa(svg);
+      return iconsCache[svg];
     },
 
     /**

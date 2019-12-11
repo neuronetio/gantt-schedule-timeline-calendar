@@ -97,7 +97,7 @@
     /**
      * True if the custom elements polyfill is in use.
      */
-    const isCEPolyfill = window.customElements !== undefined &&
+    const isCEPolyfill = window.customElements != null &&
         window.customElements.polyfillWrapFlushCallback !==
             undefined;
     /**
@@ -1119,20 +1119,25 @@
     // argument to add/removeEventListener is interpreted as the boolean capture
     // value so we should only pass the `capture` property.
     let eventOptionsSupported = false;
-    try {
-        const options = {
-            get capture() {
-                eventOptionsSupported = true;
-                return false;
-            }
-        };
-        // tslint:disable-next-line: no-any
-        window.addEventListener('test', options, options);
-        // tslint:disable-next-line: no-any
-        window.removeEventListener('test', options, options);
-    }
-    catch (_e) { // eslint-disable-line no-empty
-    }
+    // Wrap into an IIFE because MS Edge <= v41 does not support having try/catch
+    // blocks right into the body of a module
+    (() => {
+        try {
+            const options = {
+                get capture() {
+                    eventOptionsSupported = true;
+                    return false;
+                }
+            };
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            window.addEventListener('test', options, options);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            window.removeEventListener('test', options, options);
+        }
+        catch (_e) {
+            // noop
+        }
+    })();
     class EventPart {
         constructor(element, eventName, eventContext) {
             this.value = undefined;
@@ -1350,7 +1355,7 @@
     // IMPORTANT: do not change the property name or the assignment expression.
     // This line will be used in regexes to search for lit-html usage.
     // TODO(justinfagnani): inject version number at build time
-    (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.1.2');
+    (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.1.3');
     /**
      * Interprets a template literal as an HTML template that can efficiently
      * render to and update a container.
@@ -1375,7 +1380,7 @@
      * subject to an additional IP rights grant found at
      * http://polymer.github.io/PATENTS.txt
      */
-    var __asyncValues = (undefined && undefined.__asyncValues) || function (o) {
+    var __asyncValues =  function (o) {
         if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
         var m = o[Symbol.asyncIterator], i;
         return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
@@ -1482,7 +1487,7 @@
      * subject to an additional IP rights grant found at
      * http://polymer.github.io/PATENTS.txt
      */
-    var __asyncValues$1 = (undefined && undefined.__asyncValues) || function (o) {
+    var __asyncValues$1 =  function (o) {
         if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
         var m = o[Symbol.asyncIterator], i;
         return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
@@ -2804,12 +2809,14 @@
 
     function getInternalComponentMethods(components, actionsByInstance, clone) {
         return class InternalComponentMethods {
-            constructor(instance, vidoInstance, updateFunction) {
+            constructor(instance, vidoInstance, renderFunction, content) {
                 this.instance = instance;
                 this.vidoInstance = vidoInstance;
-                this.updateFunction = updateFunction;
+                this.renderFunction = renderFunction;
+                this.content = content;
             }
             destroy() {
+                var _a;
                 if (this.vidoInstance.debug) {
                     console.groupCollapsed(`component destroy method fired ${this.instance}`);
                     console.log(clone({
@@ -2820,6 +2827,9 @@
                     }));
                     console.trace();
                     console.groupEnd();
+                }
+                if (typeof ((_a = this.content) === null || _a === void 0 ? void 0 : _a.destroy) === 'function') {
+                    this.content.destroy();
                 }
                 for (const d of this.vidoInstance.destroyable) {
                     d();
@@ -2834,7 +2844,7 @@
                     console.trace();
                     console.groupEnd();
                 }
-                return this.updateFunction(props);
+                return this.renderFunction(props);
             }
             change(changedProps, options = { leave: false }) {
                 const props = changedProps;
@@ -3098,7 +3108,7 @@
          * @param {any} props
          * @returns {object} component instance methods
          */
-        vido.prototype.createComponent = function createComponent(component, props = {}) {
+        function createComponent(component, props = {}, content = null) {
             const instance = component.name + ':' + componentId++;
             let vidoInstance;
             vidoInstance = new vido();
@@ -3106,7 +3116,7 @@
             vidoInstance.name = component.name;
             vidoInstance.Actions = new InstanceActionsCollector(instance);
             const publicMethods = new PublicComponentMethods(instance, vidoInstance, props);
-            const internalMethods = new InternalComponentMethods(instance, vidoInstance, component(vidoInstance, props));
+            const internalMethods = new InternalComponentMethods(instance, vidoInstance, component(vidoInstance, props, content), content);
             components.set(instance, internalMethods);
             components.get(instance).change(props);
             if (vidoInstance.debug) {
@@ -3116,7 +3126,71 @@
                 console.groupEnd();
             }
             return publicMethods;
-        };
+        }
+        vido.prototype.createComponent = createComponent;
+        class Slot extends Directive {
+            constructor(components, props, content = null) {
+                super();
+                this.components = [];
+                if (Array.isArray(components)) {
+                    for (const component of components) {
+                        this.components.push(createComponent(component, props, content));
+                    }
+                }
+            }
+            body(part) {
+                part.setValue(this.components.map((component) => component.html()));
+            }
+            change(changedProps, options) {
+                for (const component of this.components) {
+                    component.change(changedProps, options);
+                }
+            }
+            getComponents() {
+                return this.components;
+            }
+            setComponents(components) {
+                this.components = components;
+            }
+            destroy() {
+                for (const component of this.components) {
+                    component.destroy();
+                }
+            }
+        }
+        vido.prototype.Slot = Slot;
+        class Slots {
+            constructor() {
+                this.slots = {};
+            }
+            addSlot(name, slot) {
+                if (this.slots[name] === undefined) {
+                    this.slots[name] = [];
+                }
+                this.slots[name].push(slot);
+            }
+            change(changedProps, options) {
+                for (const name in this.slots) {
+                    for (const slot of this.slots[name]) {
+                        slot.change(changedProps, options);
+                    }
+                }
+            }
+            destroy() {
+                for (const name in this.slots) {
+                    for (const slot of this.slots[name]) {
+                        slot.destroy();
+                    }
+                }
+            }
+            get(name) {
+                return this.slots[name];
+            }
+            set(name, value) {
+                this.slots[name] = value;
+            }
+        }
+        vido.prototype.Slots = Slots;
         /**
          * Destroy component
          *
@@ -4193,7 +4267,7 @@
         onDestroy(Chart.destroy);
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.Main', value => (wrapper = value)));
-        const componentActions = api.getActions('');
+        const componentActions = api.getActions('main');
         let className, classNameVerticalScroll, styleMap = new StyleMap({}), verticalScrollStyleMap = new StyleMap({}), verticalScrollAreaStyleMap = new StyleMap({});
         let verticalScrollBarElement;
         let rowsHeight = 0;
@@ -4539,6 +4613,8 @@
         const bindScrollInnerElement = (element) => {
             state.update('_internal.elements.vertical-scroll-inner', element);
         };
+        let slots;
+        onDestroy(api.subscribeSlots('main', value => (slots = value), props));
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
         const mainActions = Actions.create(componentActions, actionProps);
         const verticalScrollActions = Actions.create([bindScrollElement]);
@@ -4566,30 +4642,6 @@
       `, { props, vido, templateProps });
     }
 
-    /*! *****************************************************************************
-    Copyright (c) Microsoft Corporation. All rights reserved.
-    Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-    this file except in compliance with the License. You may obtain a copy of the
-    License at http://www.apache.org/licenses/LICENSE-2.0
-
-    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-    WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-    MERCHANTABLITY OR NON-INFRINGEMENT.
-
-    See the Apache Version 2.0 License for specific language governing permissions
-    and limitations under the License.
-    ***************************************************************************** */
-
-    function __awaiter(thisArg, _arguments, P, generator) {
-        return new (P || (P = Promise))(function (resolve, reject) {
-            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-            function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-            step((generator = generator.apply(thisArg, _arguments || [])).next());
-        });
-    }
-
     /**
      * List component
      *
@@ -4607,18 +4659,29 @@
         onDestroy(state.subscribe('config.wrappers.List', value => (wrapper = value)));
         let ListColumnComponent;
         onDestroy(state.subscribe('config.components.ListColumn', value => (ListColumnComponent = value)));
-        function renderIcons() {
-            return __awaiter(this, void 0, void 0, function* () {
-                const icons = state.get('config.list.expander.icons');
-                const rendered = {};
-                for (const iconName in icons) {
-                    const html = icons[iconName];
-                    rendered[iconName] = yield api.renderIcon(html);
-                }
-                state.update('_internal.list.expander.icons', rendered);
-            });
+        function renderExpanderIcons() {
+            const icons = state.get('config.list.expander.icons');
+            const rendered = {};
+            for (const iconName in icons) {
+                const html = icons[iconName];
+                rendered[iconName] = api.getSVGIconSrc(html);
+            }
+            state.update('_internal.list.expander.icons', rendered);
         }
-        renderIcons();
+        renderExpanderIcons();
+        function renderToggleIcons() {
+            const toggleIconsSrc = {
+                open: '',
+                close: ''
+            };
+            const icons = state.get('config.list.toggle.icons');
+            for (const iconName in icons) {
+                const html = icons[iconName];
+                toggleIconsSrc[iconName] = api.getSVGIconSrc(html);
+            }
+            state.update('_internal.list.toggle.icons', toggleIconsSrc);
+        }
+        renderToggleIcons();
         let className;
         let list, percent;
         function onListChange() {
@@ -5385,21 +5448,16 @@
         }));
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListToggle', ListToggleWrapper => (wrapper = ListToggleWrapper)));
-        let iconsSrc = {
+        let toggleIconsSrc = {
             open: '',
             close: ''
         };
-        function renderIcons() {
-            return __awaiter(this, void 0, void 0, function* () {
-                const icons = state.get('config.list.toggle.icons');
-                for (const iconName in icons) {
-                    const html = icons[iconName];
-                    iconsSrc[iconName] = yield api.renderIcon(html);
-                }
+        onDestroy(state.subscribe('_internal.list.toggle.icons', value => {
+            if (value) {
+                toggleIconsSrc = value;
                 update();
-            });
-        }
-        renderIcons();
+            }
+        }));
         let open = true;
         onDestroy(state.subscribe('config.list.columns.percent', percent => (percent === 0 ? (open = false) : (open = true))));
         function toggle(ev) {
@@ -5408,7 +5466,7 @@
             });
         }
         return templateProps => wrapper(html `
-        <div class=${className} @click=${toggle}><img src=${open ? iconsSrc.close : iconsSrc.open} /></div>
+        <div class=${className} @click=${toggle}><img src=${open ? toggleIconsSrc.close : toggleIconsSrc.open} /></div>
       `, { props, vido, templateProps });
     }
 
@@ -5582,15 +5640,25 @@
         componentActions.push(element => {
             state.update('_internal.elements.chart-calendar', element);
         });
+        let slots;
+        onDestroy(api.subscribeSlots('chart-calendar', value => (slots = value), props));
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
         <div class=${className} data-actions=${actions} style=${styleMap}>
+          ${slots.get('before')}
           <div class=${className + '-dates ' + className + '-dates--months'}>${monthComponents.map(m => m.html())}</div>
           <div class=${className + '-dates ' + className + '-dates--days'}>${dayComponents.map(d => d.html())}</div>
-          </div>
+          ${slots.get('after')}
         </div>
       `, { props, vido, templateProps });
     }
+
+    class Action$1 {
+        constructor() {
+            this.isAction = true;
+        }
+    }
+    Action$1.prototype.isAction = true;
 
     /**
      * ChartCalendarDate component
@@ -5606,7 +5674,7 @@
      * @param {HTMLElement} element
      * @param {object} data
      */
-    class BindElementAction$2 extends Action {
+    class BindElementAction$2 extends Action$1 {
         constructor(element, data) {
             super();
             data.state.update('_internal.elements.chart-calendar-dates', elements => {
@@ -5621,7 +5689,7 @@
         }
     }
     function ChartCalendarDate(vido, props) {
-        const { api, state, onDestroy, Actions, update, onChange, html, StyleMap } = vido;
+        const { api, state, onDestroy, Actions, update, onChange, html, StyleMap, Detach } = vido;
         const componentName = 'chart-calendar-date';
         const componentActions = api.getActions(componentName);
         let wrapper;
@@ -5639,6 +5707,8 @@
             'text-align': 'left',
             'margin-left': props.date.subPx + 8 + 'px'
         });
+        let slots;
+        onDestroy(api.subscribeSlots(componentName, value => (slots = value), props));
         const updateDate = () => {
             if (!props)
                 return;
@@ -5665,13 +5735,13 @@
                 case 'month':
                     htmlFormatted = html `
           <div class=${className + '-content ' + className + '-content--month' + current} style=${scrollStyleMap}>
-            ${dateMod.format('MMMM YYYY')}
+            ${slots.get('before-month')}${dateMod.format('MMMM YYYY')}${slots.get('after-month')}
           </div>
         `;
                     if (maxWidth <= 100) {
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--month' + current}>
-              ${dateMod.format("MMM'YY")}
+              ${slots.get('before-month')}${dateMod.format("MMM'YY")}${slots.get('after-month')}
             </div>
           `;
                     }
@@ -5680,37 +5750,37 @@
                     htmlFormatted = html `
           <div class=${className + '-content ' + className + '-content--day _0' + current}>
             <div class=${className + '-content ' + className + '-content--day-small' + current}>
-              ${dateMod.format('DD')} ${dateMod.format('ddd')}
+              ${slots.get('before-day')}${dateMod.format('DD')} ${dateMod.format('ddd')}${slots.get('after-day')}
             </div>
           </div>
         `;
                     if (maxWidth >= 40 && maxWidth < 50) {
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _40' + current}>
-              ${dateMod.format('DD')}
+              ${slots.get('before-day')}${dateMod.format('DD')}${slots.get('after-day')}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${dateMod.format('dd')}
+              ${slots.get('before-day-word')}${dateMod.format('dd')}${slots.get('after-day-word')}
             </div>
           `;
                     }
                     else if (maxWidth >= 50 && maxWidth < 90) {
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _50' + current}>
-              ${dateMod.format('DD')}
+              ${slots.get('before-day')}${dateMod.format('DD')}${slots.get('after-day')}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${dateMod.format('ddd')}
+              ${slots.get('before-day-word')}${dateMod.format('ddd')}${slots.get('after-day-word')}
             </div>
           `;
                     }
                     else if (maxWidth >= 90 && maxWidth < 180) {
                         htmlFormatted = html `
             <div class=${className + '-content ' + className + '-content--day _90' + current}>
-              ${dateMod.format('DD')}
+              ${slots.get('before-day')}${dateMod.format('DD')}${slots.get('after-day')}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${dateMod.format('dddd')}
+              ${slots.get('before-day-word')}${dateMod.format('dddd')}${slots.get('after-day-word')}
             </div>
           `;
                     }
@@ -5899,13 +5969,16 @@
             }
             update();
         };
+        let shouldDetach = false;
+        const detach = new Detach(() => shouldDetach);
         let timeSub;
         const actionProps = { date: props.date, period: props.period, api, state };
         onChange((changedProps, options) => {
             if (options.leave) {
-                styleMap.style.visibility = 'hidden';
+                shouldDetach = true;
                 return update();
             }
+            shouldDetach = false;
             props = changedProps;
             actionProps.date = props.date;
             actionProps.period = props.period;
@@ -5924,11 +5997,12 @@
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
         <div
+          detach=${detach}
           class=${className + ' ' + className + '--' + props.period + current}
           style=${styleMap}
           data-actions=${actions}
         >
-          ${htmlFormatted}
+          ${slots.get('before')}${htmlFormatted}${slots.get('after')}
         </div>
       `, { props, vido, templateProps });
     }
@@ -6612,12 +6686,19 @@
             const currentStyle = (_l = (_k = props) === null || _k === void 0 ? void 0 : _k.item) === null || _l === void 0 ? void 0 : _l.style;
             if (currentStyle)
                 styleMap.setStyle(Object.assign(Object.assign({}, styleMap.style), currentStyle));
+            actionProps.left = itemLeftPx + xCompensation;
+            actionProps.width = itemWidthPx;
+            slots.change(actionProps, { leave: false });
             update();
         }
+        const componentName = 'chart-timeline-items-row-item';
+        let slots;
+        onDestroy(api.subscribeSlots(componentName, value => (slots = value), props));
         function onPropsChange(changedProps, options) {
             if (options.leave || changedProps.row === undefined || changedProps.item === undefined) {
                 leave = true;
                 shouldDetach = true;
+                slots.change(actionProps, options);
                 return update();
             }
             else {
@@ -6627,12 +6708,10 @@
             props = changedProps;
             actionProps.item = props.item;
             actionProps.row = props.row;
-            actionProps.left = itemLeftPx;
-            actionProps.width = itemWidthPx;
+            slots.change(actionProps, options);
             updateItem();
         }
         onChange(onPropsChange);
-        const componentName = 'chart-timeline-items-row-item';
         const componentActions = api.getActions(componentName);
         let className, labelClassName;
         onDestroy(state.subscribe('config.classNames', () => {
@@ -6649,9 +6728,11 @@
         return templateProps => {
             return wrapper(html `
         <div detach=${detach} class=${className} data-actions=${actions} style=${styleMap}>
+          ${slots.get('before')}
           <div class=${labelClassName}>
             ${props.item.isHtml ? unsafeHTML(props.item.label) : props.item.label}
           </div>
+          ${slots.get('after')}
         </div>
       `, { vido, props, templateProps });
         };
@@ -6666,7 +6747,7 @@
      * @license   GPL-3.0
      */
     const actionNames = [
-        '',
+        'main',
         'list',
         'list-column',
         'list-column-header',
@@ -6692,9 +6773,17 @@
         actionNames.forEach(name => (actions[name] = []));
         return actions;
     }
+    function generateEmptySlots() {
+        const slots = {};
+        actionNames.forEach(name => {
+            slots[name] = { before: [], after: [] };
+        });
+        return slots;
+    }
     // default configuration
     function defaultConfig() {
         const actions = generateEmptyActions();
+        const slots = generateEmptySlots();
         return {
             plugins: [],
             plugin: {},
@@ -6847,6 +6936,7 @@
                 items: {},
                 spacing: 1
             },
+            slots,
             classNames: {},
             actions,
             locale: {
@@ -6912,59 +7002,65 @@
      * @package   gantt-schedule-timeline-calendar
      * @license   GPL-3.0
      */
-    function timeApi(state, getApi) {
-        const locale = state.get('config.locale');
-        const utcMode = state.get('config.utcMode');
-        if (utcMode) {
-            dayjs_min.extend(utc);
+    class TimeApi {
+        constructor(state, getApi) {
+            this.utcMode = false;
+            this.state = state;
+            this.locale = state.get('config.locale');
+            this.utcMode = state.get('config.utcMode');
+            if (this.utcMode) {
+                dayjs_min.extend(utc);
+            }
+            // @ts-ignore
+            dayjs_min.locale(this.locale, null, true);
         }
-        dayjs_min.locale(locale, null, true);
-        return {
-            date(time) {
-                const _dayjs = utcMode ? dayjs_min.utc : dayjs_min;
-                return time ? _dayjs(time).locale(locale.name) : _dayjs().locale(locale.name);
-            },
-            recalculateFromTo(time) {
-                time = Object.assign({}, time);
-                if (time.from !== 0) {
-                    time.from = this.date(time.from)
+        date(time) {
+            const _dayjs = this.utcMode ? dayjs_min.utc : dayjs_min;
+            return time ? _dayjs(time).locale(this.locale.name) : _dayjs().locale(this.locale.name);
+        }
+        recalculateFromTo(time) {
+            time = Object.assign({}, time);
+            if (time.from !== 0) {
+                time.from = this.date(time.from)
+                    .startOf('day')
+                    .valueOf();
+            }
+            if (time.to !== 0) {
+                time.to = this.date(time.to)
+                    .endOf('day')
+                    .valueOf();
+            }
+            let from = Number.MAX_SAFE_INTEGER, to = 0;
+            const items = this.state.get('config.chart.items');
+            if (Object.keys(items).length === 0) {
+                return time;
+            }
+            if (time.from === 0 || time.to === 0) {
+                for (let itemId in items) {
+                    const item = items[itemId];
+                    if (from > item.time.start) {
+                        from = item.time.start;
+                    }
+                    if (to < item.time.end) {
+                        to = item.time.end;
+                    }
+                }
+                if (time.from === 0) {
+                    time.from = this.date(from)
                         .startOf('day')
                         .valueOf();
                 }
-                if (time.to !== 0) {
-                    time.to = this.date(time.to)
+                if (time.to === 0) {
+                    time.to = this.date(to)
                         .endOf('day')
                         .valueOf();
                 }
-                let from = Number.MAX_SAFE_INTEGER, to = 0;
-                const items = state.get('config.chart.items');
-                if (Object.keys(items).length === 0) {
-                    return time;
-                }
-                if (time.from === 0 || time.to === 0) {
-                    for (let itemId in items) {
-                        const item = items[itemId];
-                        if (from > item.time.start) {
-                            from = item.time.start;
-                        }
-                        if (to < item.time.end) {
-                            to = item.time.end;
-                        }
-                    }
-                    if (time.from === 0) {
-                        time.from = this.date(from)
-                            .startOf('day')
-                            .valueOf();
-                    }
-                    if (time.to === 0) {
-                        time.to = this.date(to)
-                            .endOf('day')
-                            .valueOf();
-                    }
-                }
-                return time;
             }
-        };
+            return time;
+        }
+        timeToPixelOffset(miliseconds) {
+            return miliseconds / this.state.get('_internal.chart.time.timePerPixel');
+        }
     }
 
     // forked from https://github.com/joonhocho/superwild
@@ -7920,12 +8016,13 @@
     function getInternalApi(state) {
         let $state = state.get();
         let unsubscribers = [];
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+        let vido;
+        const iconsCache = {};
         const api = {
             name: lib,
             debug: false,
             setVido(Vido) {
+                vido = Vido;
             },
             log(...args) {
                 if (this.debug) {
@@ -7949,6 +8046,36 @@
                     actions = [];
                 }
                 return actions.slice();
+            },
+            getSlots(name, defaultSlots = { before: [], after: [] }) {
+                const slots = Object.assign({}, defaultSlots);
+                const configSlots = state.get(`config.slots.${name}`);
+                for (const name in configSlots) {
+                    slots[name] = configSlots[name] || [];
+                }
+                return slots;
+            },
+            subscribeSlots(name, callback, props = null, content = null) {
+                let slots;
+                const unsub = state.subscribe(`config.slots.${name}`, value => {
+                    if (!props) {
+                        return callback(value);
+                    }
+                    if (value === undefined)
+                        return callback({});
+                    if (typeof value === 'object' && Object.keys(value).length) {
+                        slots = new vido.Slots();
+                        for (const name in value) {
+                            slots.addSlot(name, new vido.Slot(value[name] || [], props, content));
+                        }
+                        callback(slots);
+                    }
+                });
+                return function destroy() {
+                    unsub();
+                    if (slots)
+                        slots.destroy();
+                };
             },
             isItemInViewport(item, left, right) {
                 return (item.time.start >= left && item.time.start < right) || (item.time.end >= left && item.time.end < right);
@@ -8186,7 +8313,7 @@
                     return scroll;
                 }
             },
-            time: timeApi(state),
+            time: new TimeApi(state, () => api),
             /**
              * Get scrollbar height - compute it from element
              *
@@ -8231,17 +8358,11 @@
             getCompensationY() {
                 return state.get('config.scroll.compensation');
             },
-            renderIcon(html) {
-                return new Promise(resolve => {
-                    const img = document.createElement('img');
-                    img.setAttribute('src', 'data:image/svg+xml;base64,' + btoa(html));
-                    img.onload = function onLoad() {
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        ctx.drawImage(img, 0, 0);
-                        resolve(canvas.toDataURL('image/png'));
-                    };
-                });
+            getSVGIconSrc(svg) {
+                if (typeof iconsCache[svg] === 'string')
+                    return iconsCache[svg];
+                iconsCache[svg] = 'data:image/svg+xml;base64,' + btoa(svg);
+                return iconsCache[svg];
             },
             /**
              * Destroy things to release memory

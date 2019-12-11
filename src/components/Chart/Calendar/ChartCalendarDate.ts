@@ -31,7 +31,7 @@ class BindElementAction extends Action {
 }
 
 export default function ChartCalendarDate(vido, props) {
-  const { api, state, onDestroy, Actions, update, onChange, html, StyleMap } = vido;
+  const { api, state, onDestroy, Actions, update, onChange, html, StyleMap, Detach } = vido;
 
   const componentName = 'chart-calendar-date';
   const componentActions = api.getActions(componentName);
@@ -57,6 +57,9 @@ export default function ChartCalendarDate(vido, props) {
       'margin-left': props.date.subPx + 8 + 'px'
     });
 
+  let slots;
+  onDestroy(api.subscribeSlots(componentName, value => (slots = value), props));
+
   const updateDate = () => {
     if (!props) return;
     time = state.get('_internal.chart.time');
@@ -79,13 +82,13 @@ export default function ChartCalendarDate(vido, props) {
       case 'month':
         htmlFormatted = html`
           <div class=${className + '-content ' + className + '-content--month' + current} style=${scrollStyleMap}>
-            ${dateMod.format('MMMM YYYY')}
+            ${slots.get('before-month')}${dateMod.format('MMMM YYYY')}${slots.get('after-month')}
           </div>
         `;
         if (maxWidth <= 100) {
           htmlFormatted = html`
             <div class=${className + '-content ' + className + '-content--month' + current}>
-              ${dateMod.format("MMM'YY")}
+              ${slots.get('before-month')}${dateMod.format("MMM'YY")}${slots.get('after-month')}
             </div>
           `;
         }
@@ -94,35 +97,35 @@ export default function ChartCalendarDate(vido, props) {
         htmlFormatted = html`
           <div class=${className + '-content ' + className + '-content--day _0' + current}>
             <div class=${className + '-content ' + className + '-content--day-small' + current}>
-              ${dateMod.format('DD')} ${dateMod.format('ddd')}
+              ${slots.get('before-day')}${dateMod.format('DD')} ${dateMod.format('ddd')}${slots.get('after-day')}
             </div>
           </div>
         `;
         if (maxWidth >= 40 && maxWidth < 50) {
           htmlFormatted = html`
             <div class=${className + '-content ' + className + '-content--day _40' + current}>
-              ${dateMod.format('DD')}
+              ${slots.get('before-day')}${dateMod.format('DD')}${slots.get('after-day')}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${dateMod.format('dd')}
+              ${slots.get('before-day-word')}${dateMod.format('dd')}${slots.get('after-day-word')}
             </div>
           `;
         } else if (maxWidth >= 50 && maxWidth < 90) {
           htmlFormatted = html`
             <div class=${className + '-content ' + className + '-content--day _50' + current}>
-              ${dateMod.format('DD')}
+              ${slots.get('before-day')}${dateMod.format('DD')}${slots.get('after-day')}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${dateMod.format('ddd')}
+              ${slots.get('before-day-word')}${dateMod.format('ddd')}${slots.get('after-day-word')}
             </div>
           `;
         } else if (maxWidth >= 90 && maxWidth < 180) {
           htmlFormatted = html`
             <div class=${className + '-content ' + className + '-content--day _90' + current}>
-              ${dateMod.format('DD')}
+              ${slots.get('before-day')}${dateMod.format('DD')}${slots.get('after-day')}
             </div>
             <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${dateMod.format('dddd')}
+              ${slots.get('before-day-word')}${dateMod.format('dddd')}${slots.get('after-day-word')}
             </div>
           `;
         } else if (maxWidth >= 180 && maxWidth < 400) {
@@ -328,13 +331,17 @@ export default function ChartCalendarDate(vido, props) {
     update();
   };
 
+  let shouldDetach = false;
+  const detach = new Detach(() => shouldDetach);
+
   let timeSub;
   const actionProps = { date: props.date, period: props.period, api, state };
   onChange((changedProps, options) => {
     if (options.leave) {
-      styleMap.style.visibility = 'hidden';
+      shouldDetach = true;
       return update();
     }
+    shouldDetach = false;
     props = changedProps;
     actionProps.date = props.date;
     actionProps.period = props.period;
@@ -357,11 +364,12 @@ export default function ChartCalendarDate(vido, props) {
     wrapper(
       html`
         <div
+          detach=${detach}
           class=${className + ' ' + className + '--' + props.period + current}
           style=${styleMap}
           data-actions=${actions}
         >
-          ${htmlFormatted}
+          ${slots.get('before')}${htmlFormatted}${slots.get('after')}
         </div>
       `,
       { props, vido, templateProps }

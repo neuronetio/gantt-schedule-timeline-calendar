@@ -13,21 +13,31 @@
    * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
    * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
    */
+  let opts;
+  let state, api;
+  const container = document.createElement('div');
+  container.style.position = 'absolute';
+  container.style.left = '0';
+  container.style.top = '0';
+  container.style.width = 'var(--width)';
+  container.style.height = 'var(--height)';
   const defaultOptions = {
-      type: 'quadratic'
+      type: 'quadratic',
+      style: {},
+      width: 16,
+      height: 16
   };
-  function DependencyLines(options = Object.assign({}, defaultOptions)) {
+  function DependencyLines(options = defaultOptions) {
+      opts = Object.assign(Object.assign({}, defaultOptions), options);
       return function initialize(vido) {
-          const state = vido.state;
-          const api = vido.api;
-          state.update('config.wrappers.ChartTimelineGrid', wrapper => {
-              return function DependencyLinesWrapper(input, data) {
-                  const lines = [];
-                  const items = state.get('config.chart.items');
-                  const output = data.vido.html `${input}<div class=${api.getClass('chart-timeline-dependency-lines')}>${lines}</div>`;
-                  return wrapper(output, data);
-              };
-          });
+          state = vido.state;
+          api = vido.api;
+          /*state.update('config.slots.chart-timeline-items-row-item.after', after => {
+            if (!after.includes(ItemDependencyLine)) {
+              after.push(ItemDependencyLine);
+            }
+            return after;
+          });*/
       };
   }
 

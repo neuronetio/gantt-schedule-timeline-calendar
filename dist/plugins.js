@@ -586,20 +586,25 @@ const emptyTextNode = document.createTextNode('');
 // argument to add/removeEventListener is interpreted as the boolean capture
 // value so we should only pass the `capture` property.
 let eventOptionsSupported = false;
-try {
-    const options = {
-        get capture() {
-            eventOptionsSupported = true;
-            return false;
-        }
-    };
-    // tslint:disable-next-line: no-any
-    window.addEventListener('test', options, options);
-    // tslint:disable-next-line: no-any
-    window.removeEventListener('test', options, options);
-}
-catch (_e) { // eslint-disable-line no-empty
-}
+// Wrap into an IIFE because MS Edge <= v41 does not support having try/catch
+// blocks right into the body of a module
+(() => {
+    try {
+        const options = {
+            get capture() {
+                eventOptionsSupported = true;
+                return false;
+            }
+        };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        window.addEventListener('test', options, options);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        window.removeEventListener('test', options, options);
+    }
+    catch (_e) {
+        // noop
+    }
+})();
 
 /**
  * @license
@@ -617,7 +622,7 @@ catch (_e) { // eslint-disable-line no-empty
 // IMPORTANT: do not change the property name or the assignment expression.
 // This line will be used in regexes to search for lit-html usage.
 // TODO(justinfagnani): inject version number at build time
-(window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.1.2');
+(window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.1.3');
 /**
  * Used to clone existing node instead of each time creating new one which is
  * slower

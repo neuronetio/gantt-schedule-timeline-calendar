@@ -8,61 +8,74 @@
  */
 
 import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc'
+import utc from 'dayjs/plugin/utc';
+import { Locale } from '../types';
 
-export default function timeApi(state, getApi) {
-  const locale = state.get('config.locale');
-  const utcMode = state.get('config.utcMode');
-  if (utcMode){
-    dayjs.extend(utc)
+export default class TimeApi {
+  locale: Locale;
+  utcMode = false;
+  state: any;
+
+  constructor(state, getApi) {
+    this.state = state;
+    this.locale = state.get('config.locale');
+    this.utcMode = state.get('config.utcMode');
+    if (this.utcMode) {
+      dayjs.extend(utc);
+    }
+    // @ts-ignore
+    dayjs.locale(this.locale, null, true);
   }
-  dayjs.locale(locale, null, true);
-  return {
-    date(time) {
-      const _dayjs = utcMode ? dayjs.utc : dayjs;
-      return time ? _dayjs(time).locale(locale.name) : _dayjs().locale(locale.name);
-    },
-    recalculateFromTo(time) {
-      time = { ...time };
-      if (time.from !== 0) {
-        time.from = this.date(time.from)
+
+  date(time) {
+    const _dayjs = this.utcMode ? dayjs.utc : dayjs;
+    return time ? _dayjs(time).locale(this.locale.name) : _dayjs().locale(this.locale.name);
+  }
+
+  recalculateFromTo(time) {
+    time = { ...time };
+    if (time.from !== 0) {
+      time.from = this.date(time.from)
+        .startOf('day')
+        .valueOf();
+    }
+    if (time.to !== 0) {
+      time.to = this.date(time.to)
+        .endOf('day')
+        .valueOf();
+    }
+
+    let from = Number.MAX_SAFE_INTEGER,
+      to = 0;
+    const items = this.state.get('config.chart.items');
+    if (Object.keys(items).length === 0) {
+      return time;
+    }
+    if (time.from === 0 || time.to === 0) {
+      for (let itemId in items) {
+        const item = items[itemId];
+        if (from > item.time.start) {
+          from = item.time.start;
+        }
+        if (to < item.time.end) {
+          to = item.time.end;
+        }
+      }
+      if (time.from === 0) {
+        time.from = this.date(from)
           .startOf('day')
           .valueOf();
       }
-      if (time.to !== 0) {
-        time.to = this.date(time.to)
+      if (time.to === 0) {
+        time.to = this.date(to)
           .endOf('day')
           .valueOf();
       }
-
-      let from = Number.MAX_SAFE_INTEGER,
-        to = 0;
-      const items = state.get('config.chart.items');
-      if (Object.keys(items).length === 0) {
-        return time;
-      }
-      if (time.from === 0 || time.to === 0) {
-        for (let itemId in items) {
-          const item = items[itemId];
-          if (from > item.time.start) {
-            from = item.time.start;
-          }
-          if (to < item.time.end) {
-            to = item.time.end;
-          }
-        }
-        if (time.from === 0) {
-          time.from = this.date(from)
-            .startOf('day')
-            .valueOf();
-        }
-        if (time.to === 0) {
-          time.to = this.date(to)
-            .endOf('day')
-            .valueOf();
-        }
-      }
-      return time;
     }
-  };
+    return time;
+  }
+
+  timeToPixelOffset(miliseconds: number): number {
+    return miliseconds / this.state.get('_internal.chart.time.timePerPixel');
+  }
 }

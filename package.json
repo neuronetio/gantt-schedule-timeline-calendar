@@ -18,7 +18,7 @@
   "author": "Rafal Pospiech <neuronet.io@gmail.com>",
   "license": "GPL-3.0",
   "dependencies": {
-    "@neuronet.io/vido": "^2.2.15",
+    "@neuronet.io/vido": "^2.5.2",
     "dayjs": "^1.8.17",
     "deep-state-observer": "^3.1.0",
     "resize-observer-polyfill": "^1.5.1"
@@ -30,7 +30,7 @@
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-livereload": "^1.0.4",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-terser": "^5.1.2",
+    "rollup-plugin-terser": "^5.1.3",
     "rollup-plugin-typescript": "^1.0.1",
     "sirv-cli": "^0.4.5",
     "stylus": "^0.54.7",

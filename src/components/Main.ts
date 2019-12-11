@@ -41,7 +41,7 @@ export default function Main(vido, props = {}) {
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.Main', value => (wrapper = value)));
 
-  const componentActions = api.getActions('');
+  const componentActions = api.getActions('main');
   let className,
     classNameVerticalScroll,
     styleMap = new StyleMap({}),
@@ -424,6 +424,9 @@ export default function Main(vido, props = {}) {
   const bindScrollInnerElement = (element: Element) => {
     state.update('_internal.elements.vertical-scroll-inner', element);
   };
+
+  let slots;
+  onDestroy(api.subscribeSlots('main', value => (slots = value), props));
 
   const actionProps = { ...props, api, state };
   const mainActions = Actions.create(componentActions, actionProps);

@@ -40,6 +40,13 @@ export interface Wrappers {
   [name: string]: Wrapper;
 }
 
+export interface Slot {
+  [key: string]: htmlResult[];
+}
+export interface Slots {
+  [name: string]: Slot;
+}
+
 export interface ColumnResizer {
   width?: number;
   inRealTime?: boolean;
@@ -205,6 +212,7 @@ export interface Config {
   headerHeight?: number;
   components?: Components;
   wrappers?: Wrappers;
+  slots?: Slots;
   list?: List;
   scroll?: Scroll;
   chart?: Chart;

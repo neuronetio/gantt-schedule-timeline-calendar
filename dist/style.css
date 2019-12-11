@@ -391,3 +391,12 @@
   touch-action: none;
   opacity: 0.5;
 }
+.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-dependency-line {
+  position: absolute;
+}
+.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-dependency-handle {
+  position: absolute;
+  border-radius: 100%;
+  background: #e74c3c;
+  box-shadow: 0px 4px 4px rgba(199,44,28,0.678);
+}

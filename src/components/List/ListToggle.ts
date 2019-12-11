@@ -20,19 +20,18 @@ export default function ListToggle(vido, props = {}) {
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListToggle', ListToggleWrapper => (wrapper = ListToggleWrapper)));
 
-  let iconsSrc = {
+  let toggleIconsSrc = {
     open: '',
     close: ''
   };
-  async function renderIcons() {
-    const icons = state.get('config.list.toggle.icons');
-    for (const iconName in icons) {
-      const html = icons[iconName];
-      iconsSrc[iconName] = await api.renderIcon(html);
-    }
-    update();
-  }
-  renderIcons();
+  onDestroy(
+    state.subscribe('_internal.list.toggle.icons', value => {
+      if (value) {
+        toggleIconsSrc = value;
+        update();
+      }
+    })
+  );
 
   let open = true;
   onDestroy(
@@ -48,7 +47,7 @@ export default function ListToggle(vido, props = {}) {
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} @click=${toggle}><img src=${open ? iconsSrc.close : iconsSrc.open} /></div>
+        <div class=${className} @click=${toggle}><img src=${open ? toggleIconsSrc.close : toggleIconsSrc.open} /></div>
       `,
       { props, vido, templateProps }
     );

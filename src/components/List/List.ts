@@ -20,16 +20,30 @@ export default function List(vido, props = {}) {
   let ListColumnComponent;
   onDestroy(state.subscribe('config.components.ListColumn', value => (ListColumnComponent = value)));
 
-  async function renderIcons() {
+  function renderExpanderIcons() {
     const icons = state.get('config.list.expander.icons');
     const rendered = {};
     for (const iconName in icons) {
       const html = icons[iconName];
-      rendered[iconName] = await api.renderIcon(html);
+      rendered[iconName] = api.getSVGIconSrc(html);
     }
     state.update('_internal.list.expander.icons', rendered);
   }
-  renderIcons();
+  renderExpanderIcons();
+
+  function renderToggleIcons() {
+    const toggleIconsSrc = {
+      open: '',
+      close: ''
+    };
+    const icons = state.get('config.list.toggle.icons');
+    for (const iconName in icons) {
+      const html = icons[iconName];
+      toggleIconsSrc[iconName] = api.getSVGIconSrc(html);
+    }
+    state.update('_internal.list.toggle.icons', toggleIconsSrc);
+  }
+  renderToggleIcons();
 
   let className;
   let list, percent;

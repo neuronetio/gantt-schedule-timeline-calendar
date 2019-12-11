@@ -30,7 +30,7 @@ import ChartTimelineItemsRowItem from './components/Chart/Timeline/ChartTimeline
 import { Config } from './types';
 
 export const actionNames = [
-  '',
+  'main',
   'list',
   'list-column',
   'list-column-header',
@@ -58,9 +58,18 @@ function generateEmptyActions() {
   return actions;
 }
 
+function generateEmptySlots() {
+  const slots = {};
+  actionNames.forEach(name => {
+    slots[name] = { before: [], after: [] };
+  });
+  return slots;
+}
+
 // default configuration
 function defaultConfig(): Config {
   const actions = generateEmptyActions();
+  const slots = generateEmptySlots();
   return {
     plugins: [],
     plugin: {},
@@ -216,6 +225,7 @@ function defaultConfig(): Config {
       items: {},
       spacing: 1
     },
+    slots,
     classNames: {},
     actions,
     locale: {
