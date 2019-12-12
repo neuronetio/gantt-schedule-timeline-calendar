@@ -629,15 +629,16 @@
                 });
             }
             state.update('config.chart.items', items => {
-                for (const itemId in items) {
-                    const item = items[itemId];
-                    if (typeof item.selecting === 'undefined') {
-                        item.selecting = false;
+                if (items)
+                    for (const itemId in items) {
+                        const item = items[itemId];
+                        if (typeof item.selecting === 'undefined') {
+                            item.selecting = false;
+                        }
+                        if (typeof item.selected === 'undefined') {
+                            item.selected = false;
+                        }
                     }
-                    if (typeof item.selected === 'undefined') {
-                        item.selected = false;
-                    }
-                }
                 return items;
             });
             state.update('config.actions.chart-timeline', actions => {

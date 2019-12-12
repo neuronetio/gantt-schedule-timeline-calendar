@@ -4611,8 +4611,6 @@
         const bindScrollInnerElement = (element) => {
             state.update('_internal.elements.vertical-scroll-inner', element);
         };
-        let slots;
-        onDestroy(api.subscribeSlots('main', value => (slots = value), props));
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
         const mainActions = Actions.create(componentActions, actionProps);
         const verticalScrollActions = Actions.create([bindScrollElement]);
