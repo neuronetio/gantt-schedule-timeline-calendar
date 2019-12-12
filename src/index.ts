@@ -19,7 +19,7 @@ function GSTC(options) {
     components: {
       Main
     },
-    scrollBarHeight: 17,
+    scrollBarHeight: api.getScrollBarHeight(2),
     height: 0,
     treeMap: {},
     flatTreeMap: [],

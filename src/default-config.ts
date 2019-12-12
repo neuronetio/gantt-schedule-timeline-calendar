@@ -73,7 +73,7 @@ function defaultConfig(): Config {
   return {
     plugins: [],
     plugin: {},
-    height: 740,
+    height: 822,
     headerHeight: 86,
     components: {
       Main,

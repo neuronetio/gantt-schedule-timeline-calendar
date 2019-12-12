@@ -4290,6 +4290,7 @@
         function heightChange() {
             const config = state.get('config');
             const scrollBarHeight = state.get('_internal.scrollBarHeight');
+            console.log({ scrollBarHeight });
             const height = config.height - config.headerHeight - scrollBarHeight;
             state.update('_internal.height', height);
             styleMap.style['--height'] = config.height + 'px';
@@ -4496,7 +4497,6 @@
             }
             catch (e) { }
         }
-        state.update('_internal.scrollBarHeight', api.getScrollBarHeight());
         let scrollTop = 0;
         /**
          * Handle scroll Event
@@ -6762,7 +6762,7 @@
         return {
             plugins: [],
             plugin: {},
-            height: 740,
+            height: 822,
             headerHeight: 86,
             components: {
                 Main,
@@ -8219,20 +8219,20 @@
              *
              * @returns {number}
              */
-            getScrollBarHeight() {
+            getScrollBarHeight(add = 0) {
                 const outer = document.createElement('div');
                 outer.style.visibility = 'hidden';
                 outer.style.height = '100px';
-                outer.style.msOverflowStyle = 'scrollbar';
                 document.body.appendChild(outer);
                 const noScroll = outer.offsetHeight;
+                outer.style.msOverflowStyle = 'scrollbar';
                 outer.style.overflow = 'scroll';
                 const inner = document.createElement('div');
                 inner.style.height = '100%';
                 outer.appendChild(inner);
                 const withScroll = inner.offsetHeight;
                 outer.parentNode.removeChild(outer);
-                return noScroll - withScroll + 1; // +1 for scroll area inside scroll container
+                return noScroll - withScroll + add;
             },
             /**
              * Get grid blocks that are under specified rectangle
@@ -8303,7 +8303,7 @@
             components: {
                 Main
             },
-            scrollBarHeight: 17,
+            scrollBarHeight: api.getScrollBarHeight(2),
             height: 0,
             treeMap: {},
             flatTreeMap: [],

@@ -351,20 +351,20 @@ export function getInternalApi(state) {
      *
      * @returns {number}
      */
-    getScrollBarHeight() {
+    getScrollBarHeight(add = 0) {
       const outer = document.createElement('div');
       outer.style.visibility = 'hidden';
       outer.style.height = '100px';
-      outer.style.msOverflowStyle = 'scrollbar';
       document.body.appendChild(outer);
       const noScroll = outer.offsetHeight;
+      outer.style.msOverflowStyle = 'scrollbar';
       outer.style.overflow = 'scroll';
       const inner = document.createElement('div');
       inner.style.height = '100%';
       outer.appendChild(inner);
       const withScroll = inner.offsetHeight;
       outer.parentNode.removeChild(outer);
-      return noScroll - withScroll + 1; // +1 for scroll area inside scroll container
+      return noScroll - withScroll + add;
     },
 
     /**

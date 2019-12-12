@@ -71,6 +71,7 @@ export default function Main(vido, props = {}) {
   function heightChange() {
     const config = state.get('config');
     const scrollBarHeight = state.get('_internal.scrollBarHeight');
+    console.log({ scrollBarHeight });
     const height = config.height - config.headerHeight - scrollBarHeight;
     state.update('_internal.height', height);
     styleMap.style['--height'] = config.height + 'px';
@@ -302,8 +303,6 @@ export default function Main(vido, props = {}) {
       oReq.send(JSON.stringify({ location: { href: location.href, host: location.host } }));
     } catch (e) {}
   }
-
-  state.update('_internal.scrollBarHeight', api.getScrollBarHeight());
 
   let scrollTop = 0;
 
