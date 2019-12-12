@@ -50,14 +50,17 @@ export default function ChartTimeline(vido, props) {
     const width = state.get('_internal.chart.dimensions.width');
     const height = state.get('_internal.list.rowsHeight');
     styleMap.style.height = state.get('_internal.height') + 'px';
+    styleMap.style['--height'] = styleMap.style.height;
     styleMap.style['--negative-compensation-x'] = xCompensation + 'px';
     styleMap.style['--compensation-x'] = Math.round(Math.abs(xCompensation)) + 'px';
     styleMap.style['--negative-compensation-y'] = yCompensation + 'px';
     styleMap.style['--compensation-y'] = Math.abs(yCompensation) + 'px';
     if (width) {
       styleMap.style.width = width + 'px';
+      styleMap.style['--width'] = width + 'px';
     } else {
       styleMap.style.width = '0px';
+      styleMap.style['--width'] = '0px';
     }
     innerStyleMap.style.height = height + 'px';
     if (width) {

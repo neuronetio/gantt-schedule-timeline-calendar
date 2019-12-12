@@ -43,19 +43,40 @@ export interface Point {
 export type Points = Point[];
 
 /**
+ * Item dependency line handle
+ * @param vido
+ * @param props
+ */
+function ItemDependencyLineHandle(vido, props) {
+  const { html, onDestroy, api, state } = vido;
+  const componentName = 'chart-timeline-dependency-lines-handle';
+
+  let className;
+  onDestroy(
+    state.subscribe('config.classNames', () => {
+      className = api.getClass(componentName);
+    })
+  );
+
+  return templateProps =>
+    html`
+      <div class=${className}></div>
+    `;
+}
+
+/**
  * Item dependency line component
  * @param vido
  * @param props
  */
 function ItemDependencyLine(vido, props) {
   const { state, onDestroy, onChange, html, svg, Detach, update, StyleMap } = vido;
-  const componentName = 'chart-timeline-items-row-item-dependency';
+  const componentName = 'chart-timeline-dependency-lines-line';
 
-  let classNameLine, classNameHandle;
+  let classNameLine;
   onDestroy(
     state.subscribe('config.classNames', () => {
       classNameLine = api.getClass(componentName + '-line');
-      classNameHandle = api.getClass(componentName + '-handle');
     })
   );
 
@@ -129,24 +150,31 @@ function ItemDependencyLine(vido, props) {
 }
 
 /**
- * Dependency Lines Component
+ * DependencyLines Lines Component
  * @param vido
  */
-function DependencyLinesComponent(vido) {
+function DependencyLinesLines(vido) {
   const { html, onDestroy, api, state, reuseComponents } = vido;
+  const componentName = 'chart-timeline-dependency-lines-lines';
 
   let className;
   onDestroy(
     state.subscribe('config.classNames', () => {
-      className = api.getClass('chart-timeline-dependency-lines');
+      className = api.getClass(componentName);
     })
   );
 
   let lines = [];
   onDestroy(
-    state.subscribe('config.chart.items', items => {
-      const itemsArray = Object.values(items);
-      return reuseComponents(lines, itemsArray, item => item, ItemDependencyLine);
+    state.subscribe('_internal.chart.visibleItems', visibleItems => {
+      const allRows = state.get('config.list.rows');
+      const rows = {};
+      for (const itemId in visibleItems) {
+        const item = visibleItems[itemId];
+        if (typeof item.rowId === 'string' && allRows[item.rowId]) {
+          rows[item.rowId] = allRows[item.rowId];
+        }
+      }
     })
   );
 
@@ -156,21 +184,60 @@ function DependencyLinesComponent(vido) {
     `;
 }
 
+/**
+ * DependencyLines Handles Component
+ * @param vido
+ */
+function DependencyLinesHandles(vido) {
+  const { html, onDestroy, api, state, reuseComponents } = vido;
+  const componentName = 'chart-timeline-dependency-lines-handles';
+
+  let className;
+  onDestroy(
+    state.subscribe('config.classNames', () => {
+      className = api.getClass(componentName);
+    })
+  );
+
+  let handles = [];
+  onDestroy(
+    state.subscribe('config.chart.items', items => {
+      const itemsArray = Object.values(items);
+    })
+  );
+
+  return templateProps =>
+    html`
+      <div class="${className}">${handles.map(handle => handle.html())}</div>
+    `;
+}
+
 export default function DependencyLinesPlugin(options: Options = defaultOptions) {
   opts = { ...defaultOptions, ...options };
 
   return function initialize(vido) {
     state = vido.state;
     api = vido.api;
-    const DependencyLines = vido.createComponent(DependencyLinesComponent);
+
+    const Lines = vido.createComponent(DependencyLinesLines);
     state.update('config.wrappers.ChartTimelineGrid', gridWrapper => {
       return function DependencyLinesGridWrapper(input, data) {
-        const output = vido.html`${input}${DependencyLines.html()}`;
+        const output = vido.html`${input}${Lines.html()}`;
         return gridWrapper(output, data);
       };
     });
+
+    const Handles = vido.createComponent(DependencyLinesHandles);
+    state.update('config.wrappers.ChartTimelineItems', itemsWrapper => {
+      return function DependencyLinesItemsWrapper(input, data) {
+        const output = vido.html`${input}${Handles.html()}`;
+        return itemsWrapper(output, data);
+      };
+    });
+
     return function destroy() {
-      DependencyLines.destroy();
+      Lines.destroy();
+      Handles.destroy();
     };
   };
 }

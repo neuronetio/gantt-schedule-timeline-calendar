@@ -12,55 +12,8 @@ import TimeApi from './Time';
 import State from 'deep-state-observer';
 import dayjs from 'dayjs';
 import { Config } from '../types';
+import { mergeDeep } from '@neuronet.io/vido/helpers';
 const lib = 'gantt-schedule-timeline-calendar';
-
-/**
- * Helper function to determine if specified variable is an object
- *
- * @param {any} item
- *
- * @returns {boolean}
- */
-function isObject(item) {
-  return item && typeof item === 'object' && !Array.isArray(item);
-}
-
-/**
- * Helper function which will merge objects recursively - creating brand new one - like clone
- *
- * @param {object} target
- * @params {object} sources
- *
- * @returns {object}
- */
-export function mergeDeep(target, ...sources) {
-  const source = sources.shift();
-  if (isObject(target) && isObject(source)) {
-    for (const key in source) {
-      if (isObject(source[key])) {
-        if (typeof target[key] === 'undefined') {
-          target[key] = {};
-        }
-        target[key] = mergeDeep(target[key], source[key]);
-      } else if (Array.isArray(source[key])) {
-        target[key] = [];
-        for (const item of source[key]) {
-          if (isObject(item)) {
-            target[key].push(mergeDeep({}, item));
-            continue;
-          }
-          target[key].push(item);
-        }
-      } else {
-        target[key] = source[key];
-      }
-    }
-  }
-  if (!sources.length) {
-    return target;
-  }
-  return mergeDeep(target, ...sources);
-}
 
 function mergeActions(userConfig, defaultConfig) {
   const defaultConfigActions = mergeDeep({}, defaultConfig.actions);
@@ -140,36 +93,6 @@ export function getInternalApi(state) {
         actions = [];
       }
       return actions.slice();
-    },
-
-    getSlots(name, defaultSlots = { before: [], after: [] }) {
-      const slots = { ...defaultSlots };
-      const configSlots = state.get(`config.slots.${name}`);
-      for (const name in configSlots) {
-        slots[name] = configSlots[name] || [];
-      }
-      return slots;
-    },
-
-    subscribeSlots(name, callback: (slots) => void, props = null, content: any = null) {
-      let slots;
-      const unsub = state.subscribe(`config.slots.${name}`, value => {
-        if (!props) {
-          return callback(value);
-        }
-        if (value === undefined) return callback({});
-        if (typeof value === 'object' && Object.keys(value).length) {
-          slots = new vido.Slots();
-          for (const name in value) {
-            slots.addSlot(name, new vido.Slot(value[name] || [], props, content));
-          }
-          callback(slots);
-        }
-      });
-      return function destroy() {
-        unsub();
-        if (slots) slots.destroy();
-      };
     },
 
     isItemInViewport(item, left, right) {

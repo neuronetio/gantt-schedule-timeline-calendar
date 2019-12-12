@@ -290,9 +290,13 @@ $item-content-padding = 5px
             &.current
               background: $bg-dark-2
       &-dependency-lines
-        position: absolute
-        left: 0
-        top: 0
+        &-lines , &-handles
+          position: absolute
+          left: 0
+          top: 0
+          pointer-events: none
+          width: var(--width)
+          height: var(--height)
       &-items
         & *
           user-select: none

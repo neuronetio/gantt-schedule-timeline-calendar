@@ -6034,15 +6034,18 @@
             const width = state.get('_internal.chart.dimensions.width');
             const height = state.get('_internal.list.rowsHeight');
             styleMap.style.height = state.get('_internal.height') + 'px';
+            styleMap.style['--height'] = styleMap.style.height;
             styleMap.style['--negative-compensation-x'] = xCompensation + 'px';
             styleMap.style['--compensation-x'] = Math.round(Math.abs(xCompensation)) + 'px';
             styleMap.style['--negative-compensation-y'] = yCompensation + 'px';
             styleMap.style['--compensation-y'] = Math.abs(yCompensation) + 'px';
             if (width) {
                 styleMap.style.width = width + 'px';
+                styleMap.style['--width'] = width + 'px';
             }
             else {
                 styleMap.style.width = '0px';
+                styleMap.style['--width'] = '0px';
             }
             innerStyleMap.style.height = height + 'px';
             if (width) {
@@ -7908,57 +7911,9 @@
      * @license   GPL-3.0
      */
     const lib = 'gantt-schedule-timeline-calendar';
-    /**
-     * Helper function to determine if specified variable is an object
-     *
-     * @param {any} item
-     *
-     * @returns {boolean}
-     */
-    function isObject$1(item) {
-        return item && typeof item === 'object' && !Array.isArray(item);
-    }
-    /**
-     * Helper function which will merge objects recursively - creating brand new one - like clone
-     *
-     * @param {object} target
-     * @params {object} sources
-     *
-     * @returns {object}
-     */
-    function mergeDeep$1(target, ...sources) {
-        const source = sources.shift();
-        if (isObject$1(target) && isObject$1(source)) {
-            for (const key in source) {
-                if (isObject$1(source[key])) {
-                    if (typeof target[key] === 'undefined') {
-                        target[key] = {};
-                    }
-                    target[key] = mergeDeep$1(target[key], source[key]);
-                }
-                else if (Array.isArray(source[key])) {
-                    target[key] = [];
-                    for (const item of source[key]) {
-                        if (isObject$1(item)) {
-                            target[key].push(mergeDeep$1({}, item));
-                            continue;
-                        }
-                        target[key].push(item);
-                    }
-                }
-                else {
-                    target[key] = source[key];
-                }
-            }
-        }
-        if (!sources.length) {
-            return target;
-        }
-        return mergeDeep$1(target, ...sources);
-    }
     function mergeActions(userConfig, defaultConfig) {
-        const defaultConfigActions = mergeDeep$1({}, defaultConfig.actions);
-        const userActions = mergeDeep$1({}, userConfig.actions);
+        const defaultConfigActions = mergeDeep({}, defaultConfig.actions);
+        const userActions = mergeDeep({}, userConfig.actions);
         let allActionNames = [...Object.keys(defaultConfigActions), ...Object.keys(userActions)];
         allActionNames = allActionNames.filter(i => allActionNames.includes(i));
         const actions = {};
@@ -7978,7 +7933,7 @@
     function stateFromConfig(userConfig) {
         const defaultConfig$1 = defaultConfig();
         const actions = mergeActions(userConfig, defaultConfig$1);
-        const state = { config: mergeDeep$1({}, defaultConfig$1, userConfig) };
+        const state = { config: mergeDeep({}, defaultConfig$1, userConfig) };
         state.config.actions = actions;
         // @ts-ignore
         return new DeepState(state, { delimeter: '.' });
@@ -7986,7 +7941,7 @@
     const publicApi = {
         name: lib,
         stateFromConfig,
-        mergeDeep: mergeDeep$1,
+        mergeDeep,
         date(time) {
             return time ? dayjs_min(time) : dayjs_min();
         },
@@ -7995,20 +7950,18 @@
     function getInternalApi(state) {
         let $state = state.get();
         let unsubscribers = [];
-        let vido;
         const iconsCache = {};
         const api = {
             name: lib,
             debug: false,
             setVido(Vido) {
-                vido = Vido;
             },
             log(...args) {
                 if (this.debug) {
                     console.log.call(console, ...args);
                 }
             },
-            mergeDeep: mergeDeep$1,
+            mergeDeep,
             getClass(name) {
                 let simple = `${lib}__${name}`;
                 if (name === this.name) {
@@ -8025,36 +7978,6 @@
                     actions = [];
                 }
                 return actions.slice();
-            },
-            getSlots(name, defaultSlots = { before: [], after: [] }) {
-                const slots = Object.assign({}, defaultSlots);
-                const configSlots = state.get(`config.slots.${name}`);
-                for (const name in configSlots) {
-                    slots[name] = configSlots[name] || [];
-                }
-                return slots;
-            },
-            subscribeSlots(name, callback, props = null, content = null) {
-                let slots;
-                const unsub = state.subscribe(`config.slots.${name}`, value => {
-                    if (!props) {
-                        return callback(value);
-                    }
-                    if (value === undefined)
-                        return callback({});
-                    if (typeof value === 'object' && Object.keys(value).length) {
-                        slots = new vido.Slots();
-                        for (const name in value) {
-                            slots.addSlot(name, new vido.Slot(value[name] || [], props, content));
-                        }
-                        callback(slots);
-                    }
-                });
-                return function destroy() {
-                    unsub();
-                    if (slots)
-                        slots.destroy();
-                };
             },
             isItemInViewport(item, left, right) {
                 return (item.time.start >= left && item.time.start < right) || (item.time.end >= left && item.time.end < right);

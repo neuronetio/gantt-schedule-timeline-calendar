@@ -329,10 +329,14 @@
 .gantt-schedule-timeline-calendar__chart-timeline-grid-row-block.current {
   background: #f9fafb;
 }
-.gantt-schedule-timeline-calendar__chart-timeline-dependency-lines {
+.gantt-schedule-timeline-calendar__chart-timeline-dependency-lines-lines,
+.gantt-schedule-timeline-calendar__chart-timeline-dependency-lines-handles {
   position: absolute;
   left: 0;
   top: 0;
+  pointer-events: none;
+  width: var(--width);
+  height: var(--height);
 }
 .gantt-schedule-timeline-calendar__chart-timeline-items {
   position: absolute;
