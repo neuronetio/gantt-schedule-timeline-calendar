@@ -4290,7 +4290,6 @@
         function heightChange() {
             const config = state.get('config');
             const scrollBarHeight = state.get('_internal.scrollBarHeight');
-            console.log({ scrollBarHeight });
             const height = config.height - config.headerHeight - scrollBarHeight;
             state.update('_internal.height', height);
             styleMap.style['--height'] = config.height + 'px';
