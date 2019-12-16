@@ -344,7 +344,7 @@ export function getInternalApi(state) {
       }
     },
 
-    time: new TimeApi(state, () => api),
+    time: new TimeApi(state),
 
     /**
      * Get scrollbar height - compute it from element
@@ -382,15 +382,11 @@ export function getInternalApi(state) {
     },
 
     getCompensationX() {
-      const periodDates = state.get(`_internal.chart.time.dates.day`);
-      if (!periodDates || periodDates.length === 0) {
-        return 0;
-      }
-      return periodDates[0].subPx;
+      return state.get('config.scroll.compensation.x') || 0;
     },
 
     getCompensationY() {
-      return state.get('config.scroll.compensation');
+      return state.get('config.scroll.compensation.y') || 0;
     },
 
     getSVGIconSrc(svg) {

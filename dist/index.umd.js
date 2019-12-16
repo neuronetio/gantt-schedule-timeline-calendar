@@ -4357,33 +4357,33 @@
         /**
          * Generate visible rows
          */
-        function generateVisibleRows() {
+        function generateVisibleRowsAndItems() {
             const { visibleRows, compensation } = api.getVisibleRowsAndCompensation(state.get('_internal.list.rowsWithParentsExpanded'));
             const smoothScroll = state.get('config.scroll.smooth');
-            const current = state.get('_internal.list.visibleRows');
+            const currentVisibleRows = state.get('_internal.list.visibleRows');
             let shouldUpdate = true;
-            state.update('config.scroll.compensation', smoothScroll ? -compensation : 0);
+            state.update('config.scroll.compensation.y', smoothScroll ? -compensation : 0);
             if (visibleRows.length) {
                 shouldUpdate = visibleRows.some((row, index) => {
-                    if (typeof current[index] === 'undefined') {
+                    if (typeof currentVisibleRows[index] === 'undefined') {
                         return true;
                     }
-                    return row.id !== current[index].id;
+                    return row.id !== currentVisibleRows[index].id;
                 });
             }
             if (shouldUpdate) {
                 state.update('_internal.list.visibleRows', visibleRows);
-                const visibleItems = [];
-                for (const row of visibleRows) {
-                    for (const item of row._internal.items) {
-                        visibleItems.push(item);
-                    }
-                }
-                state.update('_internal.chart.visibleItems', visibleItems);
             }
+            const visibleItems = [];
+            for (const row of visibleRows) {
+                for (const item of row._internal.items) {
+                    visibleItems.push(item);
+                }
+            }
+            state.update('_internal.chart.visibleItems', visibleItems);
             update();
         }
-        onDestroy(state.subscribeAll(['_internal.list.rowsWithParentsExpanded;', 'config.scroll.top'], generateVisibleRows));
+        onDestroy(state.subscribeAll(['_internal.list.rowsWithParentsExpanded;', 'config.scroll.top', 'config.chart.items'], generateVisibleRowsAndItems, { bulk: true }));
         let elementScrollTop = 0;
         /**
          * On visible rows change
@@ -4442,7 +4442,7 @@
         /**
          * Recalculate times action
          */
-        const recalculateTimes = () => {
+        function recalculateTimes() {
             const chartWidth = state.get('_internal.chart.dimensions.width');
             let time = api.mergeDeep({}, state.get('config.chart.time'));
             time = api.time.recalculateFromTo(time);
@@ -4478,8 +4478,13 @@
             generateAndAddPeriodDates('day', time);
             generateAndAddPeriodDates('month', time);
             state.update(`_internal.chart.time`, time);
+            let xCompensation = 0;
+            if (time.dates.day && time.dates.day.length !== 0) {
+                xCompensation = time.dates.day[0].subPx;
+            }
+            state.update('config.scroll.compensation.x', xCompensation);
             update();
-        };
+        }
         onDestroy(state.subscribeAll([
             'config.chart.time',
             '_internal.dimensions.width',
@@ -4811,15 +4816,15 @@
         let width;
         function calculateStyle() {
             const list = state.get('config.list');
-            const compensation = state.get('config.scroll.compensation');
+            const compensationY = state.get('config.scroll.compensation.y');
             calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
             width = calculatedWidth;
             const height = state.get('_internal.height');
             widthStyleMap.style.width = width + 'px';
             widthStyleMap.style['--width'] = width + 'px';
             containerStyleMap.style.height = height + 'px';
-            scrollCompensationStyleMap.style.height = height + Math.abs(compensation) + 'px';
-            scrollCompensationStyleMap.style.transform = `translate(0px, ${compensation}px)`;
+            scrollCompensationStyleMap.style.height = height + Math.abs(compensationY) + 'px';
+            scrollCompensationStyleMap.style.transform = `translate(0px, ${compensationY}px)`;
         }
         let styleSub = state.subscribeAll([
             'config.list.columns.percent',
@@ -4827,7 +4832,7 @@
             `config.list.columns.data.${column.id}.width`,
             '_internal.chart.dimensions.width',
             '_internal.height',
-            'config.scroll.compensation',
+            'config.scroll.compensation.y',
             '_internal.list.width'
         ], calculateStyle, { bulk: true });
         const ListColumnHeader = createComponent(ListColumnHeaderComponent, { columnId: props.columnId });
@@ -4853,7 +4858,7 @@
                 `config.list.columns.data.${column.id}.width`,
                 '_internal.chart.dimensions.width',
                 '_internal.height',
-                'config.scroll.compensation',
+                'config.scroll.compensation.y',
                 '_internal.list.width'
             ], calculateStyle, { bulk: true });
             ListColumnHeader.change(props);
@@ -6502,7 +6507,6 @@
         const detach = new Detach(() => shouldDetach);
         const updateDom = () => {
             const chart = state.get('_internal.chart');
-            //const compensation = state.get('config.scroll.compensation');
             shouldDetach = false;
             const xCompensation = api.getCompensationX();
             styleMap.style.width = chart.dimensions.width + xCompensation + 'px';
@@ -6511,7 +6515,6 @@
                 return;
             }
             styleMap.style.height = props.row.height + 'px';
-            //styleMap.style.top = props.row.top + compensation + 'px';
             styleMap.style['--row-height'] = props.row.height + 'px';
         };
         const updateRow = row => {
@@ -6632,7 +6635,7 @@
             if (leave)
                 return;
             const time = state.get('_internal.chart.time');
-            itemLeftPx = (props.item.time.start - time.leftGlobal) / time.timePerPixel;
+            itemLeftPx = api.time.globalTimeToViewPixelOffset(props.item.time.start);
             itemLeftPx = Math.round(itemLeftPx * 10) * 0.1;
             itemWidthPx = (props.item.time.end - props.item.time.start) / time.timePerPixel;
             itemWidthPx -= state.get('config.chart.spacing') || 0;
@@ -6695,7 +6698,7 @@
             labelClassName = api.getClass(componentName + '-label', props);
             update();
         }));
-        onDestroy(state.subscribe('_internal.chart.time', bulk => {
+        onDestroy(state.subscribeAll(['_internal.chart.time', 'config.scroll.compensation.x'], bulk => {
             updateItem();
         }));
         componentActions.push(BindElementAction$7);
@@ -6886,6 +6889,10 @@
                 percent: {
                     top: 0,
                     left: 0
+                },
+                compensation: {
+                    x: 0,
+                    y: 0
                 }
             },
             chart: {
@@ -6977,7 +6984,7 @@
      * @license   GPL-3.0
      */
     class TimeApi {
-        constructor(state, getApi) {
+        constructor(state) {
             this.utcMode = false;
             this.state = state;
             this.locale = state.get('config.locale');
@@ -7033,7 +7040,16 @@
             return time;
         }
         timeToPixelOffset(miliseconds) {
-            return miliseconds / this.state.get('_internal.chart.time.timePerPixel');
+            const timePerPixel = this.state.get('_internal.chart.time.timePerPixel') || 1;
+            return miliseconds / timePerPixel;
+        }
+        globalTimeToViewPixelOffset(miliseconds, withCompensation = false) {
+            const time = this.state.get('_internal.chart.time');
+            let xCompensation = this.state.get('config.scroll.compensation.x') || 0;
+            const viewPixelOffset = (miliseconds - time.leftGlobal) / time.timePerPixel;
+            if (withCompensation)
+                return viewPixelOffset + xCompensation;
+            return viewPixelOffset;
         }
     }
 
@@ -8212,7 +8228,7 @@
                     return scroll;
                 }
             },
-            time: new TimeApi(state, () => api),
+            time: new TimeApi(state),
             /**
              * Get scrollbar height - compute it from element
              *
@@ -8248,14 +8264,10 @@
                     return [];
             },
             getCompensationX() {
-                const periodDates = state.get(`_internal.chart.time.dates.day`);
-                if (!periodDates || periodDates.length === 0) {
-                    return 0;
-                }
-                return periodDates[0].subPx;
+                return state.get('config.scroll.compensation.x') || 0;
             },
             getCompensationY() {
-                return state.get('config.scroll.compensation');
+                return state.get('config.scroll.compensation.y') || 0;
             },
             getSVGIconSrc(svg) {
                 if (typeof iconsCache[svg] === 'string')

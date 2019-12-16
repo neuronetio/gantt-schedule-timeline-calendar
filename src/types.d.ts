@@ -111,6 +111,10 @@ export interface ScrollPercent {
   top?: number;
   left?: number;
 }
+export interface ScrollCompensation {
+  x: number;
+  y: number;
+}
 export interface Scroll {
   smooth?: boolean;
   top?: number;
@@ -118,6 +122,7 @@ export interface Scroll {
   xMultiplier?: number;
   yMultiplier?: number;
   percent: ScrollPercent;
+  compensation: ScrollCompensation;
 }
 
 export interface ChartTimeDate {}

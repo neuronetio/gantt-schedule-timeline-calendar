@@ -24,6 +24,7 @@
       <button onclick="deleteRow()">Delete row</button>
       <button onclick="deleteItem()">Delete item</button>
       <button onclick="clearAll()">clear all</button>
+      <button onclick="randomizeItems()">randomize items</button>
     </div>
     <div id="app"></div>
     <script src="../ItemMovement.plugin.js"></script>
@@ -180,6 +181,16 @@
 
       function clearAll() {
         GSTCState.update('config.list.rows', {});
+      }
+
+      function randomizeItems() {
+        const rows = Object.keys(GSTCState.get('config.list.rows'));
+        GSTCState.update('config.chart.items', items => {
+          Object.values(items).forEach(item => {
+            item.rowId = rows[Math.floor(Math.random() * rows.length)];
+          });
+          return items;
+        });
       }
 
       document.getElementById('percent').addEventListener('input', ev => {

@@ -16,7 +16,7 @@ export default class TimeApi {
   private utcMode = false;
   private state: any;
 
-  constructor(state, getApi) {
+  constructor(state) {
     this.state = state;
     this.locale = state.get('config.locale');
     this.utcMode = state.get('config.utcMode');
@@ -76,6 +76,15 @@ export default class TimeApi {
   }
 
   public timeToPixelOffset(miliseconds: number): number {
-    return miliseconds / this.state.get('_internal.chart.time.timePerPixel');
+    const timePerPixel = this.state.get('_internal.chart.time.timePerPixel') || 1;
+    return miliseconds / timePerPixel;
+  }
+
+  public globalTimeToViewPixelOffset(miliseconds: number, withCompensation = false): number {
+    const time = this.state.get('_internal.chart.time');
+    let xCompensation = this.state.get('config.scroll.compensation.x') || 0;
+    const viewPixelOffset = (miliseconds - time.leftGlobal) / time.timePerPixel;
+    if (withCompensation) return viewPixelOffset + xCompensation;
+    return viewPixelOffset;
   }
 }

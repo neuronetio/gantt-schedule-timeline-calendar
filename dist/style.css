@@ -337,6 +337,14 @@
   pointer-events: none;
   width: var(--width);
   height: var(--height);
+  user-select: none;
+}
+.gantt-schedule-timeline-calendar__chart-timeline-dependency-lines-handle {
+  position: absolute;
+  background: #e74c3c;
+  border-radius: 100%;
+  pointer-events: all;
+  user-select: none;
 }
 .gantt-schedule-timeline-calendar__chart-timeline-items {
   position: absolute;

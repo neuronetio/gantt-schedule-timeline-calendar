@@ -201,6 +201,10 @@ function defaultConfig(): Config {
       percent: {
         top: 0,
         left: 0
+      },
+      compensation: {
+        x: 0,
+        y: 0
       }
     },
     chart: {

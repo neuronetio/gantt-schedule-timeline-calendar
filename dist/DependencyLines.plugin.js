@@ -54,6 +54,67 @@
     `;
   }
   /**
+   * Item dependency line handle
+   * @param vido
+   * @param props
+   */
+  function ItemDependencyLineHandle(vido, props) {
+      const { html, onDestroy, api, state, StyleMap, onChange, Detach, update, Actions, PointerAction } = vido;
+      const componentName = 'chart-timeline-dependency-lines-handle';
+      const actionProps = Object.assign({}, props);
+      let className;
+      onDestroy(state.subscribe('config.classNames', () => {
+          className = api.getClass(componentName);
+      }));
+      let shouldDetach = false;
+      const detach = new Detach(() => shouldDetach);
+      const styleMap = new StyleMap({ left: '0px', top: '0px', width: opts.width + 'px', height: opts.height + 'px' });
+      function updatePosition() {
+          styleMap.style.left = api.time.globalTimeToViewPixelOffset(props.item.time.end, true) - opts.width + 'px';
+          styleMap.style.top = props.row.top + 'px';
+      }
+      function change(changedProps, options) {
+          if (options.leave) {
+              shouldDetach = true;
+              return update();
+          }
+          shouldDetach = false;
+          props = changedProps;
+          for (const prop in props) {
+              actionProps[prop] = props[prop];
+          }
+          updatePosition();
+          update();
+      }
+      onChange(change);
+      onDestroy(state.subscribeAll(['_internal.chart.time', 'config.scroll.compensation'], () => {
+          updatePosition();
+          update();
+      }));
+      const componentActions = api.getActions(componentName) || [];
+      let moving = false;
+      actionProps.pointerOptions = {
+          axis: 'xy',
+          onDown({ event }) {
+              event.stopPropagation();
+              event.preventDefault();
+              moving = true;
+          },
+          onMove({ event, movementX, movementY }) {
+              if (moving) {
+                  event.stopPropagation();
+                  event.preventDefault();
+                  console.log('move?', { movementX, movementY });
+              }
+          }
+      };
+      componentActions.push(PointerAction);
+      const actions = Actions.create(componentActions, actionProps);
+      return templateProps => html `
+      <div detach=${detach} class=${className} style=${styleMap} data-actions=${actions}></div>
+    `;
+  }
+  /**
    * DependencyLines Handles Component
    * @param vido
    */
@@ -64,9 +125,21 @@
       onDestroy(state.subscribe('config.classNames', () => {
           className = api.getClass(componentName);
       }));
-      let handles = [];
-      onDestroy(state.subscribe('config.chart.items', items => {
-          const itemsArray = Object.values(items);
+      const handles = [];
+      onDestroy(state.subscribe('_internal.chart.visibleItems', visibleItems => {
+          const handlesProps = [];
+          const allRows = state.get('config.list.rows');
+          for (const item of visibleItems) {
+              // @ts-ignore
+              const row = allRows[item.rowId];
+              if (!row)
+                  continue;
+              handlesProps.push({
+                  item: item,
+                  row
+              });
+          }
+          return reuseComponents(handles, handlesProps, prop => prop, ItemDependencyLineHandle);
       }));
       return templateProps => html `
       <div class="${className}">${handles.map(handle => handle.html())}</div>

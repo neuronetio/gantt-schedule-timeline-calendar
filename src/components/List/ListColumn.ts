@@ -65,15 +65,15 @@ export default function ListColumn(vido, props) {
   let width;
   function calculateStyle() {
     const list = state.get('config.list');
-    const compensation = state.get('config.scroll.compensation');
+    const compensationY = state.get('config.scroll.compensation.y');
     calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
     width = calculatedWidth;
     const height = state.get('_internal.height');
     widthStyleMap.style.width = width + 'px';
     widthStyleMap.style['--width'] = width + 'px';
     containerStyleMap.style.height = height + 'px';
-    scrollCompensationStyleMap.style.height = height + Math.abs(compensation) + 'px';
-    scrollCompensationStyleMap.style.transform = `translate(0px, ${compensation}px)`;
+    scrollCompensationStyleMap.style.height = height + Math.abs(compensationY) + 'px';
+    scrollCompensationStyleMap.style.transform = `translate(0px, ${compensationY}px)`;
   }
   let styleSub = state.subscribeAll(
     [
@@ -82,7 +82,7 @@ export default function ListColumn(vido, props) {
       `config.list.columns.data.${column.id}.width`,
       '_internal.chart.dimensions.width',
       '_internal.height',
-      'config.scroll.compensation',
+      'config.scroll.compensation.y',
       '_internal.list.width'
     ],
     calculateStyle,
@@ -113,7 +113,7 @@ export default function ListColumn(vido, props) {
         `config.list.columns.data.${column.id}.width`,
         '_internal.chart.dimensions.width',
         '_internal.height',
-        'config.scroll.compensation',
+        'config.scroll.compensation.y',
         '_internal.list.width'
       ],
       calculateStyle,

@@ -152,35 +152,41 @@ export default function Main(vido, props = {}) {
   /**
    * Generate visible rows
    */
-  function generateVisibleRows() {
+  function generateVisibleRowsAndItems() {
     const { visibleRows, compensation } = api.getVisibleRowsAndCompensation(
       state.get('_internal.list.rowsWithParentsExpanded')
     );
     const smoothScroll = state.get('config.scroll.smooth');
-    const current = state.get('_internal.list.visibleRows');
+    const currentVisibleRows = state.get('_internal.list.visibleRows');
     let shouldUpdate = true;
-    state.update('config.scroll.compensation', smoothScroll ? -compensation : 0);
+    state.update('config.scroll.compensation.y', smoothScroll ? -compensation : 0);
     if (visibleRows.length) {
       shouldUpdate = visibleRows.some((row, index) => {
-        if (typeof current[index] === 'undefined') {
+        if (typeof currentVisibleRows[index] === 'undefined') {
           return true;
         }
-        return row.id !== current[index].id;
+        return row.id !== currentVisibleRows[index].id;
       });
     }
     if (shouldUpdate) {
       state.update('_internal.list.visibleRows', visibleRows);
-      const visibleItems = [];
-      for (const row of visibleRows) {
-        for (const item of row._internal.items) {
-          visibleItems.push(item);
-        }
-      }
-      state.update('_internal.chart.visibleItems', visibleItems);
     }
+    const visibleItems = [];
+    for (const row of visibleRows) {
+      for (const item of row._internal.items) {
+        visibleItems.push(item);
+      }
+    }
+    state.update('_internal.chart.visibleItems', visibleItems);
     update();
   }
-  onDestroy(state.subscribeAll(['_internal.list.rowsWithParentsExpanded;', 'config.scroll.top'], generateVisibleRows));
+  onDestroy(
+    state.subscribeAll(
+      ['_internal.list.rowsWithParentsExpanded;', 'config.scroll.top', 'config.chart.items'],
+      generateVisibleRowsAndItems,
+      { bulk: true }
+    )
+  );
 
   let elementScrollTop = 0;
   /**
@@ -242,7 +248,7 @@ export default function Main(vido, props = {}) {
   /**
    * Recalculate times action
    */
-  const recalculateTimes = () => {
+  function recalculateTimes() {
     const chartWidth = state.get('_internal.chart.dimensions.width');
     let time = api.mergeDeep({}, state.get('config.chart.time'));
     time = api.time.recalculateFromTo(time);
@@ -278,8 +284,13 @@ export default function Main(vido, props = {}) {
     generateAndAddPeriodDates('day', time);
     generateAndAddPeriodDates('month', time);
     state.update(`_internal.chart.time`, time);
+    let xCompensation = 0;
+    if (time.dates.day && time.dates.day.length !== 0) {
+      xCompensation = time.dates.day[0].subPx;
+    }
+    state.update('config.scroll.compensation.x', xCompensation);
     update();
-  };
+  }
   onDestroy(
     state.subscribeAll(
       [

@@ -53,7 +53,7 @@ function ChartTimelineItemsRowItem(vido, props) {
   function updateItem() {
     if (leave) return;
     const time = state.get('_internal.chart.time');
-    itemLeftPx = (props.item.time.start - time.leftGlobal) / time.timePerPixel;
+    itemLeftPx = api.time.globalTimeToViewPixelOffset(props.item.time.start);
     itemLeftPx = Math.round(itemLeftPx * 10) * 0.1;
     itemWidthPx = (props.item.time.end - props.item.time.start) / time.timePerPixel;
     itemWidthPx -= state.get('config.chart.spacing') || 0;
@@ -118,7 +118,7 @@ function ChartTimelineItemsRowItem(vido, props) {
   );
 
   onDestroy(
-    state.subscribe('_internal.chart.time', bulk => {
+    state.subscribeAll(['_internal.chart.time', 'config.scroll.compensation.x'], bulk => {
       updateItem();
     })
   );

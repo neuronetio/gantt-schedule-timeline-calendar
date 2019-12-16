@@ -53,7 +53,6 @@ const ChartTimelineItemsRow = (vido, props) => {
 
   const updateDom = () => {
     const chart = state.get('_internal.chart');
-    //const compensation = state.get('config.scroll.compensation');
     shouldDetach = false;
     const xCompensation = api.getCompensationX();
     styleMap.style.width = chart.dimensions.width + xCompensation + 'px';
@@ -62,7 +61,6 @@ const ChartTimelineItemsRow = (vido, props) => {
       return;
     }
     styleMap.style.height = props.row.height + 'px';
-    //styleMap.style.top = props.row.top + compensation + 'px';
     styleMap.style['--row-height'] = props.row.height + 'px';
   };
 

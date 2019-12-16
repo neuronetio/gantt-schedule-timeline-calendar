@@ -74,10 +74,10 @@
               }
               const ghost = element.cloneNode(true);
               const style = getComputedStyle(element);
-              const compensation = state.get('config.scroll.compensation');
+              const compensationY = state.get('config.scroll.compensation.y');
               ghost.style.position = 'absolute';
               ghost.style.left = normalized.clientX - ganttLeft - movement.itemLeftCompensation + 'px';
-              const itemTop = normalized.clientY - ganttTop - element.offsetTop - compensation + parseInt(style['margin-top']);
+              const itemTop = normalized.clientY - ganttTop - element.offsetTop - compensationY + parseInt(style['margin-top']);
               movement.itemTop = itemTop;
               ghost.style.top = normalized.clientY - ganttTop - itemTop + 'px';
               ghost.style.width = style.width;
@@ -252,10 +252,10 @@
               const movement = getMovement(data);
               const top = normalized.clientY - movement.ganttTop;
               const visibleRows = state.get('_internal.list.visibleRows');
-              const compensation = state.get('config.scroll.compensation');
+              const compensationY = state.get('config.scroll.compensation.y');
               let index = 0;
               for (const currentRow of visibleRows) {
-                  if (currentRow.top + compensation > top) {
+                  if (currentRow.top + compensationY > top) {
                       if (index > 0) {
                           return index - 1;
                       }
