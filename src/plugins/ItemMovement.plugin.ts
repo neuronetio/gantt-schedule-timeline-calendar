@@ -17,6 +17,7 @@ export interface Options {
   snapStart?: (timeStart: number, startDiff: number, item: object) => number;
   snapEnd?: (timeEnd: number, endDiff: number, item: object) => number;
   ghostNode?: boolean;
+  wait?: number;
 }
 
 const pointerEventsExists = typeof PointerEvent !== 'undefined';
@@ -34,7 +35,8 @@ export default function ItemMovement(options: Options = {}) {
     snapEnd(timeEnd, endDiff) {
       return timeEnd + endDiff;
     },
-    ghostNode: true
+    ghostNode: true,
+    wait: 500
   };
   options = { ...defaultOptions, ...options };
 
@@ -75,7 +77,7 @@ export default function ItemMovement(options: Options = {}) {
     function getMovement(data) {
       const itemId = data.item.id;
       if (typeof movementState[itemId] === 'undefined') {
-        movementState[itemId] = { moving: false, resizing: false };
+        movementState[itemId] = { moving: false, resizing: false, waiting: false };
       }
       return movementState[itemId];
     }
@@ -160,23 +162,27 @@ export default function ItemMovement(options: Options = {}) {
     }
 
     function labelDown(ev) {
-      ev.stopPropagation();
-      ev.preventDefault();
       const normalized = api.normalizePointerEvent(ev);
       if ((ev.type === 'pointerdown' || ev.type === 'mousedown') && ev.button !== 0) {
         return;
       }
       const movement = getMovement(data);
-      movement.moving = true;
-      const item = state.get(`config.chart.items.${data.item.id}`);
-      const chartLeftTime = state.get('_internal.chart.time.leftGlobal');
-      const timePerPixel = state.get('_internal.chart.time.timePerPixel');
-      const ganttRect = state.get('_internal.elements.chart-timeline').getBoundingClientRect();
-      movement.ganttTop = ganttRect.top;
-      movement.ganttLeft = ganttRect.left;
-      movement.itemX = Math.round((item.time.start - chartLeftTime) / timePerPixel);
-      movement.itemLeftCompensation = normalized.clientX - movement.ganttLeft - movement.itemX;
-      createGhost(data, normalized, ganttRect.left, ganttRect.top);
+      movement.waiting = true;
+      ev.stopPropagation();
+      ev.preventDefault();
+      setTimeout(() => {
+        if (!movement.waiting) return;
+        movement.moving = true;
+        const item = state.get(`config.chart.items.${data.item.id}`);
+        const chartLeftTime = state.get('_internal.chart.time.leftGlobal');
+        const timePerPixel = state.get('_internal.chart.time.timePerPixel');
+        const ganttRect = state.get('_internal.elements.chart-timeline').getBoundingClientRect();
+        movement.ganttTop = ganttRect.top;
+        movement.ganttLeft = ganttRect.left;
+        movement.itemX = Math.round((item.time.start - chartLeftTime) / timePerPixel);
+        movement.itemLeftCompensation = normalized.clientX - movement.ganttLeft - movement.itemX;
+        createGhost(data, normalized, ganttRect.left, ganttRect.top);
+      }, options.wait);
     }
 
     function resizerDown(ev) {
@@ -346,9 +352,11 @@ export default function ItemMovement(options: Options = {}) {
       }
       movement.moving = false;
       movement.resizing = false;
+      movement.waitint = false;
       for (const itemId in movementState) {
         movementState[itemId].moving = false;
         movementState[itemId].resizing = false;
+        movementState[itemId].waiting = false;
         destroyGhost(itemId);
       }
     }

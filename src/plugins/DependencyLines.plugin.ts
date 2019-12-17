@@ -21,18 +21,34 @@ export type Type = 'straight' | 'quadratic' | 'cubic';
 export interface Style {
   [name: string]: string;
 }
-export interface Options {
-  type?: Type;
+export interface HandleOptions {
   style?: Style;
   width?: number;
   height?: number;
 }
+export interface ConnectorOptions {
+  style?: Style;
+  width?: number;
+  height?: number;
+}
+export interface Options {
+  type?: Type;
+  handle?: HandleOptions;
+  connector?: ConnectorOptions;
+}
 
 const defaultOptions: Options = {
   type: 'quadratic',
-  style: {},
-  width: 16,
-  height: 16
+  handle: {
+    style: {},
+    width: 40,
+    height: 40
+  },
+  connector: {
+    style: {},
+    width: 40,
+    height: 40
+  }
 };
 
 export interface Point {
@@ -74,6 +90,14 @@ function ItemDependencyLine(vido, props) {
   let shouldDetach = false;
   const detach = new Detach(() => shouldDetach);
 
+  let timePerPixel = 1;
+  onDestroy(
+    state.subscribe('_internal.chart.time.timePerPixel', value => {
+      timePerPixel = value || 1;
+      updateLines();
+    })
+  );
+
   const styleMap = new StyleMap({});
 
   let lines = [];
@@ -93,14 +117,6 @@ function ItemDependencyLine(vido, props) {
       lines.push(line);
     }
   }
-
-  let timePerPixel = 1;
-  onDestroy(
-    state.subscribe('_internal.chart.time.timePerPixel', value => {
-      timePerPixel = value || 1;
-      updateLines();
-    })
-  );
 
   onChange(function onChange(changedProps, options) {
     if (options.leave || !changedProps) {
@@ -159,6 +175,11 @@ function DependencyLinesLines(vido) {
 }
 
 /**
+ * Are we connecting the dots?
+ */
+let connecting = false;
+
+/**
  * Item dependency line handle
  * @param vido
  * @param props
@@ -166,22 +187,46 @@ function DependencyLinesLines(vido) {
 function ItemDependencyLineHandle(vido, props) {
   const { html, onDestroy, api, state, StyleMap, onChange, Detach, update, Actions, PointerAction } = vido;
   const componentName = 'chart-timeline-dependency-lines-handle';
+  const connectorName = componentName + '--connector';
+
   const actionProps = { ...props };
-  let className;
+  let className, connectorClassName;
   onDestroy(
     state.subscribe('config.classNames', () => {
       className = api.getClass(componentName);
+      connectorClassName = api.getClass(connectorName);
     })
   );
 
   let shouldDetach = false;
   const detach = new Detach(() => shouldDetach);
+  const connectorDetach = new Detach(() => shouldDetach || !connecting || connecting === props.item.id);
 
-  const styleMap = new StyleMap({ left: '0px', top: '0px', width: opts.width + 'px', height: opts.height + 'px' });
+  const styleMap = new StyleMap({
+    left: '0px',
+    top: '0px',
+    width: opts.handle.width + 'px',
+    height: opts.handle.height + 'px'
+  });
+  const connectorStyleMap = new StyleMap({
+    left: '0px',
+    top: '0px',
+    width: opts.connector.width + 'px',
+    height: opts.connector.height + 'px'
+  });
 
   function updatePosition() {
-    styleMap.style.left = api.time.globalTimeToViewPixelOffset(props.item.time.end, true) - opts.width + 'px';
+    styleMap.style.left = api.time.globalTimeToViewPixelOffset(props.item.time.end, true) + 'px';
     styleMap.style.top = props.row.top + 'px';
+    connectorStyleMap.style.left =
+      api.time.globalTimeToViewPixelOffset(props.item.time.start, true) - opts.connector.width - 1 + 'px';
+    connectorStyleMap.style.top = props.row.top + 'px';
+    for (const name in opts.handle.style) {
+      styleMap.style[name] = opts.handle.style[name];
+    }
+    for (const name in opts.connector.style) {
+      connectorStyleMap.style[name] = opts.connector.style[name];
+    }
   }
 
   function change(changedProps, options) {
@@ -206,21 +251,29 @@ function ItemDependencyLineHandle(vido, props) {
     })
   );
 
-  const componentActions = api.getActions(componentName) || [];
-
-  let moving = false;
+  const componentActions = api.getActions(componentName);
   actionProps.pointerOptions = {
     axis: 'xy',
     onDown({ event }) {
       event.stopPropagation();
       event.preventDefault();
-      moving = true;
+      connecting = props.item.id;
+      update();
     },
     onMove({ event, movementX, movementY }) {
-      if (moving) {
+      if (connecting) {
         event.stopPropagation();
         event.preventDefault();
         console.log('move?', { movementX, movementY });
+        update();
+      }
+    },
+    onUp({ event }) {
+      if (connecting) {
+        event.stopPropagation();
+        event.preventDefault();
+        connecting = false;
+        update();
       }
     }
   };
@@ -230,6 +283,7 @@ function ItemDependencyLineHandle(vido, props) {
   return templateProps =>
     html`
       <div detach=${detach} class=${className} style=${styleMap} data-actions=${actions}></div>
+      <div detach=${connectorDetach} class=${connectorClassName} style=${connectorStyleMap}></div>
     `;
 }
 
@@ -273,11 +327,17 @@ function DependencyLinesHandles(vido) {
 }
 
 export default function DependencyLinesPlugin(options: Options = defaultOptions) {
-  opts = { ...defaultOptions, ...options };
-
   return function initialize(vido) {
     state = vido.state;
     api = vido.api;
+
+    defaultOptions.connector.width = defaultOptions.connector.height = state.get('config.list.rowHeight') || 40;
+
+    opts = { ...defaultOptions, ...options };
+    opts.connector = { ...defaultOptions.connector, ...opts.connector };
+    opts.connector.style = { ...defaultOptions.connector.style, ...opts.connector.style };
+    opts.handle = { ...defaultOptions.handle, ...opts.handle };
+    opts.handle.style = { ...defaultOptions.handle.style, ...opts.handle.style };
 
     const Lines = vido.createComponent(DependencyLinesLines);
     state.update('config.wrappers.ChartTimelineGrid', gridWrapper => {

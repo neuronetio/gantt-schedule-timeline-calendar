@@ -304,6 +304,12 @@ $item-content-padding = 5px
           border-radius: 100%
           pointer-events: all
           user-select: none
+          &--connector
+            position: absolute
+            background: #E74C3C
+            border-radius: 100%
+            pointer-events: all
+            user-select: none
       &-items
         & *
           user-select: none
@@ -329,6 +335,7 @@ $item-content-padding = 5px
             user-select: none
             //will-change: left, opacity, height
             background: #E74C3C
+            border-radius: 3px
             color: white
             display: flex
             height: calc(var(--row-height) - 8px);
@@ -348,10 +355,10 @@ $item-content-padding = 5px
               cursor: ew-resize
               flex-shrink: 0
               will-change: visibility
-            /*&--selecting
-              border: 1px solid rgb(0,119, 192)
+            &--selecting
+              border: 1px solid yellowgreen
             &--selected
-              border: 1px solid rgb(0,119, 192)*/
+              border: 1px solid green
             &--moving
               touch-action: none
               opacity: 0.5
