@@ -36,7 +36,7 @@ export default function ItemMovement(options: Options = {}) {
       return timeEnd + endDiff;
     },
     ghostNode: true,
-    wait: 350
+    wait: 0
   };
   options = { ...defaultOptions, ...options };
 

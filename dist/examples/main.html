@@ -35,6 +35,21 @@
     <script>
       const iterations = 1000;
 
+      const pallete = [
+        '#E74C3C',
+        '#DA3C78',
+        '#7E349D',
+        '#0077C0',
+        '#07ABA0',
+        '#0EAC51',
+        '#F1892D',
+        '#E3724B',
+        '#AE7C5B',
+        '#6C7A89',
+        '#758586',
+        '#707070'
+      ];
+
       const rows = {};
       for (let i = 0; i < iterations; i++) {
         const withParent = i > 0 && i % 2 === 0;
@@ -72,7 +87,8 @@
           },
           progress: 50,
           rowId: id,
-          lines: i > 0 && i % 2 === 0 ? [(i + 1).toString()] : []
+          lines: i > 0 && i % 2 === 0 ? [(i + 1).toString()] : [],
+          style: { background: pallete[Math.floor(Math.random() * pallete.length)] }
         };
       }
 

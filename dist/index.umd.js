@@ -5498,7 +5498,7 @@
             update();
         }));
         onDestroy(state.subscribe('config.scroll.left', left => {
-            if (scrollElement && scrollElement.scrollLeft !== left) {
+            if (scrollElement) {
                 scrollElement.scrollLeft = left;
             }
             update();

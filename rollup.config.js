@@ -96,44 +96,12 @@ const devFiles = [
     ]
   },
   {
-    input: 'src/plugins/DependencyLines.plugin.ts',
-    output: {
-      sourcemap: true,
-      file: 'dist/DependencyLines.plugin.js',
-      format: 'umd',
-      name: 'DependencyLines'
-    },
-    plugins: [
-      typescript({ target: 'es6' }),
-      resolve({
-        browser: true
-      }),
-      commonjs({ extensions: ['.js', '.ts'] })
-    ]
-  },
-  {
     input: 'src/plugins/ItemHold.plugin.ts',
     output: {
       sourcemap: true,
       file: 'dist/ItemHold.plugin.js',
       format: 'umd',
       name: 'ItemHold'
-    },
-    plugins: [
-      typescript({ target: 'es6' }),
-      resolve({
-        browser: true
-      }),
-      commonjs({ extensions: ['.js', '.ts'] })
-    ]
-  },
-  {
-    input: 'src/plugins/SaveAsImage.plugin.ts',
-    output: {
-      sourcemap: true,
-      file: 'dist/SaveAsImage.plugin.js',
-      format: 'umd',
-      name: 'SaveAsImage'
     },
     plugins: [
       typescript({ target: 'es6' }),
@@ -260,29 +228,6 @@ const prodFiles = Array.prototype.concat(devFiles, [
         })
     ]
   },
-
-  {
-    input: 'src/plugins/DependencyLines.plugin.ts',
-    output: {
-      sourcemap: true,
-      file: 'dist/DependencyLines.plugin.min.js',
-      format: 'umd',
-      name: 'DependencyLines'
-    },
-    plugins: [
-      typescript({ target: 'es6' }),
-      resolve({
-        browser: true
-      }),
-      commonjs({ extensions: ['.js', '.ts'] }),
-      production &&
-        terser({
-          keep_classnames: true,
-          keep_fnames: true
-        })
-    ]
-  },
-
   {
     input: 'src/plugins/ItemHold.plugin.ts',
     output: {
@@ -304,29 +249,6 @@ const prodFiles = Array.prototype.concat(devFiles, [
         })
     ]
   },
-
-  {
-    input: 'src/plugins/SaveAsImage.plugin.ts',
-    output: {
-      sourcemap: true,
-      file: 'dist/SaveAsImage.plugin.min.js',
-      format: 'umd',
-      name: 'SaveAsImage'
-    },
-    plugins: [
-      typescript({ target: 'es6' }),
-      resolve({
-        browser: true
-      }),
-      commonjs({ extensions: ['.js', '.ts'] }),
-      production &&
-        terser({
-          keep_classnames: true,
-          keep_fnames: true
-        })
-    ]
-  },
-
   {
     input: 'src/plugins/Selection.plugin.ts',
     output: {
@@ -348,7 +270,6 @@ const prodFiles = Array.prototype.concat(devFiles, [
         })
     ]
   },
-
   {
     input: 'src/plugins/plugins.ts',
     output: {

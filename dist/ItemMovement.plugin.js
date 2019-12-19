@@ -28,7 +28,7 @@
               return timeEnd + endDiff;
           },
           ghostNode: true,
-          wait: 350
+          wait: 0
       };
       options = Object.assign(Object.assign({}, defaultOptions), options);
       const movementState = {};

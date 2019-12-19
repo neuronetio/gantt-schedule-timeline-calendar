@@ -689,6 +689,7 @@
             onPointerDown(ev) {
                 previousSelect = cloneSelection(state.get(pluginPath));
                 selecting.selecting = true;
+                this.data.item.selected = true;
                 const container = getEmptyContainer();
                 container['chart-timeline-items-row-items'].push(this.data.item.id);
                 markSelecting(container);
