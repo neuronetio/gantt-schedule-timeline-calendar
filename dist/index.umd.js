@@ -7993,7 +7993,9 @@
                 return actions.slice();
             },
             isItemInViewport(item, left, right) {
-                return (item.time.start >= left && item.time.start < right) || (item.time.end >= left && item.time.end < right);
+                return ((item.time.start >= left && item.time.start < right) ||
+                    (item.time.end >= left && item.time.end < right) ||
+                    (item.time.start <= left && item.time.end >= right));
             },
             fillEmptyRowValues(rows) {
                 let top = 0;
