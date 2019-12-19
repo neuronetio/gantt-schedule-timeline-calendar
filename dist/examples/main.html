@@ -81,7 +81,7 @@
             start: startDayjs.valueOf(),
             end: startDayjs
               .clone()
-              .add(4, 'days')
+              .add(Math.floor(Math.random() * 6) + 4, 'days')
               .valueOf()
           },
           progress: 50,
