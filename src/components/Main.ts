@@ -252,9 +252,8 @@ export default function Main(vido, props = {}) {
     const chartWidth = state.get('_internal.chart.dimensions.width');
     let time = api.mergeDeep({}, state.get('config.chart.time'));
     time = api.time.recalculateFromTo(time);
-    const zoomPercent = time.zoom * 0.01;
     let scrollLeft = state.get('config.scroll.left');
-    time.timePerPixel = zoomPercent + Math.pow(2, time.zoom);
+    time.timePerPixel = Math.pow(2, time.zoom);
     time.totalViewDurationMs = api.time.date(time.to).diff(time.from, 'milliseconds');
     time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
     if (scrollLeft > time.totalViewDurationPx) {
@@ -266,12 +265,13 @@ export default function Main(vido, props = {}) {
     time.rightInner = time.rightGlobal - time.from;
     time.leftPx = time.leftInner / time.timePerPixel;
     time.rightPx = time.rightInner / time.timePerPixel;
-    const pixelGlobal = Math.round(time.rightGlobal / time.timePerPixel);
+    const rightPixelGlobal = Math.round(time.rightGlobal / time.timePerPixel);
     const pixelTo = Math.round(time.to / time.timePerPixel);
-    if (pixelGlobal > pixelTo) {
+    if (rightPixelGlobal > pixelTo && scrollLeft === 0) {
       const diff = time.rightGlobal - time.to;
       const diffPercent = diff / (time.rightGlobal - time.from);
       time.timePerPixel = time.timePerPixel - time.timePerPixel * diffPercent;
+      time.zoom = Math.log(time.timePerPixel) / Math.log(2);
       time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
       time.rightGlobal = time.to;
       time.rightInner = time.rightGlobal - time.from;
