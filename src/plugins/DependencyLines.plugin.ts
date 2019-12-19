@@ -327,8 +327,11 @@ function DependencyLinesHandles(vido) {
       <div class="${className}">${handles.map(handle => handle.html())}</div>
     `;
 }
+export default function() {
+  return function() {};
+}
 
-export default function DependencyLinesPlugin(options: Options = defaultOptions) {
+function DependencyLinesPlugin(options: Options = defaultOptions) {
   return function initialize(vido) {
     state = vido.state;
     api = vido.api;

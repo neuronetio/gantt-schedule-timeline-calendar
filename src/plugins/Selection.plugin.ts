@@ -175,70 +175,84 @@ export default function Selection(options: Options = {}) {
    * Clear selection
    * @param {boolean} clear
    */
-  function clearSelection(clear = false) {
-    console.trace();
+  function clearSelection(clear = false, onlySelecting = false) {
     let selectingState;
-    state.update(pluginPath, currently => {
-      selectingState = {
-        selecting: {
-          'chart-timeline-grid-rows': [],
-          'chart-timeline-grid-row-blocks': [],
-          'chart-timeline-items-rows': [],
-          'chart-timeline-items-row-items': []
-        },
-        selected: {
-          'chart-timeline-grid-rows': clear
-            ? []
-            : options.canDeselect(
-                'chart-timeline-grid-rows',
-                currently.selected['chart-timeline-grid-rows'],
-                currently
-              ),
-          'chart-timeline-grid-row-blocks': clear
-            ? []
-            : options.canDeselect(
-                'chart-timeline-grid-row-blocks',
-                currently.selected['chart-timeline-grid-row-blocks'],
-                currently
-              ),
-          'chart-timeline-items-rows': clear
-            ? []
-            : options.canDeselect(
-                'chart-timeline-items-rows',
-                currently.selected['chart-timeline-items-rows'],
-                currently
-              ),
-          'chart-timeline-items-row-items': clear
-            ? []
-            : options.canDeselect(
-                'chart-timeline-items-row-items',
-                currently.selected['chart-timeline-items-row-items'],
-                currently
-              )
-        }
-      };
-      return selectingState;
-    });
-    state.update('_internal.chart.grid.rowsWithBlocks', function clearRowsWithBlocks(rowsWithBlocks) {
-      if (rowsWithBlocks)
-        for (const row of rowsWithBlocks) {
-          for (const block of row.blocks) {
-            block.selected = selectingState.selected['chart-timeline-grid-row-blocks'].includes(block.id);
-            block.selecting = false;
+    if (onlySelecting) {
+      state.update(pluginPath, currently => {
+        selectingState = {
+          selecting: {
+            'chart-timeline-grid-rows': [],
+            'chart-timeline-grid-row-blocks': [],
+            'chart-timeline-items-rows': [],
+            'chart-timeline-items-row-items': []
+          },
+          selected: currently.selected
+        };
+        return selectingState;
+      });
+    } else {
+      state.update(pluginPath, currently => {
+        selectingState = {
+          selecting: {
+            'chart-timeline-grid-rows': [],
+            'chart-timeline-grid-row-blocks': [],
+            'chart-timeline-items-rows': [],
+            'chart-timeline-items-row-items': []
+          },
+          selected: {
+            'chart-timeline-grid-rows': clear
+              ? []
+              : options.canDeselect(
+                  'chart-timeline-grid-rows',
+                  currently.selected['chart-timeline-grid-rows'],
+                  currently
+                ),
+            'chart-timeline-grid-row-blocks': clear
+              ? []
+              : options.canDeselect(
+                  'chart-timeline-grid-row-blocks',
+                  currently.selected['chart-timeline-grid-row-blocks'],
+                  currently
+                ),
+            'chart-timeline-items-rows': clear
+              ? []
+              : options.canDeselect(
+                  'chart-timeline-items-rows',
+                  currently.selected['chart-timeline-items-rows'],
+                  currently
+                ),
+            'chart-timeline-items-row-items': clear
+              ? []
+              : options.canDeselect(
+                  'chart-timeline-items-row-items',
+                  currently.selected['chart-timeline-items-row-items'],
+                  currently
+                )
+          }
+        };
+        return selectingState;
+      });
+      state.update('_internal.chart.grid.rowsWithBlocks', function clearRowsWithBlocks(rowsWithBlocks) {
+        if (rowsWithBlocks)
+          for (const row of rowsWithBlocks) {
+            for (const block of row.blocks) {
+              block.selected = selectingState.selected['chart-timeline-grid-row-blocks'].includes(block.id);
+              block.selecting = false;
+            }
+          }
+        return rowsWithBlocks;
+      });
+      state.update('config.chart.items', items => {
+        if (items) {
+          for (const itemId in items) {
+            const item = items[itemId];
+            item.selected = selectingState.selected['chart-timeline-items-row-items'].includes(itemId);
+            item.selecting = false;
           }
         }
-      return rowsWithBlocks;
-    });
-    state.update('config.chart.items', items => {
-      if (items) {
-        for (const itemId in items) {
-          const item = items[itemId];
-          item.selected = selectingState.selected['chart-timeline-items-row-items'].includes(itemId);
-          item.selecting = false;
-        }
-      }
-      return items;
-    });
+        return items;
+      });
+    }
   }
 
   let previousSelect;
@@ -479,6 +493,7 @@ export default function Selection(options: Options = {}) {
         if (!selecting.selecting || moving) {
           return;
         }
+        clearSelection(false, true);
         saveAndSwapIfNeeded(ev);
         rect.style.left = selecting.fromX + 'px';
         rect.style.top = selecting.fromY + 'px';
