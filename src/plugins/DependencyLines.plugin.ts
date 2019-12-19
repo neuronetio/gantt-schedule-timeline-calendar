@@ -199,7 +199,10 @@ function ItemDependencyLineHandle(vido, props) {
   );
 
   let shouldDetach = false;
-  const detach = new Detach(() => shouldDetach);
+  const detach = new Detach(() => {
+    const moving = state.get('config.plugin.ItemMovement.movement.moving');
+    return shouldDetach || !props.item.selected || moving;
+  });
   const connectorDetach = new Detach(() => shouldDetach || !connecting || connecting === props.item.id);
 
   const styleMap = new StyleMap({
@@ -264,7 +267,6 @@ function ItemDependencyLineHandle(vido, props) {
       if (connecting) {
         event.stopPropagation();
         event.preventDefault();
-        console.log('move?', { movementX, movementY });
         update();
       }
     },

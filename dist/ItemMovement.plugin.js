@@ -28,7 +28,7 @@
               return timeEnd + endDiff;
           },
           ghostNode: true,
-          wait: 500
+          wait: 350
       };
       options = Object.assign(Object.assign({}, defaultOptions), options);
       const movementState = {};
@@ -68,6 +68,17 @@
               }
               return movementState[itemId];
           }
+          function saveMovement(itemId, movement) {
+              state.update(`config.plugin.ItemMovement.items.${itemId}`, movement);
+              state.update('config.plugin.ItemMovement.movement', current => {
+                  if (!current) {
+                      current = { moving: false, waiting: false };
+                  }
+                  current.moving = movement.moving;
+                  current.waiting = movement.waiting;
+                  return current;
+              });
+          }
           function createGhost(data, normalized, ganttLeft, ganttTop) {
               const movement = getMovement(data);
               if (!options.ghostNode || typeof movement.ghost !== 'undefined') {
@@ -90,6 +101,7 @@
               ghost.style.transform = 'scale(1.05, 1.05)';
               state.get('_internal.elements.chart-timeline').appendChild(ghost);
               movement.ghost = ghost;
+              saveMovement(data.item.id, movement);
               return ghost;
           }
           function moveGhost(data, normalized) {
@@ -103,6 +115,7 @@
                           movement.itemTop +
                           parseInt(getComputedStyle(element)['margin-top']) +
                           'px';
+                  saveMovement(data.item.id, movement);
               }
           }
           function destroyGhost(itemId) {
@@ -112,6 +125,7 @@
               if (typeof movementState[itemId] !== 'undefined' && typeof movementState[itemId].ghost !== 'undefined') {
                   state.get('_internal.elements.chart-timeline').removeChild(movementState[itemId].ghost);
                   delete movementState[itemId].ghost;
+                  saveMovement(data.item.id, movementState[itemId]);
               }
           }
           function getSnapStart(data) {
@@ -145,9 +159,10 @@
               }
               const movement = getMovement(data);
               movement.waiting = true;
-              ev.stopPropagation();
-              ev.preventDefault();
+              saveMovement(data.item.id, movement);
               setTimeout(() => {
+                  ev.stopPropagation();
+                  ev.preventDefault();
                   if (!movement.waiting)
                       return;
                   movement.moving = true;
@@ -159,6 +174,7 @@
                   movement.ganttLeft = ganttRect.left;
                   movement.itemX = Math.round((item.time.start - chartLeftTime) / timePerPixel);
                   movement.itemLeftCompensation = normalized.clientX - movement.ganttLeft - movement.itemX;
+                  saveMovement(data.item.id, movement);
                   createGhost(data, normalized, ganttRect.left, ganttRect.top);
               }, options.wait);
           }
@@ -179,6 +195,7 @@
               movement.ganttLeft = ganttRect.left;
               movement.itemX = (item.time.end - chartLeftTime) / timePerPixel;
               movement.itemLeftCompensation = normalized.clientX - movement.ganttLeft - movement.itemX;
+              saveMovement(data.item.id, movement);
           }
           function isCollision(rowId, itemId, start, end) {
               if (!options.collisionDetection) {
@@ -324,8 +341,9 @@
                   ev.preventDefault();
               }
               movement.moving = false;
+              movement.waiting = false;
               movement.resizing = false;
-              movement.waitint = false;
+              saveMovement(data, movement);
               for (const itemId in movementState) {
                   movementState[itemId].moving = false;
                   movementState[itemId].resizing = false;

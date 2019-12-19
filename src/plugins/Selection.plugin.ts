@@ -53,7 +53,7 @@ export interface SelectState {
 
 export default function Selection(options: Options = {}) {
   let vido, state, api, schedule;
-  const path = 'config.plugin.selection';
+  const pluginPath = 'config.plugin.selection';
   const rectClassName = 'gantt-schedule-timeline-caledar__plugin-selection-rect';
   const rect = document.createElement('div');
   rect.classList.add(rectClassName);
@@ -108,6 +108,245 @@ export default function Selection(options: Options = {}) {
     'chart-timeline-items-row-item': props => props.item.id
   };
 
+  function getEmptyContainer() {
+    return {
+      'chart-timeline-grid-rows': [],
+      'chart-timeline-grid-row-blocks': [],
+      'chart-timeline-items-rows': [],
+      'chart-timeline-items-row-items': []
+    };
+  }
+
+  function markSelecting(nowSelecting, addToPrevious = false) {
+    if (addToPrevious) {
+      state.update(`${pluginPath}.selecting`, selecting => {
+        for (const name in selecting) {
+          nowSelecting[name].forEach(id => {
+            if (!selecting[name].includes()) {
+              selecting[name].push(id);
+            }
+          });
+        }
+        return selecting;
+      });
+    } else {
+      state.update(`${pluginPath}.selecting`, nowSelecting);
+    }
+    state.update(
+      'config.chart.items',
+      function updateItems(items) {
+        const now = nowSelecting['chart-timeline-items-row-items'];
+        for (const itemId in items) {
+          const item = items[itemId];
+          if (now.includes(item.id)) {
+            item.selecting = true;
+          } else {
+            item.selecting = false;
+          }
+        }
+        return items;
+      },
+      { only: ['selecting'] }
+    );
+
+    state.update('_internal.chart.grid.rowsWithBlocks', function updateRowsWithBlocks(rowsWithBlocks) {
+      const nowBlocks = nowSelecting['chart-timeline-grid-row-blocks'];
+      const nowRows = nowSelecting['chart-timeline-grid-rows'];
+      if (rowsWithBlocks)
+        for (const row of rowsWithBlocks) {
+          if (nowRows.includes(row.id)) {
+            row.selecting = true;
+          } else {
+            row.selecting = false;
+          }
+          for (const block of row.blocks) {
+            if (nowBlocks.includes(block.id)) {
+              block.selecting = true;
+            } else {
+              block.selecting = false;
+            }
+          }
+        }
+      return rowsWithBlocks;
+    });
+  }
+
+  /**
+   * Clear selection
+   * @param {boolean} clear
+   */
+  function clearSelection(clear = false) {
+    console.trace();
+    let selectingState;
+    state.update(pluginPath, currently => {
+      selectingState = {
+        selecting: {
+          'chart-timeline-grid-rows': [],
+          'chart-timeline-grid-row-blocks': [],
+          'chart-timeline-items-rows': [],
+          'chart-timeline-items-row-items': []
+        },
+        selected: {
+          'chart-timeline-grid-rows': clear
+            ? []
+            : options.canDeselect(
+                'chart-timeline-grid-rows',
+                currently.selected['chart-timeline-grid-rows'],
+                currently
+              ),
+          'chart-timeline-grid-row-blocks': clear
+            ? []
+            : options.canDeselect(
+                'chart-timeline-grid-row-blocks',
+                currently.selected['chart-timeline-grid-row-blocks'],
+                currently
+              ),
+          'chart-timeline-items-rows': clear
+            ? []
+            : options.canDeselect(
+                'chart-timeline-items-rows',
+                currently.selected['chart-timeline-items-rows'],
+                currently
+              ),
+          'chart-timeline-items-row-items': clear
+            ? []
+            : options.canDeselect(
+                'chart-timeline-items-row-items',
+                currently.selected['chart-timeline-items-row-items'],
+                currently
+              )
+        }
+      };
+      return selectingState;
+    });
+    state.update('_internal.chart.grid.rowsWithBlocks', function clearRowsWithBlocks(rowsWithBlocks) {
+      if (rowsWithBlocks)
+        for (const row of rowsWithBlocks) {
+          for (const block of row.blocks) {
+            block.selected = selectingState.selected['chart-timeline-grid-row-blocks'].includes(block.id);
+            block.selecting = false;
+          }
+        }
+      return rowsWithBlocks;
+    });
+    state.update('config.chart.items', items => {
+      if (items) {
+        for (const itemId in items) {
+          const item = items[itemId];
+          item.selected = selectingState.selected['chart-timeline-items-row-items'].includes(itemId);
+          item.selecting = false;
+        }
+      }
+      return items;
+    });
+  }
+
+  let previousSelect;
+  function markSelected(addToPrevious = false) {
+    selecting.selecting = false;
+    rect.style.visibility = 'hidden';
+    const currentSelect = cloneSelection(state.get(pluginPath));
+    const select: SelectState = {};
+    if (addToPrevious) {
+      state.update(pluginPath, value => {
+        const selected = { ...value.selecting };
+        for (const name in value.selected) {
+          for (const id of selected[name]) {
+            if (!value.selected[name].includes(id)) {
+              value.selected[name].push(id);
+            }
+          }
+        }
+        select.selected = { ...value.selected };
+        select.selecting = getEmptyContainer() as Items;
+        return select;
+      });
+    } else {
+      state.update(pluginPath, value => {
+        select.selected = { ...value.selecting };
+        select.selecting = getEmptyContainer() as Items;
+        return select;
+      });
+    }
+    const elements = state.get('_internal.elements');
+    for (const type in selectionTypesIdGetters) {
+      if (elements[type + 's'])
+        for (const element of elements[type + 's']) {
+          if (currentSelect.selecting[type + 's'].includes(element.vido.id)) {
+            options.deselecting(element.vido, type);
+          }
+        }
+    }
+    state.update('config.chart.items', function updateItems(items) {
+      for (const itemId in items) {
+        const item = items[itemId];
+        if (currentSelect.selecting['chart-timeline-items-row-items'].includes(item.id)) {
+          if (typeof item.selected === 'undefined' || !item.selected) {
+            options.selected(item, 'chart-timeline-items-row-item');
+          }
+          item.selected = true;
+        } else if (addToPrevious && previousSelect.selected['chart-timeline-items-row-items'].includes(item.id)) {
+          item.selected = true;
+        } else {
+          if (currentSelect.selected['chart-timeline-items-row-items'].includes(item.id)) {
+            options.deselected(item, 'chart-timeline-items-row-item');
+          }
+          item.selected = false;
+        }
+      }
+      return items;
+    });
+    state.update('_internal.chart.grid.rowsWithBlocks', function updateRowsWithBlocks(rowsWithBlocks) {
+      if (rowsWithBlocks)
+        for (const row of rowsWithBlocks) {
+          for (const block of row.blocks) {
+            if (currentSelect.selecting['chart-timeline-grid-row-blocks'].includes(block.id)) {
+              if (typeof block.selected === 'undefined' || !block.selected) {
+                options.selected(block, 'chart-timeline-grid-row-block');
+              }
+              block.selected = true;
+            } else if (addToPrevious && previousSelect.selected['chart-timeline-grid-row-blocks'].includes(block.id)) {
+              block.selected = true;
+            } else {
+              if (currentSelect.selected['chart-timeline-grid-row-blocks'].includes(block.id)) {
+                options.deselected(block, 'chart-timeline-grid-row-block');
+              }
+              block.selected = false;
+            }
+          }
+        }
+      return rowsWithBlocks;
+    });
+  }
+
+  /**
+   * Clone current selection state
+   * @param {object} currentSelect
+   * @returns {object} currentSelect cloned
+   */
+  function cloneSelection(currentSelect) {
+    const result: SelectingData = {};
+    result.selecting = { ...currentSelect.selecting };
+    result.selecting['chart-timeline-grid-rows'] = currentSelect.selecting['chart-timeline-grid-rows'].slice();
+    result.selecting['chart-timeline-grid-row-blocks'] = currentSelect.selecting[
+      'chart-timeline-grid-row-blocks'
+    ].slice();
+    result.selecting['chart-timeline-items-rows'] = currentSelect.selecting['chart-timeline-items-rows'].slice();
+    result.selecting['chart-timeline-items-row-items'] = currentSelect.selecting[
+      'chart-timeline-items-row-items'
+    ].slice();
+    result.selected = { ...currentSelect.selected };
+    result.selected['chart-timeline-grid-rows'] = currentSelect.selected['chart-timeline-grid-rows'].slice();
+    result.selected['chart-timeline-grid-row-blocks'] = currentSelect.selected[
+      'chart-timeline-grid-row-blocks'
+    ].slice();
+    result.selected['chart-timeline-items-rows'] = currentSelect.selected['chart-timeline-items-rows'].slice();
+    result.selected['chart-timeline-items-row-items'] = currentSelect.selected[
+      'chart-timeline-items-row-items'
+    ].slice();
+    return result;
+  }
+
   /**
    * Selection action class
    */
@@ -127,8 +366,9 @@ export default function Selection(options: Options = {}) {
      */
     constructor(element: Element, data: any) {
       super();
-      let previousSelect;
       const api = {} as any;
+      api.clearSelection = clearSelection;
+
       this.unsub = data.state.subscribeAll(
         ['_internal.elements.chart-timeline', '_internal.chart.dimensions.width'],
         bulk => {
@@ -143,94 +383,6 @@ export default function Selection(options: Options = {}) {
           this.top = bounding.top;
         }
       );
-
-      /**
-       * Clear selection
-       * @param {boolean} force
-       */
-      function clearSelection(force: boolean = false) {
-        let selectingState;
-        state.update(path, currently => {
-          selectingState = {
-            selecting: {
-              'chart-timeline-grid-rows': [],
-              'chart-timeline-grid-row-blocks': [],
-              'chart-timeline-items-rows': [],
-              'chart-timeline-items-row-items': []
-            },
-            selected: {
-              'chart-timeline-grid-rows': force
-                ? []
-                : options.canDeselect(
-                    'chart-timeline-grid-rows',
-                    currently.selected['chart-timeline-grid-rows'],
-                    currently
-                  ),
-              'chart-timeline-grid-row-blocks': force
-                ? []
-                : options.canDeselect(
-                    'chart-timeline-grid-row-blocks',
-                    currently.selected['chart-timeline-grid-row-blocks'],
-                    currently
-                  ),
-              'chart-timeline-items-rows': force
-                ? []
-                : options.canDeselect(
-                    'chart-timeline-items-rows',
-                    currently.selected['chart-timeline-items-rows'],
-                    currently
-                  ),
-              'chart-timeline-items-row-items': force
-                ? []
-                : options.canDeselect(
-                    'chart-timeline-items-rows',
-                    currently.selected['chart-timeline-items-rows'],
-                    currently
-                  )
-            }
-          };
-          return selectingState;
-        });
-        state.update('_internal.chart.grid.rowsWithBlocks', function clearRowsWithBlocks(rowsWithBlocks) {
-          if (rowsWithBlocks)
-            for (const row of rowsWithBlocks) {
-              for (const block of row.blocks) {
-                block.selected = selectingState.selected['chart-timeline-grid-row-blocks'].includes(block.id);
-                block.selecting = false;
-              }
-            }
-          return rowsWithBlocks;
-        });
-      }
-      api.clearSelection = clearSelection;
-
-      /**
-       * Clone current selection state
-       * @param {object} currentSelect
-       * @returns {object} currentSelect cloned
-       */
-      function cloneSelection(currentSelect) {
-        const result: SelectingData = {};
-        result.selecting = { ...currentSelect.selecting };
-        result.selecting['chart-timeline-grid-rows'] = currentSelect.selecting['chart-timeline-grid-rows'].slice();
-        result.selecting['chart-timeline-grid-row-blocks'] = currentSelect.selecting[
-          'chart-timeline-grid-row-blocks'
-        ].slice();
-        result.selecting['chart-timeline-items-rows'] = currentSelect.selecting['chart-timeline-items-rows'].slice();
-        result.selecting['chart-timeline-items-row-items'] = currentSelect.selecting[
-          'chart-timeline-items-row-items'
-        ].slice();
-        result.selected = { ...currentSelect.selected };
-        result.selected['chart-timeline-grid-rows'] = currentSelect.selected['chart-timeline-grid-rows'].slice();
-        result.selected['chart-timeline-grid-row-blocks'] = currentSelect.selected[
-          'chart-timeline-grid-row-blocks'
-        ].slice();
-        result.selected['chart-timeline-items-rows'] = currentSelect.selected['chart-timeline-items-rows'].slice();
-        result.selected['chart-timeline-items-row-items'] = currentSelect.selected[
-          'chart-timeline-items-row-items'
-        ].slice();
-        return result;
-      }
 
       /**
        * Save and swap coordinates if needed
@@ -293,7 +445,7 @@ export default function Selection(options: Options = {}) {
         const currentlySelectingData = [];
         const all = elements[type + 's'];
         if (!all) return [];
-        const currentAll = state.get(path);
+        const currentAll = state.get(pluginPath);
         const currentSelecting = currentAll.selecting[type + 's'];
         for (const element of all) {
           const boundingRect = element.getBoundingClientRect();
@@ -321,64 +473,28 @@ export default function Selection(options: Options = {}) {
        * Select
        * @param {Event} ev
        */
-      const select = ev => {
-        if (!selecting.selecting) {
+      function trackSelection(ev, virtually = false) {
+        const movement = state.get('config.plugin.ItemMovement.movement');
+        const moving = movement && (movement.moving || movement.waiting);
+        if (!selecting.selecting || moving) {
           return;
         }
-        clearSelection();
         saveAndSwapIfNeeded(ev);
         rect.style.left = selecting.fromX + 'px';
         rect.style.top = selecting.fromY + 'px';
-        rect.style.visibility = 'visible';
         rect.style.width = selecting.toX - selecting.fromX + 'px';
         rect.style.height = selecting.toY - selecting.fromY + 'px';
+        if (!virtually) {
+          rect.style.visibility = 'visible';
+        }
         const rectBoundingRect = rect.getBoundingClientRect();
         const elements = state.get('_internal.elements');
         const nowSelecting = {};
         for (const type in selectionTypesIdGetters) {
           nowSelecting[type + 's'] = getSelecting(rectBoundingRect, elements, type, selectionTypesIdGetters[type]);
         }
-
-        state.update(`${path}.selecting`, nowSelecting);
-
-        state.update(
-          'config.chart.items',
-          function updateItems(items) {
-            const now = nowSelecting['chart-timeline-items-row-items'];
-            for (const itemId in items) {
-              const item = items[itemId];
-              if (now.includes(item.id)) {
-                item.selecting = true;
-              } else {
-                item.selecting = false;
-              }
-            }
-            return items;
-          },
-          { only: ['selecting'] }
-        );
-
-        state.update('_internal.chart.grid.rowsWithBlocks', function updateRowsWithBlocks(rowsWithBlocks) {
-          const nowBlocks = nowSelecting['chart-timeline-grid-row-blocks'];
-          const nowRows = nowSelecting['chart-timeline-grid-rows'];
-          if (rowsWithBlocks)
-            for (const row of rowsWithBlocks) {
-              if (nowRows.includes(row.id)) {
-                row.selecting = true;
-              } else {
-                row.selecting = false;
-              }
-              for (const block of row.blocks) {
-                if (nowBlocks.includes(block.id)) {
-                  block.selecting = true;
-                } else {
-                  block.selecting = false;
-                }
-              }
-            }
-          return rowsWithBlocks;
-        });
-      };
+        markSelecting(nowSelecting, ev.ctrlKey);
+      }
 
       /**
        * End select
@@ -387,70 +503,23 @@ export default function Selection(options: Options = {}) {
       const endSelect = ev => {
         if (selecting.selecting) {
           ev.stopPropagation();
+          ev.preventDefault();
           if (selecting.fromX === ev.x - this.left && selecting.fromY === ev.y - this.top) {
             selecting.selecting = false;
             rect.style.visibility = 'hidden';
             return;
           }
         } else {
-          clearSelection();
+          const itemClass = '.gantt-schedule-timeline-calendar__chart-timeline-items-row-item';
+          const isItem = !!(ev.target as Element).closest(itemClass);
+          if (!isItem) {
+            if (!ev.ctrlKey) clearSelection();
+          } else {
+            markSelected(ev.ctrlKey);
+          }
           return;
         }
-
-        selecting.selecting = false;
-        rect.style.visibility = 'hidden';
-        const currentSelect = state.get(path);
-        const select: SelectState = {};
-        state.update(path, value => {
-          select.selected = { ...value.selecting };
-          select.selecting = {
-            'chart-timeline-grid-rows': [],
-            'chart-timeline-grid-row-blocks': [],
-            'chart-timeline-items-rows': [],
-            'chart-timeline-items-row-items': []
-          } as Items;
-          return select;
-        });
-        const elements = state.get('_internal.elements');
-        for (const type in selectionTypesIdGetters) {
-          if (elements[type + 's'])
-            for (const element of elements[type + 's']) {
-              if (currentSelect.selecting[type + 's'].includes(element.vido.id)) {
-                options.deselecting(element.vido, type);
-              }
-            }
-        }
-        state.update('config.chart.items', function updateItems(items) {
-          const now = currentSelect.selecting['chart-timeline-items-row-items'];
-          for (const itemId in items) {
-            const item = items[itemId];
-            if (now.includes(item.id)) {
-              item.selecting = true;
-            } else {
-              item.selecting = false;
-            }
-          }
-          return items;
-        });
-        state.update('_internal.chart.grid.rowsWithBlocks', function updateRowsWithBlocks(rowsWithBlocks) {
-          if (rowsWithBlocks)
-            for (const row of rowsWithBlocks) {
-              for (const block of row.blocks) {
-                if (currentSelect.selecting['chart-timeline-grid-row-blocks'].includes(block.id)) {
-                  if (typeof block.selected === 'undefined' || !block.selected) {
-                    options.selected(block, 'chart-timeline-grid-row-block');
-                  }
-                  block.selected = true;
-                } else {
-                  if (previousSelect.selected['chart-timeline-grid-row-blocks'].includes(block.id)) {
-                    options.deselected(block, 'chart-timeline-grid-row-block');
-                  }
-                  block.selected = false;
-                }
-              }
-            }
-          return rowsWithBlocks;
-        });
+        markSelected(ev.ctrlKey);
       };
 
       /**
@@ -458,7 +527,9 @@ export default function Selection(options: Options = {}) {
        * @param {MouseEvent} ev
        */
       this.mouseDown = ev => {
-        if (ev.button !== 0) {
+        const movement = state.get('config.plugin.ItemMovement.movement');
+        const moving = movement && movement.moving;
+        if (ev.button !== 0 || moving) {
           return;
         }
         selecting.selecting = true;
@@ -466,8 +537,12 @@ export default function Selection(options: Options = {}) {
         selecting.fromY = ev.y - this.top;
         selecting.startX = selecting.fromX;
         selecting.startY = selecting.fromY;
-        previousSelect = cloneSelection(state.get(path));
-        clearSelection();
+        previousSelect = cloneSelection(state.get(pluginPath));
+        const itemClass = '.gantt-schedule-timeline-calendar__chart-timeline-items-row-item';
+        const isItem = !!(ev.target as Element).closest(itemClass);
+        if (!isItem) {
+          if (!ev.ctrlKey) clearSelection();
+        }
       };
 
       /**
@@ -475,7 +550,7 @@ export default function Selection(options: Options = {}) {
        * @param {MouseEvent} ev
        */
       this.mouseMove = ev => {
-        select(ev);
+        trackSelection(ev);
       };
 
       /**
@@ -566,15 +641,40 @@ export default function Selection(options: Options = {}) {
   class ItemAction extends Action {
     private classNameSelecting: string;
     private classNameSelected: string;
+    private data: any;
+    private element: HTMLElement;
 
     constructor(element: HTMLElement, data: any) {
       super();
+      this.data = data;
+      this.element = element;
       this.classNameSelecting = api.getClass('chart-timeline-items-row-item') + '--selecting';
       this.classNameSelected = api.getClass('chart-timeline-items-row-item') + '--selected';
+      this.data = data;
+      this.element = element;
+      this.onPointerDown = this.onPointerDown.bind(this);
+      element.addEventListener('mousedown', this.onPointerDown);
+      element.addEventListener('touchstart', this.onPointerDown);
       updateSelection(
         element,
         data.item.selecting,
         data.item.selected,
+        this.classNameSelecting,
+        this.classNameSelected
+      );
+    }
+
+    public onPointerDown(ev) {
+      previousSelect = cloneSelection(state.get(pluginPath));
+      selecting.selecting = true;
+      const container = getEmptyContainer();
+      container['chart-timeline-items-row-items'].push(this.data.item.id);
+      markSelecting(container);
+      markSelected(ev.ctrlKey);
+      updateSelection(
+        this.element,
+        this.data.item.selecting,
+        this.data.item.selected,
         this.classNameSelecting,
         this.classNameSelected
       );
@@ -588,11 +688,14 @@ export default function Selection(options: Options = {}) {
         this.classNameSelecting,
         this.classNameSelected
       );
+      this.data = data;
     }
 
     public destroy(element: HTMLElement, data: any) {
       element.classList.remove(this.classNameSelecting);
       element.classList.remove(this.classNameSelected);
+      element.removeEventListener('mousedown', this.onPointerDown);
+      element.removeEventListener('touchstart', this.onPointerDown);
     }
   }
 
@@ -619,8 +722,8 @@ export default function Selection(options: Options = {}) {
     state = vido.state;
     api = vido.api;
     schedule = vido.schedule;
-    if (typeof state.get(path) === 'undefined') {
-      state.update(path, {
+    if (typeof state.get(pluginPath) === 'undefined') {
+      state.update(pluginPath, {
         selecting: {
           'chart-timeline-grid-rows': [],
           'chart-timeline-grid-row-blocks': [],
