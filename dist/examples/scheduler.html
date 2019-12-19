@@ -40,13 +40,26 @@
     <script src="../index.umd.js?12345"></script>
     <script src="../ItemMovement.plugin.js"></script>
     <script src="../ItemHold.plugin.js"></script>
-    <script src="../SaveAsImage.plugin.js"></script>
     <script src="../Selection.plugin.js"></script>
     <script src="../CalendarScroll.plugin.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="https://cdn.jsdelivr.net/npm/quasar@^1.1.6/dist/quasar.umd.min.js"></script>
     <script>
       const iterations = 400;
+      const pallete = [
+        '#E74C3C',
+        '#DA3C78',
+        '#7E349D',
+        '#0077C0',
+        '#07ABA0',
+        '#0EAC51',
+        '#F1892D',
+        '#E3724B',
+        '#AE7C5B',
+        '#6C7A89',
+        '#758586',
+        '#707070'
+      ];
       const rows = {};
       for (let i = 0; i < iterations; i++) {
         const withParent = i > 0 && i % 2 === 0;
@@ -108,7 +121,7 @@
                 .valueOf() - 1
           },
           rowId: id,
-          style: i === 0 ? { background: 'green', color: 'white' } : {}
+          style: { background: pallete[Math.floor(Math.random() * pallete.length)] }
         };
       }
 
@@ -262,9 +275,6 @@
         .valueOf();
 
       let config = {
-        scroll: {
-          smooth: true
-        },
         plugins: [
           ItemMovement({
             moveable: true,
@@ -280,7 +290,6 @@
               alert(`item ${item.label} holded for 1s!`);
             }
           }),
-          SaveAsImage(),
           Selection({
             items: false,
             rows: false,
