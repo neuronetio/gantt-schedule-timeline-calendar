@@ -12,7 +12,6 @@
 <a href="https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fneuronetio%2Fgantt-schedule-timeline-calendar"><img alt="Twitter" src="https://img.shields.io/twitter/url/https/github.com/neuronetio/gantt-schedule-timeline-calendar?style=social"></a>
 </div>
 
-
 ### gantt-schedule-timeline-calendar is all-in-one component that you can use in different scenarios.
 
 You can use it in **react**, **vue**, **angular**, **svelte** or any other projects.
@@ -24,13 +23,12 @@ You can control almost everything. You can change html structure, stylize every 
 
 ### P.S. Leave a [star :star:](https://github.com/neuronetio/gantt-schedule-timeline-calendar) if you want more activity in this repo, or if you need documentation
 
-
+<div style="display:block;text-align:center">
+<img src="https://neuronet.io/screenshots/scheduler.gif" alt="screencast-1">
+<img src="https://neuronet.io/screenshots/gantt.gif" alt="screencast-2">
 <img src="https://neuronet.io/screenshots/gstc-1.jpeg" alt="screenshot-1">
-<img src="https://neuronet.io/screenshots/gstc-2.jpeg" alt="screenshot-2">
-<img src="https://neuronet.io/screenshots/gstc-3.jpeg" alt="screenshot-3">
 <img src="https://neuronet.io/screenshots/gstc-4.jpeg" alt="screenshot-4">
-<img src="https://neuronet.io/screenshots/gstc-5.jpeg" alt="screenshot-5">
-
+</div>
 
 ## install
 
