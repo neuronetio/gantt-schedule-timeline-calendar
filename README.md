@@ -15,11 +15,11 @@
 
 ### gantt-schedule-timeline-calendar is all-in-one component that you can use in different scenarios.
 
-You can use it in react, vue, angular or svelte projects.
+You can use it in **react**, **vue**, **angular**, **svelte** or any other projects.
 
-You can use it as schedule for reservation system. You can use it for organizing events. You can use it as gantt chart. Or you can use it as calendar for different purposes.
+You can use it as **schedule** for reservation system. You can use it for organizing **events**. You can use it as **gantt chart**. Or you can use it as **calendar** for different purposes.
 
-gantt-schedule-timeline-calendar is very extensible and elastic. You can make your own plugins or modify configuration in couple of ways to achieve your goals.
+**gantt-schedule-timeline-calendar** is very extensible and elastic. You can make your own plugins or modify configuration in couple of ways to achieve your goals.
 You can control almost everything. You can change html structure, stylize every html element and even override original components without any compilation stage!
 
 ### P.S. Leave a star :star: if you want more activity in this repo, or if you need documentation :smile:
