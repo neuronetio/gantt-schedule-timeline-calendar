@@ -24,6 +24,14 @@ You can control almost everything. You can change html structure, stylize every 
 
 ### P.S. Leave a star :star: if you want more activity in this repo, or if you need documentation
 
+
+<img src="https://neuronet.io/screenshots/gstc-1.jpeg" alt="screenshot-1">
+<img src="https://neuronet.io/screenshots/gstc-2.jpeg" alt="screenshot-2">
+<img src="https://neuronet.io/screenshots/gstc-3.jpeg" alt="screenshot-3">
+<img src="https://neuronet.io/screenshots/gstc-4.jpeg" alt="screenshot-4">
+<img src="https://neuronet.io/screenshots/gstc-5.jpeg" alt="screenshot-5">
+
+
 ## install
 
 `npm i gantt-schedule-timeline-calendar`
@@ -35,11 +43,3 @@ You can control almost everything. You can change html structure, stylize every 
 [examples folder](https://github.com/neuronetio/gantt-schedule-timeline-calendar/tree/master/dist/examples)
 
 LICENSE GPL-3.0 (for commercial license please contact me neuronet.io at gmail.com)
-
-## screenshots
-
-<img src="https://neuronet.io/screenshots/gstc-1.jpeg" alt="screenshot-1">
-<img src="https://neuronet.io/screenshots/gstc-2.jpeg" alt="screenshot-2">
-<img src="https://neuronet.io/screenshots/gstc-3.jpeg" alt="screenshot-3">
-<img src="https://neuronet.io/screenshots/gstc-4.jpeg" alt="screenshot-4">
-<img src="https://neuronet.io/screenshots/gstc-5.jpeg" alt="screenshot-5">
