@@ -2,3 +2,6 @@
 node_modules/
 .history
 .vscode
+tests_output/
+geckodriver.log
+chromedriver.log
