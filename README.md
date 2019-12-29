@@ -50,4 +50,6 @@ You can control almost everything. You can change html structure, stylize every 
 
 [examples folder](https://github.com/neuronetio/gantt-schedule-timeline-calendar/tree/master/dist/examples)
 
-LICENSE GPL-3.0 (for commercial license please contact me neuronet.io at gmail.com)
+## LICENSE
+
+GPL-3.0 (for commercial license please contact me neuronet.io@gmail.com)
