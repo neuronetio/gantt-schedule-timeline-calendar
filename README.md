@@ -7,7 +7,7 @@
 <h2 align="center"> Gantt, schedule, timeline and calendar components all in one!</h2>
 
 <p align="center">
-  <img src="https://neuronet.io/screenshots/appscrn.png" alt="gstc-logo">
+  <img src="https://neuronet.io/screenshots/appscrn.png?uniq=1" alt="gstc-logo">
 </p>
 
 <p align="center">
