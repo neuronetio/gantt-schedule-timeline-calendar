@@ -5,7 +5,7 @@
 <h1 align="center">gantt-schedule-timeline-calendar</h1>
 
 <p align="center">
-  <img src="https://neuronet.io/screenshots/appscrn.png" alt="logo">
+  <img src="https://neuronet.io/screenshots/appscrn.png" alt="gstc-logo">
 </p>
 
 <h2 align="center"> Gantt, schedule, timeline and calendar components all in one!</h2>
@@ -23,7 +23,7 @@
 <h3 align="center">gantt-schedule-timeline-calendar is all-in-one component that you can use in different scenarios.</h3>
 
 <p align="center">
-  You can use it in <strong>react</strong>, <strong>vue</strong>, <strong>angular</strong>, <strong>svelte</strong> or any other projects.
+You can use it in <strong>react</strong>, <strong>vue</strong>, <strong>angular</strong>, <strong>svelte</strong> or any other projects.
 </p>
 
 <p align="center">
