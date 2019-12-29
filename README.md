@@ -41,7 +41,9 @@ You can control almost everything. You can change html structure, stylize every 
 <br /><br />
 <p align="center">
   <img src="https://neuronet.io/screenshots/scheduler.gif" alt="screencast-1">
+  <br />
   <img src="https://neuronet.io/screenshots/gantt.gif" alt="screencast-2">
+  <br />
   <img src="https://neuronet.io/screenshots/gstc-1.jpeg" alt="screenshot-1">
 </p>
 
