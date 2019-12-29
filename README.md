@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://neuronet.io/screenshots/logo.png" alt="logo">
+  <img src="https://neuronet.io/screenshots/gstclogo.png" alt="logo">
 </p>
 
 <h1 align="center">gantt-schedule-timeline-calendar</h1>
