@@ -1,5 +1,9 @@
 # gantt-schedule-timeline-calendar
 
+<div style="text-align: center">
+<img src="https://neuronet.io/screenshots/logo.png" alt="logo">
+</div>
+
 ## Gantt, schedule, timeline and calendar components all in one!
 
 <div style="display:block;text-align:center">
@@ -23,7 +27,7 @@ You can control almost everything. You can change html structure, stylize every 
 
 ### P.S. Leave a [star :star:](https://github.com/neuronetio/gantt-schedule-timeline-calendar) if you want more activity in this repo, or if you need documentation
 
-<div style="display:block;text-align:center">
+<div style="text-align: center">
 <img src="https://neuronet.io/screenshots/scheduler.gif" alt="screencast-1">
 <img src="https://neuronet.io/screenshots/gantt.gif" alt="screencast-2">
 <img src="https://neuronet.io/screenshots/gstc-1.jpeg" alt="screenshot-1">
