@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf8" />
     <meta name="viewport" content="width=device-width" />
-    <title>GSTC main example</title>
+    <title>Gantt Schedule Timeline Calendar example #1</title>
     <style>
       body {
         font-family: Roboto, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -12,11 +12,16 @@
         padding: 0px 5px !important;
         border-radius: 14px;
       }
+      h1 {
+        font-size: 20px;
+        line-height: 20px;
+      }
     </style>
     <link rel="stylesheet" href="../style.css" />
   </head>
 
   <body>
+    <h1>Gantt Schedule Timeline Calendar example #1</h1>
     <div>
       <input type="range" min="0" max="100" value="100" id="percent" />
       <input type="range" min="10" max="22" value="20" id="zoom" />
@@ -136,7 +141,7 @@
           Selection(),
           CalendarScroll({ speed: 2 })
         ],
-        height: 822,
+        height: 623,
         list: {
           rows,
           columns
