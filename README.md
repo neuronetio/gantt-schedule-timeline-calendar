@@ -16,13 +16,13 @@
   <a href="https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fneuronetio%2Fgantt-schedule-timeline-calendar"><img alt="Twitter" src="https://img.shields.io/twitter/url/https/github.com/neuronetio/gantt-schedule-timeline-calendar?style=social"></a>
 </p>
 
-<h3 align="center">gantt-schedule-timeline-calendar is all-in-one component that you can use in different scenarios.</h3>
+<h3>gantt-schedule-timeline-calendar is all-in-one component that you can use in different scenarios.</h3>
 
-<p align="center">
+<p>
 You can use it in <strong>react</strong>, <strong>vue</strong>, <strong>angular</strong>, <strong>svelte</strong> or any other projects.
 </p>
 
-<p align="center">
+<p>
 You can use it as <strong>schedule</strong> for reservation system. You can use it for organizing <strong>events</strong>. You can use it as <strong>gantt chart</strong>. Or you can use it as <strong>calendar</strong> for different purposes.
 </p>
 
@@ -30,7 +30,7 @@ You can use it as <strong>schedule</strong> for reservation system. You can use 
   <img src="https://neuronet.io/screenshots/appscrn.png?uniq=1" alt="gstc-logo">
 </p>
 
-<p align="center">
+<p>
 <strong>gantt-schedule-timeline-calendar</strong> is very extensible and elastic. You can make your own plugins or modify configuration in couple of ways to achieve your goals.
 You can control almost everything. You can change html structure, stylize every html element and even override original components without any compilation stage!
 </p>
