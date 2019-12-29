@@ -35,6 +35,8 @@ You can use it as <strong>schedule</strong> for reservation system. You can use 
 You can control almost everything. You can change html structure, stylize every html element and even override original components without any compilation stage!
 </p>
 
+<br /><br />
+
 <h3 align="center">Leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a> if you want more activity in this repo, or if you need documentation</h3>
 
 <p align="center">
