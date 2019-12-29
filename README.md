@@ -27,6 +27,10 @@ You can use it as <strong>schedule</strong> for reservation system. You can use 
 </p>
 
 <p align="center">
+  <img src="https://neuronet.io/screenshots/appscrn.png?uniq=1" alt="gstc-logo">
+</p>
+
+<p align="center">
 <strong>gantt-schedule-timeline-calendar</strong> is very extensible and elastic. You can make your own plugins or modify configuration in couple of ways to achieve your goals.
 You can control almost everything. You can change html structure, stylize every html element and even override original components without any compilation stage!
 </p>
@@ -39,7 +43,6 @@ You can control almost everything. You can change html structure, stylize every 
   <img src="https://neuronet.io/screenshots/scheduler.gif" alt="screencast-1">
   <img src="https://neuronet.io/screenshots/gantt.gif" alt="screencast-2">
   <img src="https://neuronet.io/screenshots/gstc-1.jpeg" alt="screenshot-1">
-  <img src="https://neuronet.io/screenshots/gstc-4.jpeg" alt="screenshot-4">
 </p>
 
 ## install
