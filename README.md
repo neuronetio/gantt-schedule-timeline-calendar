@@ -4,6 +4,10 @@
 
 <h1 align="center">gantt-schedule-timeline-calendar</h1>
 
+<p align="center">
+  <img src="https://neuronet.io/screenshots/appscrn.png" alt="logo">
+</p>
+
 <h2 align="center"> Gantt, schedule, timeline and calendar components all in one!</h2>
 
 <p align="center">
