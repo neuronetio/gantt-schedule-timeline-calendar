@@ -37,7 +37,7 @@ You can control almost everything. You can change html structure, stylize every 
 
 <br /><br />
 
-<h3 align="center">Leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a> if you want more activity in this repo, or if you need documentation</h3>
+<h3>Leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a> if you want more activity in this repo, or if you need documentation</h3>
 <br /><br />
 <p align="center">
   <img src="https://neuronet.io/screenshots/scheduler.gif" alt="screencast-1">
