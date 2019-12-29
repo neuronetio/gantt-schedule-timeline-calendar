@@ -4,11 +4,11 @@
 
 <h1 align="center">gantt-schedule-timeline-calendar</h1>
 
+<h2 align="center"> Gantt, schedule, timeline and calendar components all in one!</h2>
+
 <p align="center">
   <img src="https://neuronet.io/screenshots/appscrn.png" alt="gstc-logo">
 </p>
-
-<h2 align="center"> Gantt, schedule, timeline and calendar components all in one!</h2>
 
 <p align="center">
   <img src="https://api.codacy.com/project/badge/Grade/732e0ef156344594b48584af97ba1e4a">
