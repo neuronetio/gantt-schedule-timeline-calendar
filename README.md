@@ -1,8 +1,8 @@
-# gantt-schedule-timeline-calendar
-
-<div style="text-align: center">
+<p align="center">
 <img src="https://neuronet.io/screenshots/logo.png" alt="logo">
-</div>
+</p>
+
+# gantt-schedule-timeline-calendar
 
 ## Gantt, schedule, timeline and calendar components all in one!
 
