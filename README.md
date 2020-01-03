@@ -75,7 +75,7 @@ Configuration options are available at `config.` path of the state (`state.get('
 - `utcMode` `{boolean}` - dayjs UTC mode on / off
 - `components` `{object}` - object that holds components used inside `GSTC` - you can replace any component you want
 - `wrappers` `{object}` - wrappers are functions that can wrap any component html - you can wrap component html in `div's` or add some html before or after
-- `actions` `{object}` - actions can operate directly on `HTMLElements` and can be used to add some event listener or inject some html
+- `actions` `{object}` - actions can operate directly on `HTMLElements` and can be used to add some event listener or inject/modify some html of the component
 - `plugins` `{array}` - array of plugins that needs to be initialized before `GSTC`
 - `plugin` `{object}` - this is a container for plugins to store some data
 
