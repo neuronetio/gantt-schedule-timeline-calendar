@@ -63,9 +63,7 @@ gantt-schedule-timeline-calendar configuration could be hard to undestand, so we
 
 Your configuration will be merged recursively with default configuration options ([default-config](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/default-config.ts) ) so all options are optional.
 
-Configuration options are available at `config.` path of the state (`state.get('config.height')` for example)
-
-### root options
+Configuration options are available at `config.` path of the state (for example `state.get('config.height')`)
 
 - `height` `{number}` - component height in pixels
 - `headerHeight` `{number}` - height of header and calendar in pixels
@@ -104,22 +102,24 @@ Rows can contain also those values:
 ```javascript
 // example rows configuration (minimal)
 const config = {
-  rows: {
-    '1': {
-      id: '1'
-    },
-    '2': {
-      id: '2',
-      parentId: '1'
-    },
-    '3': {
-      id: '3',
-      parentId: '2',
-      expanded: true
-    },
-    '4': {
-      id: '4',
-      parentId: '3'
+  list: {
+    rows: {
+      '1': {
+        id: '1'
+      },
+      '2': {
+        id: '2',
+        parentId: '1'
+      },
+      '3': {
+        id: '3',
+        parentId: '2',
+        expanded: true
+      },
+      '4': {
+        id: '4',
+        parentId: '3'
+      }
     }
   }
 };
@@ -134,9 +134,11 @@ const config = {
 
 ### columns data configuration
 
-Columns data configuration is an object where key is an id of the column (`{string}`) and value is column configuration.
+Columns data configuration is an object where key is an id of the column (`{string}`) and value is [column configuration](#column-configuration).
 
-Column configuration must contain `id` property too.
+[Column configuration](#column-configuration) must contain `id` property too.
+
+### column configuration
 
 ## LICENSE
 
