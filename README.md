@@ -273,35 +273,35 @@ const config = {
         parentId: '1',
         label: 'Row 2'
       }
-    },
-    chart: {
-      items: {
-        '1': {
-          id: '1',
-          rowId: '1',
-          label: 'Item 1',
-          time: {
-            start: new Date('2020-01-01').getTime(),
-            end: new Date('2020-01-02').getTime()
-          }
-        },
-        '2': {
-          id: '2',
-          rowId: '2',
-          label: 'Item 2',
-          time: {
-            start: new Date('2020-01-01').getTime(),
-            end: new Date('2020-01-02').getTime()
-          }
-        },
-        '3': {
-          id: '3',
-          rowId: '2',
-          label: 'Item 3',
-          time: {
-            start: new Date('2020-01-03').getTime(),
-            end: new Date('2020-01-04').getTime()
-          }
+    }
+  },
+  chart: {
+    items: {
+      '1': {
+        id: '1',
+        rowId: '1',
+        label: 'Item 1',
+        time: {
+          start: new Date('2020-01-01').getTime(),
+          end: new Date('2020-01-02').getTime()
+        }
+      },
+      '2': {
+        id: '2',
+        rowId: '2',
+        label: 'Item 2',
+        time: {
+          start: new Date('2020-01-01').getTime(),
+          end: new Date('2020-01-02').getTime()
+        }
+      },
+      '3': {
+        id: '3',
+        rowId: '2',
+        label: 'Item 3',
+        time: {
+          start: new Date('2020-01-03').getTime(),
+          end: new Date('2020-01-04').getTime()
         }
       }
     }
