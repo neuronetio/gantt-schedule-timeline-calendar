@@ -225,6 +225,8 @@ const config = {
 - `open` `{string}` - svg code for open
 - `closed` `{string}` - svg code for closed
 
+### chart configuration
+
 to be continued...
 
 ## LICENSE
