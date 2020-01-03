@@ -82,17 +82,17 @@ Configuration options are available at `config.` path of the state (`state.get('
 ### list configuration
 
 - `rows` `{object}` - [rows configuration](#rows-configuration)
-- `rowHeight` `{number}` - default row height in pixels - could be set individually for each row
-- `columns` `{object}` - [list columns configuration](#list-columns-configuration)
+- `columns` `{object}` - [columns configuration](#columns-configuration)
 - `expander` `{object}` - [expander configuration](#expander-configuration)
 - `toggle` `{object}` - [toggle configuration](#toggle-configuration)
+- `rowHeight` `{number}` - default row height in pixels - this option can be set individually for each row
 
 ### rows configuration
 
 Rows are listed on the left side of component (list) and are kind of containers for items (right side - chart).
-Rows may contain multiple items.
+Rows can contain multiple items.
 
-Rows configuration is an object where key is a row id `{string}` and value is an object with data you need for columns configuration or for your use case.
+Rows configuration is an object where key is a row id (`{string}`) and value is an object with data you need for columns configuration or for your use case.
 
 Row should have an id inside value as `id` property `{string}`.
 
@@ -125,6 +125,21 @@ const config = {
 };
 ```
 
+### columns configuration
+
+- `data` `{object}` - [columns data configuration](#columns-data-configuration)
+- `resizer` `{object}` - [resizer configuration](#resizer-configuration)
+- `percent` `{number}` - percentage width of all columns (0 - 100) if 0 list will disappear (from DOM)
+- `minWidth` `{number}` - default minimal width of the column in pixels
+
+### columns data configuration
+
+Columns data configuration is an object where key is an id of the column (`{string}`) and value is column configuration.
+
+Column configuration must contain `id` property too.
+
 ## LICENSE
 
-**GPL-3.0** (for commercial license please contact me at neuronet.io@gmail.com)
+**[GPL-3.0](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)** if you are using it your project must be GPL-3.0 compatible.
+
+For commercial license please contact me at neuronet.io@gmail.com
