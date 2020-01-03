@@ -79,6 +79,14 @@ Configuration options are available at `config.` path of the state (`state.get('
 - `plugins` `{array}` - array of plugins that needs to be initialized before `GSTC`
 - `plugin` `{object}` - this is a container for plugins to store some data
 
+#### list configuration
+
+- `rows` `{object}` - rows are containters for items and could have some additional data
+- `rowHeight` `{number}` - default row height in pixels - could be set individually for each row
+- `columns` `{object}` - list columns configuration
+- `expander` `{object}` - expander configuration
+- `toggle` `{object}` - toggle configuration
+
 ## LICENSE
 
 **GPL-3.0** (for commercial license please contact me neuronet.io@gmail.com)
