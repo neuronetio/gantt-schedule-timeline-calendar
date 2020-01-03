@@ -87,7 +87,7 @@ Configuration options are available at `config.` path of the state (`state.get('
 - `expander` `{object}` - expander configuration
 - `toggle` `{object}` - toggle configuration
 
-##### rows configuration
+#### rows configuration
 
 Rows configuration is an object where key is a row id `{string}` and value is an object with data you need for columns configuration or for your use case.
 
