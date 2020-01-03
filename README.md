@@ -197,6 +197,34 @@ const config = {
 };
 ```
 
+### column header configuration
+
+- `content` `{string}` - Label for this header
+- `html` `{lit-html template}` - lit-html template if you want html
+
+### expander configuration
+
+- `padding` `{number}` - left padding size in pixels
+- `size` `{number}` - size in pixels (width and height)
+- `icon` `{object}` - with `width` and `height` properties in pixels `{numbers}`
+- `icons` `{object}` - [expander icons configuration](#expander-icons-configuration)
+
+### expander icons configuration
+
+- `child` `{string}` - svg code for non expandable child element
+- `open` `{string}` - svg code for open
+- `closed` `{string}` - svg code for closed
+
+### toggle configuration
+
+- `display` `{boolean}` - you can show or hide list toggle
+- `icons` `{object}` - [toggle icons configuration](#toggle-icons-configuration)
+
+### toggle icons configuration
+
+- `open` `{string}` - svg code for open
+- `closed` `{string}` - svg code for closed
+
 to be continued...
 
 ## LICENSE
