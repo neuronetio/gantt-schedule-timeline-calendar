@@ -69,25 +69,28 @@ Configuration options are available at `config.` path of the state (`state.get('
 
 - `height` `{number}` - component height in pixels
 - `headerHeight` `{number}` - height of header and calendar in pixels
-- `list` `{object}` - list configuration
-- `chart` `{object}` - chart configuration
-- `locale` `{object}` - locale configuration
+- `list` `{object}` - [list configuration](#list-configuration)
+- `chart` `{object}` - [chart configuration](#chart-configuration)
+- `locale` `{object}` - [locale configuration](#locale-configuration)
 - `utcMode` `{boolean}` - dayjs UTC mode on / off
-- `components` `{object}` - object that holds components used inside `GSTC` - you can replace any component you want
-- `wrappers` `{object}` - wrappers are functions that can wrap any component html - you can wrap component html in `div's` or add some html before or after
-- `actions` `{object}` - actions can operate directly on `HTMLElements` and can be used to add some event listener or inject/modify some html of the component
-- `plugins` `{array}` - array of plugins that needs to be initialized before `GSTC`
+- `components` `{object}` - object that holds [components](#components) used inside `GSTC` - you can replace any component you want
+- `wrappers` `{object}` - [wrappers](#wrappers) are functions that can wrap any component html - you can wrap component html in `div's` or add some html before or after
+- `actions` `{object}` - [actions](#actions) can operate directly on `HTMLElements` and can be used to add some event listener or inject/modify some html of the component
+- `plugins` `{array}` - array of [plugins](#plugins) that needs to be initialized before `GSTC`
 - `plugin` `{object}` - this is a container for plugins to store some data
 
 ### list configuration
 
-- `rows` `{object}` - rows are containters for items and may contain some additional data
+- `rows` `{object}` - [rows configuration](#rows-configuration)
 - `rowHeight` `{number}` - default row height in pixels - could be set individually for each row
-- `columns` `{object}` - list columns configuration
-- `expander` `{object}` - expander configuration
-- `toggle` `{object}` - toggle configuration
+- `columns` `{object}` - [list columns configuration](#list-columns-configuration)
+- `expander` `{object}` - [expander configuration](#expander-configuration)
+- `toggle` `{object}` - [toggle configuration](#toggle-configuration)
 
 ### rows configuration
+
+Rows are listed on the left side of component (list) and are kind of containers for items (right side - chart).
+Rows may contain multiple items.
 
 Rows configuration is an object where key is a row id `{string}` and value is an object with data you need for columns configuration or for your use case.
 
