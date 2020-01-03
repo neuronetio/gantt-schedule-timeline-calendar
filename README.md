@@ -145,6 +145,58 @@ Columns data configuration is an object where key is an id of the column (`{stri
 - `header` `{object}` - [column header configuration](#column-header-configuration)
 - `expander` `{boolean}` - should this column contain expander?
 
+```javascript
+// example rows and columns configuration (minimal)
+const config = {
+  list: {
+    rows: {
+      '1': {
+        id: '1',
+        label: 'Row 1'
+      },
+      '2': {
+        id: '2',
+        parentId: '1',
+        label: 'Row 2'
+      },
+      '3': {
+        id: '3',
+        parentId: '2',
+        expanded: true,
+        label: 'Row 3'
+      },
+      '4': {
+        id: '4',
+        parentId: '3',
+        label: 'Row 4'
+      }
+    },
+    columns: {
+      data: {
+        'label-column-or-whatever': {
+          id: 'label-column-or-whatever',
+          data: 'label',
+          width: 300,
+          expander: true,
+          header: {
+            content: 'Label'
+          }
+        },
+        'some-html': {
+          id: 'some-html',
+          isHTML: true,
+          data: '<div>your html here</div>',
+          width: 400,
+          header: {
+            content: 'anything'
+          }
+        }
+      }
+    }
+  }
+};
+```
+
 to be continued...
 
 ## LICENSE
