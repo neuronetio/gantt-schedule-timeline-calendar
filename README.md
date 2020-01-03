@@ -81,7 +81,7 @@ Configuration options are available at `config.` path of the state (`state.get('
 
 #### list configuration
 
-- `rows` `{object}` - rows are containters for items and could have some additional data
+- `rows` `{object}` - rows are containters for items and may contain some additional data
 - `rowHeight` `{number}` - default row height in pixels - could be set individually for each row
 - `columns` `{object}` - list columns configuration
 - `expander` `{object}` - expander configuration
