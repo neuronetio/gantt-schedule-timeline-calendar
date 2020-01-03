@@ -61,7 +61,7 @@ You can control almost everything. You can change html structure, stylize every 
 
 gantt-schedule-timeline-calendar configuration could be hard to undestand, so we will explain it gradually (you can also take a look at [types](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/types.d.ts) or [default-config](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/default-config.ts) to understand it better).
 
-Your configuration will be merged recursively with default configuration options ([default-config](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/default-config.ts) ) so all options are optional.
+Your configuration will be merged recursively with default configuration options ([default-config](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/default-config.ts)) so all options are optional.
 
 Configuration options are available at `config.` path of the state (for example `state.get('config.height')`)
 
@@ -142,6 +142,6 @@ Columns data configuration is an object where key is an id of the column (`{stri
 
 ## LICENSE
 
-**[GPL-3.0](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)** if you are using it your project must be GPL-3.0 compatible.
+**[GPL-3.0](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)** if you are using it - your project **must** be GPL-3.0 compatible.
 
 For commercial license please contact me at neuronet.io@gmail.com
