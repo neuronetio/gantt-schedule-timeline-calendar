@@ -232,6 +232,83 @@ const config = {
 
 ### chart configuration
 
+- `time` `{object}` - [time configuration](#time-configuration)
+- `items` `{object}` - [items configuration](#items-configuration)
+- `grid` `{object}` - [grid configuration](#grid-configuration)
+- `spacing` `{number}` - space between item in pixels
+
+### time configuration
+
+- `from` `{number}` - can be set to limit left side of the chart to specified time in milliseconds
+- `to` `{number}` - can be set to limit right side of the chart to specified time in milliseconds
+- `zoom` `{number}` - horizontal zoom - lower values for zoom in - values between 10 and 22
+
+### items configuration
+
+Items like rows and columns are an object where key is an item id (`{string}`) and value is [item configuration](#item-configuration)
+
+### item configuration
+
+- `id` `{string}` - item id
+- `rowId` `{string}` - in which row this item should appear
+- `label` `{string}` - item label
+- `time` `{object}` - [item time configuration](#item-time-configuration)
+
+### item time configuration
+
+- `start` `{number}` - start time in milliseconds
+- `end` `{number}` - end time in milliseconds
+
+```javascript
+// example rows and items configuration (minimal)
+const config = {
+  list: {
+    rows: {
+      '1': {
+        id: '1',
+        label: 'Row 1'
+      },
+      '2': {
+        id: '2',
+        parentId: '1',
+        label: 'Row 2'
+      }
+    },
+    chart: {
+      items: {
+        '1': {
+          id: '1',
+          rowId: '1',
+          label: 'Item 1',
+          time: {
+            start: new Date('2020-01-01').getTime(),
+            end: new Date('2020-01-02').getTime()
+          }
+        },
+        '2': {
+          id: '2',
+          rowId: '2',
+          label: 'Item 2',
+          time: {
+            start: new Date('2020-01-01').getTime(),
+            end: new Date('2020-01-02').getTime()
+          }
+        },
+        '3': {
+          id: '3',
+          rowId: '2',
+          label: 'Item 3',
+          time: {
+            start: new Date('2020-01-03').getTime(),
+            end: new Date('2020-01-04').getTime()
+          }
+        }
+      }
+    }
+  }
+};
+```
+
 to be continued...
 
 ## LICENSE
