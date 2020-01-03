@@ -59,11 +59,9 @@ You can control almost everything. You can change html structure, stylize every 
 
 ## configuration
 
-gantt-schedule-timeline-calendar configuration could be hard to undestand, so we will explain it gradually (you can also take a look at [types](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/types.d.ts) or [default-config](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/default-config.ts) to understand it better).
+**gantt-schedule-timeline-calendar** configuration could be hard to undestand, so we will explain it gradually (you can also take a look at [types](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/types.d.ts) or [default-config](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/default-config.ts) to understand it better).
 
-Your configuration will be merged recursively with default configuration options ([default-config](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/default-config.ts)) so all options are optional.
-
-Configuration options are available at `config.` path of the state (for example `state.get('config.height')`)
+Your configuration will be merged recursively with default configuration options ([default-config](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/default-config.ts)) so almost all options are optional.
 
 - `height` `{number}` - component height in pixels
 - `headerHeight` `{number}` - height of header and calendar in pixels
@@ -72,7 +70,7 @@ Configuration options are available at `config.` path of the state (for example 
 - `locale` `{object}` - [locale configuration](#locale-configuration)
 - `utcMode` `{boolean}` - dayjs UTC mode on / off
 - `components` `{object}` - object that holds [components](#components) used inside `GSTC` - you can replace any component you want
-- `wrappers` `{object}` - [wrappers](#wrappers) are functions that can wrap any component html - you can wrap component html in `div's` or add some html before or after
+- `wrappers` `{object}` - [wrappers](#wrappers) are functions that can wrap any component html - you can wrap component html in `div`'s or add some html before or after
 - `actions` `{object}` - [actions](#actions) can operate directly on `HTMLElements` and can be used to add some event listener or inject/modify some html of the component
 - `plugins` `{array}` - array of [plugins](#plugins) that needs to be initialized before `GSTC`
 - `plugin` `{object}` - this is a container for plugins to store some data
@@ -92,12 +90,12 @@ Rows can contain multiple items.
 
 Rows configuration is an object where key is a row id (`{string}`) and value is an object with data you need for columns configuration or for your use case.
 
-Row should have an id inside value as `id` property `{string}`.
+Row should have an id inside as `id` property `{string}`.
 
 Rows can contain also those values:
 
-- `parentId` `{string} [optional]` - this is a parent row id for hierarchical data structures
-- `expanded` `{boolean} [optional]` - if this row have children should it be expanded or collapsed?
+- `parentId` `{string}` - this is a parent row id for hierarchical data structures
+- `expanded` `{boolean}` - if this row have children should it be expanded or collapsed?
 
 ```javascript
 // example rows configuration (minimal)
@@ -139,6 +137,13 @@ Columns data configuration is an object where key is an id of the column (`{stri
 [Column configuration](#column-configuration) must contain `id` property too.
 
 ### column configuration
+
+- `id` `{string}` - id of the column
+- `data` `{string | function}` - for string it is property name that should exists inside row configuration and will display coresponding value, if data is a function it will be executed with row as argument - that function should return a string or lit-html template if `isHTML` is set to true
+- `isHTML` `{boolean}` - if set to true `data` option will be rendered as HTML so be careful and do not let user to inject anything unsafe!
+- `width` `{number}` - width of the column in pixels
+- `header` `{object}` - [column header configuration](#column-header-configuration)
+- `expander` `{boolean}` - should this column contain expander?
 
 ## LICENSE
 
