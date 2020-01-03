@@ -87,6 +87,17 @@ Configuration options are available at `config.` path of the state (`state.get('
 - `expander` `{object}` - expander configuration
 - `toggle` `{object}` - toggle configuration
 
+##### rows configuration
+
+Rows configuration is an object where key is a row id `{string}` and value is an object with data you need for columns configuration or for your use case.
+
+Row should have an id inside value as `id` property `{string}`.
+
+Rows can contain also those values:
+
+- `parentId` `{string}` - this is a parent row id for hierarchical data structures
+- `expanded` `{boolean}` - if this row have children should it be expanded or collapsed?
+
 ## LICENSE
 
-**GPL-3.0** (for commercial license please contact me neuronet.io@gmail.com)
+**GPL-3.0** (for commercial license please contact me at neuronet.io@gmail.com)
