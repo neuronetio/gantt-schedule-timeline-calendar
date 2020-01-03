@@ -139,7 +139,7 @@ Columns data configuration is an object where key is an id of the column (`{stri
 ### column configuration
 
 - `id` `{string}` - id of the column
-- `data` `{string | function}` - for string it is property name that should exists inside row configuration and will display coresponding value, if data is a function it will be executed with row as argument - that function should return a string or lit-html template if `isHTML` is set to true
+- `data` `{string | function}` - for string it is a property name that should exists inside row configuration and will display coresponding value, if data is a function it will be executed with row as argument - that function should return a string or lit-html template
 - `isHTML` `{boolean}` - if set to true `data` option will be rendered as HTML so be careful and do not let user to inject anything unsafe!
 - `width` `{number}` - width of the column in pixels
 - `header` `{object}` - [column header configuration](#column-header-configuration)
