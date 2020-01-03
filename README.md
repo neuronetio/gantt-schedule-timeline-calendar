@@ -35,12 +35,6 @@ You can use it as <strong>schedule</strong> for reservation system. You can use 
 You can control almost everything. You can change html structure, stylize every html element and even override original components without any compilation stage!
 </p>
 
-<br />
-
-<h3>If you like it - leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a> thanks!</h3>
-
-<br />
-
 <p align="center">
   <img src="https://neuronet.io/screenshots/scheduler.gif" alt="screencast-1">
   <br />
@@ -48,6 +42,10 @@ You can control almost everything. You can change html structure, stylize every 
   <br />
   <img src="https://neuronet.io/screenshots/gstc-1.jpeg" alt="screenshot-1">
 </p>
+
+<br />
+<h3>If you like it - leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a> thanks!</h3>
+<br />
 
 ## install
 
