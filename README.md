@@ -57,6 +57,28 @@ You can control almost everything. You can change html structure, stylize every 
 
 [examples folder](https://github.com/neuronetio/gantt-schedule-timeline-calendar/tree/master/dist/examples)
 
+## configuration
+
+gantt-schedule-timeline-calendar configuration could be hard to undestand, so we will explain it gradually (you can also take a look at [types](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/types.d.ts) or [default-config](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/default-config.ts) to understand it better).
+
+Your configuration will be merged recursively with default configuration options ([default-config](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/default-config.ts) ) so all options are optional.
+
+Configuration options are available at `config.` path of the state (`state.get('config.height')` for example)
+
+### root options
+
+- `height` `{number}` - component height in pixels
+- `headerHeight` `{number}` - height of header and calendar in pixels
+- `list` `{object}` - list configuration
+- `chart` `{object}` - chart configuration
+- `locale` `{object}` - locale configuration
+- `utcMode` `{boolean}` - dayjs UTC mode on / off
+- `components` `{object}` - object that holds components used inside `GSTC` - you can replace any component you want
+- `wrappers` `{object}` - wrappers are functions that can wrap any component html - you can wrap component html in `div's` or add some html before or after
+- `actions` `{object}` - actions can operate directly on `HTMLElements` and can be used to add some event listener or inject some html
+- `plugins` `{array}` - array of plugins that needs to be initialized before `GSTC`
+- `plugin` `{object}` - this is a container for plugins to store some data
+
 ## LICENSE
 
 **GPL-3.0** (for commercial license please contact me neuronet.io@gmail.com)
