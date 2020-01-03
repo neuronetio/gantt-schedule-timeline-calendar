@@ -79,7 +79,7 @@ Configuration options are available at `config.` path of the state (`state.get('
 - `plugins` `{array}` - array of plugins that needs to be initialized before `GSTC`
 - `plugin` `{object}` - this is a container for plugins to store some data
 
-#### list configuration
+### list configuration
 
 - `rows` `{object}` - rows are containters for items and may contain some additional data
 - `rowHeight` `{number}` - default row height in pixels - could be set individually for each row
@@ -87,7 +87,7 @@ Configuration options are available at `config.` path of the state (`state.get('
 - `expander` `{object}` - expander configuration
 - `toggle` `{object}` - toggle configuration
 
-#### rows configuration
+### rows configuration
 
 Rows configuration is an object where key is a row id `{string}` and value is an object with data you need for columns configuration or for your use case.
 
