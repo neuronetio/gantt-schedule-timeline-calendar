@@ -35,10 +35,12 @@ You can use it as <strong>schedule</strong> for reservation system. You can use 
 You can control almost everything. You can change html structure, stylize every html element and even override original components without any compilation stage!
 </p>
 
-<br /><br />
+<br />
 
-<h3>Leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a> if you want more activity in this repo, or if you need documentation</h3>
-<br /><br />
+<h3>If you like it - leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a> thanks!</h3>
+
+<br />
+
 <p align="center">
   <img src="https://neuronet.io/screenshots/scheduler.gif" alt="screencast-1">
   <br />
@@ -144,6 +146,8 @@ Columns data configuration is an object where key is an id of the column (`{stri
 - `width` `{number}` - width of the column in pixels
 - `header` `{object}` - [column header configuration](#column-header-configuration)
 - `expander` `{boolean}` - should this column contain expander?
+
+to be continued...
 
 ## LICENSE
 
