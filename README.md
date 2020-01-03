@@ -95,8 +95,32 @@ Row should have an id inside value as `id` property `{string}`.
 
 Rows can contain also those values:
 
-- `parentId` `{string}` - this is a parent row id for hierarchical data structures
-- `expanded` `{boolean}` - if this row have children should it be expanded or collapsed?
+- `parentId` `{string} [optional]` - this is a parent row id for hierarchical data structures
+- `expanded` `{boolean} [optional]` - if this row have children should it be expanded or collapsed?
+
+```javascript
+// example rows configuration (minimal)
+const config = {
+  rows: {
+    '1': {
+      id: '1'
+    },
+    '2': {
+      id: '2',
+      parentId: '1'
+    },
+    '3': {
+      id: '3',
+      parentId: '2',
+      expanded: true
+    },
+    '4': {
+      id: '4',
+      parentId: '3'
+    }
+  }
+};
+```
 
 ## LICENSE
 
