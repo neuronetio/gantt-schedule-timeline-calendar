@@ -328,7 +328,7 @@ Actions are functions (or classes) that can operate directly on DOM Tree.
 With actions you can add additional event listeners, add/update/inject some HTMLElements or add behavior from third party libraries like popups or dialogs.
 
 Action structure is an object where key is component name (kebab-cased) and value is an array of actions that should be fired.
-One action is executed on all elements/component instances of specified type (component name).
+One action is executed on all elements/component instances of specified type.
 
 Available action names:
 
