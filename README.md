@@ -518,10 +518,17 @@ Component must return a render function with `html` ([lit-html](https://github.c
 
 ```javascript
 function ExampleComponent(vido, props) {
-  const { html } = vido;
+  const { html, update } = vido;
+
+  let name = 'John';
+  const onClickHandler = event => {
+    name = 'Jack';
+    update();
+  };
+
   return () =>
     html`
-      <div class="example-component">Hello world</div>
+      <div class="example-component" @click=${onClickHanlder}>Hello ${name}</div>
     `;
 }
 ```
