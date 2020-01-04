@@ -444,7 +444,6 @@ Available component names:
 Example that shows how to wrap list column row with `div` and additional class.
 
 ```javascript
-// after GSTC is loaded and running
 let oldWrapper;
 
 function addClassWrapper(input) {
@@ -455,12 +454,43 @@ function addClassWrapper(input) {
   return result;
 }
 
+// after GSTC is loaded and running so we could save oldWrapper
 state.update('config.wrappers', wrappers => {
   oldWrapper = wrappers.ListColumnRow;
   wrappers.ListColumnRow = addClassWrapper;
   return wrappers;
 });
 ```
+
+### components
+
+In **gantt-schedule-timeline-calendar** you can replace any component with your implementation.
+
+Just copy interesting component - modify it and set up in `components` configuration property.
+
+Component configuration is like above just object where key is a component name and value is just component itself.
+
+Available component names:
+
+- `Main`
+- `List`
+- `ListColumn`
+- `ListColumnHeader`
+- `ListColumnHeaderResizer`
+- `ListColumnRow`
+- `ListColumnRowExpander`
+- `ListColumnRowExpanderToggle`
+- `ListToggle`
+- `Chart`
+- `ChartCalendar`
+- `ChartCalendarDate`
+- `ChartTimeline`
+- `ChartTimelineGrid`
+- `ChartTimelineGridRow`
+- `ChartTimelineGridRowBlock`
+- `ChartTimelineItems`
+- `ChartTimelineItemsRow`
+- `ChartTimelineItemsRowItem`
 
 ## LICENSE
 
