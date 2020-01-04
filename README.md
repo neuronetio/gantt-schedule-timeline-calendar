@@ -52,7 +52,7 @@ You can control almost everything. You can change html structure, stylize every 
 
 ## usage
 
-Basically you need to create some configuration described below, create state for it and mount component to DOM.
+Basically you need to create some [configuration](#configuration) described below, create state for it and mount component to DOM.
 
 ```javascript
 const config = {
