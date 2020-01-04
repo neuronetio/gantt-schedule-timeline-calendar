@@ -387,7 +387,7 @@ Each of the functions takes two arguments:
 Example action that will add `title` property to each item inside chart.
 
 ```javascript
-function addItemTitleTag(element, data) {
+function addItemTitle(element, data) {
   // fired when element / component is created for the first time
   // you can console.log(data) to find out what is inside specified component data
   element.title = data.item.label;
@@ -409,7 +409,7 @@ function addItemTitleTag(element, data) {
 
 const config = {
   actions: {
-    'chart-timeline-items-row-item': [addItemTitleTag]
+    'chart-timeline-items-row-item': [addItemTitle]
   }
 };
 ```
@@ -417,7 +417,7 @@ const config = {
 Actions can be classes too - with `constructor`, `update` and `destroy` methods.
 
 ```javascript
-class AddItemTitleTag {
+class AddItemTitle {
   contructor(element, data) {
     element.title = data.item.label;
   }
