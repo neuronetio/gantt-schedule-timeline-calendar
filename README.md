@@ -50,6 +50,32 @@ You can control almost everything. You can change html structure, stylize every 
 
 `npm i gantt-schedule-timeline-calendar`
 
+## usage
+
+Basically you need to create some configuration described below, create state for it and mount component to DOM.
+
+```javascript
+const config = {
+  /* ... */
+};
+
+const state = GSTC.api.stateFromConfig(config);
+
+const app = GSTC({
+  element: document.getElementById('your-element-id'),
+  state
+});
+
+// now you can listen to changes or update the state when needed
+state.subscribe('config.list.rows', rows => {
+  // some value of rows was changed and you can do something with it
+});
+```
+
+## state
+
+**gantt-schedule-timeline-calendar** is using [deep-state-observer](https://github.com/neuronetio/deep-state-observer) so you can checkout its documentation and start having fun.
+
 ## usage example
 
 [example](https://neuronet.io/gantt-schedule-timeline-calendar/scheduler.html) or [another example](https://neuronet.io/gantt-schedule-timeline-calendar/main.html)
