@@ -18,6 +18,10 @@
 
 <h3>gantt-schedule-timeline-calendar is all-in-one component that you can use in different scenarios.</h3>
 
+<p align="center">
+  <img src="https://neuronet.io/screenshots/appscrn.png?uniq=1" alt="gstc-logo">
+</p>
+
 ### features
 
 - elastic - you can change almost everything from DOM tree to logic (without any compilation)
@@ -47,10 +51,6 @@ You can use it in <strong>react</strong>, <strong>vue</strong>, <strong>angular<
 
 <p>
 You can use it as <strong>schedule</strong> for reservation system. You can use it for organizing <strong>events</strong>. You can use it as <strong>gantt chart</strong>. Or you can use it as <strong>calendar</strong> for different purposes.
-</p>
-
-<p align="center">
-  <img src="https://neuronet.io/screenshots/appscrn.png?uniq=1" alt="gstc-logo">
 </p>
 
 <p>
