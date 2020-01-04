@@ -321,6 +321,92 @@ Basically locale configuration comes from [dayjs locale object](https://github.c
 - `monthsShort` `{string[]}` - shorter month names
 - `weekStart` `{number}` - week start number from 0 to 6 where 0 = sunday, 1 = monday
 
+### actions
+
+Actions are functions (or classes) that can operate directly on DOM Tree.
+
+With actions you can add additional event listeners, add/update/inject some HTMLElements or add behavior from third party libraries like popups or dialogs.
+
+Action structure is an object where key is component name (kebab-cased) and value is an array of actions that should be fired.
+One action is executed on all elements/component instances of specified type (component name).
+
+Available action names:
+
+- `main`
+- `list`
+- `list-column`
+- `list-column-header`
+- `list-column-header-resizer`
+- `list-column-header-resizer-dots`
+- `list-column-row`
+- `list-column-row-expander`
+- `list-column-row-expander-toggle`
+- `list-toggle`
+- `chart`
+- `chart-calendar`
+- `chart-calendar-date`
+- `chart-timeline`
+- `chart-timeline-grid`
+- `chart-timeline-grid-row`
+- `chart-timeline-grid-row-block`
+- `chart-timeline-items`
+- `chart-timeline-items-row`
+- `chart-timeline-items-row-item`
+
+Action is a function that is fired when specified DOM Node is created and should return an object with `update` and `destroy` functions.
+
+Each of the functions takes two arguments:
+
+1. Element `{HTMLElement}`
+2. Data `{object}`
+
+`update` lifecycle method is fired when element stays where it was, but is reused to display another portion of data (performance optimization).
+
+`destroy` is fired when element is removed from the DOM tree and component is destroyed.
+
+Example action that will add `title` property to each item inside chart.
+
+```javascript
+function addItemTitleTag(element, data) {
+  // fired when element / component is created for the first time
+  // you can console.log(data) to find out what is inside specified component data
+  element.title = data.item.label;
+
+  return {
+    update(element, data) {
+      element.title = data.item.label;
+    },
+    destroy(element, data) {
+      element.title = '';
+    }
+  };
+}
+
+const config = {
+  actions: {
+    'chart-timeline-items-row-item': [addItemTitleTag]
+  }
+};
+```
+
+Actions can be classes too - with `constructor`, `update` and `destroy` methods.
+
+```javascript
+class AddItemTitleTag {
+  contructor(element, data) {
+    element.title = data.item.label;
+  }
+
+  update(element, data) {
+    element.title = data.item.label;
+  }
+
+  destroy(element, data) {
+    element.title = '';
+  }
+}
+```
+
 ## LICENSE
 
 **[GPL-3.0](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)** if you are using it - your project **must** be GPL-3.0 compatible.
