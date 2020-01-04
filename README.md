@@ -19,7 +19,7 @@
 <h3>gantt-schedule-timeline-calendar is all-in-one component that you can use in different scenarios.</h3>
 
 <br />
-<h3 align="center">If you like it - leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a> - it may help improve this lib</h3>
+<h3 align="center">If you like it - leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a></h3>
 <br />
 
 <p>
@@ -59,9 +59,9 @@ You can control almost everything. You can change html structure, stylize every 
 
 ## configuration
 
-**gantt-schedule-timeline-calendar** configuration could be hard to undestand, so we will explain it gradually (you can also take a look at [types](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/types.d.ts) or [default-config](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/default-config.ts) to understand it better).
-
 Your configuration will be merged recursively with default configuration options ([default-config](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/default-config.ts)) so almost all options are optional.
+
+TIP: take a look at [types](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/types.d.ts) or [default-config](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/default-config.ts)
 
 - `height` `{number}` - component height in pixels
 - `headerHeight` `{number}` - height of header and calendar in pixels
