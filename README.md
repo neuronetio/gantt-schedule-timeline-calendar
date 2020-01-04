@@ -30,7 +30,7 @@
 - you can define your selection strategy and select only what you want
 - gradual time zoom up to 5 minutes
 - resizeable list columns
-- BOM based CSS rules
+- BEM based CSS rules
 - you can easily stylize things when data has been changed (items, rows, grid)
 - you can easily add third party libraries
 - higly configurable
