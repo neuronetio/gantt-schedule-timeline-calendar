@@ -25,7 +25,7 @@
 ### features
 
 - elastic - you can change almost everything from DOM tree to logic (without any compilation)
-- multiple items in one row - suitable for different usecase
+- multiple items in one row - suitable for different usecases
 - tree like structures
 - moveable / resizeable items
 - item movement strategies - x, xy, specified row, basically anything you want
@@ -40,6 +40,7 @@
 - higly configurable
 - super fast even with large dataset
 - attractive visually
+- written in typescript
 
 <br />
 <h3 align="center">If you like it - leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a></h3>
