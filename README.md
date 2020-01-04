@@ -468,7 +468,7 @@ In **gantt-schedule-timeline-calendar** you can replace any component with your 
 
 Just copy interesting component - modify it and set up in `components` configuration property.
 
-Component configuration is like above just object where key is a component name and value is just component itself.
+Component configuration is (just like above) object where key is a component name and value is just component itself.
 
 Available component names:
 
