@@ -2,9 +2,9 @@
   <img src="https://neuronet.io/screenshots/gstc9-flat-bgw-300.png" alt="logo">
 </p>
 <hr />
-<h1>gantt-schedule-timeline-calendar</h1>
+<h1 align="center">gantt-schedule-timeline-calendar</h1>
 
-<h2> Gantt, schedule, timeline and calendar components all in one!</h2>
+<h2>Gantt, schedule, timeline and calendar components all in one!</h2>
 
 <p align="center">
   <img src="https://api.codacy.com/project/badge/Grade/732e0ef156344594b48584af97ba1e4a">
