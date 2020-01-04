@@ -374,9 +374,14 @@ function addItemTitleTag(element, data) {
 
   return {
     update(element, data) {
+      // fired when element takes data from another item - data has been changed
+
       element.title = data.item.label;
     },
+
     destroy(element, data) {
+      // fired when component is destroyed and element is to be removed from DOM tree
+      // you can clean up something here
       element.title = '';
     }
   };
