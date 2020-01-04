@@ -415,7 +415,7 @@ class AddItemTitleTag {
 
 **gantt-schedule-timeline-calendar** is using [lit-html](https://github.com/Polymer/lit-html) from polymer project to easly render templates without compilation stage, so if you want to wrap some GSTC component to add some functionality, you can use `html` from `lit-html` and wrappers and at the end your code will be much cleaner.
 
-Wrappers are functions that takes `TemplateResult` from `html` (from `lit-html` :smile:) and returns wrapped (or not) version.
+Wrappers are functions that takes `TemplateResult` from `html` (from `lit-html`) and returns wrapped (or not) version.
 
 Wrappers configuration options is an object where key is component name and value is just function so you can use decorator pattern (replace that function) on it.
 
