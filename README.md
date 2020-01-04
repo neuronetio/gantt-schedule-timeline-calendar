@@ -65,11 +65,6 @@ const app = GSTC({
   element: document.getElementById('your-element-id'),
   state
 });
-
-// now you can listen to changes or update the state when needed
-state.subscribe('config.list.rows', rows => {
-  // some value of rows was changed and you can do something with it
-});
 ```
 
 ## state
