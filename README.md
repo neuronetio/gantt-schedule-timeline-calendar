@@ -65,9 +65,9 @@ Your configuration will be merged recursively with default configuration options
 
 - `height` `{number}` - component height in pixels
 - `headerHeight` `{number}` - height of header and calendar in pixels
-- `list` `{object}` - [list configuration](#list-configuration)
-- `chart` `{object}` - [chart configuration](#chart-configuration)
-- `locale` `{object}` - [locale configuration](#locale-configuration)
+- `list` `{object}` - [list configuration](#list)
+- `chart` `{object}` - [chart configuration](#chart)
+- `locale` `{object}` - [locale configuration](#locale)
 - `utcMode` `{boolean}` - dayjs UTC mode on / off
 - `components` `{object}` - object that holds [components](#components) used inside `GSTC` - you can replace any component you want
 - `wrappers` `{object}` - [wrappers](#wrappers) are functions that can wrap any component html - you can wrap component html in `div`'s or add some html before or after
@@ -75,15 +75,15 @@ Your configuration will be merged recursively with default configuration options
 - `plugins` `{array}` - array of [plugins](#plugins) that needs to be initialized before `GSTC`
 - `plugin` `{object}` - this is a container for plugins to store some data
 
-### list configuration
+### list
 
-- `rows` `{object}` - [rows configuration](#rows-configuration)
-- `columns` `{object}` - [columns configuration](#columns-configuration)
-- `expander` `{object}` - [expander configuration](#expander-configuration)
-- `toggle` `{object}` - [toggle configuration](#toggle-configuration)
+- `rows` `{object}` - [rows configuration](#rows)
+- `columns` `{object}` - [columns configuration](#columns)
+- `expander` `{object}` - [expander configuration](#expander)
+- `toggle` `{object}` - [toggle configuration](#toggle)
 - `rowHeight` `{number}` - default row height in pixels - this option can be set individually for each row
 
-### rows configuration
+### rows
 
 Rows are listed on the left side of component (list) and are kind of containers for items (right side - chart).
 Rows can contain multiple items.
@@ -123,26 +123,26 @@ const config = {
 };
 ```
 
-### columns configuration
+### columns
 
-- `data` `{object}` - [columns data configuration](#columns-data-configuration)
-- `resizer` `{object}` - [resizer configuration](#resizer-configuration)
+- `data` `{object}` - [columns data configuration](#columns-data)
+- `resizer` `{object}` - [resizer configuration](#resizer)
 - `percent` `{number}` - percentage width of all columns (0 - 100) if 0 list will disappear (from DOM)
 - `minWidth` `{number}` - default minimal width of the column in pixels
 
-### columns data configuration
+### columns data
 
-Columns data configuration is an object where key is an id of the column (`{string}`) and value is [column configuration](#column-configuration).
+Columns data configuration is an object where key is an id of the column (`{string}`) and value is [column configuration](#column).
 
-[Column configuration](#column-configuration) must contain `id` property too.
+[Column configuration](#column) must contain `id` property too.
 
-### column configuration
+### column
 
 - `id` `{string}` - id of the column
 - `data` `{string | function}` - for string it is a property name that should exists inside row configuration and will display coresponding value, if data is a function it will be executed with row as argument - that function should return a string or lit-html template
 - `isHTML` `{boolean}` - if set to true `data` option will be rendered as HTML so be careful and do not let user to inject anything unsafe!
 - `width` `{number}` - width of the column in pixels
-- `header` `{object}` - [column header configuration](#column-header-configuration)
+- `header` `{object}` - [column header configuration](#column-header)
 - `expander` `{boolean}` - should this column contain expander?
 
 ```javascript
@@ -197,64 +197,64 @@ const config = {
 };
 ```
 
-### column header configuration
+### column header
 
 - `content` `{string}` - Label for this header
 - `html` `{lit-html template}` - lit-html template if you want html
 
-### expander configuration
+### expander
 
 - `padding` `{number}` - left padding size in pixels
 - `size` `{number}` - size in pixels (width and height)
 - `icon` `{object}` - with `width` and `height` properties in pixels `{numbers}`
-- `icons` `{object}` - [expander icons configuration](#expander-icons-configuration)
+- `icons` `{object}` - [expander icons configuration](#expander-icons)
 
-### expander icons configuration
+### expander icons
 
 - `child` `{string}` - svg code for non expandable child element
 - `open` `{string}` - svg code for open
 - `closed` `{string}` - svg code for closed
 
-### toggle configuration
+### toggle
 
 - `display` `{boolean}` - you can show or hide list toggle
-- `icons` `{object}` - [toggle icons configuration](#toggle-icons-configuration)
+- `icons` `{object}` - [toggle icons configuration](#toggle-icons)
 
-### toggle icons configuration
+### toggle icons
 
 - `open` `{string}` - svg code for open
 - `closed` `{string}` - svg code for closed
 
-### resizer configuration
+### resizer
 
 - `width` `{number}` - resizer width in pixels
 - `dots` `{number}` - number of dots
 
-### chart configuration
+### chart
 
-- `time` `{object}` - [time configuration](#time-configuration)
-- `items` `{object}` - [items configuration](#items-configuration)
-- `grid` `{object}` - [grid configuration](#grid-configuration)
+- `time` `{object}` - [time configuration](#time)
+- `items` `{object}` - [items configuration](#items)
+- `grid` `{object}` - [grid configuration](#grid)
 - `spacing` `{number}` - space between item in pixels
 
-### time configuration
+### time
 
 - `from` `{number}` - can be set to limit left side of the chart to specified time in milliseconds
 - `to` `{number}` - can be set to limit right side of the chart to specified time in milliseconds
 - `zoom` `{number}` - horizontal zoom - lower values for zoom in - values between 10 and 22
 
-### items configuration
+### items
 
-Items like rows and columns are an object where key is an item id (`{string}`) and value is [item configuration](#item-configuration)
+Items like rows and columns are an object where key is an item id (`{string}`) and value is [item configuration](#item-)
 
-### item configuration
+### item
 
 - `id` `{string}` - item id
 - `rowId` `{string}` - in which row this item should appear
 - `label` `{string}` - item label
-- `time` `{object}` - [item time configuration](#item-time-configuration)
+- `time` `{object}` - [item time configuration](#item-time)
 
-### item time configuration
+### item time
 
 - `start` `{number}` - start time in milliseconds
 - `end` `{number}` - end time in milliseconds
@@ -309,7 +309,17 @@ const config = {
 };
 ```
 
-to be continued...
+### locale
+
+Basically locale configuration comes from [dayjs locale object](https://github.com/iamkun/dayjs/blob/dev/docs/en/I18n.md)
+
+- `name` `{string}` - locale name (`en` for example)
+- `weekdays` `{string[]}` - array of strings with weekdays starting from sunday (`Sunday`, `Monday` etc)
+- `weekdaysShort` `{string[]}` - same as weekdays but little bit shorter (`Sun`, `Mon` ...)
+- `weekdaysMin` `{string[]}` - shortest weekdays (`Su`, `Mo` ...)
+- `months` `{string[]}` - month names as array of strings
+- `monthsShort` `{string[]}` - shorter month names
+- `weekStart` `{number}` - week start number from 0 to 6 where 0 = sunday, 1 = monday
 
 ## LICENSE
 
