@@ -18,6 +18,25 @@
 
 <h3>gantt-schedule-timeline-calendar is all-in-one component that you can use in different scenarios.</h3>
 
+### features
+
+- elastic - you can change almost everything from DOM tree to logic
+- multiple items in one row
+- tree like structures
+- moveable / resizeable items
+- item movement strategies - x, xy, specified row, basically anything you want
+- snap to specified time when resizing / moving
+- selectable items, rows, grid cells
+- you can define your selection strategy and select only what you want
+- gradual time zoom up to 5 minutes
+- resizeable list columns
+- BOM based CSS rules
+- you can easily stylize things when data has been changed (items, rows, grid)
+- you can easily add third party libraries
+- higly configurable
+- super fast even with large dataset
+- attractive visually
+
 <br />
 <h3 align="center">If you like it - leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a></h3>
 <br />
