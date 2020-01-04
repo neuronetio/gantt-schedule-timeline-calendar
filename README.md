@@ -20,7 +20,7 @@
 
 ### features
 
-- elastic - you can change almost everything from DOM tree to logic
+- elastic - you can change almost everything from DOM tree to logic (without any compilation)
 - multiple items in one row
 - tree like structures
 - moveable / resizeable items
