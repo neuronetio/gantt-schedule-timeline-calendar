@@ -25,7 +25,7 @@
 ### features
 
 - elastic - you can change almost everything from DOM tree to logic (without any compilation)
-- multiple items in one row
+- multiple items in one row - suitable for different usecase
 - tree like structures
 - moveable / resizeable items
 - item movement strategies - x, xy, specified row, basically anything you want
