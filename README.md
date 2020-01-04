@@ -43,9 +43,8 @@ You can control almost everything. You can change html structure, stylize every 
   <img src="https://neuronet.io/screenshots/scheduler.gif" alt="screencast-1">
   <br />
   <img src="https://neuronet.io/screenshots/gantt.gif" alt="screencast-2">
-  <br />
-  <img src="https://neuronet.io/screenshots/gstc-1.jpeg" alt="screenshot-1">
 </p>
+<hr />
 
 ## install
 
@@ -69,9 +68,9 @@ TIP: take a look at [types](https://github.com/neuronetio/gantt-schedule-timelin
 - `chart` `{object}` - [chart configuration](#chart)
 - `locale` `{object}` - [locale configuration](#locale)
 - `utcMode` `{boolean}` - dayjs UTC mode on / off
-- `components` `{object}` - object that holds [components](#components) used inside `GSTC` - you can replace any component you want
-- `wrappers` `{object}` - [wrappers](#wrappers) are functions that can wrap any component html - you can wrap component html in `div`'s or add some html before or after
 - `actions` `{object}` - [actions](#actions) can operate directly on `HTMLElements` and can be used to add some event listener or inject/modify some html of the component
+- `wrappers` `{object}` - [wrappers](#wrappers) are functions that can wrap any component html - you can wrap component html in `div`'s or add some html before or after
+- `components` `{object}` - object that holds [components](#components) used inside `GSTC` - you can replace any component you want
 - `plugins` `{array}` - array of [plugins](#plugins) that needs to be initialized before `GSTC`
 - `plugin` `{object}` - this is a container for plugins to store some data
 
@@ -410,6 +409,57 @@ class AddItemTitleTag {
     element.title = '';
   }
 }
+```
+
+### wrappers
+
+**gantt-schedule-timeline-calendar** is using [lit-html](https://github.com/Polymer/lit-html) from polymer project to easly render templates without compilation stage, so if you want to wrap some GSTC component to add some functionality, you can use `html` from `lit-html` and wrappers and at the end your code will be much cleaner.
+
+Wrappers are functions that takes `TemplateResult` from `html` (from `lit-html` :smile:) and returns wrapped (or not) version.
+
+Wrappers configuration options is an object where key is component name and value is just function so you can use decorator pattern (replace that function) on it.
+
+Available component names:
+
+- `Main`
+- `List`
+- `ListColumn`
+- `ListColumnHeader`
+- `ListColumnHeaderResizer`
+- `ListColumnRow`
+- `ListColumnRowExpander`
+- `ListColumnRowExpanderToggle`
+- `ListToggle`
+- `Chart`
+- `ChartCalendar`
+- `ChartCalendarDate`
+- `ChartTimeline`
+- `ChartTimelineGrid`
+- `ChartTimelineGridRow`
+- `ChartTimelineGridRowBlock`
+- `ChartTimelineItems`
+- `ChartTimelineItemsRow`
+- `ChartTimelineItemsRowItem`
+
+Example that shows how to wrap list column row with `div` and additional class.
+
+```javascript
+// after GSTC is loaded and running
+let oldWrapper;
+
+function addClassWrapper(input) {
+  let result = oldWrapper(input);
+  result = html`
+    <div class="additional-class">${result}</div>
+  `;
+  return result;
+}
+
+state.update('config.wrappers', wrappers => {
+  oldWrapper = wrappers.ListColumnRow;
+  wrappers.ListColumnRow = addClassWrapper;
+  return wrappers;
+});
 ```
 
 ## LICENSE
