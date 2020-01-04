@@ -71,7 +71,7 @@ const app = GSTC({
 
 **gantt-schedule-timeline-calendar** is using [deep-state-observer](https://github.com/neuronetio/deep-state-observer) so you can checkout its documentation and start having fun.
 
-## usage example
+## examples
 
 [example](https://neuronet.io/gantt-schedule-timeline-calendar/scheduler.html) or [another example](https://neuronet.io/gantt-schedule-timeline-calendar/main.html)
 
