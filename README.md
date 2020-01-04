@@ -70,6 +70,10 @@ You can control almost everything. You can change html structure, stylize every 
 
 `npm i gantt-schedule-timeline-calendar`
 
+or
+
+`<script src="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar"></script>`
+
 ## usage
 
 Basically you need to create some [configuration](#configuration) described below, create state for it and mount component to DOM.
