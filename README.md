@@ -245,7 +245,7 @@ const config = {
 
 ### items
 
-Items like rows and columns are an object where key is an item id (`{string}`) and value is [item configuration](#item-)
+Items like rows and columns are objects where key is an item id (`{string}`) and value is [item configuration](#item)
 
 ### item
 
