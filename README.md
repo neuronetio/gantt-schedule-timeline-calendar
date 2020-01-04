@@ -513,6 +513,19 @@ Available component names:
 - `ChartTimelineItemsRow`
 - `ChartTimelineItemsRowItem`
 
+Components are functions that takes operational functions `vido` and `props` as second argument.
+Component must return a render function with `html` ([lit-html](https://github.com/Polymer/lit-html)).
+
+```javascript
+function ExampleComponent(vido, props) {
+  const { html } = vido;
+  return () =>
+    html`
+      <div class="example-component">Hello world</div>
+    `;
+}
+```
+
 ## LICENSE
 
 **[GPL-3.0](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)** if you are using it - your project **must** be GPL-3.0 compatible.
