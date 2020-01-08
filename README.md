@@ -50,6 +50,12 @@
 You can use it in <strong>react</strong>, <strong>vue</strong>, <strong>angular</strong>, <strong>svelte</strong> or any other projects.
 </p>
 
+Additional versions:
+
+- [react-gantt-schedule-timeline-calendar](https://github.com/neuronetio/react-gantt-schedule-timeline-calendar)
+- [angular-gantt-schedule-timeline-calendar](https://github.com/neuronetio/angular-gantt-schedule-timeline-calendar)
+- [vue](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/dist/examples/scheduler.html) - junky for now, but it shows how to use it
+
 <p>
 You can use it as <strong>schedule</strong> for reservation system. You can use it for organizing <strong>events</strong>. You can use it as <strong>gantt chart</strong>. Or you can use it as <strong>calendar</strong> for different purposes.
 </p>
