@@ -28,15 +28,20 @@ export default function Main(vido, props = {}) {
     })
   );
 
+  const componentSubs = [];
   let ListComponent;
-  onDestroy(state.subscribe('config.components.List', value => (ListComponent = value)));
+  componentSubs.push(state.subscribe('config.components.List', value => (ListComponent = value)));
   let ChartComponent;
-  onDestroy(state.subscribe('config.components.Chart', value => (ChartComponent = value)));
+  componentSubs.push(state.subscribe('config.components.Chart', value => (ChartComponent = value)));
 
   const List = createComponent(ListComponent);
   onDestroy(List.destroy);
   const Chart = createComponent(ChartComponent);
   onDestroy(Chart.destroy);
+
+  onDestroy(() => {
+    componentSubs.forEach(unsub => unsub());
+  });
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.Main', value => (wrapper = value)));
@@ -442,6 +447,10 @@ export default function Main(vido, props = {}) {
   const mainActions = Actions.create(componentActions, actionProps);
   const verticalScrollActions = Actions.create([bindScrollElement]);
   const verticalScrollAreaActions = Actions.create([bindScrollInnerElement]);
+
+  onDestroy(() => {
+    verticalScrollBarElement.closest('.gantt-schedule-timeline-calendar').remove();
+  });
 
   return templateProps =>
     wrapper(

@@ -32,15 +32,19 @@ class BindElementAction {
   }
 }
 export default function ListColumn(vido, props) {
+  if (!vido) return;
   const { api, state, onDestroy, onChange, Actions, update, createComponent, reuseComponents, html, StyleMap } = vido;
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListColumn', value => (wrapper = value)));
 
+  const componentsSub = [];
   let ListColumnRowComponent;
-  onDestroy(state.subscribe('config.components.ListColumnRow', value => (ListColumnRowComponent = value)));
+  componentsSub.push(state.subscribe('config.components.ListColumnRow', value => (ListColumnRowComponent = value)));
   let ListColumnHeaderComponent;
-  onDestroy(state.subscribe('config.components.ListColumnHeader', value => (ListColumnHeaderComponent = value)));
+  componentsSub.push(
+    state.subscribe('config.components.ListColumnHeader', value => (ListColumnHeaderComponent = value))
+  );
 
   const actionProps = { ...props, api, state };
 
@@ -148,6 +152,11 @@ export default function ListColumn(vido, props) {
     return destroy;
   };
   onDestroy(state.subscribe('_internal.list.visibleRows;', visibleRowsChange));
+
+  onDestroy(() => {
+    visibleRows.forEach(row => row.destroy());
+    componentsSub.forEach(unsub => unsub());
+  });
 
   function getRowHtml(row) {
     return row.html();

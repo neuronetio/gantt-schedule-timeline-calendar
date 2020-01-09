@@ -9,6 +9,7 @@
  */
 
 export default function List(vido, props = {}) {
+  if (!vido) return;
   const { api, state, onDestroy, Actions, update, reuseComponents, html, schedule, StyleMap, cache } = vido;
 
   const componentName = 'list';
@@ -18,7 +19,7 @@ export default function List(vido, props = {}) {
   onDestroy(state.subscribe('config.wrappers.List', value => (wrapper = value)));
 
   let ListColumnComponent;
-  onDestroy(state.subscribe('config.components.ListColumn', value => (ListColumnComponent = value)));
+  const listColumnUnsub = state.subscribe('config.components.ListColumn', value => (ListColumnComponent = value));
 
   function renderExpanderIcons() {
     const icons = state.get('config.list.expander.icons');
@@ -89,6 +90,11 @@ export default function List(vido, props = {}) {
       update();
     })
   );
+
+  onDestroy(() => {
+    listColumns.forEach(listColumn => listColumn.destroy());
+    listColumnUnsub();
+  });
 
   function onScroll(event) {
     event.stopPropagation();

@@ -9,6 +9,7 @@
  */
 
 export default function ListColumnRowExpander(vido, props) {
+  if (!vido) return;
   const { api, state, onDestroy, Actions, update, html, createComponent, onChange } = vido;
   const componentName = 'list-column-row-expander';
   const componentActions = api.getActions(componentName);
@@ -16,17 +17,19 @@ export default function ListColumnRowExpander(vido, props) {
   let className;
 
   let ListColumnRowExpanderToggleComponent;
-  onDestroy(
-    state.subscribe(
-      'config.components.ListColumnRowExpanderToggle',
-      value => (ListColumnRowExpanderToggleComponent = value)
-    )
+  const toggleUnsub = state.subscribe(
+    'config.components.ListColumnRowExpanderToggle',
+    value => (ListColumnRowExpanderToggleComponent = value)
   );
+
   const ListColumnRowExpanderToggle = createComponent(
     ListColumnRowExpanderToggleComponent,
     props.row ? { row: props.row } : {}
   );
-  onDestroy(ListColumnRowExpanderToggle.destroy);
+  onDestroy(() => {
+    ListColumnRowExpanderToggle.destroy();
+    toggleUnsub();
+  });
 
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ListColumnRowExpander', value => (wrapper = value)));
@@ -39,7 +42,6 @@ export default function ListColumnRowExpander(vido, props) {
   );
 
   if (props.row) {
-    let parentSub;
     function onPropsChange(changedProps) {
       props = changedProps;
       for (const prop in props) {
@@ -48,9 +50,6 @@ export default function ListColumnRowExpander(vido, props) {
       ListColumnRowExpanderToggle.change(props);
     }
     onChange(onPropsChange);
-    onDestroy(function listExpanderDestroy() {
-      if (parentSub) parentSub();
-    });
   }
 
   const actions = Actions.create(componentActions, actionProps);

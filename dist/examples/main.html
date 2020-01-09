@@ -30,6 +30,7 @@
       <button onclick="deleteItem()">Delete item</button>
       <button onclick="clearAll()">clear all</button>
       <button onclick="randomizeItems()">randomize items</button>
+      <button onclick="destroy()">destroy</button>
     </div>
     <div id="app"></div>
     <script src="../ItemMovement.plugin.js"></script>
@@ -169,7 +170,7 @@
 
       let GSTCState = (window.state = GSTC.api.stateFromConfig(config));
 
-      const app = GSTC({
+      const gstc = GSTC({
         element: document.getElementById('app'),
         state: GSTCState
       });
@@ -212,14 +213,18 @@
         });
       }
 
+      function destroy() {
+        gstc.app.destroy();
+      }
+
       document.getElementById('percent').addEventListener('input', ev => {
-        app.state.update('config.list.columns.percent', ev.target.value);
+        gstc.state.update('config.list.columns.percent', ev.target.value);
       });
       document.getElementById('zoom').addEventListener('input', ev => {
-        app.state.update('config.chart.time.zoom', ev.target.value);
+        gstc.state.update('config.chart.time.zoom', ev.target.value);
       });
       document.getElementById('change-something').addEventListener('click', () => {
-        app.state.update('config.list.rows', rows => {
+        gstc.state.update('config.list.rows', rows => {
           for (const rowId in rows) {
             rows[rowId].label += ' !';
           }

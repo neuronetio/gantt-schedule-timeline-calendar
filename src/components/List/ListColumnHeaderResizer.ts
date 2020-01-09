@@ -9,6 +9,7 @@
  */
 
 export default function ListColumnHeaderResizer(vido, props) {
+  if (!vido) return;
   const { api, state, onDestroy, update, html, schedule, Actions, PointerAction, cache, StyleMap } = vido;
 
   const componentName = 'list-column-header-resizer';

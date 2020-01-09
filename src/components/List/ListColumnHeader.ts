@@ -9,6 +9,7 @@
  */
 
 export default function ListColumnHeader(vido, props) {
+  if (!vido) return;
   const { api, state, onDestroy, onChange, Actions, update, createComponent, html, cache, StyleMap } = vido;
 
   const actionProps = { ...props, api, state };
@@ -19,19 +20,23 @@ export default function ListColumnHeader(vido, props) {
   const componentName = 'list-column-header';
   const componentActions = api.getActions(componentName);
 
+  const componentsSubs = [];
   let ListColumnHeaderResizerComponent;
-  onDestroy(
+  componentsSubs.push(
     state.subscribe('config.components.ListColumnHeaderResizer', value => (ListColumnHeaderResizerComponent = value))
   );
   const ListColumnHeaderResizer = createComponent(ListColumnHeaderResizerComponent, { columnId: props.columnId });
-  onDestroy(ListColumnHeaderResizer.destroy);
 
   let ListColumnRowExpanderComponent;
-  onDestroy(
+  componentsSubs.push(
     state.subscribe('config.components.ListColumnRowExpander', value => (ListColumnRowExpanderComponent = value))
   );
   const ListColumnRowExpander = createComponent(ListColumnRowExpanderComponent, {});
-  onDestroy(ListColumnRowExpander.destroy);
+  onDestroy(() => {
+    ListColumnHeaderResizer.destroy();
+    ListColumnRowExpander.destroy();
+    componentsSubs.forEach(unsub => unsub());
+  });
 
   let column;
   let columnSub = state.subscribe(`config.list.columns.data.${props.columnId}`, val => {

@@ -4254,14 +4254,18 @@
                 }
             }
         }));
+        const componentSubs = [];
         let ListComponent;
-        onDestroy(state.subscribe('config.components.List', value => (ListComponent = value)));
+        componentSubs.push(state.subscribe('config.components.List', value => (ListComponent = value)));
         let ChartComponent;
-        onDestroy(state.subscribe('config.components.Chart', value => (ChartComponent = value)));
+        componentSubs.push(state.subscribe('config.components.Chart', value => (ChartComponent = value)));
         const List = createComponent(ListComponent);
         onDestroy(List.destroy);
         const Chart = createComponent(ChartComponent);
         onDestroy(Chart.destroy);
+        onDestroy(() => {
+            componentSubs.forEach(unsub => unsub());
+        });
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.Main', value => (wrapper = value)));
         const componentActions = api.getActions('main');
@@ -4622,6 +4626,9 @@
         const mainActions = Actions.create(componentActions, actionProps);
         const verticalScrollActions = Actions.create([bindScrollElement]);
         const verticalScrollAreaActions = Actions.create([bindScrollInnerElement]);
+        onDestroy(() => {
+            verticalScrollBarElement.closest('.gantt-schedule-timeline-calendar').remove();
+        });
         return templateProps => wrapper(html `
         <div
           data-info-url="https://github.com/neuronetio/gantt-schedule-timeline-calendar"
@@ -4655,13 +4662,15 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function List(vido, props = {}) {
+        if (!vido)
+            return;
         const { api, state, onDestroy, Actions, update, reuseComponents, html, schedule, StyleMap, cache } = vido;
         const componentName = 'list';
         const componentActions = api.getActions(componentName);
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.List', value => (wrapper = value)));
         let ListColumnComponent;
-        onDestroy(state.subscribe('config.components.ListColumn', value => (ListColumnComponent = value)));
+        const listColumnUnsub = state.subscribe('config.components.ListColumn', value => (ListColumnComponent = value));
         function renderExpanderIcons() {
             const icons = state.get('config.list.expander.icons');
             const rendered = {};
@@ -4716,6 +4725,10 @@
             styleMap.style['--expander-size'] = expander.size + 'px';
             update();
         }));
+        onDestroy(() => {
+            listColumns.forEach(listColumn => listColumn.destroy());
+            listColumnUnsub();
+        });
         function onScroll(event) {
             event.stopPropagation();
             event.preventDefault();
@@ -4795,13 +4808,16 @@
         }
     }
     function ListColumn(vido, props) {
+        if (!vido)
+            return;
         const { api, state, onDestroy, onChange, Actions, update, createComponent, reuseComponents, html, StyleMap } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListColumn', value => (wrapper = value)));
+        const componentsSub = [];
         let ListColumnRowComponent;
-        onDestroy(state.subscribe('config.components.ListColumnRow', value => (ListColumnRowComponent = value)));
+        componentsSub.push(state.subscribe('config.components.ListColumnRow', value => (ListColumnRowComponent = value)));
         let ListColumnHeaderComponent;
-        onDestroy(state.subscribe('config.components.ListColumnHeader', value => (ListColumnHeaderComponent = value)));
+        componentsSub.push(state.subscribe('config.components.ListColumnHeader', value => (ListColumnHeaderComponent = value)));
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
         const componentName = 'list-column';
         const rowsComponentName = componentName + '-rows';
@@ -4882,6 +4898,10 @@
             return destroy;
         };
         onDestroy(state.subscribe('_internal.list.visibleRows;', visibleRowsChange));
+        onDestroy(() => {
+            visibleRows.forEach(row => row.destroy());
+            componentsSub.forEach(unsub => unsub());
+        });
         function getRowHtml(row) {
             return row.html();
         }
@@ -4910,20 +4930,26 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnHeader(vido, props) {
+        if (!vido)
+            return;
         const { api, state, onDestroy, onChange, Actions, update, createComponent, html, cache, StyleMap } = vido;
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListColumnHeader', value => (wrapper = value)));
         const componentName = 'list-column-header';
         const componentActions = api.getActions(componentName);
+        const componentsSubs = [];
         let ListColumnHeaderResizerComponent;
-        onDestroy(state.subscribe('config.components.ListColumnHeaderResizer', value => (ListColumnHeaderResizerComponent = value)));
+        componentsSubs.push(state.subscribe('config.components.ListColumnHeaderResizer', value => (ListColumnHeaderResizerComponent = value)));
         const ListColumnHeaderResizer = createComponent(ListColumnHeaderResizerComponent, { columnId: props.columnId });
-        onDestroy(ListColumnHeaderResizer.destroy);
         let ListColumnRowExpanderComponent;
-        onDestroy(state.subscribe('config.components.ListColumnRowExpander', value => (ListColumnRowExpanderComponent = value)));
+        componentsSubs.push(state.subscribe('config.components.ListColumnRowExpander', value => (ListColumnRowExpanderComponent = value)));
         const ListColumnRowExpander = createComponent(ListColumnRowExpanderComponent, {});
-        onDestroy(ListColumnRowExpander.destroy);
+        onDestroy(() => {
+            ListColumnHeaderResizer.destroy();
+            ListColumnRowExpander.destroy();
+            componentsSubs.forEach(unsub => unsub());
+        });
         let column;
         let columnSub = state.subscribe(`config.list.columns.data.${props.columnId}`, val => {
             column = val;
@@ -4991,6 +5017,8 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnHeaderResizer(vido, props) {
+        if (!vido)
+            return;
         const { api, state, onDestroy, update, html, schedule, Actions, PointerAction, cache, StyleMap } = vido;
         const componentName = 'list-column-header-resizer';
         const componentActions = api.getActions(componentName);
@@ -5117,6 +5145,8 @@
         }
     }
     function ListColumnRow(vido, props) {
+        if (!vido)
+            return;
         const { api, state, onDestroy, Detach, Actions, update, html, createComponent, onChange, StyleMap, unsafeHTML, PointerAction } = vido;
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
         let shouldDetach = false;
@@ -5288,15 +5318,20 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnRowExpander(vido, props) {
+        if (!vido)
+            return;
         const { api, state, onDestroy, Actions, update, html, createComponent, onChange } = vido;
         const componentName = 'list-column-row-expander';
         const componentActions = api.getActions(componentName);
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
         let className;
         let ListColumnRowExpanderToggleComponent;
-        onDestroy(state.subscribe('config.components.ListColumnRowExpanderToggle', value => (ListColumnRowExpanderToggleComponent = value)));
+        const toggleUnsub = state.subscribe('config.components.ListColumnRowExpanderToggle', value => (ListColumnRowExpanderToggleComponent = value));
         const ListColumnRowExpanderToggle = createComponent(ListColumnRowExpanderToggleComponent, props.row ? { row: props.row } : {});
-        onDestroy(ListColumnRowExpanderToggle.destroy);
+        onDestroy(() => {
+            ListColumnRowExpanderToggle.destroy();
+            toggleUnsub();
+        });
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListColumnRowExpander', value => (wrapper = value)));
         onDestroy(state.subscribe('config.classNames', value => {
@@ -5312,8 +5347,6 @@
                 ListColumnRowExpanderToggle.change(props);
             }
             onChange(onPropsChange);
-            onDestroy(function listExpanderDestroy() {
-            });
         }
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
@@ -5333,6 +5366,8 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnRowExpanderToggle(vido, props) {
+        if (!vido)
+            return;
         const { api, state, onDestroy, Actions, update, html, onChange, cache } = vido;
         const componentName = 'list-column-row-expander-toggle';
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
@@ -5482,6 +5517,8 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function Chart(vido, props = {}) {
+        if (!vido)
+            return;
         const { api, state, onDestroy, Actions, update, html, StyleMap, createComponent } = vido;
         const componentName = 'chart';
         const ChartCalendarComponent = state.get('config.components.ChartCalendar');

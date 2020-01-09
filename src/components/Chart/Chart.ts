@@ -11,6 +11,7 @@
 import ResizeObserver from 'resize-observer-polyfill';
 
 export default function Chart(vido, props = {}) {
+  if (!vido) return;
   const { api, state, onDestroy, Actions, update, html, StyleMap, createComponent } = vido;
   const componentName = 'chart';
 
