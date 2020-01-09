@@ -399,6 +399,7 @@ export default function ItemMovement(options: Options = {}) {
 
     return {
       update(node, changedData) {
+        console.log('updated');
         if (!isResizeable(changedData) && resizerEl.style.visibility === 'visible') {
           resizerEl.style.visibility = 'hidden';
         } else if (isResizeable(changedData) && resizerEl.style.visibility === 'hidden') {

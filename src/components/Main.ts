@@ -22,6 +22,8 @@ export default function Main(vido, props = {}) {
           const destroyPlugin = initializePlugin(vido);
           if (typeof destroyPlugin === 'function') {
             onDestroy(destroyPlugin);
+          } else if (destroyPlugin && destroyPlugin.hasOwnProperty('destroy')) {
+            destroyPlugin.destroy();
           }
         }
       }

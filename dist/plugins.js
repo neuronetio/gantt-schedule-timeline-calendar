@@ -454,6 +454,7 @@ function ItemMovement(options = {}) {
         }
         return {
             update(node, changedData) {
+                console.log('updated');
                 if (!isResizeable(changedData) && resizerEl.style.visibility === 'visible') {
                     resizerEl.style.visibility = 'hidden';
                 }
@@ -463,6 +464,7 @@ function ItemMovement(options = {}) {
                 data = changedData;
             },
             destroy(node, data) {
+                console.log('destroying');
                 if (pointerEventsExists) {
                     element.removeEventListener('pointerdown', labelDown);
                     resizerEl.removeEventListener('pointerdown', resizerDown);
@@ -579,7 +581,7 @@ let eventOptionsSupported = false;
 // IMPORTANT: do not change the property name or the assignment expression.
 // This line will be used in regexes to search for lit-html usage.
 // TODO(justinfagnani): inject version number at build time
-(window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.1.3');
+(window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.1.4');
 /**
  * Used to clone existing node instead of each time creating new one which is
  * slower

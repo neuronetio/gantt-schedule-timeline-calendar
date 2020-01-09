@@ -3095,7 +3095,6 @@
                 }
                 index++;
             }
-            return currentComponents;
         };
         const InternalComponentMethods = getInternalComponentMethods(components, actionsByInstance, clone);
         /**
@@ -3126,7 +3125,7 @@
         }
         vido.prototype.createComponent = createComponent;
         class Slot extends Directive {
-            constructor(components, props, content = null) {
+            constructor(components, props = {}, content = null) {
                 super();
                 this.components = [];
                 if (Array.isArray(components)) {
@@ -4250,6 +4249,9 @@
                     const destroyPlugin = initializePlugin(vido);
                     if (typeof destroyPlugin === 'function') {
                         onDestroy(destroyPlugin);
+                    }
+                    else if (destroyPlugin && destroyPlugin.hasOwnProperty('destroy')) {
+                        destroyPlugin.destroy();
                     }
                 }
             }
