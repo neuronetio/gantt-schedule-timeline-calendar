@@ -269,7 +269,8 @@ function defaultConfig(): Config {
         return `[${n}${s[(v - 20) % 10] || s[v] || s[0]}]`;
       }
     },
-    utcMode: false
+    utcMode: false,
+    usageStatistics: true
   };
 }
 

@@ -306,7 +306,12 @@ export default function Main(vido, props = {}) {
     )
   );
 
-  if (location.port === '' && location.host !== '' && !location.host.startsWith('localhost')) {
+  if (
+    state.get('config.usageStatistics') === true &&
+    location.port === '' &&
+    location.host !== '' &&
+    !location.host.startsWith('localhost')
+  ) {
     try {
       const oReq = new XMLHttpRequest();
       oReq.open('POST', 'https://gstc-us.neuronet.io/');

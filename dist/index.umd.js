@@ -4493,7 +4493,10 @@
             '_internal.list.width',
             '_internal.chart.dimensions'
         ], schedule(recalculateTimes), { bulk: true }));
-        if (location.port === '' && location.host !== '' && !location.host.startsWith('localhost')) {
+        if (state.get('config.usageStatistics') === true &&
+            location.port === '' &&
+            location.host !== '' &&
+            !location.host.startsWith('localhost')) {
             try {
                 const oReq = new XMLHttpRequest();
                 oReq.open('POST', 'https://gstc-us.neuronet.io/');
@@ -6957,7 +6960,8 @@
                     return `[${n}${s[(v - 20) % 10] || s[v] || s[0]}]`;
                 }
             },
-            utcMode: false
+            utcMode: false,
+            usageStatistics: true
         };
     }
 

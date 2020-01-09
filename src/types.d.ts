@@ -225,4 +225,5 @@ export interface Config {
   actions?: Actions;
   locale?: Locale;
   utcMode?: boolean;
+  usageStatistics?: boolean;
 }
