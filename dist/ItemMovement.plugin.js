@@ -370,7 +370,6 @@
           }
           return {
               update(node, changedData) {
-                  console.log('updated');
                   if (!isResizeable(changedData) && resizerEl.style.visibility === 'visible') {
                       resizerEl.style.visibility = 'hidden';
                   }
@@ -380,7 +379,6 @@
                   data = changedData;
               },
               destroy(node, data) {
-                  console.log('destroying');
                   if (pointerEventsExists) {
                       element.removeEventListener('pointerdown', labelDown);
                       resizerEl.removeEventListener('pointerdown', resizerDown);

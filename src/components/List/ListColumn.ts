@@ -32,7 +32,6 @@ class BindElementAction {
   }
 }
 export default function ListColumn(vido, props) {
-  if (!vido) return;
   const { api, state, onDestroy, onChange, Actions, update, createComponent, reuseComponents, html, StyleMap } = vido;
 
   let wrapper;

@@ -9,7 +9,6 @@
  */
 
 export default function ListColumnHeader(vido, props) {
-  if (!vido) return;
   const { api, state, onDestroy, onChange, Actions, update, createComponent, html, cache, StyleMap } = vido;
 
   const actionProps = { ...props, api, state };

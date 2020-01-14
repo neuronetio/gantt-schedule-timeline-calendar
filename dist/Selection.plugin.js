@@ -91,7 +91,11 @@
     // IMPORTANT: do not change the property name or the assignment expression.
     // This line will be used in regexes to search for lit-html usage.
     // TODO(justinfagnani): inject version number at build time
-    (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.1.4');
+    const isBrowser = typeof window !== 'undefined';
+    if (isBrowser) {
+        // If we run in the browser set version
+        (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.1.5');
+    }
     /**
      * Used to clone existing node instead of each time creating new one which is
      * slower

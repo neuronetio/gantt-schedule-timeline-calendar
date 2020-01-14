@@ -9,7 +9,6 @@
  */
 
 export default function ListColumnRowExpander(vido, props) {
-  if (!vido) return;
   const { api, state, onDestroy, Actions, update, html, createComponent, onChange } = vido;
   const componentName = 'list-column-row-expander';
   const componentActions = api.getActions(componentName);

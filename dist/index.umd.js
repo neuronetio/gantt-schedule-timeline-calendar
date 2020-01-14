@@ -94,9 +94,11 @@
     /**
      * True if the custom elements polyfill is in use.
      */
-    const isCEPolyfill = window.customElements != null &&
-        window.customElements.polyfillWrapFlushCallback !==
-            undefined;
+    const isCEPolyfill = typeof window !== 'undefined' ?
+        window.customElements != null &&
+            window.customElements
+                .polyfillWrapFlushCallback !== undefined :
+        false;
     /**
      * Reparents nodes, starting from `start` (inclusive) to `end` (exclusive),
      * into another container (could be the same container), before `before`. If
@@ -665,6 +667,14 @@
      * A global callback used to get a sanitizer for a given field.
      */
     let sanitizerFactory = noopSanitizer;
+    /** Sets the global sanitizer factory. */
+    const setSanitizerFactory = (newSanitizer) => {
+        if (sanitizerFactory !== noopSanitizer) {
+            throw new Error(`Attempted to overwrite existing lit-html security policy.` +
+                ` setSanitizeDOMValueFactory should be called at most once.`);
+        }
+        sanitizerFactory = newSanitizer;
+    };
     /**
      * Used to clone text node instead of each time creating new one which is slower
      */
@@ -1352,7 +1362,11 @@
     // IMPORTANT: do not change the property name or the assignment expression.
     // This line will be used in regexes to search for lit-html usage.
     // TODO(justinfagnani): inject version number at build time
-    (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.1.4');
+    const isBrowser = typeof window !== 'undefined';
+    if (isBrowser) {
+        // If we run in the browser set version
+        (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.1.5');
+    }
     /**
      * Interprets a template literal as an HTML template that can efficiently
      * render to and update a container.
@@ -1363,6 +1377,42 @@
      * render to and update a container.
      */
     const svg = (strings, ...values) => new SVGTemplateResult(strings, values, 'svg', defaultTemplateProcessor);
+
+    var lithtml = /*#__PURE__*/Object.freeze({
+        __proto__: null,
+        html: html,
+        svg: svg,
+        DefaultTemplateProcessor: DefaultTemplateProcessor,
+        defaultTemplateProcessor: defaultTemplateProcessor,
+        directive: directive,
+        Directive: Directive,
+        isDirective: isDirective,
+        removeNodes: removeNodes,
+        reparentNodes: reparentNodes,
+        noChange: noChange,
+        nothing: nothing,
+        AttributeCommitter: AttributeCommitter,
+        AttributePart: AttributePart,
+        BooleanAttributePart: BooleanAttributePart,
+        EventPart: EventPart,
+        isIterable: isIterable,
+        isPrimitive: isPrimitive,
+        NodePart: NodePart,
+        PropertyCommitter: PropertyCommitter,
+        PropertyPart: PropertyPart,
+        get sanitizerFactory () { return sanitizerFactory; },
+        setSanitizerFactory: setSanitizerFactory,
+        parts: parts,
+        render: render,
+        templateCaches: templateCaches,
+        templateFactory: templateFactory,
+        TemplateInstance: TemplateInstance,
+        SVGTemplateResult: SVGTemplateResult,
+        TemplateResult: TemplateResult,
+        createMarker: createMarker,
+        isTemplatePartActive: isTemplatePartActive,
+        Template: Template
+    });
 
     /**
      * @license
@@ -1377,7 +1427,7 @@
      * subject to an additional IP rights grant found at
      * http://polymer.github.io/PATENTS.txt
      */
-    var __asyncValues = (undefined && undefined.__asyncValues) || function (o) {
+    var __asyncValues =  function (o) {
         if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
         var m = o[Symbol.asyncIterator], i;
         return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
@@ -1484,7 +1534,7 @@
      * subject to an additional IP rights grant found at
      * http://polymer.github.io/PATENTS.txt
      */
-    var __asyncValues$1 = (undefined && undefined.__asyncValues) || function (o) {
+    var __asyncValues$1 =  function (o) {
         if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
         var m = o[Symbol.asyncIterator], i;
         return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
@@ -2753,6 +2803,12 @@
             html(templateProps = {}) {
                 return components.get(this.instance).update(templateProps, this.vidoInstance);
             }
+            _getComponents() {
+                return components;
+            }
+            _getActions() {
+                return actionsByInstance;
+            }
         };
     }
 
@@ -2786,7 +2842,11 @@
                             // @ts-ignore
                             if (typeof element.vido !== 'undefined')
                                 delete element.vido;
-                            const componentAction = { create, update() { }, destroy() { } };
+                            const componentAction = {
+                                create,
+                                update() { },
+                                destroy() { }
+                            };
                             const action = { instance: this.instance, componentAction, element, props: this.props };
                             let byInstance = [];
                             if (actionsByInstance.has(this.instance)) {
@@ -3210,6 +3270,7 @@
             actionsByInstance.delete(instance);
             components.get(instance).destroy();
             components.delete(instance);
+            vidoInstance.update();
             if (vidoInstance.debug) {
                 console.groupCollapsed(`component destroyed ${instance}`);
                 console.log(clone({ components: components.keys(), actionsByInstance }));
@@ -3297,11 +3358,35 @@
          * Render view
          */
         vido.prototype.render = function renderView() {
-            render(components.get(app).update(), element);
-            this.executeActions();
+            const appComponent = components.get(app);
+            if (appComponent) {
+                render(appComponent.update(), element);
+                this.executeActions();
+            }
+            else {
+                element.remove();
+            }
         };
+        vido.prototype._components = components;
+        vido.prototype._actions = actionsByInstance;
         return new vido();
     }
+    Vido.prototype.lithtml = lithtml;
+    Vido.prototype.Action = Action;
+    Vido.prototype.Directive = Directive;
+    Vido.prototype.schedule = schedule;
+    Vido.prototype.Detach = Detach;
+    Vido.prototype.StyleMap = StyleMap;
+    Vido.prototype.PointerAction = PointerAction;
+    Vido.prototype.asyncAppend = asyncAppend;
+    Vido.prototype.asyncReplace = asyncReplace;
+    Vido.prototype.cache = cache;
+    Vido.prototype.classMap = classMap;
+    Vido.prototype.guard = guard;
+    Vido.prototype.ifDefined = ifDefined;
+    Vido.prototype.repeat = repeat;
+    Vido.prototype.unsafeHTML = unsafeHTML;
+    Vido.prototype.unti = until;
 
     /**
      * A collection of shims that provide minimal functionality of the ES6 collections.
@@ -3412,7 +3497,7 @@
     /**
      * Detects whether window and document objects are available in current environment.
      */
-    var isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined' && window.document === document;
+    var isBrowser$1 = typeof window !== 'undefined' && typeof document !== 'undefined' && window.document === document;
 
     // Returns global object of a current environment.
     var global$1 = (function () {
@@ -3631,7 +3716,7 @@
         ResizeObserverController.prototype.connect_ = function () {
             // Do nothing if running in a non-browser environment or if listeners
             // have been already added.
-            if (!isBrowser || this.connected_) {
+            if (!isBrowser$1 || this.connected_) {
                 return;
             }
             // Subscription to the "Transitionend" event is used as a workaround for
@@ -3663,7 +3748,7 @@
         ResizeObserverController.prototype.disconnect_ = function () {
             // Do nothing if running in a non-browser environment or if listeners
             // have been already removed.
-            if (!isBrowser || !this.connected_) {
+            if (!isBrowser$1 || !this.connected_) {
                 return;
             }
             document.removeEventListener('transitionend', this.onTransitionEnd_);
@@ -3911,7 +3996,7 @@
      * @returns {DOMRectInit}
      */
     function getContentRect(target) {
-        if (!isBrowser) {
+        if (!isBrowser$1) {
             return emptyRect;
         }
         if (isSVGGraphicsElement(target)) {
@@ -4664,8 +4749,6 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function List(vido, props = {}) {
-        if (!vido)
-            return;
         const { api, state, onDestroy, Actions, update, reuseComponents, html, schedule, StyleMap, cache } = vido;
         const componentName = 'list';
         const componentActions = api.getActions(componentName);
@@ -4810,8 +4893,6 @@
         }
     }
     function ListColumn(vido, props) {
-        if (!vido)
-            return;
         const { api, state, onDestroy, onChange, Actions, update, createComponent, reuseComponents, html, StyleMap } = vido;
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ListColumn', value => (wrapper = value)));
@@ -4932,8 +5013,6 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnHeader(vido, props) {
-        if (!vido)
-            return;
         const { api, state, onDestroy, onChange, Actions, update, createComponent, html, cache, StyleMap } = vido;
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
         let wrapper;
@@ -5019,8 +5098,6 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnHeaderResizer(vido, props) {
-        if (!vido)
-            return;
         const { api, state, onDestroy, update, html, schedule, Actions, PointerAction, cache, StyleMap } = vido;
         const componentName = 'list-column-header-resizer';
         const componentActions = api.getActions(componentName);
@@ -5147,8 +5224,6 @@
         }
     }
     function ListColumnRow(vido, props) {
-        if (!vido)
-            return;
         const { api, state, onDestroy, Detach, Actions, update, html, createComponent, onChange, StyleMap, unsafeHTML, PointerAction } = vido;
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
         let shouldDetach = false;
@@ -5320,8 +5395,6 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnRowExpander(vido, props) {
-        if (!vido)
-            return;
         const { api, state, onDestroy, Actions, update, html, createComponent, onChange } = vido;
         const componentName = 'list-column-row-expander';
         const componentActions = api.getActions(componentName);
@@ -5368,8 +5441,6 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnRowExpanderToggle(vido, props) {
-        if (!vido)
-            return;
         const { api, state, onDestroy, Actions, update, html, onChange, cache } = vido;
         const componentName = 'list-column-row-expander-toggle';
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
@@ -5519,8 +5590,6 @@
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function Chart(vido, props = {}) {
-        if (!vido)
-            return;
         const { api, state, onDestroy, Actions, update, html, StyleMap, createComponent } = vido;
         const componentName = 'chart';
         const ChartCalendarComponent = state.get('config.components.ChartCalendar');
@@ -5689,6 +5758,13 @@
       `, { props, vido, templateProps });
     }
 
+    class Action$1 {
+        constructor() {
+            this.isAction = true;
+        }
+    }
+    Action$1.prototype.isAction = true;
+
     /**
      * ChartCalendarDate component
      *
@@ -5703,7 +5779,7 @@
      * @param {HTMLElement} element
      * @param {object} data
      */
-    class BindElementAction$2 extends Action {
+    class BindElementAction$2 extends Action$1 {
         constructor(element, data) {
             super();
             data.state.update('_internal.elements.chart-calendar-dates', elements => {
@@ -7259,7 +7335,7 @@
             if (copiedPath === null) {
                 copiedPath = path.slice();
             }
-            if (copiedPath.length === 0 || typeof obj === 'undefined') {
+            if (copiedPath.length === 0 || typeof obj === "undefined") {
                 return obj;
             }
             const currentPath = copiedPath.shift();
@@ -7288,6 +7364,9 @@
             if (copiedPath.length === 0) {
                 obj[currentPath] = newValue;
                 return;
+            }
+            if (!obj) {
+                obj = {};
             }
             if (!obj.hasOwnProperty(currentPath)) {
                 obj[currentPath] = {};
@@ -7547,9 +7626,8 @@
             const listenersCollection = this.getListenersCollection(listenerPath, listener);
             listenersCollection.count++;
             listenerPath = listenersCollection.path;
-            let additionalDestroys = [];
             if (!listenersCollection.isWildcard) {
-                additionalDestroys.push(fn(this.pathGet(this.split(this.cleanNotRecursivePath(listenerPath)), this.data), {
+                fn(this.pathGet(this.split(this.cleanNotRecursivePath(listenerPath)), this.data), {
                     type,
                     listener,
                     listenersCollection,
@@ -7560,7 +7638,7 @@
                     },
                     params: this.getParams(listenersCollection.paramsInfo, listenerPath),
                     options
-                }));
+                });
             }
             else {
                 const paths = this.scan.get(this.cleanNotRecursivePath(listenerPath));
@@ -7573,7 +7651,7 @@
                             value: paths[path]
                         });
                     }
-                    additionalDestroys.push(fn(bulkValue, {
+                    fn(bulkValue, {
                         type,
                         listener,
                         listenersCollection,
@@ -7584,11 +7662,11 @@
                         },
                         options,
                         params: undefined
-                    }));
+                    });
                 }
                 else {
                     for (const path in paths) {
-                        additionalDestroys.push(fn(paths[path], {
+                        fn(paths[path], {
                             type,
                             listener,
                             listenersCollection,
@@ -7599,21 +7677,17 @@
                             },
                             params: this.getParams(listenersCollection.paramsInfo, path),
                             options
-                        }));
+                        });
                     }
                 }
             }
             this.debugSubscribe(listener, listenersCollection, listenerPath);
-            return this.unsubscribe(listenerPath, this.id, additionalDestroys);
+            return this.unsubscribe(listenerPath, this.id);
         }
-        unsubscribe(path, id, additionalDestroys) {
+        unsubscribe(path, id) {
             const listeners = this.listeners;
             const listenersCollection = listeners.get(path);
             return function unsub() {
-                for (const destr of additionalDestroys) {
-                    if (typeof destr === "function")
-                        destr();
-                }
                 listenersCollection.listeners.delete(id);
                 listenersCollection.count--;
                 if (listenersCollection.count === 0) {
@@ -7959,6 +8033,59 @@
     }
 
     /**
+     * Schedule - a throttle function that uses requestAnimationFrame to limit the rate at which a function is called.
+     *
+     * @param {function} fn
+     * @returns {function}
+     */
+    /**
+     * Is object - helper function to determine if specified variable is an object
+     *
+     * @param {any} item
+     * @returns {boolean}
+     */
+    function isObject$1(item) {
+        return item && typeof item === 'object' && !Array.isArray(item);
+    }
+    /**
+     * Merge deep - helper function which will merge objects recursively - creating brand new one - like clone
+     *
+     * @param {object} target
+     * @params {object} sources
+     * @returns {object}
+     */
+    function mergeDeep$1(target, ...sources) {
+        const source = sources.shift();
+        if (isObject$1(target) && isObject$1(source)) {
+            for (const key in source) {
+                if (isObject$1(source[key])) {
+                    if (typeof target[key] === 'undefined') {
+                        target[key] = {};
+                    }
+                    target[key] = mergeDeep$1(target[key], source[key]);
+                }
+                else if (Array.isArray(source[key])) {
+                    target[key] = [];
+                    for (let item of source[key]) {
+                        if (isObject$1(item)) {
+                            target[key].push(mergeDeep$1({}, item));
+                            continue;
+                        }
+                        target[key].push(item);
+                    }
+                }
+                else {
+                    target[key] = source[key];
+                }
+            }
+        }
+        if (!sources.length) {
+            return target;
+        }
+        return mergeDeep$1(target, ...sources);
+    }
+
+    /**
      * Api functions
      *
      * @copyright Rafal Pospiech <https://neuronet.io>
@@ -7968,8 +8095,8 @@
      */
     const lib = 'gantt-schedule-timeline-calendar';
     function mergeActions(userConfig, defaultConfig) {
-        const defaultConfigActions = mergeDeep({}, defaultConfig.actions);
-        const userActions = mergeDeep({}, userConfig.actions);
+        const defaultConfigActions = mergeDeep$1({}, defaultConfig.actions);
+        const userActions = mergeDeep$1({}, userConfig.actions);
         let allActionNames = [...Object.keys(defaultConfigActions), ...Object.keys(userActions)];
         allActionNames = allActionNames.filter(i => allActionNames.includes(i));
         const actions = {};
@@ -7989,7 +8116,7 @@
     function stateFromConfig(userConfig) {
         const defaultConfig$1 = defaultConfig();
         const actions = mergeActions(userConfig, defaultConfig$1);
-        const state = { config: mergeDeep({}, defaultConfig$1, userConfig) };
+        const state = { config: mergeDeep$1({}, defaultConfig$1, userConfig) };
         state.config.actions = actions;
         // @ts-ignore
         return new DeepState(state, { delimeter: '.' });
@@ -7997,7 +8124,7 @@
     const publicApi = {
         name: lib,
         stateFromConfig,
-        mergeDeep,
+        mergeDeep: mergeDeep$1,
         date(time) {
             return time ? dayjs_min(time) : dayjs_min();
         },
@@ -8017,7 +8144,7 @@
                     console.log.call(console, ...args);
                 }
             },
-            mergeDeep,
+            mergeDeep: mergeDeep$1,
             getClass(name) {
                 let simple = `${lib}__${name}`;
                 if (name === this.name) {
@@ -8411,7 +8538,7 @@
         // @ts-ignore
         const vido = Vido(state, api);
         api.setVido(vido);
-        const app = vido.createApp({ component: Main, props: vido, element: options.element });
+        const app = vido.createApp({ component: Main, props: {}, element: options.element });
         return { state, app };
     }
     GSTC.api = publicApi;

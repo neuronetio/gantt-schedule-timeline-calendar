@@ -8,7 +8,7 @@
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 
-import { Action } from '@neuronet.io/vido';
+import { Action } from '@neuronet.io/vido/vido.esm';
 
 export interface RectStyle {
   [key: string]: any;

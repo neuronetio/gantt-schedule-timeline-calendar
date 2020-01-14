@@ -9,7 +9,6 @@
  */
 
 export default function ListColumnRowExpanderToggle(vido, props) {
-  if (!vido) return;
   const { api, state, onDestroy, Actions, update, html, onChange, cache } = vido;
   const componentName = 'list-column-row-expander-toggle';
   const actionProps = { ...props, api, state };

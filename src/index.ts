@@ -7,7 +7,7 @@
  * @license   GPL-3.0
  */
 
-import Vido from '@neuronet.io/vido/vido';
+import Vido from '@neuronet.io/vido/vido.esm';
 //import Vido from '../../vido';
 import publicApi, { getInternalApi } from './api/Api';
 import Main from './components/Main';
@@ -72,7 +72,7 @@ function GSTC(options) {
   // @ts-ignore
   const vido = Vido(state, api);
   api.setVido(vido);
-  const app = vido.createApp({ component: Main, props: vido, element: options.element });
+  const app = vido.createApp({ component: Main, props: {}, element: options.element });
   return { state, app };
 }
 

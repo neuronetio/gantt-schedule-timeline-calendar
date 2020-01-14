@@ -9,7 +9,6 @@
  */
 
 export default function List(vido, props = {}) {
-  if (!vido) return;
   const { api, state, onDestroy, Actions, update, reuseComponents, html, schedule, StyleMap, cache } = vido;
 
   const componentName = 'list';

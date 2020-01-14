@@ -33,7 +33,6 @@ class BindElementAction {
 }
 
 export default function ListColumnRow(vido, props) {
-  if (!vido) return;
   const {
     api,
     state,
