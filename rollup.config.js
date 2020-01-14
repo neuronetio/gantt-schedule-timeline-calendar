@@ -2,7 +2,6 @@ import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import typescript from 'rollup-plugin-typescript';
 import livereload from 'rollup-plugin-livereload';
-import minifyHTML from 'rollup-plugin-minify-html-literals';
 import { terser } from 'rollup-plugin-terser';
 
 import stylusLib from 'stylus';
@@ -166,7 +165,7 @@ const prodFiles = Array.prototype.concat(devFiles, [
   {
     input: 'src/index.ts',
     output: {
-      sourcemap: true,
+      sourcemap: false,
       file: 'dist/index.umd.min.js',
       format: 'umd',
       name: 'GSTC'
@@ -177,17 +176,17 @@ const prodFiles = Array.prototype.concat(devFiles, [
         browser: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
-      minifyHTML(),
       terser({
         keep_classnames: true,
-        keep_fnames: true
+        keep_fnames: true,
+        output: { comments: false }
       })
     ]
   },
   {
     input: 'src/index.ts',
     output: {
-      sourcemap: true,
+      sourcemap: false,
       file: 'dist/index.esm.min.js',
       format: 'esm'
     },
@@ -197,10 +196,10 @@ const prodFiles = Array.prototype.concat(devFiles, [
         browser: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
-      minifyHTML(),
       terser({
-        keep_classnames: true,
-        keep_fnames: true
+        //keep_classnames: true,
+        //keep_fnames: true,
+        output: { comments: false }
       })
     ]
   },
@@ -208,7 +207,7 @@ const prodFiles = Array.prototype.concat(devFiles, [
   {
     input: 'src/plugins/ItemMovement.plugin.ts',
     output: {
-      sourcemap: true,
+      sourcemap: false,
       file: 'dist/ItemMovement.plugin.min.js',
       format: 'umd',
       name: 'ItemMovement'
@@ -219,17 +218,17 @@ const prodFiles = Array.prototype.concat(devFiles, [
         browser: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
-      minifyHTML(),
       terser({
-        keep_classnames: true,
-        keep_fnames: true
+        //keep_classnames: true,
+        //keep_fnames: true,
+        output: { comments: false }
       })
     ]
   },
   {
     input: 'src/plugins/ItemHold.plugin.ts',
     output: {
-      sourcemap: true,
+      sourcemap: false,
       file: 'dist/ItemHold.plugin.min.js',
       format: 'umd',
       name: 'ItemHold'
@@ -240,17 +239,17 @@ const prodFiles = Array.prototype.concat(devFiles, [
         browser: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
-      minifyHTML(),
       terser({
-        keep_classnames: true,
-        keep_fnames: true
+        //keep_classnames: true,
+        //keep_fnames: true,
+        output: { comments: false }
       })
     ]
   },
   {
     input: 'src/plugins/Selection.plugin.ts',
     output: {
-      sourcemap: true,
+      sourcemap: false,
       file: 'dist/Selection.plugin.min.js',
       format: 'umd',
       name: 'Selection'
@@ -261,17 +260,17 @@ const prodFiles = Array.prototype.concat(devFiles, [
         browser: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
-      minifyHTML(),
       terser({
-        keep_classnames: true,
-        keep_fnames: true
+        //keep_classnames: true,
+        //keep_fnames: true,
+        output: { comments: false }
       })
     ]
   },
   {
     input: 'src/plugins/plugins.ts',
     output: {
-      sourcemap: true,
+      sourcemap: false,
       file: 'dist/plugins.min.js',
       format: 'esm',
       name: 'plugins'
@@ -282,10 +281,10 @@ const prodFiles = Array.prototype.concat(devFiles, [
         browser: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
-      minifyHTML(),
       terser({
-        keep_classnames: true,
-        keep_fnames: true
+        //keep_classnames: true,
+        //keep_fnames: true,
+        output: { comments: false }
       })
     ]
   }

@@ -36,7 +36,7 @@
     <script src="../ItemMovement.plugin.js"></script>
     <script src="../Selection.plugin.js"></script>
     <script src="../CalendarScroll.plugin.js"></script>
-    <script src="../index.umd.js?12345"></script>
+    <script src="../index.umd.min.js?12345"></script>
     <script>
       const iterations = 1000;
 
@@ -155,17 +155,6 @@
         },
         classNames: {},
         actions: {}
-        /*locale: {
-          name: 'pl',
-          weekdays: 'Niedziela_Poniedziałek_Wtorek_Środa_Czwartek_Piątek_Sobota'.split('_'),
-          weekdaysShort: 'Ndz_Pon_Wt_Śr_Czw_Pt_Sob'.split('_'),
-          weekdaysMin: 'Nd_Pn_Wt_Śr_Cz_Pt_So'.split('_'),
-          months: 'Styczeń_Luty_Marzec_Kwiecień_Maj_Czerwiec_Lipiec_Sierpień_Wrzesień_Październik_Listopad_Grudzień'.split(
-            '_'
-          ),
-          monthsShort: 'sty_lut_mar_kwi_maj_cze_lip_sie_wrz_paź_lis_gru'.split('_'),
-          weekStart: 1
-        }*/
       };
 
       let GSTCState = (window.state = GSTC.api.stateFromConfig(config));
