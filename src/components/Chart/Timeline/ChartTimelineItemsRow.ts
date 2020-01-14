@@ -40,7 +40,8 @@ const ChartTimelineItemsRow = (vido, props) => {
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRow', value => (wrapper = value)));
 
-  const ItemComponent = state.get('config.components.ChartTimelineItemsRowItem');
+  let ItemComponent;
+  onDestroy(state.subscribe('config.components.ChartTimelineItemsRowItem', value => (ItemComponent = value)));
 
   let itemsPath = `_internal.flatTreeMapById.${props.row.id}._internal.items`;
   let rowSub, itemsSub;
@@ -64,7 +65,7 @@ const ChartTimelineItemsRow = (vido, props) => {
     styleMap.style['--row-height'] = props.row.height + 'px';
   };
 
-  const updateRow = row => {
+  function updateRow(row) {
     itemsPath = `_internal.flatTreeMapById.${row.id}._internal.items`;
     if (typeof rowSub === 'function') {
       rowSub();
@@ -90,13 +91,13 @@ const ChartTimelineItemsRow = (vido, props) => {
       updateDom();
       update();
     });
-  };
+  }
 
   /**
    * On props change
    * @param {any} changedProps
    */
-  const onPropsChange = (changedProps, options) => {
+  onChange((changedProps, options) => {
     if (options.leave || changedProps.row === undefined) {
       shouldDetach = true;
       return update();
@@ -106,8 +107,7 @@ const ChartTimelineItemsRow = (vido, props) => {
       actionProps[prop] = props[prop];
     }
     updateRow(props.row);
-  };
-  onChange(onPropsChange);
+  });
 
   onDestroy(() => {
     itemsSub();

@@ -15,7 +15,8 @@ export default function ChartTimelineItems(vido, props = {}) {
   let wrapper;
   onDestroy(state.subscribe('config.wrappers.ChartTimelineItems', value => (wrapper = value)));
 
-  const ItemsRowComponent = state.get('config.components.ChartTimelineItemsRow');
+  let ItemsRowComponent;
+  onDestroy(state.subscribe('config.components.ChartTimelineItemsRow', value => (ItemsRowComponent = value)));
 
   let className;
   onDestroy(
@@ -48,11 +49,13 @@ export default function ChartTimelineItems(vido, props = {}) {
   const rowsComponents = [];
   function createRowComponents() {
     const visibleRows = state.get('_internal.list.visibleRows');
-    const destroy = reuseComponents(rowsComponents, visibleRows || [], row => ({ row }), ItemsRowComponent);
+    reuseComponents(rowsComponents, visibleRows || [], row => ({ row }), ItemsRowComponent);
     update();
-    return destroy;
   }
   onDestroy(state.subscribeAll(['_internal.list.visibleRows;', 'config.chart.items'], createRowComponents));
+  onDestroy(() => {
+    rowsComponents.forEach(row => row.destroy());
+  });
 
   const actions = Actions.create(componentActions, { api, state });
 

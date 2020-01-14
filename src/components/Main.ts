@@ -450,10 +450,6 @@ export default function Main(vido, props = {}) {
   const verticalScrollActions = Actions.create([bindScrollElement]);
   const verticalScrollAreaActions = Actions.create([bindScrollInnerElement]);
 
-  onDestroy(() => {
-    verticalScrollBarElement.closest('.gantt-schedule-timeline-calendar').remove();
-  });
-
   return templateProps =>
     wrapper(
       html`

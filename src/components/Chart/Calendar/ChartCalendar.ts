@@ -43,9 +43,8 @@ export default function ChartCalendar(vido, props) {
   onDestroy(
     state.subscribe(`_internal.chart.time.dates`, dates => {
       const currentDate = api.time.date().format('YYYY-MM-DD');
-      let destroy;
       if (typeof dates.day === 'object' && Array.isArray(dates.day) && dates.day.length) {
-        destroy = reuseComponents(
+        reuseComponents(
           dayComponents,
           dates.day,
           date => date && { period: 'day', date, currentDate },
@@ -53,7 +52,7 @@ export default function ChartCalendar(vido, props) {
         );
       }
       if (typeof dates.month === 'object' && Array.isArray(dates.month) && dates.month.length) {
-        destroy = reuseComponents(
+        reuseComponents(
           monthComponents,
           dates.month,
           date => date && { period: 'month', date, currentDate },
@@ -61,9 +60,12 @@ export default function ChartCalendar(vido, props) {
         );
       }
       update();
-      return destroy;
     })
   );
+  onDestroy(() => {
+    dayComponents.forEach(day => day.destroy());
+    monthComponents.forEach(month => month.destroy());
+  });
 
   componentActions.push(element => {
     state.update('_internal.elements.chart-calendar', element);

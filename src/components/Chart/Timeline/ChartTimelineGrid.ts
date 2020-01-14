@@ -114,12 +114,13 @@ export default function ChartTimelineGrid(vido, props) {
    * @param {array} rowsWithBlocks
    */
   const generateRowsComponents = rowsWithBlocks => {
-    const destroy = reuseComponents(rowsComponents, rowsWithBlocks || [], row => row, GridRowComponent);
+    reuseComponents(rowsComponents, rowsWithBlocks || [], row => row, GridRowComponent);
     update();
-    return destroy;
   };
   onDestroy(state.subscribe('_internal.chart.grid.rowsWithBlocks', generateRowsComponents));
-
+  onDestroy(() => {
+    rowsComponents.forEach(row => row.destroy());
+  });
   componentActions.push(BindElementAction);
 
   const actions = Actions.create(componentActions, actionProps);

@@ -2801,7 +2801,11 @@
              * @param {} templateProps
              */
             html(templateProps = {}) {
-                return components.get(this.instance).update(templateProps, this.vidoInstance);
+                const component = components.get(this.instance);
+                if (component) {
+                    return component.update(templateProps, this.vidoInstance);
+                }
+                return undefined;
             }
             _getComponents() {
                 return components;
@@ -2893,6 +2897,7 @@
                 }
                 this.vidoInstance.onChangeFunctions = [];
                 this.vidoInstance.destroyable = [];
+                this.vidoInstance.update();
             }
             update(props = {}) {
                 if (this.vidoInstance.debug) {
@@ -3268,9 +3273,10 @@
                 }
             }
             actionsByInstance.delete(instance);
-            components.get(instance).destroy();
+            const component = components.get(instance);
+            component.update();
+            component.destroy();
             components.delete(instance);
-            vidoInstance.update();
             if (vidoInstance.debug) {
                 console.groupCollapsed(`component destroyed ${instance}`);
                 console.log(clone({ components: components.keys(), actionsByInstance }));
@@ -3363,7 +3369,7 @@
                 render(appComponent.update(), element);
                 this.executeActions();
             }
-            else {
+            else if (element) {
                 element.remove();
             }
         };
@@ -4713,9 +4719,6 @@
         const mainActions = Actions.create(componentActions, actionProps);
         const verticalScrollActions = Actions.create([bindScrollElement]);
         const verticalScrollAreaActions = Actions.create([bindScrollInnerElement]);
-        onDestroy(() => {
-            verticalScrollBarElement.closest('.gantt-schedule-timeline-calendar').remove();
-        });
         return templateProps => wrapper(html `
         <div
           data-info-url="https://github.com/neuronetio/gantt-schedule-timeline-calendar"
@@ -5736,16 +5739,18 @@
         const dayComponents = [], monthComponents = [];
         onDestroy(state.subscribe(`_internal.chart.time.dates`, dates => {
             const currentDate = api.time.date().format('YYYY-MM-DD');
-            let destroy;
             if (typeof dates.day === 'object' && Array.isArray(dates.day) && dates.day.length) {
-                destroy = reuseComponents(dayComponents, dates.day, date => date && { period: 'day', date, currentDate }, ChartCalendarDateComponent);
+                reuseComponents(dayComponents, dates.day, date => date && { period: 'day', date, currentDate }, ChartCalendarDateComponent);
             }
             if (typeof dates.month === 'object' && Array.isArray(dates.month) && dates.month.length) {
-                destroy = reuseComponents(monthComponents, dates.month, date => date && { period: 'month', date, currentDate }, ChartCalendarDateComponent);
+                reuseComponents(monthComponents, dates.month, date => date && { period: 'month', date, currentDate }, ChartCalendarDateComponent);
             }
             update();
-            return destroy;
         }));
+        onDestroy(() => {
+            dayComponents.forEach(day => day.destroy());
+            monthComponents.forEach(month => month.destroy());
+        });
         componentActions.push(element => {
             state.update('_internal.elements.chart-calendar', element);
         });
@@ -6302,11 +6307,13 @@
          * @param {array} rowsWithBlocks
          */
         const generateRowsComponents = rowsWithBlocks => {
-            const destroy = reuseComponents(rowsComponents, rowsWithBlocks || [], row => row, GridRowComponent);
+            reuseComponents(rowsComponents, rowsWithBlocks || [], row => row, GridRowComponent);
             update();
-            return destroy;
         };
         onDestroy(state.subscribe('_internal.chart.grid.rowsWithBlocks', generateRowsComponents));
+        onDestroy(() => {
+            rowsComponents.forEach(row => row.destroy());
+        });
         componentActions.push(BindElementAction$3);
         const actions = Actions.create(componentActions, actionProps);
         return templateProps => wrapper(html `
@@ -6540,7 +6547,8 @@
         const componentActions = api.getActions(componentName);
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineItems', value => (wrapper = value)));
-        const ItemsRowComponent = state.get('config.components.ChartTimelineItemsRow');
+        let ItemsRowComponent;
+        onDestroy(state.subscribe('config.components.ChartTimelineItemsRow', value => (ItemsRowComponent = value)));
         let className;
         onDestroy(state.subscribe('config.classNames', () => {
             className = api.getClass(componentName);
@@ -6564,11 +6572,13 @@
         const rowsComponents = [];
         function createRowComponents() {
             const visibleRows = state.get('_internal.list.visibleRows');
-            const destroy = reuseComponents(rowsComponents, visibleRows || [], row => ({ row }), ItemsRowComponent);
+            reuseComponents(rowsComponents, visibleRows || [], row => ({ row }), ItemsRowComponent);
             update();
-            return destroy;
         }
         onDestroy(state.subscribeAll(['_internal.list.visibleRows;', 'config.chart.items'], createRowComponents));
+        onDestroy(() => {
+            rowsComponents.forEach(row => row.destroy());
+        });
         const actions = Actions.create(componentActions, { api, state });
         return templateProps => wrapper(html `
         <div class=${className} style=${styleMap} data-actions=${actions}>
@@ -6617,7 +6627,8 @@
         const actionProps = Object.assign(Object.assign({}, props), { api, state });
         let wrapper;
         onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRow', value => (wrapper = value)));
-        const ItemComponent = state.get('config.components.ChartTimelineItemsRowItem');
+        let ItemComponent;
+        onDestroy(state.subscribe('config.components.ChartTimelineItemsRowItem', value => (ItemComponent = value)));
         let itemsPath = `_internal.flatTreeMapById.${props.row.id}._internal.items`;
         let rowSub, itemsSub;
         const itemComponents = [], styleMap = new StyleMap({ width: '', height: '' }, true);
@@ -6635,7 +6646,7 @@
             styleMap.style.height = props.row.height + 'px';
             styleMap.style['--row-height'] = props.row.height + 'px';
         };
-        const updateRow = row => {
+        function updateRow(row) {
             itemsPath = `_internal.flatTreeMapById.${row.id}._internal.items`;
             if (typeof rowSub === 'function') {
                 rowSub();
@@ -6661,12 +6672,12 @@
                 updateDom();
                 update();
             });
-        };
+        }
         /**
          * On props change
          * @param {any} changedProps
          */
-        const onPropsChange = (changedProps, options) => {
+        onChange((changedProps, options) => {
             if (options.leave || changedProps.row === undefined) {
                 shouldDetach = true;
                 return update();
@@ -6676,8 +6687,7 @@
                 actionProps[prop] = props[prop];
             }
             updateRow(props.row);
-        };
-        onChange(onPropsChange);
+        });
         onDestroy(() => {
             itemsSub();
             rowSub();
