@@ -11,20 +11,67 @@
  * subject to an additional IP rights grant found at
  * http://polymer.github.io/PATENTS.txt
  */
-const directive=t=>(...e)=>{const n=t(...e);return n.isDirective=!0,n};class Directive{constructor(){this.isDirective=!0,this.isClass=!0}body(t){}}const isDirective=t=>null!=t&&"boolean"==typeof t.isDirective,t="undefined"!=typeof window&&(null!=window.customElements&&void 0!==window.customElements.polyfillWrapFlushCallback),reparentNodes=(t,e,n=null,i=null)=>{for(;e!==n;){const n=e.nextSibling;t.insertBefore(e,i),e=n}},removeNodes=(t,e,n=null)=>{for(;e!==n;){const n=e.nextSibling;t.removeChild(e),e=n}},e={},n={},i=`{{lit-${String(Math.random()).slice(2)}}}`,s=`\x3c!--${i}--\x3e`,o=new RegExp(`${i}|${s}`),r="$lit$";
 /**
- * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */class Template{constructor(t,e){this.parts=[],this.element=e;const n=[],s=[],a=document.createTreeWalker(e.content,133,null,!1);let c=0,d=-1,h=0;const{strings:u,values:{length:p}}=t;for(;h<p;){const t=a.nextNode();if(null!==t){if(d++,1===t.nodeType){if(t.hasAttributes()){const e=t.attributes,{length:n}=e;let i=0;for(let t=0;t<n;t++)endsWith(e[t].name,r)&&i++;for(;i-- >0;){const e=u[h],n=l.exec(e)[2],i=n.toLowerCase()+r,s=t.getAttribute(i);t.removeAttribute(i);const a=s.split(o);this.parts.push({type:"attribute",index:d,name:n,strings:a,sanitizer:void 0}),h+=a.length-1}}"TEMPLATE"===t.tagName&&(s.push(t),a.currentNode=t.content)}else if(3===t.nodeType){const e=t.data;if(e.indexOf(i)>=0){const i=t.parentNode,s=e.split(o),a=s.length-1;for(let e=0;e<a;e++){let n,o=s[e];if(""===o)n=createMarker();else{const t=l.exec(o);null!==t&&endsWith(t[2],r)&&(o=o.slice(0,t.index)+t[1]+t[2].slice(0,-r.length)+t[3]),n=document.createTextNode(o)}i.insertBefore(n,t),this.parts.push({type:"node",index:++d})}""===s[a]?(i.insertBefore(createMarker(),t),n.push(t)):t.data=s[a],h+=a}}else if(8===t.nodeType)if(t.data===i){const e=t.parentNode;null!==t.previousSibling&&d!==c||(d++,e.insertBefore(createMarker(),t)),c=d,this.parts.push({type:"node",index:d}),null===t.nextSibling?t.data="":(n.push(t),d--),h++}else{let e=-1;for(;-1!==(e=t.data.indexOf(i,e+1));)this.parts.push({type:"node",index:-1}),h++}}else a.currentNode=s.pop()}for(const t of n)t.parentNode.removeChild(t)}}const endsWith=(t,e)=>{const n=t.length-e.length;return n>=0&&t.slice(n)===e},isTemplatePartActive=t=>-1!==t.index,a=document.createComment(""),createMarker=()=>a.cloneNode(),l=/([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
+ * Brands a function as a directive factory function so that lit-html will call
+ * the function during template rendering, rather than passing as a value.
+ *
+ * A _directive_ is a function that takes a Part as an argument. It has the
+ * signature: `(part: Part) => void`.
+ *
+ * A directive _factory_ is a function that takes arguments for data and
+ * configuration and returns a directive. Users of directive usually refer to
+ * the directive factory as the directive. For example, "The repeat directive".
+ *
+ * Usually a template author will invoke a directive factory in their template
+ * with relevant arguments, which will then return a directive function.
+ *
+ * Here's an example of using the `repeat()` directive factory that takes an
+ * array and a function to render an item:
+ *
+ * ```js
+ * html`<ul><${repeat(items, (item) => html`<li>${item}</li>`)}</ul>`
+ * ```
+ *
+ * When `repeat` is invoked, it returns a directive function that closes over
+ * `items` and the template function. When the outer template is rendered, the
+ * return directive function is called with the Part for the expression.
+ * `repeat` then performs it's custom logic to render multiple items.
+ *
+ * @param f The directive factory function. Must be a function that returns a
+ * function of the signature `(part: Part) => void`. The returned function will
+ * be called with the part object.
+ *
+ * @example
+ *
+ * import {directive, html} from 'lit-html';
+ *
+ * const immutable = directive((v) => (part) => {
+ *   if (part.value !== v) {
+ *     part.setValue(v)
+ *   }
+ * });
+ */
+const directive = (f) => ((...args) => {
+    const d = f(...args);
+    // tslint:disable-next-line:no-any
+    d.isDirective = true;
+    return d;
+});
+class Directive {
+    constructor() {
+        this.isDirective = true;
+        this.isClass = true;
+    }
+    body(_part) {
+        // body of the directive
+    }
+}
+const isDirective = (o) => {
+    return o !== undefined && o !== null &&
+        // tslint:disable-next-line:no-any
+        typeof o.isDirective === 'boolean';
+};
+
 /**
  * @license
  * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -38,98 +85,38 @@ const directive=t=>(...e)=>{const n=t(...e);return n.isDirective=!0,n};class Dir
  * subject to an additional IP rights grant found at
  * http://polymer.github.io/PATENTS.txt
  */
-class TemplateInstance{constructor(t,e,n){this.__parts=[],this.template=t,this.processor=e,this.options=n}update(t){let e=0;for(const n of this.__parts)void 0!==n&&n.setValue(t[e]),e++;for(const t of this.__parts)void 0!==t&&t.commit()}_clone(){const e=t?this.template.element.content.cloneNode(!0):document.importNode(this.template.element.content,!0),n=[],i=this.template.parts,s=document.createTreeWalker(e,133,null,!1);let o,r=0,a=0,l=s.nextNode();for(;r<i.length;)if(o=i[r],isTemplatePartActive(o)){for(;a<o.index;)a++,"TEMPLATE"===l.nodeName&&(n.push(l),s.currentNode=l.content),null===(l=s.nextNode())&&(s.currentNode=n.pop(),l=s.nextNode());if("node"===o.type){const t=this.processor.handleTextExpression(this.options,o);t.insertAfterNode(l.previousSibling),this.__parts.push(t)}else this.__parts.push(...this.processor.handleAttributeExpressions(l,o.name,o.strings,this.options,o));r++}else this.__parts.push(void 0),r++;return t&&(document.adoptNode(e),customElements.upgrade(e)),e}}
 /**
- * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */let d;const h=` ${i} `,u=document.createElement("template");class TemplateResult{constructor(t,e,n,i){this.strings=t,this.values=e,this.type=n,this.processor=i}getHTML(){const t=this.strings.length-1;let e="",n=!1;for(let o=0;o<t;o++){const t=this.strings[o],a=t.lastIndexOf("\x3c!--");n=(a>-1||n)&&-1===t.indexOf("--\x3e",a+1);const c=l.exec(t);e+=null===c?t+(n?h:s):t.substr(0,c.index)+c[1]+c[2]+r+c[3]+i}return e+=this.strings[t],e}getTemplateElement(){const t=u.cloneNode();return t.innerHTML=function convertConstantTemplateStringToTrustedHTML(t){const e=window,n=e.trustedTypes||e.TrustedTypes;return n&&!d&&(d=n.createPolicy("lit-html",{createHTML:t=>t})),d?d.createHTML(t):t}(this.getHTML()),t}}class SVGTemplateResult extends TemplateResult{getHTML(){return`<svg>${super.getHTML()}</svg>`}getTemplateElement(){const t=super.getTemplateElement(),e=t.content,n=e.firstChild;return e.removeChild(n),reparentNodes(e,n.firstChild),t}}
+ * True if the custom elements polyfill is in use.
+ */
+const isCEPolyfill = typeof window !== 'undefined' ?
+    window.customElements != null &&
+        window.customElements
+            .polyfillWrapFlushCallback !== undefined :
+    false;
 /**
- * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */const isPrimitive=t=>null===t||!("object"==typeof t||"function"==typeof t),isIterable=t=>Array.isArray(t)||!(!t||!t[Symbol.iterator]),identityFunction=t=>t,noopSanitizer=(t,e,n)=>identityFunction;let p=noopSanitizer;const m=document.createTextNode("");class AttributeCommitter{constructor(t,e,n,i,s="attribute"){this.dirty=!0,this.element=t,this.name=e,this.strings=n,this.parts=[];let o=i&&i.sanitizer;void 0===o&&(o=p(t,e,s),void 0!==i&&(i.sanitizer=o)),this.sanitizer=o;for(let t=0;t<n.length-1;t++)this.parts[t]=this._createPart()}_createPart(){return new AttributePart(this)}_getValue(){const t=this.strings,e=this.parts,n=t.length-1;if(1===n&&""===t[0]&&""===t[1]&&void 0!==e[0]){const t=e[0].value;if(!isIterable(t))return t}let i="";for(let s=0;s<n;s++){i+=t[s];const n=e[s];if(void 0!==n){const t=n.value;if(isPrimitive(t)||!isIterable(t))i+="string"==typeof t?t:String(t);else for(const e of t)i+="string"==typeof e?e:String(e)}}return i+=t[n],i}commit(){if(this.dirty){this.dirty=!1;let t=this._getValue();t=this.sanitizer(t),"symbol"==typeof t&&(t=String(t)),this.element.setAttribute(this.name,t)}}}class AttributePart{constructor(t){this.value=void 0,this.committer=t}setValue(t){t===e||isPrimitive(t)&&t===this.value||(this.value=t,isDirective(t)||(this.committer.dirty=!0))}commit(){for(;isDirective(this.value);){const t=this.value;this.value=e,t.isClass?t.body(this):t(this)}this.value!==e&&this.committer.commit()}}class NodePart{constructor(t,e){this.value=void 0,this.__pendingValue=void 0,this.textSanitizer=void 0,this.options=t,this.templatePart=e}appendInto(t){this.startNode=t.appendChild(createMarker()),this.endNode=t.appendChild(createMarker())}insertAfterNode(t){this.startNode=t,this.endNode=t.nextSibling}appendIntoPart(t){t.__insert(this.startNode=createMarker()),t.__insert(this.endNode=createMarker())}insertAfterPart(t){t.__insert(this.startNode=createMarker()),this.endNode=t.endNode,t.endNode=this.startNode}setValue(t){this.__pendingValue=t}commit(){for(;isDirective(this.__pendingValue);){const t=this.__pendingValue;this.__pendingValue=e,t.isClass?t.body(this):t(this)}const t=this.__pendingValue;t!==e&&(isPrimitive(t)?t!==this.value&&this.__commitText(t):t instanceof TemplateResult?this.__commitTemplateResult(t):t instanceof Node?this.__commitNode(t):isIterable(t)?this.__commitIterable(t):t===n?(this.value=n,this.clear()):this.__commitText(t))}__insert(t){this.endNode.parentNode.insertBefore(t,this.endNode)}__commitNode(t){this.value!==t&&(this.clear(),this.__insert(t),this.value=t)}__commitText(t){const e=this.startNode.nextSibling;if(t=null==t?"":t,e===this.endNode.previousSibling&&3===e.nodeType){void 0===this.textSanitizer&&(this.textSanitizer=p(e,"data","property"));const n=this.textSanitizer(t);e.data="string"==typeof n?n:String(n)}else{const e=m.cloneNode();this.__commitNode(e),void 0===this.textSanitizer&&(this.textSanitizer=p(e,"data","property"));const n=this.textSanitizer(t);e.data="string"==typeof n?n:String(n)}this.value=t}__commitTemplateResult(t){const e=this.options.templateFactory(t);if(this.value instanceof TemplateInstance&&this.value.template===e)this.value.update(t.values);else{const n=this.endNode.parentNode;if(p!==noopSanitizer&&"STYLE"===n.nodeName||"SCRIPT"===n.nodeName)return void this.__commitText("/* lit-html will not write TemplateResults to scripts and styles */");const i=new TemplateInstance(e,t.processor,this.options),s=i._clone();i.update(t.values),this.__commitNode(s),this.value=i}}__commitIterable(t){Array.isArray(this.value)||(this.value=[],this.clear());const e=this.value;let n,i=0;for(const s of t)n=e[i],void 0===n&&(n=new NodePart(this.options,this.templatePart),e.push(n),0===i?n.appendIntoPart(this):n.insertAfterPart(e[i-1])),n.setValue(s),n.commit(),i++;i<e.length&&(e.length=i,this.clear(n&&n.endNode))}clear(t=this.startNode){removeNodes(this.startNode.parentNode,t.nextSibling,this.endNode)}}class BooleanAttributePart{constructor(t,e,n){if(this.value=void 0,this.__pendingValue=void 0,2!==n.length||""!==n[0]||""!==n[1])throw new Error("Boolean attributes can only contain a single expression");this.element=t,this.name=e,this.strings=n}setValue(t){this.__pendingValue=t}commit(){for(;isDirective(this.__pendingValue);){const t=this.__pendingValue;this.__pendingValue=e,t.isClass?t.body(this):t(this)}if(this.__pendingValue===e)return;const t=!!this.__pendingValue;this.value!==t&&(t?this.element.setAttribute(this.name,""):this.element.removeAttribute(this.name),this.value=t),this.__pendingValue=e}}class PropertyCommitter extends AttributeCommitter{constructor(t,e,n,i){super(t,e,n,i,"property"),this.single=2===n.length&&""===n[0]&&""===n[1]}_createPart(){return new PropertyPart(this)}_getValue(){return this.single?this.parts[0].value:super._getValue()}commit(){if(this.dirty){this.dirty=!1;let t=this._getValue();t=this.sanitizer(t),this.element[this.name]=t}}}class PropertyPart extends AttributePart{}let f=!1;(()=>{try{const t={get capture(){return f=!0,!1}};window.addEventListener("test",t,t),window.removeEventListener("test",t,t)}catch(t){}})();class EventPart{constructor(t,e,n){this.value=void 0,this.__pendingValue=void 0,this.element=t,this.eventName=e,this.eventContext=n,this.__boundHandleEvent=t=>this.handleEvent(t)}setValue(t){this.__pendingValue=t}commit(){for(;isDirective(this.__pendingValue);){const t=this.__pendingValue;this.__pendingValue=e,t.isClass?t.body(this):t(this)}if(this.__pendingValue===e)return;const t=this.__pendingValue,n=this.value,i=null==t||null!=n&&(t.capture!==n.capture||t.once!==n.once||t.passive!==n.passive),s=null!=t&&(null==n||i);i&&this.element.removeEventListener(this.eventName,this.__boundHandleEvent,this.__options),s&&(this.__options=getOptions(t),this.element.addEventListener(this.eventName,this.__boundHandleEvent,this.__options)),this.value=t,this.__pendingValue=e}handleEvent(t){"function"==typeof this.value?this.value.call(this.eventContext||this.element,t):this.value.handleEvent(t)}}const getOptions=t=>t&&(f?{capture:t.capture,passive:t.passive,once:t.once}:t.capture);
+ * Reparents nodes, starting from `start` (inclusive) to `end` (exclusive),
+ * into another container (could be the same container), before `before`. If
+ * `before` is null, it appends the nodes to the container.
+ */
+const reparentNodes = (container, start, end = null, before = null) => {
+    while (start !== end) {
+        const n = start.nextSibling;
+        container.insertBefore(start, before);
+        start = n;
+    }
+};
 /**
- * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */class DefaultTemplateProcessor{handleAttributeExpressions(t,e,n,i,s){const o=e[0];if("."===o){return new PropertyCommitter(t,e.slice(1),n,s).parts}return"@"===o?[new EventPart(t,e.slice(1),i.eventContext)]:"?"===o?[new BooleanAttributePart(t,e.slice(1),n)]:new AttributeCommitter(t,e,n,s).parts}handleTextExpression(t,e){return new NodePart(t,e)}}const g=new DefaultTemplateProcessor;
-/**
- * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */function templateFactory(t){let e=v.get(t.type);void 0===e&&(e={stringsArray:new WeakMap,keyString:new Map},v.set(t.type,e));let n=e.stringsArray.get(t.strings);if(void 0!==n)return n;const s=t.strings.join(i);return n=e.keyString.get(s),void 0===n&&(n=new Template(t,t.getTemplateElement()),e.keyString.set(s,n)),e.stringsArray.set(t.strings,n),n}const v=new Map,y=new WeakMap,render=(t,e,n)=>{let i=y.get(e);void 0===i&&(removeNodes(e,e.firstChild),y.set(e,i=new NodePart(Object.assign({templateFactory:templateFactory},n),void 0)),i.appendInto(e)),i.setValue(t),i.commit()};
-/**
- * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */"undefined"!=typeof window&&(window.litHtmlVersions||(window.litHtmlVersions=[])).push("1.1.5");const html=(t,...e)=>new TemplateResult(t,e,"html",g),svg=(t,...e)=>new SVGTemplateResult(t,e,"svg",g);var b=Object.freeze({__proto__:null,html:html,svg:svg,DefaultTemplateProcessor:DefaultTemplateProcessor,defaultTemplateProcessor:g,directive:directive,Directive:Directive,isDirective:isDirective,removeNodes:removeNodes,reparentNodes:reparentNodes,noChange:e,nothing:n,AttributeCommitter:AttributeCommitter,AttributePart:AttributePart,BooleanAttributePart:BooleanAttributePart,EventPart:EventPart,isIterable:isIterable,isPrimitive:isPrimitive,NodePart:NodePart,PropertyCommitter:PropertyCommitter,PropertyPart:PropertyPart,get sanitizerFactory(){return p},setSanitizerFactory:t=>{if(p!==noopSanitizer)throw new Error("Attempted to overwrite existing lit-html security policy. setSanitizeDOMValueFactory should be called at most once.");p=t},parts:y,render:render,templateCaches:v,templateFactory:templateFactory,TemplateInstance:TemplateInstance,SVGTemplateResult:SVGTemplateResult,TemplateResult:TemplateResult,createMarker:createMarker,isTemplatePartActive:isTemplatePartActive,Template:Template}),__asyncValues=function(t){if(!Symbol.asyncIterator)throw new TypeError("Symbol.asyncIterator is not defined.");var e,n=t[Symbol.asyncIterator];return n?n.call(t):(t="function"==typeof __values?__values(t):t[Symbol.iterator](),e={},verb("next"),verb("throw"),verb("return"),e[Symbol.asyncIterator]=function(){return this},e);function verb(n){e[n]=t[n]&&function(e){return new Promise((function(i,s){(function settle(t,e,n,i){Promise.resolve(i).then((function(e){t({value:e,done:n})}),e)})(i,s,(e=t[n](e)).done,e.value)}))}}};
-/**
- * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */const w=directive((t,e)=>async n=>{var i,s;if(!(n instanceof NodePart))throw new Error("asyncAppend can only be used in text bindings");if(t===n.value)return;let o;n.value=t;let r=0;try{for(var a,l=__asyncValues(t);!(a=await l.next()).done;){let i=a.value;if(n.value!==t)break;0===r&&n.clear(),void 0!==e&&(i=e(i,r));let s=n.startNode;void 0!==o&&(s=createMarker(),o.endNode=s,n.endNode.parentNode.insertBefore(s,n.endNode)),o=new NodePart(n.options,n.templatePart),o.insertAfterNode(s),o.setValue(i),o.commit(),r++}}catch(t){i={error:t}}finally{try{a&&!a.done&&(s=l.return)&&await s.call(l)}finally{if(i)throw i.error}}});
-/**
- * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */var __asyncValues$1=function(t){if(!Symbol.asyncIterator)throw new TypeError("Symbol.asyncIterator is not defined.");var e,n=t[Symbol.asyncIterator];return n?n.call(t):(t="function"==typeof __values?__values(t):t[Symbol.iterator](),e={},verb("next"),verb("throw"),verb("return"),e[Symbol.asyncIterator]=function(){return this},e);function verb(n){e[n]=t[n]&&function(e){return new Promise((function(i,s){(function settle(t,e,n,i){Promise.resolve(i).then((function(e){t({value:e,done:n})}),e)})(i,s,(e=t[n](e)).done,e.value)}))}}};const _=directive((t,e)=>async n=>{var i,s;if(!(n instanceof NodePart))throw new Error("asyncReplace can only be used in text bindings");if(t===n.value)return;const o=new NodePart(n.options,n.templatePart);n.value=t;let r=0;try{for(var a,l=__asyncValues$1(t);!(a=await l.next()).done;){let i=a.value;if(n.value!==t)break;0===r&&(n.clear(),o.appendIntoPart(n)),void 0!==e&&(i=e(i,r)),o.setValue(i),o.commit(),r++}}catch(t){i={error:t}}finally{try{a&&!a.done&&(s=l.return)&&await s.call(l)}finally{if(i)throw i.error}}}),x=new WeakMap,$=directive(t=>e=>{if(!(e instanceof NodePart))throw new Error("cache can only be used in text bindings");let n=x.get(e);void 0===n&&(n=new WeakMap,x.set(e,n));const i=e.value;if(i instanceof TemplateInstance){if(t instanceof TemplateResult&&i.template===e.options.templateFactory(t))return void e.setValue(t);{let t=n.get(i.template);void 0===t&&(t={instance:i,nodes:document.createDocumentFragment()},n.set(i.template,t)),reparentNodes(t.nodes,e.startNode.nextSibling,e.endNode)}}if(t instanceof TemplateResult){const i=e.options.templateFactory(t),s=n.get(i);void 0!==s&&(e.setValue(s.nodes),e.commit(),e.value=s.instance)}e.setValue(t)}),C=new WeakMap,M=directive(t=>e=>{if(!(e instanceof AttributePart)||e instanceof PropertyPart||"class"!==e.committer.name||e.committer.parts.length>1)throw new Error("The `classMap` directive must be used in the `class` attribute and must be the only part in the attribute.");const{committer:n}=e,{element:i}=n;let s=C.get(e);void 0===s&&(i.className=n.strings.join(" "),C.set(e,s=new Set));const{classList:o}=i;s.forEach(e=>{e in t||(o.remove(e),s.delete(e))});for(const e in t){const n=t[e];n!=s.has(e)&&(n?(o.add(e),s.add(e)):(o.remove(e),s.delete(e)))}}),P=new WeakMap,O=directive((t,e)=>n=>{const i=P.get(n);if(Array.isArray(t)){if(Array.isArray(i)&&i.length===t.length&&t.every((t,e)=>t===i[e]))return}else if(i===t&&(void 0!==t||P.has(n)))return;n.setValue(e()),P.set(n,Array.isArray(t)?Array.from(t):t)}),T=directive(t=>e=>{if(void 0===t&&e instanceof AttributePart){if(t!==e.value){const t=e.committer.name;e.committer.element.removeAttribute(t)}}else e.setValue(t)}),createAndInsertPart=(t,e)=>{const n=t.startNode.parentNode,i=null==e?t.endNode:e.startNode,s=n.insertBefore(createMarker(),i);n.insertBefore(createMarker(),i);const o=new NodePart(t.options,void 0);return o.insertAfterNode(s),o},updatePart=(t,e)=>(t.setValue(e),t.commit(),t),insertPartBefore=(t,e,n)=>{const i=t.startNode.parentNode,s=n?n.startNode:t.endNode,o=e.endNode.nextSibling;o!==s&&reparentNodes(i,e.startNode,o,s)},removePart=t=>{removeNodes(t.startNode.parentNode,t.startNode,t.endNode.nextSibling)},generateMap=(t,e,n)=>{const i=new Map;for(let s=e;s<=n;s++)i.set(t[s],s);return i},A=new WeakMap,S=new WeakMap,I=directive((t,e,n)=>{let i;return void 0===n?n=e:void 0!==e&&(i=e),e=>{if(!(e instanceof NodePart))throw new Error("repeat can only be used in text bindings");const s=A.get(e)||[],o=S.get(e)||[],r=[],a=[],l=[];let c,d,h=0;for(const e of t)l[h]=i?i(e,h):h,a[h]=n(e,h),h++;let u=0,p=s.length-1,m=0,f=a.length-1;for(;u<=p&&m<=f;)if(null===s[u])u++;else if(null===s[p])p--;else if(o[u]===l[m])r[m]=updatePart(s[u],a[m]),u++,m++;else if(o[p]===l[f])r[f]=updatePart(s[p],a[f]),p--,f--;else if(o[u]===l[f])r[f]=updatePart(s[u],a[f]),insertPartBefore(e,s[u],r[f+1]),u++,f--;else if(o[p]===l[m])r[m]=updatePart(s[p],a[m]),insertPartBefore(e,s[p],s[u]),p--,m++;else if(void 0===c&&(c=generateMap(l,m,f),d=generateMap(o,u,p)),c.has(o[u]))if(c.has(o[p])){const t=d.get(l[m]),n=void 0!==t?s[t]:null;if(null===n){const t=createAndInsertPart(e,s[u]);updatePart(t,a[m]),r[m]=t}else r[m]=updatePart(n,a[m]),insertPartBefore(e,n,s[u]),s[t]=null;m++}else removePart(s[p]),p--;else removePart(s[u]),u++;for(;m<=f;){const t=createAndInsertPart(e,r[f+1]);updatePart(t,a[m]),r[m++]=t}for(;u<=p;){const t=s[u++];null!==t&&removePart(t)}A.set(e,r),S.set(e,l)}}),D=new WeakMap,E=document.createElement("template"),R=directive(t=>e=>{if(!(e instanceof NodePart))throw new Error("unsafeHTML can only be used in text bindings");const n=D.get(e);if(void 0!==n&&isPrimitive(t)&&t===n.value&&e.value===n.fragment)return;const i=E.cloneNode();i.innerHTML=t;const s=document.importNode(i.content,!0);e.setValue(s),D.set(e,{value:t,fragment:s})}),L=new WeakMap,N=directive((...t)=>e=>{let n=L.get(e);void 0===n&&(n={lastRenderedIndex:2147483647,values:[]},L.set(e,n));const i=n.values;let s=i.length;n.values=t;for(let o=0;o<t.length&&!(o>n.lastRenderedIndex);o++){const r=t[o];if(isPrimitive(r)||"function"!=typeof r.then){e.setValue(r),n.lastRenderedIndex=o;break}o<s&&r===i[o]||(n.lastRenderedIndex=2147483647,s=0,Promise.resolve(r).then(t=>{const i=n.values.indexOf(r);i>-1&&i<n.lastRenderedIndex&&(n.lastRenderedIndex=i,e.setValue(t),e.commit())}))}}),Y=new WeakMap;
+ * Removes nodes, starting from `start` (inclusive) to `end` (exclusive), from
+ * `container`.
+ */
+const removeNodes = (container, start, end = null) => {
+    while (start !== end) {
+        const n = start.nextSibling;
+        container.removeChild(start);
+        start = n;
+    }
+};
+
 /**
  * @license
  * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
@@ -142,7 +129,4192 @@ class TemplateInstance{constructor(t,e,n){this.__parts=[],this.template=t,this.p
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at
  * http://polymer.github.io/PATENTS.txt
- */class Detach extends Directive{constructor(t){super(),this.ifFn=t}body(t){const e=this.ifFn(),n=t.committer.element;if(e){if(!Y.has(t)){const e=n.nextSibling;Y.set(t,{element:n,nextSibling:e})}n.remove()}else{const e=Y.get(t);null!=e&&(e.nextSibling.parentNode.insertBefore(e.element,e.nextSibling),Y.delete(t))}}}const z=[],j=[];class StyleMap extends Directive{constructor(t,e=!1){super(),this.previous={},this.style=t,this.detach=e}setStyle(t){this.style=t}setDetach(t){this.detach=t}body(t){z.length=0,j.length=0;const e=t.committer.element,n=e.style;let i=this.previous;for(const t in i)void 0===this.style[t]&&z.push(t);for(const t in this.style){const e=this.style[t],n=i[t];void 0!==n&&n===e||j.push(t)}if(z.length||j.length){let t,i;this.detach&&(t=e.parentNode,t&&(i=e.nextSibling,e.remove()));for(const t of z)n.removeProperty(t);for(const t of j){const e=this.style[t];t.includes("-")?n.setProperty(t,e):n[t]=e}this.detach&&t&&t.insertBefore(e,i),this.previous=Object.assign({},this.style)}}}class Action{constructor(){this.isAction=!0}}Action.prototype.isAction=!0;const V={element:document.createTextNode(""),axis:"xy",threshold:10,onDown(t){},onMove(t){},onUp(t){},onWheel(t){}},k="undefined"!=typeof PointerEvent;let H=0;class PointerAction extends Action{constructor(t,e){super(),this.moving="",this.initialX=0,this.initialY=0,this.lastY=0,this.lastX=0,this.onPointerDown=this.onPointerDown.bind(this),this.onPointerMove=this.onPointerMove.bind(this),this.onPointerUp=this.onPointerUp.bind(this),this.onWheel=this.onWheel.bind(this),this.element=t,this.id=++H,this.options=Object.assign(Object.assign({},V),e.pointerOptions),k?(t.addEventListener("pointerdown",this.onPointerDown),document.addEventListener("pointermove",this.onPointerMove),document.addEventListener("pointerup",this.onPointerUp)):(t.addEventListener("touchstart",this.onPointerDown),document.addEventListener("touchmove",this.onPointerMove,{passive:!1}),document.addEventListener("touchend",this.onPointerUp),document.addEventListener("touchcancel",this.onPointerUp),t.addEventListener("mousedown",this.onPointerDown),document.addEventListener("mousemove",this.onPointerMove,{passive:!1}),document.addEventListener("mouseup",this.onPointerUp))}normalizeMouseWheelEvent(t){let e=t.deltaX||0,n=t.deltaY||0,i=t.deltaZ||0;const s=t.deltaMode,o=parseInt(getComputedStyle(t.target).getPropertyValue("line-height"));let r=1;switch(s){case 1:r=o;break;case 2:r=window.height}return e*=r,n*=r,i*=r,{x:e,y:n,z:i,event:t}}onWheel(t){const e=this.normalizeMouseWheelEvent(t);this.options.onWheel(e)}normalizePointerEvent(t){let e={x:0,y:0,pageX:0,pageY:0,clientX:0,clientY:0,screenX:0,screenY:0,event:t};switch(t.type){case"wheel":const n=this.normalizeMouseWheelEvent(t);e.x=n.x,e.y=n.y,e.pageX=e.x,e.pageY=e.y,e.screenX=e.x,e.screenY=e.y,e.clientX=e.x,e.clientY=e.y;break;case"touchstart":case"touchmove":case"touchend":case"touchcancel":e.x=t.changedTouches[0].screenX,e.y=t.changedTouches[0].screenY,e.pageX=t.changedTouches[0].pageX,e.pageY=t.changedTouches[0].pageY,e.screenX=t.changedTouches[0].screenX,e.screenY=t.changedTouches[0].screenY,e.clientX=t.changedTouches[0].clientX,e.clientY=t.changedTouches[0].clientY;break;default:e.x=t.x,e.y=t.y,e.pageX=t.pageX,e.pageY=t.pageY,e.screenX=t.screenX,e.screenY=t.screenY,e.clientX=t.clientX,e.clientY=t.clientY}return e}onPointerDown(t){if("mousedown"===t.type&&0!==t.button)return;this.moving="xy";const e=this.normalizePointerEvent(t);this.lastX=e.x,this.lastY=e.y,this.initialX=e.x,this.initialY=e.y,this.options.onDown(e)}handleX(t){let e=t.x-this.lastX;return this.lastY=t.y,this.lastX=t.x,e}handleY(t){let e=t.y-this.lastY;return this.lastY=t.y,this.lastX=t.x,e}onPointerMove(t){if(""===this.moving||"mousemove"===t.type&&0!==t.button)return;const e=this.normalizePointerEvent(t);if("x|y"===this.options.axis){let n=0,i=0;("x"===this.moving||"xy"===this.moving&&Math.abs(e.x-this.initialX)>this.options.threshold)&&(this.moving="x",n=this.handleX(e)),("y"===this.moving||"xy"===this.moving&&Math.abs(e.y-this.initialY)>this.options.threshold)&&(this.moving="y",i=this.handleY(e)),this.options.onMove({movementX:n,movementY:i,x:e.x,y:e.y,initialX:this.initialX,initialY:this.initialY,lastX:this.lastX,lastY:this.lastY,event:t})}else if("xy"===this.options.axis){let n=0,i=0;Math.abs(e.x-this.initialX)>this.options.threshold&&(n=this.handleX(e)),Math.abs(e.y-this.initialY)>this.options.threshold&&(i=this.handleY(e)),this.options.onMove({movementX:n,movementY:i,x:e.x,y:e.y,initialX:this.initialX,initialY:this.initialY,lastX:this.lastX,lastY:this.lastY,event:t})}else if("x"===this.options.axis)("x"===this.moving||"xy"===this.moving&&Math.abs(e.x-this.initialX)>this.options.threshold)&&(this.moving="x",this.options.onMove({movementX:this.handleX(e),movementY:0,initialX:this.initialX,initialY:this.initialY,lastX:this.lastX,lastY:this.lastY,event:t}));else if("y"===this.options.axis){let n=0;("y"===this.moving||"xy"===this.moving&&Math.abs(e.y-this.initialY)>this.options.threshold)&&(this.moving="y",n=this.handleY(e)),this.options.onMove({movementX:0,movementY:n,x:e.x,y:e.y,initialX:this.initialX,initialY:this.initialY,lastX:this.lastX,lastY:this.lastY,event:t})}}onPointerUp(t){this.moving="";const e=this.normalizePointerEvent(t);this.options.onUp({movementX:0,movementY:0,x:e.x,y:e.y,initialX:this.initialX,initialY:this.initialY,lastX:this.lastX,lastY:this.lastY,event:t}),this.lastY=0,this.lastX=0}destroy(t){k?(t.removeEventListener("pointerdown",this.onPointerDown),document.removeEventListener("pointermove",this.onPointerMove),document.removeEventListener("pointerup",this.onPointerUp)):(t.removeEventListener("mousedown",this.onPointerDown),document.removeEventListener("mousemove",this.onPointerMove),document.removeEventListener("mouseup",this.onPointerUp),t.removeEventListener("touchstart",this.onPointerDown),document.removeEventListener("touchmove",this.onPointerMove),document.removeEventListener("touchend",this.onPointerUp),document.removeEventListener("touchcancel",this.onPointerUp))}}function schedule(t){let e=0;return function wrapperFn(n){e||(e=requestAnimationFrame((function executeFrame(){e=0,t.apply(void 0,[n])})))}}function isObject(t){return t&&"object"==typeof t&&!Array.isArray(t)}function clone(t){if(void 0!==t.actions){const e=t.actions.map(t=>{const e=Object.assign({},t),n=Object.assign({},e.props);return delete n.state,delete n.api,delete e.element,e.props=n,e});t.actions=e}return function mergeDeep(t,...e){const n=e.shift();if(isObject(t)&&isObject(n))for(const e in n)if(isObject(n[e]))void 0===t[e]&&(t[e]={}),t[e]=mergeDeep(t[e],n[e]);else if(Array.isArray(n[e])){t[e]=[];for(let i of n[e])isObject(i)?t[e].push(mergeDeep({},i)):t[e].push(i)}else t[e]=n[e];return e.length?mergeDeep(t,...e):t}({},t)}function Vido(t,e){let n=0;const i=new Map;let s,o,r=new Map,a=0;const l=Promise.resolve(),c={},d=function getActionsCollector(t){return class ActionsCollector extends Directive{constructor(t){super(),this.instance=t}set(t,e){return this.actions=t,this.props=e,this}body(e){const n=e.committer.element;for(const e of this.actions)if(void 0!==e){let i;if(t.has(this.instance))for(const s of t.get(this.instance))if(s.componentAction.create===e&&s.element===n){i=s;break}if(i)i.props=this.props;else{void 0!==n.vido&&delete n.vido;const i={create:e,update(){},destroy(){}},s={instance:this.instance,componentAction:i,element:n,props:this.props};let o=[];t.has(this.instance)&&(o=t.get(this.instance)),o.push(s),t.set(this.instance,o)}}}}}(r);class InstanceActionsCollector{constructor(t){this.instance=t}create(t,e){const n=new d(this.instance);return n.set(t,e),n}}const h=function getPublicComponentMethods(t,e,n){return class PublicComponentMethods{constructor(t,e,n={}){this.instance=t,this.name=e.name,this.vidoInstance=e,this.props=n,this.destroy=this.destroy.bind(this),this.update=this.update.bind(this),this.change=this.change.bind(this),this.html=this.html.bind(this)}destroy(){return this.vidoInstance.debug&&(console.groupCollapsed(`destroying component ${this.instance}`),console.log(n({components:t.keys(),actionsByInstance:e})),console.trace(),console.groupEnd()),this.vidoInstance.destroyComponent(this.instance,this.vidoInstance)}update(){return this.vidoInstance.debug&&(console.groupCollapsed(`updating component ${this.instance}`),console.log(n({components:t.keys(),actionsByInstance:e})),console.trace(),console.groupEnd()),this.vidoInstance.updateTemplate(this.vidoInstance)}change(i,s){this.vidoInstance.debug&&(console.groupCollapsed(`changing component ${this.instance}`),console.log(n({props:this.props,newProps:i,components:t.keys(),actionsByInstance:e})),console.trace(),console.groupEnd()),t.get(this.instance).change(i,s)}html(e={}){const n=t.get(this.instance);if(n)return n.update(e,this.vidoInstance)}_getComponents(){return t}_getActions(){return e}}}(i,r,clone);function vido(){this.destroyable=[],this.onChangeFunctions=[],this.debug=!1,this.state=t,this.api=e,this.lastProps={},this.reuseComponents=this.reuseComponents.bind(this),this.onDestroy=this.onDestroy.bind(this),this.onChange=this.onChange.bind(this),this.update=this.update.bind(this);for(const t in c)this[t]=c[t]}vido.prototype.html=html,vido.prototype.svg=svg,vido.prototype.directive=directive,vido.prototype.asyncAppend=w,vido.prototype.asyncReplace=_,vido.prototype.cache=$,vido.prototype.classMap=M,vido.prototype.guard=O,vido.prototype.ifDefined=T,vido.prototype.repeat=I,vido.prototype.unsafeHTML=R,vido.prototype.until=N,vido.prototype.schedule=schedule,vido.prototype.actionsByInstance=(t,e)=>{},vido.prototype.StyleMap=StyleMap,vido.prototype.Detach=Detach,vido.prototype.PointerAction=PointerAction,vido.prototype.addMethod=function addMethod(t,e){c[t]=e},vido.prototype.Action=Action,vido.prototype.onDestroy=function onDestroy(t){this.destroyable.push(t)},vido.prototype.onChange=function onChange(t){this.onChangeFunctions.push(t)},vido.prototype.update=function update(){this.updateTemplate()},vido.prototype.reuseComponents=function reuseComponents(t,e,n,i,s=!0){const o=[],r=t.length,a=e.length;let l=!1;!s||void 0!==e&&0!==e.length||(l=!0);let c=0;if(r<a){let s=a-r;for(;s;){const r=e[a-s],l=this.createComponent(i,n(r));t.push(l),o.push(l.instance),s--}}else if(r>a){let e=r-a;for(s&&(l=!0,c=r-e);e;){const n=r-e;s||(o.push(t[n].instance),t[n].destroy()),e--}s||(t.length=a)}let d=0;for(const i of t){const t=e[d];o.includes(i.instance)||i.change(n(t),{leave:l&&d>=c}),d++}};const u=function getInternalComponentMethods(t,e,n){return class InternalComponentMethods{constructor(t,e,n,i){this.instance=t,this.vidoInstance=e,this.renderFunction=n,this.content=i}destroy(){var i;this.vidoInstance.debug&&(console.groupCollapsed(`component destroy method fired ${this.instance}`),console.log(n({props:this.vidoInstance.props,components:t.keys(),destroyable:this.vidoInstance.destroyable,actionsByInstance:e})),console.trace(),console.groupEnd()),"function"==typeof(null===(i=this.content)||void 0===i?void 0:i.destroy)&&this.content.destroy();for(const t of this.vidoInstance.destroyable)t();this.vidoInstance.onChangeFunctions=[],this.vidoInstance.destroyable=[],this.vidoInstance.update()}update(i={}){return this.vidoInstance.debug&&(console.groupCollapsed(`component update method fired ${this.instance}`),console.log(n({components:t.keys(),actionsByInstance:e})),console.trace(),console.groupEnd()),this.renderFunction(i)}change(i,s={leave:!1}){const o=i;this.vidoInstance.debug&&(console.groupCollapsed(`component change method fired ${this.instance}`),console.log(n({props:o,components:t.keys(),onChangeFunctions:this.vidoInstance.onChangeFunctions,changedProps:i,actionsByInstance:e})),console.trace(),console.groupEnd());for(const t of this.vidoInstance.onChangeFunctions)t(i,s)}}}(i,r,clone);function createComponent(t,e={},s=null){const o=t.name+":"+n++;let a;a=new vido,a.instance=o,a.name=t.name,a.Actions=new InstanceActionsCollector(o);const l=new h(o,a,e),c=new u(o,a,t(a,e,s),s);return i.set(o,c),i.get(o).change(e),a.debug&&(console.groupCollapsed(`component created ${o}`),console.log(clone({props:e,components:i.keys(),actionsByInstance:r})),console.trace(),console.groupEnd()),l}vido.prototype.createComponent=createComponent;vido.prototype.Slot=class Slot extends Directive{constructor(t,e={},n=null){if(super(),this.components=[],Array.isArray(t))for(const i of t)this.components.push(createComponent(i,e,n))}body(t){t.setValue(this.components.map(t=>t.html()))}change(t,e){for(const n of this.components)n.change(t,e)}getComponents(){return this.components}setComponents(t){this.components=t}destroy(){for(const t of this.components)t.destroy()}};return vido.prototype.Slots=class Slots{constructor(){this.slots={}}addSlot(t,e){void 0===this.slots[t]&&(this.slots[t]=[]),this.slots[t].push(e)}change(t,e){for(const n in this.slots)for(const i of this.slots[n])i.change(t,e)}destroy(){for(const t in this.slots)for(const e of this.slots[t])e.destroy()}get(t){return this.slots[t]}set(t,e){this.slots[t]=e}},vido.prototype.destroyComponent=function destroyComponent(t,e){if(e.debug&&(console.groupCollapsed(`destroying component ${t}...`),console.log(clone({components:i.keys(),actionsByInstance:r})),console.trace(),console.groupEnd()),r.has(t))for(const e of r.get(t))"function"==typeof e.componentAction.destroy&&e.componentAction.destroy(e.element,e.props);r.delete(t);const n=i.get(t);n.update(),n.destroy(),i.delete(t),e.debug&&(console.groupCollapsed(`component destroyed ${t}`),console.log(clone({components:i.keys(),actionsByInstance:r})),console.trace(),console.groupEnd())},vido.prototype.updateTemplate=function updateTemplate(){const t=++a,e=this;l.then((function flush(){t===a&&(a=0,e.render())}))},vido.prototype.createApp=function createApp(t){o=t.element;const e=this.createComponent(t.component,t.props);return s=e.instance,this.render(),e},vido.prototype.executeActions=function executeActions(){var t,e,n;for(const i of r.values()){for(const s of i)if(void 0===s.element.vido){const i=s.componentAction,o=i.create;if(void 0!==o){let r;r=!0!==(null===(t=o.prototype)||void 0===t?void 0:t.isAction)&&void 0===o.isAction&&void 0===(null===(e=o.prototype)||void 0===e?void 0:e.update)&&void 0===(null===(n=o.prototype)||void 0===n?void 0:n.destroy)?o(s.element,s.props):new o(s.element,s.props),void 0!==r&&("function"==typeof r?i.destroy=r:("function"==typeof r.update&&(i.update=r.update.bind(r)),"function"==typeof r.destroy&&(i.destroy=r.destroy.bind(r))))}}else s.element.vido=s.props,"function"==typeof s.componentAction.update&&s.componentAction.update(s.element,s.props);for(const t of i)t.element.vido=t.props}},vido.prototype.render=function renderView(){const t=i.get(s);t?(render(t.update(),o),this.executeActions()):o&&o.remove()},vido.prototype._components=i,vido.prototype._actions=r,new vido}Vido.prototype.lithtml=b,Vido.prototype.Action=Action,Vido.prototype.Directive=Directive,Vido.prototype.schedule=schedule,Vido.prototype.Detach=Detach,Vido.prototype.StyleMap=StyleMap,Vido.prototype.PointerAction=PointerAction,Vido.prototype.asyncAppend=w,Vido.prototype.asyncReplace=_,Vido.prototype.cache=$,Vido.prototype.classMap=M,Vido.prototype.guard=O,Vido.prototype.ifDefined=T,Vido.prototype.repeat=I,Vido.prototype.unsafeHTML=R,Vido.prototype.unti=N;var W=function(){if("undefined"!=typeof Map)return Map;function getIndex(t,e){var n=-1;return t.some((function(t,i){return t[0]===e&&(n=i,!0)})),n}return(function(){function class_1(){this.__entries__=[]}return Object.defineProperty(class_1.prototype,"size",{get:function(){return this.__entries__.length},enumerable:!0,configurable:!0}),class_1.prototype.get=function(t){var e=getIndex(this.__entries__,t),n=this.__entries__[e];return n&&n[1]},class_1.prototype.set=function(t,e){var n=getIndex(this.__entries__,t);~n?this.__entries__[n][1]=e:this.__entries__.push([t,e])},class_1.prototype.delete=function(t){var e=this.__entries__,n=getIndex(e,t);~n&&e.splice(n,1)},class_1.prototype.has=function(t){return!!~getIndex(this.__entries__,t)},class_1.prototype.clear=function(){this.__entries__.splice(0)},class_1.prototype.forEach=function(t,e){void 0===e&&(e=null);for(var n=0,i=this.__entries__;n<i.length;n++){var s=i[n];t.call(e,s[1],s[0])}},class_1}())}(),B="undefined"!=typeof window&&"undefined"!=typeof document&&window.document===document,X="undefined"!=typeof global&&global.Math===Math?global:"undefined"!=typeof self&&self.Math===Math?self:"undefined"!=typeof window&&window.Math===Math?window:Function("return this")(),G="function"==typeof requestAnimationFrame?requestAnimationFrame.bind(X):function(t){return setTimeout((function(){return t(Date.now())}),1e3/60)},F=2;var U=20,J=["top","right","bottom","left","width","height","size","weight"],q="undefined"!=typeof MutationObserver,Z=function(){function ResizeObserverController(){this.connected_=!1,this.mutationEventsAdded_=!1,this.mutationsObserver_=null,this.observers_=[],this.onTransitionEnd_=this.onTransitionEnd_.bind(this),this.refresh=function throttle(t,e){var n=!1,i=!1,s=0;function resolvePending(){n&&(n=!1,t()),i&&proxy()}function timeoutCallback(){G(resolvePending)}function proxy(){var t=Date.now();if(n){if(t-s<F)return;i=!0}else n=!0,i=!1,setTimeout(timeoutCallback,e);s=t}return proxy}(this.refresh.bind(this),U)}return ResizeObserverController.prototype.addObserver=function(t){~this.observers_.indexOf(t)||this.observers_.push(t),this.connected_||this.connect_()},ResizeObserverController.prototype.removeObserver=function(t){var e=this.observers_,n=e.indexOf(t);~n&&e.splice(n,1),!e.length&&this.connected_&&this.disconnect_()},ResizeObserverController.prototype.refresh=function(){this.updateObservers_()&&this.refresh()},ResizeObserverController.prototype.updateObservers_=function(){var t=this.observers_.filter((function(t){return t.gatherActive(),t.hasActive()}));return t.forEach((function(t){return t.broadcastActive()})),t.length>0},ResizeObserverController.prototype.connect_=function(){B&&!this.connected_&&(document.addEventListener("transitionend",this.onTransitionEnd_),window.addEventListener("resize",this.refresh),q?(this.mutationsObserver_=new MutationObserver(this.refresh),this.mutationsObserver_.observe(document,{attributes:!0,childList:!0,characterData:!0,subtree:!0})):(document.addEventListener("DOMSubtreeModified",this.refresh),this.mutationEventsAdded_=!0),this.connected_=!0)},ResizeObserverController.prototype.disconnect_=function(){B&&this.connected_&&(document.removeEventListener("transitionend",this.onTransitionEnd_),window.removeEventListener("resize",this.refresh),this.mutationsObserver_&&this.mutationsObserver_.disconnect(),this.mutationEventsAdded_&&document.removeEventListener("DOMSubtreeModified",this.refresh),this.mutationsObserver_=null,this.mutationEventsAdded_=!1,this.connected_=!1)},ResizeObserverController.prototype.onTransitionEnd_=function(t){var e=t.propertyName,n=void 0===e?"":e;J.some((function(t){return!!~n.indexOf(t)}))&&this.refresh()},ResizeObserverController.getInstance=function(){return this.instance_||(this.instance_=new ResizeObserverController),this.instance_},ResizeObserverController.instance_=null,ResizeObserverController}(),defineConfigurable=function(t,e){for(var n=0,i=Object.keys(e);n<i.length;n++){var s=i[n];Object.defineProperty(t,s,{value:e[s],enumerable:!1,writable:!1,configurable:!0})}return t},getWindowOf=function(t){return t&&t.ownerDocument&&t.ownerDocument.defaultView||X},K=createRectInit(0,0,0,0);function toFloat(t){return parseFloat(t)||0}function getBordersSize(t){for(var e=[],n=1;n<arguments.length;n++)e[n-1]=arguments[n];return e.reduce((function(e,n){return e+toFloat(t["border-"+n+"-width"])}),0)}function getHTMLElementContentRect(t){var e=t.clientWidth,n=t.clientHeight;if(!e&&!n)return K;var i=getWindowOf(t).getComputedStyle(t),s=function getPaddings(t){for(var e={},n=0,i=["top","right","bottom","left"];n<i.length;n++){var s=i[n],o=t["padding-"+s];e[s]=toFloat(o)}return e}(i),o=s.left+s.right,r=s.top+s.bottom,a=toFloat(i.width),l=toFloat(i.height);if("border-box"===i.boxSizing&&(Math.round(a+o)!==e&&(a-=getBordersSize(i,"left","right")+o),Math.round(l+r)!==n&&(l-=getBordersSize(i,"top","bottom")+r)),!function isDocumentElement(t){return t===getWindowOf(t).document.documentElement}(t)){var c=Math.round(a+o)-e,d=Math.round(l+r)-n;1!==Math.abs(c)&&(a-=c),1!==Math.abs(d)&&(l-=d)}return createRectInit(s.left,s.top,a,l)}var Q="undefined"!=typeof SVGGraphicsElement?function(t){return t instanceof getWindowOf(t).SVGGraphicsElement}:function(t){return t instanceof getWindowOf(t).SVGElement&&"function"==typeof t.getBBox};function getContentRect(t){return B?Q(t)?function getSVGContentRect(t){var e=t.getBBox();return createRectInit(0,0,e.width,e.height)}(t):getHTMLElementContentRect(t):K}function createRectInit(t,e,n,i){return{x:t,y:e,width:n,height:i}}var tt=function(){function ResizeObservation(t){this.broadcastWidth=0,this.broadcastHeight=0,this.contentRect_=createRectInit(0,0,0,0),this.target=t}return ResizeObservation.prototype.isActive=function(){var t=getContentRect(this.target);return this.contentRect_=t,t.width!==this.broadcastWidth||t.height!==this.broadcastHeight},ResizeObservation.prototype.broadcastRect=function(){var t=this.contentRect_;return this.broadcastWidth=t.width,this.broadcastHeight=t.height,t},ResizeObservation}(),et=function et(t,e){var n=function createReadOnlyRect(t){var e=t.x,n=t.y,i=t.width,s=t.height,o="undefined"!=typeof DOMRectReadOnly?DOMRectReadOnly:Object,r=Object.create(o.prototype);return defineConfigurable(r,{x:e,y:n,width:i,height:s,top:n,right:e+i,bottom:s+n,left:e}),r}(e);defineConfigurable(this,{target:t,contentRect:n})},nt=function(){function ResizeObserverSPI(t,e,n){if(this.activeObservations_=[],this.observations_=new W,"function"!=typeof t)throw new TypeError("The callback provided as parameter 1 is not a function.");this.callback_=t,this.controller_=e,this.callbackCtx_=n}return ResizeObserverSPI.prototype.observe=function(t){if(!arguments.length)throw new TypeError("1 argument required, but only 0 present.");if("undefined"!=typeof Element&&Element instanceof Object){if(!(t instanceof getWindowOf(t).Element))throw new TypeError('parameter 1 is not of type "Element".');var e=this.observations_;e.has(t)||(e.set(t,new tt(t)),this.controller_.addObserver(this),this.controller_.refresh())}},ResizeObserverSPI.prototype.unobserve=function(t){if(!arguments.length)throw new TypeError("1 argument required, but only 0 present.");if("undefined"!=typeof Element&&Element instanceof Object){if(!(t instanceof getWindowOf(t).Element))throw new TypeError('parameter 1 is not of type "Element".');var e=this.observations_;e.has(t)&&(e.delete(t),e.size||this.controller_.removeObserver(this))}},ResizeObserverSPI.prototype.disconnect=function(){this.clearActive(),this.observations_.clear(),this.controller_.removeObserver(this)},ResizeObserverSPI.prototype.gatherActive=function(){var t=this;this.clearActive(),this.observations_.forEach((function(e){e.isActive()&&t.activeObservations_.push(e)}))},ResizeObserverSPI.prototype.broadcastActive=function(){if(this.hasActive()){var t=this.callbackCtx_,e=this.activeObservations_.map((function(t){return new et(t.target,t.broadcastRect())}));this.callback_.call(t,e,t),this.clearActive()}},ResizeObserverSPI.prototype.clearActive=function(){this.activeObservations_.splice(0)},ResizeObserverSPI.prototype.hasActive=function(){return this.activeObservations_.length>0},ResizeObserverSPI}(),it="undefined"!=typeof WeakMap?new WeakMap:new W,st=function ResizeObserver(t){if(!(this instanceof ResizeObserver))throw new TypeError("Cannot call a class as a function.");if(!arguments.length)throw new TypeError("1 argument required, but only 0 present.");var e=Z.getInstance(),n=new nt(t,e,this);it.set(this,n)};["observe","unobserve","disconnect"].forEach((function(t){st.prototype[t]=function(){var e;return(e=it.get(this))[t].apply(e,arguments)}}));var ot=void 0!==X.ResizeObserver?X.ResizeObserver:st;
+ */
+/**
+ * A sentinel value that signals that a value was handled by a directive and
+ * should not be written to the DOM.
+ */
+const noChange = {};
+/**
+ * A sentinel value that signals a NodePart to fully clear its content.
+ */
+const nothing = {};
+
+/**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+/**
+ * An expression marker with embedded unique key to avoid collision with
+ * possible text in templates.
+ */
+const marker = `{{lit-${String(Math.random()).slice(2)}}}`;
+/**
+ * An expression marker used text-positions, multi-binding attributes, and
+ * attributes with markup-like text values.
+ */
+const nodeMarker = `<!--${marker}-->`;
+const markerRegex = new RegExp(`${marker}|${nodeMarker}`);
+/**
+ * Suffix appended to all bound attribute names.
+ */
+const boundAttributeSuffix = '$lit$';
+/**
+ * An updatable Template that tracks the location of dynamic parts.
+ */
+class Template {
+    constructor(result, element) {
+        this.parts = [];
+        this.element = element;
+        const nodesToRemove = [];
+        const stack = [];
+        // Edge needs all 4 parameters present; IE11 needs 3rd parameter to be null
+        const walker = document.createTreeWalker(element.content, 133 /* NodeFilter.SHOW_{ELEMENT|COMMENT|TEXT} */, null, false);
+        // Keeps track of the last index associated with a part. We try to delete
+        // unnecessary nodes, but we never want to associate two different parts
+        // to the same index. They must have a constant node between.
+        let lastPartIndex = 0;
+        let index = -1;
+        let partIndex = 0;
+        const { strings, values: { length } } = result;
+        while (partIndex < length) {
+            const node = walker.nextNode();
+            if (node === null) {
+                // We've exhausted the content inside a nested template element.
+                // Because we still have parts (the outer for-loop), we know:
+                // - There is a template in the stack
+                // - The walker will find a nextNode outside the template
+                walker.currentNode = stack.pop();
+                continue;
+            }
+            index++;
+            if (node.nodeType === 1 /* Node.ELEMENT_NODE */) {
+                if (node.hasAttributes()) {
+                    const attributes = node.attributes;
+                    const { length } = attributes;
+                    // Per
+                    // https://developer.mozilla.org/en-US/docs/Web/API/NamedNodeMap,
+                    // attributes are not guaranteed to be returned in document order.
+                    // In particular, Edge/IE can return them out of order, so we cannot
+                    // assume a correspondence between part index and attribute index.
+                    let count = 0;
+                    for (let i = 0; i < length; i++) {
+                        if (endsWith(attributes[i].name, boundAttributeSuffix)) {
+                            count++;
+                        }
+                    }
+                    while (count-- > 0) {
+                        // Get the template literal section leading up to the first
+                        // expression in this attribute
+                        const stringForPart = strings[partIndex];
+                        // Find the attribute name
+                        const name = lastAttributeNameRegex.exec(stringForPart)[2];
+                        // Find the corresponding attribute
+                        // All bound attributes have had a suffix added in
+                        // TemplateResult#getHTML to opt out of special attribute
+                        // handling. To look up the attribute value we also need to add
+                        // the suffix.
+                        const attributeLookupName = name.toLowerCase() + boundAttributeSuffix;
+                        const attributeValue = node.getAttribute(attributeLookupName);
+                        node.removeAttribute(attributeLookupName);
+                        const statics = attributeValue.split(markerRegex);
+                        this.parts.push({
+                            type: 'attribute',
+                            index,
+                            name,
+                            strings: statics,
+                            sanitizer: undefined
+                        });
+                        partIndex += statics.length - 1;
+                    }
+                }
+                if (node.tagName === 'TEMPLATE') {
+                    stack.push(node);
+                    walker.currentNode = node.content;
+                }
+            }
+            else if (node.nodeType === 3 /* Node.TEXT_NODE */) {
+                const data = node.data;
+                if (data.indexOf(marker) >= 0) {
+                    const parent = node.parentNode;
+                    const strings = data.split(markerRegex);
+                    const lastIndex = strings.length - 1;
+                    // Generate a new text node for each literal section
+                    // These nodes are also used as the markers for node parts
+                    for (let i = 0; i < lastIndex; i++) {
+                        let insert;
+                        let s = strings[i];
+                        if (s === '') {
+                            insert = createMarker();
+                        }
+                        else {
+                            const match = lastAttributeNameRegex.exec(s);
+                            if (match !== null && endsWith(match[2], boundAttributeSuffix)) {
+                                s = s.slice(0, match.index) + match[1] +
+                                    match[2].slice(0, -boundAttributeSuffix.length) + match[3];
+                            }
+                            insert = document.createTextNode(s);
+                        }
+                        parent.insertBefore(insert, node);
+                        this.parts.push({ type: 'node', index: ++index });
+                    }
+                    // If there's no text, we must insert a comment to mark our place.
+                    // Else, we can trust it will stick around after cloning.
+                    if (strings[lastIndex] === '') {
+                        parent.insertBefore(createMarker(), node);
+                        nodesToRemove.push(node);
+                    }
+                    else {
+                        node.data = strings[lastIndex];
+                    }
+                    // We have a part for each match found
+                    partIndex += lastIndex;
+                }
+            }
+            else if (node.nodeType === 8 /* Node.COMMENT_NODE */) {
+                if (node.data === marker) {
+                    const parent = node.parentNode;
+                    // Add a new marker node to be the startNode of the Part if any of
+                    // the following are true:
+                    //  * We don't have a previousSibling
+                    //  * The previousSibling is already the start of a previous part
+                    if (node.previousSibling === null || index === lastPartIndex) {
+                        index++;
+                        parent.insertBefore(createMarker(), node);
+                    }
+                    lastPartIndex = index;
+                    this.parts.push({ type: 'node', index });
+                    // If we don't have a nextSibling, keep this node so we have an end.
+                    // Else, we can remove it to save future costs.
+                    if (node.nextSibling === null) {
+                        node.data = '';
+                    }
+                    else {
+                        nodesToRemove.push(node);
+                        index--;
+                    }
+                    partIndex++;
+                }
+                else {
+                    let i = -1;
+                    while ((i = node.data.indexOf(marker, i + 1)) !== -1) {
+                        // Comment node has a binding marker inside, make an inactive part
+                        // The binding won't work, but subsequent bindings will
+                        // TODO (justinfagnani): consider whether it's even worth it to
+                        // make bindings in comments work
+                        this.parts.push({ type: 'node', index: -1 });
+                        partIndex++;
+                    }
+                }
+            }
+        }
+        // Remove text binding nodes after the walk to not disturb the TreeWalker
+        for (const n of nodesToRemove) {
+            n.parentNode.removeChild(n);
+        }
+    }
+}
+const endsWith = (str, suffix) => {
+    const index = str.length - suffix.length;
+    return index >= 0 && str.slice(index) === suffix;
+};
+const isTemplatePartActive = (part) => part.index !== -1;
+/**
+ * Used to clone existing node instead of each time creating new one which is
+ * slower
+ */
+const markerNode = document.createComment('');
+// Allows `document.createComment('')` to be renamed for a
+// small manual size-savings.
+const createMarker = () => markerNode.cloneNode();
+/**
+ * This regex extracts the attribute name preceding an attribute-position
+ * expression. It does this by matching the syntax allowed for attributes
+ * against the string literal directly preceding the expression, assuming that
+ * the expression is in an attribute-value position.
+ *
+ * See attributes in the HTML spec:
+ * https://www.w3.org/TR/html5/syntax.html#elements-attributes
+ *
+ * " \x09\x0a\x0c\x0d" are HTML space characters:
+ * https://www.w3.org/TR/html5/infrastructure.html#space-characters
+ *
+ * "\0-\x1F\x7F-\x9F" are Unicode control characters, which includes every
+ * space character except " ".
+ *
+ * So an attribute is:
+ *  * The name: any character except a control character, space character, ('),
+ *    ("), ">", "=", or "/"
+ *  * Followed by zero or more space characters
+ *  * Followed by "="
+ *  * Followed by zero or more space characters
+ *  * Followed by:
+ *    * Any character except space, ('), ("), "<", ">", "=", (`), or
+ *    * (") then any non-("), or
+ *    * (') then any non-(')
+ */
+const lastAttributeNameRegex = 
+// eslint-disable-next-line no-control-regex
+/([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
+
+/**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+/**
+ * An instance of a `Template` that can be attached to the DOM and updated
+ * with new values.
+ */
+class TemplateInstance {
+    constructor(template, processor, options) {
+        this.__parts = [];
+        this.template = template;
+        this.processor = processor;
+        this.options = options;
+    }
+    update(values) {
+        let i = 0;
+        for (const part of this.__parts) {
+            if (part !== undefined) {
+                part.setValue(values[i]);
+            }
+            i++;
+        }
+        for (const part of this.__parts) {
+            if (part !== undefined) {
+                part.commit();
+            }
+        }
+    }
+    _clone() {
+        // There are a number of steps in the lifecycle of a template instance's
+        // DOM fragment:
+        //  1. Clone - create the instance fragment
+        //  2. Adopt - adopt into the main document
+        //  3. Process - find part markers and create parts
+        //  4. Upgrade - upgrade custom elements
+        //  5. Update - set node, attribute, property, etc., values
+        //  6. Connect - connect to the document. Optional and outside of this
+        //     method.
+        //
+        // We have a few constraints on the ordering of these steps:
+        //  * We need to upgrade before updating, so that property values will pass
+        //    through any property setters.
+        //  * We would like to process before upgrading so that we're sure that the
+        //    cloned fragment is inert and not disturbed by self-modifying DOM.
+        //  * We want custom elements to upgrade even in disconnected fragments.
+        //
+        // Given these constraints, with full custom elements support we would
+        // prefer the order: Clone, Process, Adopt, Upgrade, Update, Connect
+        //
+        // But Safari does not implement CustomElementRegistry#upgrade, so we
+        // can not implement that order and still have upgrade-before-update and
+        // upgrade disconnected fragments. So we instead sacrifice the
+        // process-before-upgrade constraint, since in Custom Elements v1 elements
+        // must not modify their light DOM in the constructor. We still have issues
+        // when co-existing with CEv0 elements like Polymer 1, and with polyfills
+        // that don't strictly adhere to the no-modification rule because shadow
+        // DOM, which may be created in the constructor, is emulated by being placed
+        // in the light DOM.
+        //
+        // The resulting order is on native is: Clone, Adopt, Upgrade, Process,
+        // Update, Connect. document.importNode() performs Clone, Adopt, and Upgrade
+        // in one step.
+        //
+        // The Custom Elements v1 polyfill supports upgrade(), so the order when
+        // polyfilled is the more ideal: Clone, Process, Adopt, Upgrade, Update,
+        // Connect.
+        const fragment = isCEPolyfill ?
+            this.template.element.content.cloneNode(true) :
+            document.importNode(this.template.element.content, true);
+        const stack = [];
+        const parts = this.template.parts;
+        // Edge needs all 4 parameters present; IE11 needs 3rd parameter to be null
+        const walker = document.createTreeWalker(fragment, 133 /* NodeFilter.SHOW_{ELEMENT|COMMENT|TEXT} */, null, false);
+        let partIndex = 0;
+        let nodeIndex = 0;
+        let part;
+        let node = walker.nextNode();
+        // Loop through all the nodes and parts of a template
+        while (partIndex < parts.length) {
+            part = parts[partIndex];
+            if (!isTemplatePartActive(part)) {
+                this.__parts.push(undefined);
+                partIndex++;
+                continue;
+            }
+            // Progress the tree walker until we find our next part's node.
+            // Note that multiple parts may share the same node (attribute parts
+            // on a single element), so this loop may not run at all.
+            while (nodeIndex < part.index) {
+                nodeIndex++;
+                if (node.nodeName === 'TEMPLATE') {
+                    stack.push(node);
+                    walker.currentNode = node.content;
+                }
+                if ((node = walker.nextNode()) === null) {
+                    // We've exhausted the content inside a nested template element.
+                    // Because we still have parts (the outer for-loop), we know:
+                    // - There is a template in the stack
+                    // - The walker will find a nextNode outside the template
+                    walker.currentNode = stack.pop();
+                    node = walker.nextNode();
+                }
+            }
+            // We've arrived at our part's node.
+            if (part.type === 'node') {
+                const textPart = this.processor.handleTextExpression(this.options, part);
+                textPart.insertAfterNode(node.previousSibling);
+                this.__parts.push(textPart);
+            }
+            else {
+                this.__parts.push(...this.processor.handleAttributeExpressions(node, part.name, part.strings, this.options, part));
+            }
+            partIndex++;
+        }
+        if (isCEPolyfill) {
+            document.adoptNode(fragment);
+            customElements.upgrade(fragment);
+        }
+        return fragment;
+    }
+}
+
+/**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+let policy;
+/**
+ * Turns the value to trusted HTML. If the application uses Trusted Types the
+ * value is transformed into TrustedHTML, which can be assigned to execution
+ * sink. If the application doesn't use Trusted Types, the return value is the
+ * same as the argument.
+ */
+function convertConstantTemplateStringToTrustedHTML(value) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const w = window;
+    // TrustedTypes have been renamed to trustedTypes
+    // (https://github.com/WICG/trusted-types/issues/177)
+    const trustedTypes = (w.trustedTypes || w.TrustedTypes);
+    if (trustedTypes && !policy) {
+        policy = trustedTypes.createPolicy('lit-html', { createHTML: (s) => s });
+    }
+    return policy ? policy.createHTML(value) : value;
+}
+const commentMarker = ` ${marker} `;
+/**
+ * Used to clone existing node instead of each time creating new one which is
+ * slower
+ */
+const emptyTemplateNode = document.createElement('template');
+/**
+ * The return type of `html`, which holds a Template and the values from
+ * interpolated expressions.
+ */
+class TemplateResult {
+    constructor(strings, values, type, processor) {
+        this.strings = strings;
+        this.values = values;
+        this.type = type;
+        this.processor = processor;
+    }
+    /**
+     * Returns a string of HTML used to create a `<template>` element.
+     */
+    getHTML() {
+        const l = this.strings.length - 1;
+        let html = '';
+        let isCommentBinding = false;
+        for (let i = 0; i < l; i++) {
+            const s = this.strings[i];
+            // For each binding we want to determine the kind of marker to insert
+            // into the template source before it's parsed by the browser's HTML
+            // parser. The marker type is based on whether the expression is in an
+            // attribute, text, or comment position.
+            //   * For node-position bindings we insert a comment with the marker
+            //     sentinel as its text content, like <!--{{lit-guid}}-->.
+            //   * For attribute bindings we insert just the marker sentinel for the
+            //     first binding, so that we support unquoted attribute bindings.
+            //     Subsequent bindings can use a comment marker because multi-binding
+            //     attributes must be quoted.
+            //   * For comment bindings we insert just the marker sentinel so we don't
+            //     close the comment.
+            //
+            // The following code scans the template source, but is *not* an HTML
+            // parser. We don't need to track the tree structure of the HTML, only
+            // whether a binding is inside a comment, and if not, if it appears to be
+            // the first binding in an attribute.
+            const commentOpen = s.lastIndexOf('<!--');
+            // We're in comment position if we have a comment open with no following
+            // comment close. Because <-- can appear in an attribute value there can
+            // be false positives.
+            isCommentBinding = (commentOpen > -1 || isCommentBinding) &&
+                s.indexOf('-->', commentOpen + 1) === -1;
+            // Check to see if we have an attribute-like sequence preceding the
+            // expression. This can match "name=value" like structures in text,
+            // comments, and attribute values, so there can be false-positives.
+            const attributeMatch = lastAttributeNameRegex.exec(s);
+            if (attributeMatch === null) {
+                // We're only in this branch if we don't have a attribute-like
+                // preceding sequence. For comments, this guards against unusual
+                // attribute values like <div foo="<!--${'bar'}">. Cases like
+                // <!-- foo=${'bar'}--> are handled correctly in the attribute branch
+                // below.
+                html += s + (isCommentBinding ? commentMarker : nodeMarker);
+            }
+            else {
+                // For attributes we use just a marker sentinel, and also append a
+                // $lit$ suffix to the name to opt-out of attribute-specific parsing
+                // that IE and Edge do for style and certain SVG attributes.
+                html += s.substr(0, attributeMatch.index) + attributeMatch[1] +
+                    attributeMatch[2] + boundAttributeSuffix + attributeMatch[3] +
+                    marker;
+            }
+        }
+        html += this.strings[l];
+        return html;
+    }
+    getTemplateElement() {
+        const template = emptyTemplateNode.cloneNode();
+        // this is secure because `this.strings` is a TemplateStringsArray.
+        // TODO: validate this when
+        // https://github.com/tc39/proposal-array-is-template-object is implemented.
+        template.innerHTML =
+            convertConstantTemplateStringToTrustedHTML(this.getHTML());
+        return template;
+    }
+}
+/**
+ * A TemplateResult for SVG fragments.
+ *
+ * This class wraps HTML in an `<svg>` tag in order to parse its contents in the
+ * SVG namespace, then modifies the template to remove the `<svg>` tag so that
+ * clones only container the original fragment.
+ */
+class SVGTemplateResult extends TemplateResult {
+    getHTML() {
+        return `<svg>${super.getHTML()}</svg>`;
+    }
+    getTemplateElement() {
+        const template = super.getTemplateElement();
+        const content = template.content;
+        const svgElement = content.firstChild;
+        content.removeChild(svgElement);
+        reparentNodes(content, svgElement.firstChild);
+        return template;
+    }
+}
+
+/**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+const isPrimitive = (value) => {
+    return (value === null ||
+        !(typeof value === 'object' || typeof value === 'function'));
+};
+const isIterable = (value) => {
+    return Array.isArray(value) ||
+        // tslint:disable-next-line: no-any
+        !!(value && value[Symbol.iterator]);
+};
+const identityFunction = (value) => value;
+const noopSanitizer = (_node, _name, _type) => identityFunction;
+/**
+ * A global callback used to get a sanitizer for a given field.
+ */
+let sanitizerFactory = noopSanitizer;
+/** Sets the global sanitizer factory. */
+const setSanitizerFactory = (newSanitizer) => {
+    if (sanitizerFactory !== noopSanitizer) {
+        throw new Error(`Attempted to overwrite existing lit-html security policy.` +
+            ` setSanitizeDOMValueFactory should be called at most once.`);
+    }
+    sanitizerFactory = newSanitizer;
+};
+/**
+ * Used to clone text node instead of each time creating new one which is slower
+ */
+const emptyTextNode = document.createTextNode('');
+/**
+ * Writes attribute values to the DOM for a group of AttributeParts bound to a
+ * single attribute. The value is only set once even if there are multiple parts
+ * for an attribute.
+ */
+class AttributeCommitter {
+    constructor(element, name, strings, 
+    // Next breaking change, consider making this param required.
+    templatePart, kind = 'attribute') {
+        this.dirty = true;
+        this.element = element;
+        this.name = name;
+        this.strings = strings;
+        this.parts = [];
+        let sanitizer = templatePart && templatePart.sanitizer;
+        if (sanitizer === undefined) {
+            sanitizer = sanitizerFactory(element, name, kind);
+            if (templatePart !== undefined) {
+                templatePart.sanitizer = sanitizer;
+            }
+        }
+        this.sanitizer = sanitizer;
+        for (let i = 0; i < strings.length - 1; i++) {
+            this.parts[i] = this._createPart();
+        }
+    }
+    /**
+     * Creates a single part. Override this to create a differnt type of part.
+     */
+    _createPart() {
+        return new AttributePart(this);
+    }
+    _getValue() {
+        const strings = this.strings;
+        const parts = this.parts;
+        const l = strings.length - 1;
+        // If we're assigning an attribute via syntax like:
+        //    attr="${foo}"  or  attr=${foo}
+        // but not
+        //    attr="${foo} ${bar}" or attr="${foo} baz"
+        // then we don't want to coerce the attribute value into one long
+        // string. Instead we want to just return the value itself directly,
+        // so that sanitizeDOMValue can get the actual value rather than
+        // String(value)
+        // The exception is if v is an array, in which case we do want to smash
+        // it together into a string without calling String() on the array.
+        //
+        // This also allows trusted values (when using TrustedTypes) being
+        // assigned to DOM sinks without being stringified in the process.
+        if (l === 1 && strings[0] === '' && strings[1] === '' &&
+            parts[0] !== undefined) {
+            const v = parts[0].value;
+            if (!isIterable(v)) {
+                return v;
+            }
+        }
+        let text = '';
+        for (let i = 0; i < l; i++) {
+            text += strings[i];
+            const part = parts[i];
+            if (part !== undefined) {
+                const v = part.value;
+                if (isPrimitive(v) || !isIterable(v)) {
+                    text += typeof v === 'string' ? v : String(v);
+                }
+                else {
+                    for (const t of v) {
+                        text += typeof t === 'string' ? t : String(t);
+                    }
+                }
+            }
+        }
+        text += strings[l];
+        return text;
+    }
+    commit() {
+        if (this.dirty) {
+            this.dirty = false;
+            let value = this._getValue();
+            value = this.sanitizer(value);
+            if (typeof value === 'symbol') {
+                // Native Symbols throw if they're coerced to string.
+                value = String(value);
+            }
+            this.element.setAttribute(this.name, value);
+        }
+    }
+}
+/**
+ * A Part that controls all or part of an attribute value.
+ */
+class AttributePart {
+    constructor(committer) {
+        this.value = undefined;
+        this.committer = committer;
+    }
+    setValue(value) {
+        if (value !== noChange && (!isPrimitive(value) || value !== this.value)) {
+            this.value = value;
+            // If the value is a not a directive, dirty the committer so that it'll
+            // call setAttribute. If the value is a directive, it'll dirty the
+            // committer if it calls setValue().
+            if (!isDirective(value)) {
+                this.committer.dirty = true;
+            }
+        }
+    }
+    commit() {
+        while (isDirective(this.value)) {
+            const directive = this.value;
+            this.value = noChange;
+            // tslint:disable-next-line: no-any
+            if (directive.isClass) {
+                // tslint:disable-next-line: no-any
+                directive.body(this);
+            }
+            else {
+                directive(this);
+            }
+        }
+        if (this.value === noChange) {
+            return;
+        }
+        this.committer.commit();
+    }
+}
+/**
+ * A Part that controls a location within a Node tree. Like a Range, NodePart
+ * has start and end locations and can set and update the Nodes between those
+ * locations.
+ *
+ * NodeParts support several value types: primitives, Nodes, TemplateResults,
+ * as well as arrays and iterables of those types.
+ */
+class NodePart {
+    constructor(options, templatePart) {
+        this.value = undefined;
+        this.__pendingValue = undefined;
+        /**
+         * The sanitizer to use when writing text contents into this NodePart.
+         *
+         * We have to initialize this here rather than at the template literal level
+         * because the security of text content depends on the context into which
+         * it's written. e.g. the same text has different security requirements
+         * when a child of a <script> vs a <style> vs a <div>.
+         */
+        this.textSanitizer = undefined;
+        this.options = options;
+        this.templatePart = templatePart;
+    }
+    /**
+     * Appends this part into a container.
+     *
+     * This part must be empty, as its contents are not automatically moved.
+     */
+    appendInto(container) {
+        this.startNode = container.appendChild(createMarker());
+        this.endNode = container.appendChild(createMarker());
+    }
+    /**
+     * Inserts this part after the `ref` node (between `ref` and `ref`'s next
+     * sibling). Both `ref` and its next sibling must be static, unchanging nodes
+     * such as those that appear in a literal section of a template.
+     *
+     * This part must be empty, as its contents are not automatically moved.
+     */
+    insertAfterNode(ref) {
+        this.startNode = ref;
+        this.endNode = ref.nextSibling;
+    }
+    /**
+     * Appends this part into a parent part.
+     *
+     * This part must be empty, as its contents are not automatically moved.
+     */
+    appendIntoPart(part) {
+        part.__insert(this.startNode = createMarker());
+        part.__insert(this.endNode = createMarker());
+    }
+    /**
+     * Inserts this part after the `ref` part.
+     *
+     * This part must be empty, as its contents are not automatically moved.
+     */
+    insertAfterPart(ref) {
+        ref.__insert(this.startNode = createMarker());
+        this.endNode = ref.endNode;
+        ref.endNode = this.startNode;
+    }
+    setValue(value) {
+        this.__pendingValue = value;
+    }
+    commit() {
+        while (isDirective(this.__pendingValue)) {
+            const directive = this.__pendingValue;
+            this.__pendingValue = noChange;
+            // tslint:disable-next-line: no-any
+            if (directive.isClass) {
+                // tslint:disable-next-line: no-any
+                directive.body(this);
+            }
+            else {
+                directive(this);
+            }
+        }
+        const value = this.__pendingValue;
+        if (value === noChange) {
+            return;
+        }
+        if (isPrimitive(value)) {
+            if (value !== this.value) {
+                this.__commitText(value);
+            }
+        }
+        else if (value instanceof TemplateResult) {
+            this.__commitTemplateResult(value);
+        }
+        else if (value instanceof Node) {
+            this.__commitNode(value);
+        }
+        else if (isIterable(value)) {
+            this.__commitIterable(value);
+        }
+        else if (value === nothing) {
+            this.value = nothing;
+            this.clear();
+        }
+        else {
+            // Fallback, will render the string representation
+            this.__commitText(value);
+        }
+    }
+    __insert(node) {
+        this.endNode.parentNode.insertBefore(node, this.endNode);
+    }
+    __commitNode(value) {
+        if (this.value === value) {
+            return;
+        }
+        this.clear();
+        this.__insert(value);
+        this.value = value;
+    }
+    __commitText(value) {
+        const node = this.startNode.nextSibling;
+        value = value == null ? '' : value;
+        if (node === this.endNode.previousSibling &&
+            node.nodeType === 3 /* Node.TEXT_NODE */) {
+            // If we only have a single text node between the markers, we can just
+            // set its value, rather than replacing it.
+            if (this.textSanitizer === undefined) {
+                this.textSanitizer = sanitizerFactory(node, 'data', 'property');
+            }
+            const renderedValue = this.textSanitizer(value);
+            node.data = typeof renderedValue === 'string' ?
+                renderedValue :
+                String(renderedValue);
+        }
+        else {
+            // When setting text content, for security purposes it matters a lot what
+            // the parent is. For example, <style> and <script> need to be handled
+            // with care, while <span> does not. So first we need to put a text node
+            // into the document, then we can sanitize its contentx.
+            const textNode = emptyTextNode.cloneNode();
+            this.__commitNode(textNode);
+            if (this.textSanitizer === undefined) {
+                this.textSanitizer = sanitizerFactory(textNode, 'data', 'property');
+            }
+            const renderedValue = this.textSanitizer(value);
+            textNode.data = typeof renderedValue === 'string' ? renderedValue :
+                String(renderedValue);
+        }
+        this.value = value;
+    }
+    __commitTemplateResult(value) {
+        const template = this.options.templateFactory(value);
+        if (this.value instanceof TemplateInstance &&
+            this.value.template === template) {
+            this.value.update(value.values);
+        }
+        else {
+            // `value` is a template result that was constructed without knowledge of
+            // the parent we're about to write it into. sanitizeDOMValue hasn't been
+            // made aware of this relationship, and for scripts and style specifically
+            // this is known to be unsafe. So in the case where the user is in
+            // "secure mode" (i.e. when there's a sanitizeDOMValue set), we just want
+            // to forbid this because it's not a use case we want to support.
+            // We only apply this policy when sanitizerFactory has been set to
+            // prevent this from being a breaking change to the library.
+            const parent = this.endNode.parentNode;
+            if (sanitizerFactory !== noopSanitizer && parent.nodeName === 'STYLE' ||
+                parent.nodeName === 'SCRIPT') {
+                this.__commitText('/* lit-html will not write ' +
+                    'TemplateResults to scripts and styles */');
+                return;
+            }
+            // Make sure we propagate the template processor from the TemplateResult
+            // so that we use its syntax extension, etc. The template factory comes
+            // from the render function options so that it can control template
+            // caching and preprocessing.
+            const instance = new TemplateInstance(template, value.processor, this.options);
+            const fragment = instance._clone();
+            instance.update(value.values);
+            this.__commitNode(fragment);
+            this.value = instance;
+        }
+    }
+    __commitIterable(value) {
+        // For an Iterable, we create a new InstancePart per item, then set its
+        // value to the item. This is a little bit of overhead for every item in
+        // an Iterable, but it lets us recurse easily and efficiently update Arrays
+        // of TemplateResults that will be commonly returned from expressions like:
+        // array.map((i) => html`${i}`), by reusing existing TemplateInstances.
+        // If _value is an array, then the previous render was of an
+        // iterable and _value will contain the NodeParts from the previous
+        // render. If _value is not an array, clear this part and make a new
+        // array for NodeParts.
+        if (!Array.isArray(this.value)) {
+            this.value = [];
+            this.clear();
+        }
+        // Lets us keep track of how many items we stamped so we can clear leftover
+        // items from a previous render
+        const itemParts = this.value;
+        let partIndex = 0;
+        let itemPart;
+        for (const item of value) {
+            // Try to reuse an existing part
+            itemPart = itemParts[partIndex];
+            // If no existing part, create a new one
+            if (itemPart === undefined) {
+                itemPart = new NodePart(this.options, this.templatePart);
+                itemParts.push(itemPart);
+                if (partIndex === 0) {
+                    itemPart.appendIntoPart(this);
+                }
+                else {
+                    itemPart.insertAfterPart(itemParts[partIndex - 1]);
+                }
+            }
+            itemPart.setValue(item);
+            itemPart.commit();
+            partIndex++;
+        }
+        if (partIndex < itemParts.length) {
+            // Truncate the parts array so _value reflects the current state
+            itemParts.length = partIndex;
+            this.clear(itemPart && itemPart.endNode);
+        }
+    }
+    clear(startNode = this.startNode) {
+        removeNodes(this.startNode.parentNode, startNode.nextSibling, this.endNode);
+    }
+}
+/**
+ * Implements a boolean attribute, roughly as defined in the HTML
+ * specification.
+ *
+ * If the value is truthy, then the attribute is present with a value of
+ * ''. If the value is falsey, the attribute is removed.
+ */
+class BooleanAttributePart {
+    constructor(element, name, strings) {
+        this.value = undefined;
+        this.__pendingValue = undefined;
+        if (strings.length !== 2 || strings[0] !== '' || strings[1] !== '') {
+            throw new Error('Boolean attributes can only contain a single expression');
+        }
+        this.element = element;
+        this.name = name;
+        this.strings = strings;
+    }
+    setValue(value) {
+        this.__pendingValue = value;
+    }
+    commit() {
+        while (isDirective(this.__pendingValue)) {
+            const directive = this.__pendingValue;
+            this.__pendingValue = noChange;
+            // tslint:disable-next-line: no-any
+            if (directive.isClass) {
+                // tslint:disable-next-line: no-any
+                directive.body(this);
+            }
+            else {
+                directive(this);
+            }
+        }
+        if (this.__pendingValue === noChange) {
+            return;
+        }
+        const value = !!this.__pendingValue;
+        if (this.value !== value) {
+            if (value) {
+                this.element.setAttribute(this.name, '');
+            }
+            else {
+                this.element.removeAttribute(this.name);
+            }
+            this.value = value;
+        }
+        this.__pendingValue = noChange;
+    }
+}
+/**
+ * Sets attribute values for PropertyParts, so that the value is only set once
+ * even if there are multiple parts for a property.
+ *
+ * If an expression controls the whole property value, then the value is simply
+ * assigned to the property under control. If there are string literals or
+ * multiple expressions, then the strings are expressions are interpolated into
+ * a string first.
+ */
+class PropertyCommitter extends AttributeCommitter {
+    constructor(element, name, strings, 
+    // Next breaking change, consider making this param required.
+    templatePart) {
+        super(element, name, strings, templatePart, 'property');
+        this.single =
+            (strings.length === 2 && strings[0] === '' && strings[1] === '');
+    }
+    _createPart() {
+        return new PropertyPart(this);
+    }
+    _getValue() {
+        if (this.single) {
+            return this.parts[0].value;
+        }
+        return super._getValue();
+    }
+    commit() {
+        if (this.dirty) {
+            this.dirty = false;
+            let value = this._getValue();
+            value = this.sanitizer(value);
+            // tslint:disable-next-line: no-any
+            this.element[this.name] = value;
+        }
+    }
+}
+class PropertyPart extends AttributePart {
+}
+// Detect event listener options support. If the `capture` property is read
+// from the options object, then options are supported. If not, then the third
+// argument to add/removeEventListener is interpreted as the boolean capture
+// value so we should only pass the `capture` property.
+let eventOptionsSupported = false;
+// Wrap into an IIFE because MS Edge <= v41 does not support having try/catch
+// blocks right into the body of a module
+(() => {
+    try {
+        const options = {
+            get capture() {
+                eventOptionsSupported = true;
+                return false;
+            }
+        };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        window.addEventListener('test', options, options);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        window.removeEventListener('test', options, options);
+    }
+    catch (_e) {
+        // noop
+    }
+})();
+class EventPart {
+    constructor(element, eventName, eventContext) {
+        this.value = undefined;
+        this.__pendingValue = undefined;
+        this.element = element;
+        this.eventName = eventName;
+        this.eventContext = eventContext;
+        this.__boundHandleEvent = (e) => this.handleEvent(e);
+    }
+    setValue(value) {
+        this.__pendingValue = value;
+    }
+    commit() {
+        while (isDirective(this.__pendingValue)) {
+            const directive = this.__pendingValue;
+            this.__pendingValue = noChange;
+            // tslint:disable-next-line: no-any
+            if (directive.isClass) {
+                // tslint:disable-next-line: no-any
+                directive.body(this);
+            }
+            else {
+                directive(this);
+            }
+        }
+        if (this.__pendingValue === noChange) {
+            return;
+        }
+        const newListener = this.__pendingValue;
+        const oldListener = this.value;
+        const shouldRemoveListener = newListener == null ||
+            oldListener != null &&
+                (newListener.capture !== oldListener.capture ||
+                    newListener.once !== oldListener.once ||
+                    newListener.passive !== oldListener.passive);
+        const shouldAddListener = newListener != null && (oldListener == null || shouldRemoveListener);
+        if (shouldRemoveListener) {
+            this.element.removeEventListener(this.eventName, this.__boundHandleEvent, this.__options);
+        }
+        if (shouldAddListener) {
+            this.__options = getOptions(newListener);
+            this.element.addEventListener(this.eventName, this.__boundHandleEvent, this.__options);
+        }
+        this.value = newListener;
+        this.__pendingValue = noChange;
+    }
+    handleEvent(event) {
+        if (typeof this.value === 'function') {
+            this.value.call(this.eventContext || this.element, event);
+        }
+        else {
+            this.value.handleEvent(event);
+        }
+    }
+}
+// We copy options because of the inconsistent behavior of browsers when reading
+// the third argument of add/removeEventListener. IE11 doesn't support options
+// at all. Chrome 41 only reads `capture` if the argument is an object.
+const getOptions = (o) => o &&
+    (eventOptionsSupported ?
+        { capture: o.capture, passive: o.passive, once: o.once } :
+        o.capture);
+
+/**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+/**
+ * Creates Parts when a template is instantiated.
+ */
+class DefaultTemplateProcessor {
+    /**
+     * Create parts for an attribute-position binding, given the event, attribute
+     * name, and string literals.
+     *
+     * @param element The element containing the binding
+     * @param name  The attribute name
+     * @param strings The string literals. There are always at least two strings,
+     *   event for fully-controlled bindings with a single expression.
+     */
+    handleAttributeExpressions(element, name, strings, options, templatePart) {
+        const prefix = name[0];
+        if (prefix === '.') {
+            const committer = new PropertyCommitter(element, name.slice(1), strings, templatePart);
+            return committer.parts;
+        }
+        if (prefix === '@') {
+            return [new EventPart(element, name.slice(1), options.eventContext)];
+        }
+        if (prefix === '?') {
+            return [new BooleanAttributePart(element, name.slice(1), strings)];
+        }
+        const committer = new AttributeCommitter(element, name, strings, templatePart);
+        return committer.parts;
+    }
+    /**
+     * Create parts for a text-position binding.
+     * @param templateFactory
+     */
+    handleTextExpression(options, nodeTemplatePart) {
+        return new NodePart(options, nodeTemplatePart);
+    }
+}
+const defaultTemplateProcessor = new DefaultTemplateProcessor();
+
+/**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+/**
+ * The default TemplateFactory which caches Templates keyed on
+ * result.type and result.strings.
+ */
+function templateFactory(result) {
+    let templateCache = templateCaches.get(result.type);
+    if (templateCache === undefined) {
+        templateCache = {
+            stringsArray: new WeakMap(),
+            keyString: new Map()
+        };
+        templateCaches.set(result.type, templateCache);
+    }
+    let template = templateCache.stringsArray.get(result.strings);
+    if (template !== undefined) {
+        return template;
+    }
+    // If the TemplateStringsArray is new, generate a key from the strings
+    // This key is shared between all templates with identical content
+    const key = result.strings.join(marker);
+    // Check if we already have a Template for this key
+    template = templateCache.keyString.get(key);
+    if (template === undefined) {
+        // If we have not seen this key before, create a new Template
+        template = new Template(result, result.getTemplateElement());
+        // Cache the Template for this key
+        templateCache.keyString.set(key, template);
+    }
+    // Cache all future queries for this TemplateStringsArray
+    templateCache.stringsArray.set(result.strings, template);
+    return template;
+}
+const templateCaches = new Map();
+
+/**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+const parts = new WeakMap();
+/**
+ * Renders a template result or other value to a container.
+ *
+ * To update a container with new values, reevaluate the template literal and
+ * call `render` with the new result.
+ *
+ * @param result Any value renderable by NodePart - typically a TemplateResult
+ *     created by evaluating a template tag like `html` or `svg`.
+ * @param container A DOM parent to render to. The entire contents are either
+ *     replaced, or efficiently updated if the same result type was previous
+ *     rendered there.
+ * @param options RenderOptions for the entire render tree rendered to this
+ *     container. Render options must *not* change between renders to the same
+ *     container, as those changes will not effect previously rendered DOM.
+ */
+const render = (result, container, options) => {
+    let part = parts.get(container);
+    if (part === undefined) {
+        removeNodes(container, container.firstChild);
+        parts.set(container, part = new NodePart(Object.assign({ templateFactory }, options), undefined));
+        part.appendInto(container);
+    }
+    part.setValue(result);
+    part.commit();
+};
+
+/**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+// IMPORTANT: do not change the property name or the assignment expression.
+// This line will be used in regexes to search for lit-html usage.
+// TODO(justinfagnani): inject version number at build time
+const isBrowser = typeof window !== 'undefined';
+if (isBrowser) {
+    // If we run in the browser set version
+    (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.1.5');
+}
+/**
+ * Interprets a template literal as an HTML template that can efficiently
+ * render to and update a container.
+ */
+const html = (strings, ...values) => new TemplateResult(strings, values, 'html', defaultTemplateProcessor);
+/**
+ * Interprets a template literal as an SVG template that can efficiently
+ * render to and update a container.
+ */
+const svg = (strings, ...values) => new SVGTemplateResult(strings, values, 'svg', defaultTemplateProcessor);
+
+var lithtml = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    html: html,
+    svg: svg,
+    DefaultTemplateProcessor: DefaultTemplateProcessor,
+    defaultTemplateProcessor: defaultTemplateProcessor,
+    directive: directive,
+    Directive: Directive,
+    isDirective: isDirective,
+    removeNodes: removeNodes,
+    reparentNodes: reparentNodes,
+    noChange: noChange,
+    nothing: nothing,
+    AttributeCommitter: AttributeCommitter,
+    AttributePart: AttributePart,
+    BooleanAttributePart: BooleanAttributePart,
+    EventPart: EventPart,
+    isIterable: isIterable,
+    isPrimitive: isPrimitive,
+    NodePart: NodePart,
+    PropertyCommitter: PropertyCommitter,
+    PropertyPart: PropertyPart,
+    get sanitizerFactory () { return sanitizerFactory; },
+    setSanitizerFactory: setSanitizerFactory,
+    parts: parts,
+    render: render,
+    templateCaches: templateCaches,
+    templateFactory: templateFactory,
+    TemplateInstance: TemplateInstance,
+    SVGTemplateResult: SVGTemplateResult,
+    TemplateResult: TemplateResult,
+    createMarker: createMarker,
+    isTemplatePartActive: isTemplatePartActive,
+    Template: Template
+});
+
+/**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+var __asyncValues =  function (o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+};
+/**
+ * A directive that renders the items of an async iterable[1], appending new
+ * values after previous values, similar to the built-in support for iterables.
+ *
+ * Async iterables are objects with a [Symbol.asyncIterator] method, which
+ * returns an iterator who's `next()` method returns a Promise. When a new
+ * value is available, the Promise resolves and the value is appended to the
+ * Part controlled by the directive. If another value other than this
+ * directive has been set on the Part, the iterable will no longer be listened
+ * to and new values won't be written to the Part.
+ *
+ * [1]: https://github.com/tc39/proposal-async-iteration
+ *
+ * @param value An async iterable
+ * @param mapper An optional function that maps from (value, index) to another
+ *     value. Useful for generating templates for each item in the iterable.
+ */
+const asyncAppend = directive((value, mapper) => async (part) => {
+    var e_1, _a;
+    if (!(part instanceof NodePart)) {
+        throw new Error('asyncAppend can only be used in text bindings');
+    }
+    // If we've already set up this particular iterable, we don't need
+    // to do anything.
+    if (value === part.value) {
+        return;
+    }
+    part.value = value;
+    // We keep track of item Parts across iterations, so that we can
+    // share marker nodes between consecutive Parts.
+    let itemPart;
+    let i = 0;
+    try {
+        for (var value_1 = __asyncValues(value), value_1_1; value_1_1 = await value_1.next(), !value_1_1.done;) {
+            let v = value_1_1.value;
+            // Check to make sure that value is the still the current value of
+            // the part, and if not bail because a new value owns this part
+            if (part.value !== value) {
+                break;
+            }
+            // When we get the first value, clear the part. This lets the
+            // previous value display until we can replace it.
+            if (i === 0) {
+                part.clear();
+            }
+            // As a convenience, because functional-programming-style
+            // transforms of iterables and async iterables requires a library,
+            // we accept a mapper function. This is especially convenient for
+            // rendering a template for each item.
+            if (mapper !== undefined) {
+                // This is safe because T must otherwise be treated as unknown by
+                // the rest of the system.
+                v = mapper(v, i);
+            }
+            // Like with sync iterables, each item induces a Part, so we need
+            // to keep track of start and end nodes for the Part.
+            // Note: Because these Parts are not updatable like with a sync
+            // iterable (if we render a new value, we always clear), it may
+            // be possible to optimize away the Parts and just re-use the
+            // Part.setValue() logic.
+            let itemStartNode = part.startNode;
+            // Check to see if we have a previous item and Part
+            if (itemPart !== undefined) {
+                // Create a new node to separate the previous and next Parts
+                itemStartNode = createMarker();
+                // itemPart is currently the Part for the previous item. Set
+                // it's endNode to the node we'll use for the next Part's
+                // startNode.
+                itemPart.endNode = itemStartNode;
+                part.endNode.parentNode.insertBefore(itemStartNode, part.endNode);
+            }
+            itemPart = new NodePart(part.options, part.templatePart);
+            itemPart.insertAfterNode(itemStartNode);
+            itemPart.setValue(v);
+            itemPart.commit();
+            i++;
+        }
+    }
+    catch (e_1_1) { e_1 = { error: e_1_1 }; }
+    finally {
+        try {
+            if (value_1_1 && !value_1_1.done && (_a = value_1.return)) await _a.call(value_1);
+        }
+        finally { if (e_1) throw e_1.error; }
+    }
+});
+
+/**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+var __asyncValues$1 =  function (o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+};
+/**
+ * A directive that renders the items of an async iterable[1], replacing
+ * previous values with new values, so that only one value is ever rendered
+ * at a time.
+ *
+ * Async iterables are objects with a [Symbol.asyncIterator] method, which
+ * returns an iterator who's `next()` method returns a Promise. When a new
+ * value is available, the Promise resolves and the value is rendered to the
+ * Part controlled by the directive. If another value other than this
+ * directive has been set on the Part, the iterable will no longer be listened
+ * to and new values won't be written to the Part.
+ *
+ * [1]: https://github.com/tc39/proposal-async-iteration
+ *
+ * @param value An async iterable
+ * @param mapper An optional function that maps from (value, index) to another
+ *     value. Useful for generating templates for each item in the iterable.
+ */
+const asyncReplace = directive((value, mapper) => async (part) => {
+    var e_1, _a;
+    if (!(part instanceof NodePart)) {
+        throw new Error('asyncReplace can only be used in text bindings');
+    }
+    // If we've already set up this particular iterable, we don't need
+    // to do anything.
+    if (value === part.value) {
+        return;
+    }
+    // We nest a new part to keep track of previous item values separately
+    // of the iterable as a value itself.
+    const itemPart = new NodePart(part.options, part.templatePart);
+    part.value = value;
+    let i = 0;
+    try {
+        for (var value_1 = __asyncValues$1(value), value_1_1; value_1_1 = await value_1.next(), !value_1_1.done;) {
+            let v = value_1_1.value;
+            // Check to make sure that value is the still the current value of
+            // the part, and if not bail because a new value owns this part
+            if (part.value !== value) {
+                break;
+            }
+            // When we get the first value, clear the part. This let's the
+            // previous value display until we can replace it.
+            if (i === 0) {
+                part.clear();
+                itemPart.appendIntoPart(part);
+            }
+            // As a convenience, because functional-programming-style
+            // transforms of iterables and async iterables requires a library,
+            // we accept a mapper function. This is especially convenient for
+            // rendering a template for each item.
+            if (mapper !== undefined) {
+                // This is safe because T must otherwise be treated as unknown by
+                // the rest of the system.
+                v = mapper(v, i);
+            }
+            itemPart.setValue(v);
+            itemPart.commit();
+            i++;
+        }
+    }
+    catch (e_1_1) { e_1 = { error: e_1_1 }; }
+    finally {
+        try {
+            if (value_1_1 && !value_1_1.done && (_a = value_1.return)) await _a.call(value_1);
+        }
+        finally { if (e_1) throw e_1.error; }
+    }
+});
+
+/**
+ * @license
+ * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+const templateCaches$1 = new WeakMap();
+/**
+ * Enables fast switching between multiple templates by caching the DOM nodes
+ * and TemplateInstances produced by the templates.
+ *
+ * Example:
+ *
+ * ```
+ * let checked = false;
+ *
+ * html`
+ *   ${cache(checked ? html`input is checked` : html`input is not checked`)}
+ * `
+ * ```
+ */
+const cache = directive((value) => (part) => {
+    if (!(part instanceof NodePart)) {
+        throw new Error('cache can only be used in text bindings');
+    }
+    let templateCache = templateCaches$1.get(part);
+    if (templateCache === undefined) {
+        templateCache = new WeakMap();
+        templateCaches$1.set(part, templateCache);
+    }
+    const previousValue = part.value;
+    // First, can we update the current TemplateInstance, or do we need to move
+    // the current nodes into the cache?
+    if (previousValue instanceof TemplateInstance) {
+        if (value instanceof TemplateResult &&
+            previousValue.template === part.options.templateFactory(value)) {
+            // Same Template, just trigger an update of the TemplateInstance
+            part.setValue(value);
+            return;
+        }
+        else {
+            // Not the same Template, move the nodes from the DOM into the cache.
+            let cachedTemplate = templateCache.get(previousValue.template);
+            if (cachedTemplate === undefined) {
+                cachedTemplate = {
+                    instance: previousValue,
+                    nodes: document.createDocumentFragment(),
+                };
+                templateCache.set(previousValue.template, cachedTemplate);
+            }
+            reparentNodes(cachedTemplate.nodes, part.startNode.nextSibling, part.endNode);
+        }
+    }
+    // Next, can we reuse nodes from the cache?
+    if (value instanceof TemplateResult) {
+        const template = part.options.templateFactory(value);
+        const cachedTemplate = templateCache.get(template);
+        if (cachedTemplate !== undefined) {
+            // Move nodes out of cache
+            part.setValue(cachedTemplate.nodes);
+            part.commit();
+            // Set the Part value to the TemplateInstance so it'll update it.
+            part.value = cachedTemplate.instance;
+        }
+    }
+    part.setValue(value);
+});
+
+/**
+ * @license
+ * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+/**
+ * Stores the ClassInfo object applied to a given AttributePart.
+ * Used to unset existing values when a new ClassInfo object is applied.
+ */
+const previousClassesCache = new WeakMap();
+/**
+ * A directive that applies CSS classes. This must be used in the `class`
+ * attribute and must be the only part used in the attribute. It takes each
+ * property in the `classInfo` argument and adds the property name to the
+ * element's `classList` if the property value is truthy; if the property value
+ * is falsey, the property name is removed from the element's `classList`. For
+ * example
+ * `{foo: bar}` applies the class `foo` if the value of `bar` is truthy.
+ * @param classInfo {ClassInfo}
+ */
+const classMap = directive((classInfo) => (part) => {
+    if (!(part instanceof AttributePart) || (part instanceof PropertyPart) ||
+        part.committer.name !== 'class' || part.committer.parts.length > 1) {
+        throw new Error('The `classMap` directive must be used in the `class` attribute ' +
+            'and must be the only part in the attribute.');
+    }
+    const { committer } = part;
+    const { element } = committer;
+    let previousClasses = previousClassesCache.get(part);
+    if (previousClasses === undefined) {
+        // Write static classes once
+        element.className = committer.strings.join(' ');
+        previousClassesCache.set(part, previousClasses = new Set());
+    }
+    const { classList } = element;
+    // Remove old classes that no longer apply
+    // We use forEach() instead of for-of so that re don't require down-level
+    // iteration.
+    previousClasses.forEach((name) => {
+        if (!(name in classInfo)) {
+            classList.remove(name);
+            previousClasses.delete(name);
+        }
+    });
+    // Add or remove classes based on their classMap value
+    for (const name in classInfo) {
+        const value = classInfo[name];
+        // We explicitly want a loose truthy check of `value` because it seems more
+        // convenient that '' and 0 are skipped.
+        if (value != previousClasses.has(name)) {
+            if (value) {
+                classList.add(name);
+                previousClasses.add(name);
+            }
+            else {
+                classList.remove(name);
+                previousClasses.delete(name);
+            }
+        }
+    }
+});
+
+/**
+ * @license
+ * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+const previousValues = new WeakMap();
+/**
+ * Prevents re-render of a template function until a single value or an array of
+ * values changes.
+ *
+ * Example:
+ *
+ * ```js
+ * html`
+ *   <div>
+ *     ${guard([user.id, company.id], () => html`...`)}
+ *   </div>
+ * ```
+ *
+ * In this case, the template only renders if either `user.id` or `company.id`
+ * changes.
+ *
+ * guard() is useful with immutable data patterns, by preventing expensive work
+ * until data updates.
+ *
+ * Example:
+ *
+ * ```js
+ * html`
+ *   <div>
+ *     ${guard([immutableItems], () => immutableItems.map(i => html`${i}`))}
+ *   </div>
+ * ```
+ *
+ * In this case, items are mapped over only when the array reference changes.
+ *
+ * @param value the value to check before re-rendering
+ * @param f the template function
+ */
+const guard = directive((value, f) => (part) => {
+    const previousValue = previousValues.get(part);
+    if (Array.isArray(value)) {
+        // Dirty-check arrays by item
+        if (Array.isArray(previousValue) &&
+            previousValue.length === value.length &&
+            value.every((v, i) => v === previousValue[i])) {
+            return;
+        }
+    }
+    else if (previousValue === value &&
+        (value !== undefined || previousValues.has(part))) {
+        // Dirty-check non-arrays by identity
+        return;
+    }
+    part.setValue(f());
+    // Copy the value if it's an array so that if it's mutated we don't forget
+    // what the previous values were.
+    previousValues.set(part, Array.isArray(value) ? Array.from(value) : value);
+});
+
+/**
+ * @license
+ * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+/**
+ * For AttributeParts, sets the attribute if the value is defined and removes
+ * the attribute if the value is undefined.
+ *
+ * For other part types, this directive is a no-op.
+ */
+const ifDefined = directive((value) => (part) => {
+    if (value === undefined && part instanceof AttributePart) {
+        if (value !== part.value) {
+            const name = part.committer.name;
+            part.committer.element.removeAttribute(name);
+        }
+    }
+    else {
+        part.setValue(value);
+    }
+});
+
+/**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+// Helper functions for manipulating parts
+// TODO(kschaaf): Refactor into Part API?
+const createAndInsertPart = (containerPart, beforePart) => {
+    const container = containerPart.startNode.parentNode;
+    const beforeNode = beforePart == null ? containerPart.endNode : beforePart.startNode;
+    const startNode = container.insertBefore(createMarker(), beforeNode);
+    container.insertBefore(createMarker(), beforeNode);
+    const newPart = new NodePart(containerPart.options, undefined);
+    newPart.insertAfterNode(startNode);
+    return newPart;
+};
+const updatePart = (part, value) => {
+    part.setValue(value);
+    part.commit();
+    return part;
+};
+const insertPartBefore = (containerPart, part, ref) => {
+    const container = containerPart.startNode.parentNode;
+    const beforeNode = ref ? ref.startNode : containerPart.endNode;
+    const endNode = part.endNode.nextSibling;
+    if (endNode !== beforeNode) {
+        reparentNodes(container, part.startNode, endNode, beforeNode);
+    }
+};
+const removePart = (part) => {
+    removeNodes(part.startNode.parentNode, part.startNode, part.endNode.nextSibling);
+};
+// Helper for generating a map of array item to its index over a subset
+// of an array (used to lazily generate `newKeyToIndexMap` and
+// `oldKeyToIndexMap`)
+const generateMap = (list, start, end) => {
+    const map = new Map();
+    for (let i = start; i <= end; i++) {
+        map.set(list[i], i);
+    }
+    return map;
+};
+// Stores previous ordered list of parts and map of key to index
+const partListCache = new WeakMap();
+const keyListCache = new WeakMap();
+/**
+ * A directive that repeats a series of values (usually `TemplateResults`)
+ * generated from an iterable, and updates those items efficiently when the
+ * iterable changes based on user-provided `keys` associated with each item.
+ *
+ * Note that if a `keyFn` is provided, strict key-to-DOM mapping is maintained,
+ * meaning previous DOM for a given key is moved into the new position if
+ * needed, and DOM will never be reused with values for different keys (new DOM
+ * will always be created for new keys). This is generally the most efficient
+ * way to use `repeat` since it performs minimum unnecessary work for insertions
+ * and removals.
+ *
+ * IMPORTANT: If providing a `keyFn`, keys *must* be unique for all items in a
+ * given call to `repeat`. The behavior when two or more items have the same key
+ * is undefined.
+ *
+ * If no `keyFn` is provided, this directive will perform similar to mapping
+ * items to values, and DOM will be reused against potentially different items.
+ */
+const repeat = directive((items, keyFnOrTemplate, template) => {
+    let keyFn;
+    if (template === undefined) {
+        template = keyFnOrTemplate;
+    }
+    else if (keyFnOrTemplate !== undefined) {
+        keyFn = keyFnOrTemplate;
+    }
+    return (containerPart) => {
+        if (!(containerPart instanceof NodePart)) {
+            throw new Error('repeat can only be used in text bindings');
+        }
+        // Old part & key lists are retrieved from the last update
+        // (associated with the part for this instance of the directive)
+        const oldParts = partListCache.get(containerPart) || [];
+        const oldKeys = keyListCache.get(containerPart) || [];
+        // New part list will be built up as we go (either reused from
+        // old parts or created for new keys in this update). This is
+        // saved in the above cache at the end of the update.
+        const newParts = [];
+        // New value list is eagerly generated from items along with a
+        // parallel array indicating its key.
+        const newValues = [];
+        const newKeys = [];
+        let index = 0;
+        for (const item of items) {
+            newKeys[index] = keyFn ? keyFn(item, index) : index;
+            newValues[index] = template(item, index);
+            index++;
+        }
+        // Maps from key to index for current and previous update; these
+        // are generated lazily only when needed as a performance
+        // optimization, since they are only required for multiple
+        // non-contiguous changes in the list, which are less common.
+        let newKeyToIndexMap;
+        let oldKeyToIndexMap;
+        // Head and tail pointers to old parts and new values
+        let oldHead = 0;
+        let oldTail = oldParts.length - 1;
+        let newHead = 0;
+        let newTail = newValues.length - 1;
+        // Overview of O(n) reconciliation algorithm (general approach
+        // based on ideas found in ivi, vue, snabbdom, etc.):
+        //
+        // * We start with the list of old parts and new values (and
+        //   arrays of their respective keys), head/tail pointers into
+        //   each, and we build up the new list of parts by updating
+        //   (and when needed, moving) old parts or creating new ones.
+        //   The initial scenario might look like this (for brevity of
+        //   the diagrams, the numbers in the array reflect keys
+        //   associated with the old parts or new values, although keys
+        //   and parts/values are actually stored in parallel arrays
+        //   indexed using the same head/tail pointers):
+        //
+        //      oldHead v                 v oldTail
+        //   oldKeys:  [0, 1, 2, 3, 4, 5, 6]
+        //   newParts: [ ,  ,  ,  ,  ,  ,  ]
+        //   newKeys:  [0, 2, 1, 4, 3, 7, 6] <- reflects the user's new
+        //                                      item order
+        //      newHead ^                 ^ newTail
+        //
+        // * Iterate old & new lists from both sides, updating,
+        //   swapping, or removing parts at the head/tail locations
+        //   until neither head nor tail can move.
+        //
+        // * Example below: keys at head pointers match, so update old
+        //   part 0 in-place (no need to move it) and record part 0 in
+        //   the `newParts` list. The last thing we do is advance the
+        //   `oldHead` and `newHead` pointers (will be reflected in the
+        //   next diagram).
+        //
+        //      oldHead v                 v oldTail
+        //   oldKeys:  [0, 1, 2, 3, 4, 5, 6]
+        //   newParts: [0,  ,  ,  ,  ,  ,  ] <- heads matched: update 0
+        //   newKeys:  [0, 2, 1, 4, 3, 7, 6]    and advance both oldHead
+        //                                      & newHead
+        //      newHead ^                 ^ newTail
+        //
+        // * Example below: head pointers don't match, but tail
+        //   pointers do, so update part 6 in place (no need to move
+        //   it), and record part 6 in the `newParts` list. Last,
+        //   advance the `oldTail` and `oldHead` pointers.
+        //
+        //         oldHead v              v oldTail
+        //   oldKeys:  [0, 1, 2, 3, 4, 5, 6]
+        //   newParts: [0,  ,  ,  ,  ,  , 6] <- tails matched: update 6
+        //   newKeys:  [0, 2, 1, 4, 3, 7, 6]    and advance both oldTail
+        //                                      & newTail
+        //         newHead ^              ^ newTail
+        //
+        // * If neither head nor tail match; next check if one of the
+        //   old head/tail items was removed. We first need to generate
+        //   the reverse map of new keys to index (`newKeyToIndexMap`),
+        //   which is done once lazily as a performance optimization,
+        //   since we only hit this case if multiple non-contiguous
+        //   changes were made. Note that for contiguous removal
+        //   anywhere in the list, the head and tails would advance
+        //   from either end and pass each other before we get to this
+        //   case and removals would be handled in the final while loop
+        //   without needing to generate the map.
+        //
+        // * Example below: The key at `oldTail` was removed (no longer
+        //   in the `newKeyToIndexMap`), so remove that part from the
+        //   DOM and advance just the `oldTail` pointer.
+        //
+        //         oldHead v           v oldTail
+        //   oldKeys:  [0, 1, 2, 3, 4, 5, 6]
+        //   newParts: [0,  ,  ,  ,  ,  , 6] <- 5 not in new map: remove
+        //   newKeys:  [0, 2, 1, 4, 3, 7, 6]    5 and advance oldTail
+        //         newHead ^           ^ newTail
+        //
+        // * Once head and tail cannot move, any mismatches are due to
+        //   either new or moved items; if a new key is in the previous
+        //   "old key to old index" map, move the old part to the new
+        //   location, otherwise create and insert a new part. Note
+        //   that when moving an old part we null its position in the
+        //   oldParts array if it lies between the head and tail so we
+        //   know to skip it when the pointers get there.
+        //
+        // * Example below: neither head nor tail match, and neither
+        //   were removed; so find the `newHead` key in the
+        //   `oldKeyToIndexMap`, and move that old part's DOM into the
+        //   next head position (before `oldParts[oldHead]`). Last,
+        //   null the part in the `oldPart` array since it was
+        //   somewhere in the remaining oldParts still to be scanned
+        //   (between the head and tail pointers) so that we know to
+        //   skip that old part on future iterations.
+        //
+        //         oldHead v        v oldTail
+        //   oldKeys:  [0, 1, -, 3, 4, 5, 6]
+        //   newParts: [0, 2,  ,  ,  ,  , 6] <- stuck: update & move 2
+        //   newKeys:  [0, 2, 1, 4, 3, 7, 6]    into place and advance
+        //                                      newHead
+        //         newHead ^           ^ newTail
+        //
+        // * Note that for moves/insertions like the one above, a part
+        //   inserted at the head pointer is inserted before the
+        //   current `oldParts[oldHead]`, and a part inserted at the
+        //   tail pointer is inserted before `newParts[newTail+1]`. The
+        //   seeming asymmetry lies in the fact that new parts are
+        //   moved into place outside in, so to the right of the head
+        //   pointer are old parts, and to the right of the tail
+        //   pointer are new parts.
+        //
+        // * We always restart back from the top of the algorithm,
+        //   allowing matching and simple updates in place to
+        //   continue...
+        //
+        // * Example below: the head pointers once again match, so
+        //   simply update part 1 and record it in the `newParts`
+        //   array.  Last, advance both head pointers.
+        //
+        //         oldHead v        v oldTail
+        //   oldKeys:  [0, 1, -, 3, 4, 5, 6]
+        //   newParts: [0, 2, 1,  ,  ,  , 6] <- heads matched: update 1
+        //   newKeys:  [0, 2, 1, 4, 3, 7, 6]    and advance both oldHead
+        //                                      & newHead
+        //            newHead ^        ^ newTail
+        //
+        // * As mentioned above, items that were moved as a result of
+        //   being stuck (the final else clause in the code below) are
+        //   marked with null, so we always advance old pointers over
+        //   these so we're comparing the next actual old value on
+        //   either end.
+        //
+        // * Example below: `oldHead` is null (already placed in
+        //   newParts), so advance `oldHead`.
+        //
+        //            oldHead v     v oldTail
+        //   oldKeys:  [0, 1, -, 3, 4, 5, 6] <- old head already used:
+        //   newParts: [0, 2, 1,  ,  ,  , 6]    advance oldHead
+        //   newKeys:  [0, 2, 1, 4, 3, 7, 6]
+        //               newHead ^     ^ newTail
+        //
+        // * Note it's not critical to mark old parts as null when they
+        //   are moved from head to tail or tail to head, since they
+        //   will be outside the pointer range and never visited again.
+        //
+        // * Example below: Here the old tail key matches the new head
+        //   key, so the part at the `oldTail` position and move its
+        //   DOM to the new head position (before `oldParts[oldHead]`).
+        //   Last, advance `oldTail` and `newHead` pointers.
+        //
+        //               oldHead v  v oldTail
+        //   oldKeys:  [0, 1, -, 3, 4, 5, 6]
+        //   newParts: [0, 2, 1, 4,  ,  , 6] <- old tail matches new
+        //   newKeys:  [0, 2, 1, 4, 3, 7, 6]   head: update & move 4,
+        //                                     advance oldTail & newHead
+        //               newHead ^     ^ newTail
+        //
+        // * Example below: Old and new head keys match, so update the
+        //   old head part in place, and advance the `oldHead` and
+        //   `newHead` pointers.
+        //
+        //               oldHead v oldTail
+        //   oldKeys:  [0, 1, -, 3, 4, 5, 6]
+        //   newParts: [0, 2, 1, 4, 3,   ,6] <- heads match: update 3
+        //   newKeys:  [0, 2, 1, 4, 3, 7, 6]    and advance oldHead &
+        //                                      newHead
+        //                  newHead ^  ^ newTail
+        //
+        // * Once the new or old pointers move past each other then all
+        //   we have left is additions (if old list exhausted) or
+        //   removals (if new list exhausted). Those are handled in the
+        //   final while loops at the end.
+        //
+        // * Example below: `oldHead` exceeded `oldTail`, so we're done
+        //   with the main loop.  Create the remaining part and insert
+        //   it at the new head position, and the update is complete.
+        //
+        //                   (oldHead > oldTail)
+        //   oldKeys:  [0, 1, -, 3, 4, 5, 6]
+        //   newParts: [0, 2, 1, 4, 3, 7 ,6] <- create and insert 7
+        //   newKeys:  [0, 2, 1, 4, 3, 7, 6]
+        //                     newHead ^ newTail
+        //
+        // * Note that the order of the if/else clauses is not
+        //   important to the algorithm, as long as the null checks
+        //   come first (to ensure we're always working on valid old
+        //   parts) and that the final else clause comes last (since
+        //   that's where the expensive moves occur). The order of
+        //   remaining clauses is is just a simple guess at which cases
+        //   will be most common.
+        //
+        // * TODO(kschaaf) Note, we could calculate the longest
+        //   increasing subsequence (LIS) of old items in new position,
+        //   and only move those not in the LIS set. However that costs
+        //   O(nlogn) time and adds a bit more code, and only helps
+        //   make rare types of mutations require fewer moves. The
+        //   above handles removes, adds, reversal, swaps, and single
+        //   moves of contiguous items in linear time, in the minimum
+        //   number of moves. As the number of multiple moves where LIS
+        //   might help approaches a random shuffle, the LIS
+        //   optimization becomes less helpful, so it seems not worth
+        //   the code at this point. Could reconsider if a compelling
+        //   case arises.
+        while (oldHead <= oldTail && newHead <= newTail) {
+            if (oldParts[oldHead] === null) {
+                // `null` means old part at head has already been used
+                // below; skip
+                oldHead++;
+            }
+            else if (oldParts[oldTail] === null) {
+                // `null` means old part at tail has already been used
+                // below; skip
+                oldTail--;
+            }
+            else if (oldKeys[oldHead] === newKeys[newHead]) {
+                // Old head matches new head; update in place
+                newParts[newHead] =
+                    updatePart(oldParts[oldHead], newValues[newHead]);
+                oldHead++;
+                newHead++;
+            }
+            else if (oldKeys[oldTail] === newKeys[newTail]) {
+                // Old tail matches new tail; update in place
+                newParts[newTail] =
+                    updatePart(oldParts[oldTail], newValues[newTail]);
+                oldTail--;
+                newTail--;
+            }
+            else if (oldKeys[oldHead] === newKeys[newTail]) {
+                // Old head matches new tail; update and move to new tail
+                newParts[newTail] =
+                    updatePart(oldParts[oldHead], newValues[newTail]);
+                insertPartBefore(containerPart, oldParts[oldHead], newParts[newTail + 1]);
+                oldHead++;
+                newTail--;
+            }
+            else if (oldKeys[oldTail] === newKeys[newHead]) {
+                // Old tail matches new head; update and move to new head
+                newParts[newHead] =
+                    updatePart(oldParts[oldTail], newValues[newHead]);
+                insertPartBefore(containerPart, oldParts[oldTail], oldParts[oldHead]);
+                oldTail--;
+                newHead++;
+            }
+            else {
+                if (newKeyToIndexMap === undefined) {
+                    // Lazily generate key-to-index maps, used for removals &
+                    // moves below
+                    newKeyToIndexMap = generateMap(newKeys, newHead, newTail);
+                    oldKeyToIndexMap = generateMap(oldKeys, oldHead, oldTail);
+                }
+                if (!newKeyToIndexMap.has(oldKeys[oldHead])) {
+                    // Old head is no longer in new list; remove
+                    removePart(oldParts[oldHead]);
+                    oldHead++;
+                }
+                else if (!newKeyToIndexMap.has(oldKeys[oldTail])) {
+                    // Old tail is no longer in new list; remove
+                    removePart(oldParts[oldTail]);
+                    oldTail--;
+                }
+                else {
+                    // Any mismatches at this point are due to additions or
+                    // moves; see if we have an old part we can reuse and move
+                    // into place
+                    const oldIndex = oldKeyToIndexMap.get(newKeys[newHead]);
+                    const oldPart = oldIndex !== undefined ? oldParts[oldIndex] : null;
+                    if (oldPart === null) {
+                        // No old part for this value; create a new one and
+                        // insert it
+                        const newPart = createAndInsertPart(containerPart, oldParts[oldHead]);
+                        updatePart(newPart, newValues[newHead]);
+                        newParts[newHead] = newPart;
+                    }
+                    else {
+                        // Reuse old part
+                        newParts[newHead] =
+                            updatePart(oldPart, newValues[newHead]);
+                        insertPartBefore(containerPart, oldPart, oldParts[oldHead]);
+                        // This marks the old part as having been used, so that
+                        // it will be skipped in the first two checks above
+                        oldParts[oldIndex] = null;
+                    }
+                    newHead++;
+                }
+            }
+        }
+        // Add parts for any remaining new values
+        while (newHead <= newTail) {
+            // For all remaining additions, we insert before last new
+            // tail, since old pointers are no longer valid
+            const newPart = createAndInsertPart(containerPart, newParts[newTail + 1]);
+            updatePart(newPart, newValues[newHead]);
+            newParts[newHead++] = newPart;
+        }
+        // Remove any remaining unused old parts
+        while (oldHead <= oldTail) {
+            const oldPart = oldParts[oldHead++];
+            if (oldPart !== null) {
+                removePart(oldPart);
+            }
+        }
+        // Save order of new parts for next round
+        partListCache.set(containerPart, newParts);
+        keyListCache.set(containerPart, newKeys);
+    };
+});
+
+/**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+// For each part, remember the value that was last rendered to the part by the
+// unsafeHTML directive, and the DocumentFragment that was last set as a value.
+// The DocumentFragment is used as a unique key to check if the last value
+// rendered to the part was with unsafeHTML. If not, we'll always re-render the
+// value passed to unsafeHTML.
+const previousValues$1 = new WeakMap();
+/**
+ * Used to clone existing node instead of each time creating new one which is
+ * slower
+ */
+const emptyTemplateNode$1 = document.createElement('template');
+/**
+ * Renders the result as HTML, rather than text.
+ *
+ * Note, this is unsafe to use with any user-provided input that hasn't been
+ * sanitized or escaped, as it may lead to cross-site-scripting
+ * vulnerabilities.
+ */
+const unsafeHTML = directive((value) => (part) => {
+    if (!(part instanceof NodePart)) {
+        throw new Error('unsafeHTML can only be used in text bindings');
+    }
+    const previousValue = previousValues$1.get(part);
+    if (previousValue !== undefined && isPrimitive(value) &&
+        value === previousValue.value && part.value === previousValue.fragment) {
+        return;
+    }
+    const template = emptyTemplateNode$1.cloneNode();
+    template.innerHTML = value; // innerHTML casts to string internally
+    const fragment = document.importNode(template.content, true);
+    part.setValue(fragment);
+    previousValues$1.set(part, { value, fragment });
+});
+
+/**
+ * @license
+ * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * http://polymer.github.io/PATENTS.txt
+ */
+const _state = new WeakMap();
+// Effectively infinity, but a SMI.
+const _infinity = 0x7fffffff;
+/**
+ * Renders one of a series of values, including Promises, to a Part.
+ *
+ * Values are rendered in priority order, with the first argument having the
+ * highest priority and the last argument having the lowest priority. If a
+ * value is a Promise, low-priority values will be rendered until it resolves.
+ *
+ * The priority of values can be used to create placeholder content for async
+ * data. For example, a Promise with pending content can be the first,
+ * highest-priority, argument, and a non_promise loading indicator template can
+ * be used as the second, lower-priority, argument. The loading indicator will
+ * render immediately, and the primary content will render when the Promise
+ * resolves.
+ *
+ * Example:
+ *
+ *     const content = fetch('./content.txt').then(r => r.text());
+ *     html`${until(content, html`<span>Loading...</span>`)}`
+ */
+const until = directive((...args) => (part) => {
+    let state = _state.get(part);
+    if (state === undefined) {
+        state = {
+            lastRenderedIndex: _infinity,
+            values: [],
+        };
+        _state.set(part, state);
+    }
+    const previousValues = state.values;
+    let previousLength = previousValues.length;
+    state.values = args;
+    for (let i = 0; i < args.length; i++) {
+        // If we've rendered a higher-priority value already, stop.
+        if (i > state.lastRenderedIndex) {
+            break;
+        }
+        const value = args[i];
+        // Render non-Promise values immediately
+        if (isPrimitive(value) ||
+            typeof value.then !== 'function') {
+            part.setValue(value);
+            state.lastRenderedIndex = i;
+            // Since a lower-priority value will never overwrite a higher-priority
+            // synchronous value, we can stop processing now.
+            break;
+        }
+        // If this is a Promise we've already handled, skip it.
+        if (i < previousLength && value === previousValues[i]) {
+            continue;
+        }
+        // We have a Promise that we haven't seen before, so priorities may have
+        // changed. Forget what we rendered before.
+        state.lastRenderedIndex = _infinity;
+        previousLength = 0;
+        Promise.resolve(value).then((resolvedValue) => {
+            const index = state.values.indexOf(value);
+            // If state.values doesn't contain the value, we've re-rendered without
+            // the value, so don't render it. Then, only render if the value is
+            // higher-priority than what's already been rendered.
+            if (index > -1 && index < state.lastRenderedIndex) {
+                state.lastRenderedIndex = index;
+                part.setValue(resolvedValue);
+                part.commit();
+            }
+        });
+    }
+});
+
+const detached = new WeakMap();
+class Detach extends Directive {
+    constructor(ifFn) {
+        super();
+        this.ifFn = ifFn;
+    }
+    body(part) {
+        const detach = this.ifFn();
+        const element = part.committer.element;
+        if (detach) {
+            if (!detached.has(part)) {
+                const nextSibling = element.nextSibling;
+                detached.set(part, { element, nextSibling });
+            }
+            element.remove();
+        }
+        else {
+            const data = detached.get(part);
+            if (typeof data !== 'undefined' && data !== null) {
+                data.nextSibling.parentNode.insertBefore(data.element, data.nextSibling);
+                detached.delete(part);
+            }
+        }
+    }
+}
+
+const toRemove = [], toUpdate = [];
+class StyleMap extends Directive {
+    constructor(styleInfo, detach = false) {
+        super();
+        this.previous = {};
+        this.style = styleInfo;
+        this.detach = detach;
+    }
+    setStyle(styleInfo) {
+        this.style = styleInfo;
+    }
+    setDetach(detach) {
+        this.detach = detach;
+    }
+    body(part) {
+        toRemove.length = 0;
+        toUpdate.length = 0;
+        // @ts-ignore
+        const element = part.committer.element;
+        const style = element.style;
+        let previous = this.previous;
+        for (const name in previous) {
+            if (this.style[name] === undefined) {
+                toRemove.push(name);
+            }
+        }
+        for (const name in this.style) {
+            const value = this.style[name];
+            const prev = previous[name];
+            if (prev !== undefined && prev === value) {
+                continue;
+            }
+            toUpdate.push(name);
+        }
+        if (toRemove.length || toUpdate.length) {
+            let parent, nextSibling;
+            if (this.detach) {
+                parent = element.parentNode;
+                if (parent) {
+                    nextSibling = element.nextSibling;
+                    element.remove();
+                }
+            }
+            for (const name of toRemove) {
+                style.removeProperty(name);
+            }
+            for (const name of toUpdate) {
+                const value = this.style[name];
+                if (!name.includes('-')) {
+                    style[name] = value;
+                }
+                else {
+                    style.setProperty(name, value);
+                }
+            }
+            if (this.detach && parent) {
+                parent.insertBefore(element, nextSibling);
+            }
+            this.previous = Object.assign({}, this.style);
+        }
+    }
+}
+
+class Action {
+    constructor() {
+        this.isAction = true;
+    }
+}
+Action.prototype.isAction = true;
+
+const defaultOptions = {
+    element: document.createTextNode(''),
+    axis: 'xy',
+    threshold: 10,
+    onDown(data) { },
+    onMove(data) { },
+    onUp(data) { },
+    onWheel(data) { }
+};
+const pointerEventsExists = typeof PointerEvent !== 'undefined';
+let id = 0;
+class PointerAction extends Action {
+    constructor(element, data) {
+        super();
+        this.moving = '';
+        this.initialX = 0;
+        this.initialY = 0;
+        this.lastY = 0;
+        this.lastX = 0;
+        this.onPointerDown = this.onPointerDown.bind(this);
+        this.onPointerMove = this.onPointerMove.bind(this);
+        this.onPointerUp = this.onPointerUp.bind(this);
+        this.onWheel = this.onWheel.bind(this);
+        this.element = element;
+        this.id = ++id;
+        this.options = Object.assign(Object.assign({}, defaultOptions), data.pointerOptions);
+        if (pointerEventsExists) {
+            element.addEventListener('pointerdown', this.onPointerDown);
+            document.addEventListener('pointermove', this.onPointerMove);
+            document.addEventListener('pointerup', this.onPointerUp);
+        }
+        else {
+            element.addEventListener('touchstart', this.onPointerDown);
+            document.addEventListener('touchmove', this.onPointerMove, { passive: false });
+            document.addEventListener('touchend', this.onPointerUp);
+            document.addEventListener('touchcancel', this.onPointerUp);
+            element.addEventListener('mousedown', this.onPointerDown);
+            document.addEventListener('mousemove', this.onPointerMove, { passive: false });
+            document.addEventListener('mouseup', this.onPointerUp);
+        }
+    }
+    normalizeMouseWheelEvent(event) {
+        // @ts-ignore
+        let x = event.deltaX || 0;
+        // @ts-ignore
+        let y = event.deltaY || 0;
+        // @ts-ignore
+        let z = event.deltaZ || 0;
+        // @ts-ignore
+        const mode = event.deltaMode;
+        // @ts-ignore
+        const lineHeight = parseInt(getComputedStyle(event.target).getPropertyValue('line-height'));
+        let scale = 1;
+        switch (mode) {
+            case 1:
+                scale = lineHeight;
+                break;
+            case 2:
+                // @ts-ignore
+                scale = window.height;
+                break;
+        }
+        x *= scale;
+        y *= scale;
+        z *= scale;
+        return { x, y, z, event };
+    }
+    onWheel(event) {
+        const normalized = this.normalizeMouseWheelEvent(event);
+        this.options.onWheel(normalized);
+    }
+    normalizePointerEvent(event) {
+        let result = { x: 0, y: 0, pageX: 0, pageY: 0, clientX: 0, clientY: 0, screenX: 0, screenY: 0, event };
+        switch (event.type) {
+            case 'wheel':
+                const wheel = this.normalizeMouseWheelEvent(event);
+                result.x = wheel.x;
+                result.y = wheel.y;
+                result.pageX = result.x;
+                result.pageY = result.y;
+                result.screenX = result.x;
+                result.screenY = result.y;
+                result.clientX = result.x;
+                result.clientY = result.y;
+                break;
+            case 'touchstart':
+            case 'touchmove':
+            case 'touchend':
+            case 'touchcancel':
+                result.x = event.changedTouches[0].screenX;
+                result.y = event.changedTouches[0].screenY;
+                result.pageX = event.changedTouches[0].pageX;
+                result.pageY = event.changedTouches[0].pageY;
+                result.screenX = event.changedTouches[0].screenX;
+                result.screenY = event.changedTouches[0].screenY;
+                result.clientX = event.changedTouches[0].clientX;
+                result.clientY = event.changedTouches[0].clientY;
+                break;
+            default:
+                result.x = event.x;
+                result.y = event.y;
+                result.pageX = event.pageX;
+                result.pageY = event.pageY;
+                result.screenX = event.screenX;
+                result.screenY = event.screenY;
+                result.clientX = event.clientX;
+                result.clientY = event.clientY;
+                break;
+        }
+        return result;
+    }
+    onPointerDown(event) {
+        if (event.type === 'mousedown' && event.button !== 0)
+            return;
+        this.moving = 'xy';
+        const normalized = this.normalizePointerEvent(event);
+        this.lastX = normalized.x;
+        this.lastY = normalized.y;
+        this.initialX = normalized.x;
+        this.initialY = normalized.y;
+        this.options.onDown(normalized);
+    }
+    handleX(normalized) {
+        let movementX = normalized.x - this.lastX;
+        this.lastY = normalized.y;
+        this.lastX = normalized.x;
+        return movementX;
+    }
+    handleY(normalized) {
+        let movementY = normalized.y - this.lastY;
+        this.lastY = normalized.y;
+        this.lastX = normalized.x;
+        return movementY;
+    }
+    onPointerMove(event) {
+        if (this.moving === '' || (event.type === 'mousemove' && event.button !== 0))
+            return;
+        const normalized = this.normalizePointerEvent(event);
+        if (this.options.axis === 'x|y') {
+            let movementX = 0, movementY = 0;
+            if (this.moving === 'x' ||
+                (this.moving === 'xy' && Math.abs(normalized.x - this.initialX) > this.options.threshold)) {
+                this.moving = 'x';
+                movementX = this.handleX(normalized);
+            }
+            if (this.moving === 'y' ||
+                (this.moving === 'xy' && Math.abs(normalized.y - this.initialY) > this.options.threshold)) {
+                this.moving = 'y';
+                movementY = this.handleY(normalized);
+            }
+            this.options.onMove({
+                movementX,
+                movementY,
+                x: normalized.x,
+                y: normalized.y,
+                initialX: this.initialX,
+                initialY: this.initialY,
+                lastX: this.lastX,
+                lastY: this.lastY,
+                event
+            });
+        }
+        else if (this.options.axis === 'xy') {
+            let movementX = 0, movementY = 0;
+            if (Math.abs(normalized.x - this.initialX) > this.options.threshold) {
+                movementX = this.handleX(normalized);
+            }
+            if (Math.abs(normalized.y - this.initialY) > this.options.threshold) {
+                movementY = this.handleY(normalized);
+            }
+            this.options.onMove({
+                movementX,
+                movementY,
+                x: normalized.x,
+                y: normalized.y,
+                initialX: this.initialX,
+                initialY: this.initialY,
+                lastX: this.lastX,
+                lastY: this.lastY,
+                event
+            });
+        }
+        else if (this.options.axis === 'x') {
+            if (this.moving === 'x' ||
+                (this.moving === 'xy' && Math.abs(normalized.x - this.initialX) > this.options.threshold)) {
+                this.moving = 'x';
+                this.options.onMove({
+                    movementX: this.handleX(normalized),
+                    movementY: 0,
+                    initialX: this.initialX,
+                    initialY: this.initialY,
+                    lastX: this.lastX,
+                    lastY: this.lastY,
+                    event
+                });
+            }
+        }
+        else if (this.options.axis === 'y') {
+            let movementY = 0;
+            if (this.moving === 'y' ||
+                (this.moving === 'xy' && Math.abs(normalized.y - this.initialY) > this.options.threshold)) {
+                this.moving = 'y';
+                movementY = this.handleY(normalized);
+            }
+            this.options.onMove({
+                movementX: 0,
+                movementY,
+                x: normalized.x,
+                y: normalized.y,
+                initialX: this.initialX,
+                initialY: this.initialY,
+                lastX: this.lastX,
+                lastY: this.lastY,
+                event
+            });
+        }
+    }
+    onPointerUp(event) {
+        this.moving = '';
+        const normalized = this.normalizePointerEvent(event);
+        this.options.onUp({
+            movementX: 0,
+            movementY: 0,
+            x: normalized.x,
+            y: normalized.y,
+            initialX: this.initialX,
+            initialY: this.initialY,
+            lastX: this.lastX,
+            lastY: this.lastY,
+            event
+        });
+        this.lastY = 0;
+        this.lastX = 0;
+    }
+    destroy(element) {
+        if (pointerEventsExists) {
+            element.removeEventListener('pointerdown', this.onPointerDown);
+            document.removeEventListener('pointermove', this.onPointerMove);
+            document.removeEventListener('pointerup', this.onPointerUp);
+        }
+        else {
+            element.removeEventListener('mousedown', this.onPointerDown);
+            document.removeEventListener('mousemove', this.onPointerMove);
+            document.removeEventListener('mouseup', this.onPointerUp);
+            element.removeEventListener('touchstart', this.onPointerDown);
+            document.removeEventListener('touchmove', this.onPointerMove);
+            document.removeEventListener('touchend', this.onPointerUp);
+            document.removeEventListener('touchcancel', this.onPointerUp);
+        }
+    }
+}
+
+function getPublicComponentMethods(components, actionsByInstance, clone) {
+    return class PublicComponentMethods {
+        constructor(instance, vidoInstance, props = {}) {
+            this.instance = instance;
+            this.name = vidoInstance.name;
+            this.vidoInstance = vidoInstance;
+            this.props = props;
+            this.destroy = this.destroy.bind(this);
+            this.update = this.update.bind(this);
+            this.change = this.change.bind(this);
+            this.html = this.html.bind(this);
+        }
+        /**
+         * Destroy component
+         */
+        destroy() {
+            if (this.vidoInstance.debug) {
+                console.groupCollapsed(`destroying component ${this.instance}`);
+                console.log(clone({ components: components.keys(), actionsByInstance }));
+                console.trace();
+                console.groupEnd();
+            }
+            return this.vidoInstance.destroyComponent(this.instance, this.vidoInstance);
+        }
+        /**
+         * Update template - trigger rendering process
+         */
+        update() {
+            if (this.vidoInstance.debug) {
+                console.groupCollapsed(`updating component ${this.instance}`);
+                console.log(clone({ components: components.keys(), actionsByInstance }));
+                console.trace();
+                console.groupEnd();
+            }
+            return this.vidoInstance.updateTemplate(this.vidoInstance);
+        }
+        /**
+         * Change component input properties
+         * @param {any} newProps
+         */
+        change(newProps, options) {
+            if (this.vidoInstance.debug) {
+                console.groupCollapsed(`changing component ${this.instance}`);
+                console.log(clone({ props: this.props, newProps: newProps, components: components.keys(), actionsByInstance }));
+                console.trace();
+                console.groupEnd();
+            }
+            components.get(this.instance).change(newProps, options);
+        }
+        /**
+         * Get component lit-html template
+         * @param {} templateProps
+         */
+        html(templateProps = {}) {
+            const component = components.get(this.instance);
+            if (component) {
+                return component.update(templateProps, this.vidoInstance);
+            }
+            return undefined;
+        }
+        _getComponents() {
+            return components;
+        }
+        _getActions() {
+            return actionsByInstance;
+        }
+    };
+}
+
+function getActionsCollector(actionsByInstance) {
+    return class ActionsCollector extends Directive {
+        constructor(instance) {
+            super();
+            this.instance = instance;
+        }
+        set(actions, props) {
+            this.actions = actions;
+            this.props = props;
+            // props must be mutable! (do not do this -> {...props})
+            // because we will modify action props with onChange and can reuse existin instance
+            return this;
+        }
+        body(part) {
+            const element = part.committer.element;
+            for (const create of this.actions) {
+                if (typeof create !== 'undefined') {
+                    let exists;
+                    if (actionsByInstance.has(this.instance)) {
+                        for (const action of actionsByInstance.get(this.instance)) {
+                            if (action.componentAction.create === create && action.element === element) {
+                                exists = action;
+                                break;
+                            }
+                        }
+                    }
+                    if (!exists) {
+                        // @ts-ignore
+                        if (typeof element.vido !== 'undefined')
+                            delete element.vido;
+                        const componentAction = {
+                            create,
+                            update() { },
+                            destroy() { }
+                        };
+                        const action = { instance: this.instance, componentAction, element, props: this.props };
+                        let byInstance = [];
+                        if (actionsByInstance.has(this.instance)) {
+                            byInstance = actionsByInstance.get(this.instance);
+                        }
+                        byInstance.push(action);
+                        actionsByInstance.set(this.instance, byInstance);
+                    }
+                    else {
+                        exists.props = this.props;
+                    }
+                }
+            }
+        }
+    };
+}
+
+function getInternalComponentMethods(components, actionsByInstance, clone) {
+    return class InternalComponentMethods {
+        constructor(instance, vidoInstance, renderFunction, content) {
+            this.instance = instance;
+            this.vidoInstance = vidoInstance;
+            this.renderFunction = renderFunction;
+            this.content = content;
+        }
+        destroy() {
+            var _a;
+            if (this.vidoInstance.debug) {
+                console.groupCollapsed(`component destroy method fired ${this.instance}`);
+                console.log(clone({
+                    props: this.vidoInstance.props,
+                    components: components.keys(),
+                    destroyable: this.vidoInstance.destroyable,
+                    actionsByInstance
+                }));
+                console.trace();
+                console.groupEnd();
+            }
+            if (typeof ((_a = this.content) === null || _a === void 0 ? void 0 : _a.destroy) === 'function') {
+                this.content.destroy();
+            }
+            for (const d of this.vidoInstance.destroyable) {
+                d();
+            }
+            this.vidoInstance.onChangeFunctions = [];
+            this.vidoInstance.destroyable = [];
+            this.vidoInstance.update();
+        }
+        update(props = {}) {
+            if (this.vidoInstance.debug) {
+                console.groupCollapsed(`component update method fired ${this.instance}`);
+                console.log(clone({ components: components.keys(), actionsByInstance }));
+                console.trace();
+                console.groupEnd();
+            }
+            return this.renderFunction(props);
+        }
+        change(changedProps, options = { leave: false }) {
+            const props = changedProps;
+            if (this.vidoInstance.debug) {
+                console.groupCollapsed(`component change method fired ${this.instance}`);
+                console.log(clone({
+                    props,
+                    components: components.keys(),
+                    onChangeFunctions: this.vidoInstance.onChangeFunctions,
+                    changedProps,
+                    actionsByInstance
+                }));
+                console.trace();
+                console.groupEnd();
+            }
+            for (const fn of this.vidoInstance.onChangeFunctions) {
+                fn(changedProps, options);
+            }
+        }
+    };
+}
+
+/**
+ * Schedule - a throttle function that uses requestAnimationFrame to limit the rate at which a function is called.
+ *
+ * @param {function} fn
+ * @returns {function}
+ */
+function schedule(fn) {
+    let frameId = 0;
+    function wrapperFn(argument) {
+        if (frameId) {
+            return;
+        }
+        function executeFrame() {
+            frameId = 0;
+            fn.apply(undefined, [argument]);
+        }
+        frameId = requestAnimationFrame(executeFrame);
+    }
+    return wrapperFn;
+}
+/**
+ * Is object - helper function to determine if specified variable is an object
+ *
+ * @param {any} item
+ * @returns {boolean}
+ */
+function isObject(item) {
+    return item && typeof item === 'object' && !Array.isArray(item);
+}
+/**
+ * Merge deep - helper function which will merge objects recursively - creating brand new one - like clone
+ *
+ * @param {object} target
+ * @params {object} sources
+ * @returns {object}
+ */
+function mergeDeep(target, ...sources) {
+    const source = sources.shift();
+    if (isObject(target) && isObject(source)) {
+        for (const key in source) {
+            if (isObject(source[key])) {
+                if (typeof target[key] === 'undefined') {
+                    target[key] = {};
+                }
+                target[key] = mergeDeep(target[key], source[key]);
+            }
+            else if (Array.isArray(source[key])) {
+                target[key] = [];
+                for (let item of source[key]) {
+                    if (isObject(item)) {
+                        target[key].push(mergeDeep({}, item));
+                        continue;
+                    }
+                    target[key].push(item);
+                }
+            }
+            else {
+                target[key] = source[key];
+            }
+        }
+    }
+    if (!sources.length) {
+        return target;
+    }
+    return mergeDeep(target, ...sources);
+}
+/**
+ * Clone helper function
+ *
+ * @param source
+ * @returns {object} cloned source
+ */
+function clone(source) {
+    if (typeof source.actions !== 'undefined') {
+        const actns = source.actions.map((action) => {
+            const result = Object.assign({}, action);
+            const props = Object.assign({}, result.props);
+            delete props.state;
+            delete props.api;
+            delete result.element;
+            result.props = props;
+            return result;
+        });
+        source.actions = actns;
+    }
+    return mergeDeep({}, source);
+}
+
+/* dev imports
+import { render, html, directive, svg, Part } from '../lit-html';
+import { asyncAppend } from '../lit-html/directives/async-append';
+import { asyncReplace } from '../lit-html/directives/async-replace';
+import { cache } from '../lit-html/directives/cache';
+import { classMap } from '../lit-html/directives/class-map';
+import { guard } from '../lit-html/directives/guard';
+import { ifDefined } from '../lit-html/directives/if-defined';
+import { repeat } from '../lit-html/directives/repeat';
+import { unsafeHTML } from '../lit-html/directives/unsafe-html';
+import { until } from '../lit-html/directives/until';
+import { Directive } from '../lit-html/lib/directive';
+*/
+/**
+ * Vido library
+ *
+ * @param {any} state - state management for the view (can be anything)
+ * @param {any} api - some api's or other globally available services
+ * @returns {object} vido instance
+ */
+function Vido(state, api) {
+    let componentId = 0;
+    const components = new Map();
+    let actionsByInstance = new Map();
+    let app, element;
+    let shouldUpdateCount = 0;
+    const resolved = Promise.resolve();
+    const additionalMethods = {};
+    const ActionsCollector = getActionsCollector(actionsByInstance);
+    class InstanceActionsCollector {
+        constructor(instance) {
+            this.instance = instance;
+        }
+        create(actions, props) {
+            const actionsInstance = new ActionsCollector(this.instance);
+            actionsInstance.set(actions, props);
+            return actionsInstance;
+        }
+    }
+    const PublicComponentMethods = getPublicComponentMethods(components, actionsByInstance, clone);
+    /**
+     * Create vido instance for component
+     */
+    function vido() {
+        this.destroyable = [];
+        this.onChangeFunctions = [];
+        this.debug = false;
+        this.state = state;
+        this.api = api;
+        this.lastProps = {};
+        this.reuseComponents = this.reuseComponents.bind(this);
+        this.onDestroy = this.onDestroy.bind(this);
+        this.onChange = this.onChange.bind(this);
+        this.update = this.update.bind(this);
+        for (const name in additionalMethods) {
+            this[name] = additionalMethods[name];
+        }
+    }
+    vido.prototype.html = html;
+    vido.prototype.svg = svg;
+    vido.prototype.directive = directive;
+    vido.prototype.asyncAppend = asyncAppend;
+    vido.prototype.asyncReplace = asyncReplace;
+    vido.prototype.cache = cache;
+    vido.prototype.classMap = classMap;
+    vido.prototype.guard = guard;
+    vido.prototype.ifDefined = ifDefined;
+    vido.prototype.repeat = repeat;
+    vido.prototype.unsafeHTML = unsafeHTML;
+    vido.prototype.until = until;
+    vido.prototype.schedule = schedule;
+    vido.prototype.actionsByInstance = (componentActions, props) => { };
+    vido.prototype.StyleMap = StyleMap;
+    vido.prototype.Detach = Detach;
+    vido.prototype.PointerAction = PointerAction;
+    vido.prototype.addMethod = function addMethod(name, body) {
+        additionalMethods[name] = body;
+    };
+    vido.prototype.Action = Action;
+    vido.prototype.onDestroy = function onDestroy(fn) {
+        this.destroyable.push(fn);
+    };
+    vido.prototype.onChange = function onChange(fn) {
+        this.onChangeFunctions.push(fn);
+    };
+    vido.prototype.update = function update() {
+        this.updateTemplate();
+    };
+    /**
+     * Reuse existing components when your data was changed
+     *
+     * @param {array} currentComponents - array of components
+     * @param {array} dataArray  - any data as array for each component
+     * @param {function} getProps - you can pass params to component from array item ( example: item=>({id:item.id}) )
+     * @param {function} component - what kind of components do you want to create?
+     * @param {boolean} leaveTail - leave last elements and do not destroy corresponding components
+     * @returns {array} of components (with updated/destroyed/created ones)
+     */
+    vido.prototype.reuseComponents = function reuseComponents(currentComponents, dataArray, getProps, component, leaveTail = true) {
+        const modified = [];
+        const currentLen = currentComponents.length;
+        const dataLen = dataArray.length;
+        let leave = false;
+        if (leaveTail && (dataArray === undefined || dataArray.length === 0)) {
+            leave = true;
+        }
+        let leaveStartingAt = 0;
+        if (currentLen < dataLen) {
+            let diff = dataLen - currentLen;
+            while (diff) {
+                const item = dataArray[dataLen - diff];
+                const newComponent = this.createComponent(component, getProps(item));
+                currentComponents.push(newComponent);
+                modified.push(newComponent.instance);
+                diff--;
+            }
+        }
+        else if (currentLen > dataLen) {
+            let diff = currentLen - dataLen;
+            if (leaveTail) {
+                leave = true;
+                leaveStartingAt = currentLen - diff;
+            }
+            while (diff) {
+                const index = currentLen - diff;
+                if (!leaveTail) {
+                    modified.push(currentComponents[index].instance);
+                    currentComponents[index].destroy();
+                }
+                diff--;
+            }
+            if (!leaveTail) {
+                currentComponents.length = dataLen;
+            }
+        }
+        let index = 0;
+        for (const component of currentComponents) {
+            const item = dataArray[index];
+            if (!modified.includes(component.instance)) {
+                component.change(getProps(item), { leave: leave && index >= leaveStartingAt });
+            }
+            index++;
+        }
+    };
+    const InternalComponentMethods = getInternalComponentMethods(components, actionsByInstance, clone);
+    /**
+     * Create component
+     *
+     * @param {function} component
+     * @param {any} props
+     * @returns {object} component instance methods
+     */
+    function createComponent(component, props = {}, content = null) {
+        const instance = component.name + ':' + componentId++;
+        let vidoInstance;
+        vidoInstance = new vido();
+        vidoInstance.instance = instance;
+        vidoInstance.name = component.name;
+        vidoInstance.Actions = new InstanceActionsCollector(instance);
+        const publicMethods = new PublicComponentMethods(instance, vidoInstance, props);
+        const internalMethods = new InternalComponentMethods(instance, vidoInstance, component(vidoInstance, props, content), content);
+        components.set(instance, internalMethods);
+        components.get(instance).change(props);
+        if (vidoInstance.debug) {
+            console.groupCollapsed(`component created ${instance}`);
+            console.log(clone({ props, components: components.keys(), actionsByInstance }));
+            console.trace();
+            console.groupEnd();
+        }
+        return publicMethods;
+    }
+    vido.prototype.createComponent = createComponent;
+    class Slot extends Directive {
+        constructor(components, props = {}, content = null) {
+            super();
+            this.components = [];
+            if (Array.isArray(components)) {
+                for (const component of components) {
+                    this.components.push(createComponent(component, props, content));
+                }
+            }
+        }
+        body(part) {
+            part.setValue(this.components.map((component) => component.html()));
+        }
+        change(changedProps, options) {
+            for (const component of this.components) {
+                component.change(changedProps, options);
+            }
+        }
+        getComponents() {
+            return this.components;
+        }
+        setComponents(components) {
+            this.components = components;
+        }
+        destroy() {
+            for (const component of this.components) {
+                component.destroy();
+            }
+        }
+    }
+    vido.prototype.Slot = Slot;
+    class Slots {
+        constructor() {
+            this.slots = {};
+        }
+        addSlot(name, slot) {
+            if (this.slots[name] === undefined) {
+                this.slots[name] = [];
+            }
+            this.slots[name].push(slot);
+        }
+        change(changedProps, options) {
+            for (const name in this.slots) {
+                for (const slot of this.slots[name]) {
+                    slot.change(changedProps, options);
+                }
+            }
+        }
+        destroy() {
+            for (const name in this.slots) {
+                for (const slot of this.slots[name]) {
+                    slot.destroy();
+                }
+            }
+        }
+        get(name) {
+            return this.slots[name];
+        }
+        set(name, value) {
+            this.slots[name] = value;
+        }
+    }
+    vido.prototype.Slots = Slots;
+    /**
+     * Destroy component
+     *
+     * @param {string} instance
+     * @param {object} vidoInstance
+     */
+    vido.prototype.destroyComponent = function destroyComponent(instance, vidoInstance) {
+        if (vidoInstance.debug) {
+            console.groupCollapsed(`destroying component ${instance}...`);
+            console.log(clone({ components: components.keys(), actionsByInstance }));
+            console.trace();
+            console.groupEnd();
+        }
+        if (actionsByInstance.has(instance)) {
+            for (const action of actionsByInstance.get(instance)) {
+                if (typeof action.componentAction.destroy === 'function') {
+                    action.componentAction.destroy(action.element, action.props);
+                }
+            }
+        }
+        actionsByInstance.delete(instance);
+        const component = components.get(instance);
+        component.update();
+        component.destroy();
+        components.delete(instance);
+        if (vidoInstance.debug) {
+            console.groupCollapsed(`component destroyed ${instance}`);
+            console.log(clone({ components: components.keys(), actionsByInstance }));
+            console.trace();
+            console.groupEnd();
+        }
+    };
+    /**
+     * Update template - trigger render proccess
+     * @param {object} vidoInstance
+     */
+    vido.prototype.updateTemplate = function updateTemplate() {
+        const currentShouldUpdateCount = ++shouldUpdateCount;
+        const self = this;
+        function flush() {
+            if (currentShouldUpdateCount === shouldUpdateCount) {
+                shouldUpdateCount = 0;
+                self.render();
+            }
+        }
+        resolved.then(flush);
+    };
+    /**
+     * Create app
+     *
+     * @param config
+     * @returns {object} component instance methods
+     */
+    vido.prototype.createApp = function createApp(config) {
+        element = config.element;
+        const App = this.createComponent(config.component, config.props);
+        app = App.instance;
+        this.render();
+        return App;
+    };
+    /**
+     * Execute actions
+     */
+    vido.prototype.executeActions = function executeActions() {
+        var _a, _b, _c;
+        for (const actions of actionsByInstance.values()) {
+            for (const action of actions) {
+                if (action.element.vido === undefined) {
+                    const componentAction = action.componentAction;
+                    const create = componentAction.create;
+                    if (typeof create !== 'undefined') {
+                        let result;
+                        if (((_a = create.prototype) === null || _a === void 0 ? void 0 : _a.isAction) !== true &&
+                            create.isAction === undefined &&
+                            ((_b = create.prototype) === null || _b === void 0 ? void 0 : _b.update) === undefined &&
+                            ((_c = create.prototype) === null || _c === void 0 ? void 0 : _c.destroy) === undefined) {
+                            result = create(action.element, action.props);
+                        }
+                        else {
+                            result = new create(action.element, action.props);
+                        }
+                        if (result !== undefined) {
+                            if (typeof result === 'function') {
+                                componentAction.destroy = result;
+                            }
+                            else {
+                                if (typeof result.update === 'function') {
+                                    componentAction.update = result.update.bind(result);
+                                }
+                                if (typeof result.destroy === 'function') {
+                                    componentAction.destroy = result.destroy.bind(result);
+                                }
+                            }
+                        }
+                    }
+                }
+                else {
+                    action.element.vido = action.props;
+                    if (typeof action.componentAction.update === 'function') {
+                        action.componentAction.update(action.element, action.props);
+                    }
+                }
+            }
+            for (const action of actions) {
+                action.element.vido = action.props;
+            }
+        }
+    };
+    /**
+     * Render view
+     */
+    vido.prototype.render = function renderView() {
+        const appComponent = components.get(app);
+        if (appComponent) {
+            render(appComponent.update(), element);
+            this.executeActions();
+        }
+        else if (element) {
+            element.remove();
+        }
+    };
+    vido.prototype._components = components;
+    vido.prototype._actions = actionsByInstance;
+    return new vido();
+}
+Vido.prototype.lithtml = lithtml;
+Vido.prototype.Action = Action;
+Vido.prototype.Directive = Directive;
+Vido.prototype.schedule = schedule;
+Vido.prototype.Detach = Detach;
+Vido.prototype.StyleMap = StyleMap;
+Vido.prototype.PointerAction = PointerAction;
+Vido.prototype.asyncAppend = asyncAppend;
+Vido.prototype.asyncReplace = asyncReplace;
+Vido.prototype.cache = cache;
+Vido.prototype.classMap = classMap;
+Vido.prototype.guard = guard;
+Vido.prototype.ifDefined = ifDefined;
+Vido.prototype.repeat = repeat;
+Vido.prototype.unsafeHTML = unsafeHTML;
+Vido.prototype.unti = until;
+
+/**
+ * A collection of shims that provide minimal functionality of the ES6 collections.
+ *
+ * These implementations are not meant to be used outside of the ResizeObserver
+ * modules as they cover only a limited range of use cases.
+ */
+/* eslint-disable require-jsdoc, valid-jsdoc */
+var MapShim = (function () {
+    if (typeof Map !== 'undefined') {
+        return Map;
+    }
+    /**
+     * Returns index in provided array that matches the specified key.
+     *
+     * @param {Array<Array>} arr
+     * @param {*} key
+     * @returns {number}
+     */
+    function getIndex(arr, key) {
+        var result = -1;
+        arr.some(function (entry, index) {
+            if (entry[0] === key) {
+                result = index;
+                return true;
+            }
+            return false;
+        });
+        return result;
+    }
+    return /** @class */ (function () {
+        function class_1() {
+            this.__entries__ = [];
+        }
+        Object.defineProperty(class_1.prototype, "size", {
+            /**
+             * @returns {boolean}
+             */
+            get: function () {
+                return this.__entries__.length;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        /**
+         * @param {*} key
+         * @returns {*}
+         */
+        class_1.prototype.get = function (key) {
+            var index = getIndex(this.__entries__, key);
+            var entry = this.__entries__[index];
+            return entry && entry[1];
+        };
+        /**
+         * @param {*} key
+         * @param {*} value
+         * @returns {void}
+         */
+        class_1.prototype.set = function (key, value) {
+            var index = getIndex(this.__entries__, key);
+            if (~index) {
+                this.__entries__[index][1] = value;
+            }
+            else {
+                this.__entries__.push([key, value]);
+            }
+        };
+        /**
+         * @param {*} key
+         * @returns {void}
+         */
+        class_1.prototype.delete = function (key) {
+            var entries = this.__entries__;
+            var index = getIndex(entries, key);
+            if (~index) {
+                entries.splice(index, 1);
+            }
+        };
+        /**
+         * @param {*} key
+         * @returns {void}
+         */
+        class_1.prototype.has = function (key) {
+            return !!~getIndex(this.__entries__, key);
+        };
+        /**
+         * @returns {void}
+         */
+        class_1.prototype.clear = function () {
+            this.__entries__.splice(0);
+        };
+        /**
+         * @param {Function} callback
+         * @param {*} [ctx=null]
+         * @returns {void}
+         */
+        class_1.prototype.forEach = function (callback, ctx) {
+            if (ctx === void 0) { ctx = null; }
+            for (var _i = 0, _a = this.__entries__; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                callback.call(ctx, entry[1], entry[0]);
+            }
+        };
+        return class_1;
+    }());
+})();
+
+/**
+ * Detects whether window and document objects are available in current environment.
+ */
+var isBrowser$1 = typeof window !== 'undefined' && typeof document !== 'undefined' && window.document === document;
+
+// Returns global object of a current environment.
+var global$1 = (function () {
+    if (typeof global !== 'undefined' && global.Math === Math) {
+        return global;
+    }
+    if (typeof self !== 'undefined' && self.Math === Math) {
+        return self;
+    }
+    if (typeof window !== 'undefined' && window.Math === Math) {
+        return window;
+    }
+    // eslint-disable-next-line no-new-func
+    return Function('return this')();
+})();
+
+/**
+ * A shim for the requestAnimationFrame which falls back to the setTimeout if
+ * first one is not supported.
+ *
+ * @returns {number} Requests' identifier.
+ */
+var requestAnimationFrame$1 = (function () {
+    if (typeof requestAnimationFrame === 'function') {
+        // It's required to use a bounded function because IE sometimes throws
+        // an "Invalid calling object" error if rAF is invoked without the global
+        // object on the left hand side.
+        return requestAnimationFrame.bind(global$1);
+    }
+    return function (callback) { return setTimeout(function () { return callback(Date.now()); }, 1000 / 60); };
+})();
+
+// Defines minimum timeout before adding a trailing call.
+var trailingTimeout = 2;
+/**
+ * Creates a wrapper function which ensures that provided callback will be
+ * invoked only once during the specified delay period.
+ *
+ * @param {Function} callback - Function to be invoked after the delay period.
+ * @param {number} delay - Delay after which to invoke callback.
+ * @returns {Function}
+ */
+function throttle (callback, delay) {
+    var leadingCall = false, trailingCall = false, lastCallTime = 0;
+    /**
+     * Invokes the original callback function and schedules new invocation if
+     * the "proxy" was called during current request.
+     *
+     * @returns {void}
+     */
+    function resolvePending() {
+        if (leadingCall) {
+            leadingCall = false;
+            callback();
+        }
+        if (trailingCall) {
+            proxy();
+        }
+    }
+    /**
+     * Callback invoked after the specified delay. It will further postpone
+     * invocation of the original function delegating it to the
+     * requestAnimationFrame.
+     *
+     * @returns {void}
+     */
+    function timeoutCallback() {
+        requestAnimationFrame$1(resolvePending);
+    }
+    /**
+     * Schedules invocation of the original function.
+     *
+     * @returns {void}
+     */
+    function proxy() {
+        var timeStamp = Date.now();
+        if (leadingCall) {
+            // Reject immediately following calls.
+            if (timeStamp - lastCallTime < trailingTimeout) {
+                return;
+            }
+            // Schedule new call to be in invoked when the pending one is resolved.
+            // This is important for "transitions" which never actually start
+            // immediately so there is a chance that we might miss one if change
+            // happens amids the pending invocation.
+            trailingCall = true;
+        }
+        else {
+            leadingCall = true;
+            trailingCall = false;
+            setTimeout(timeoutCallback, delay);
+        }
+        lastCallTime = timeStamp;
+    }
+    return proxy;
+}
+
+// Minimum delay before invoking the update of observers.
+var REFRESH_DELAY = 20;
+// A list of substrings of CSS properties used to find transition events that
+// might affect dimensions of observed elements.
+var transitionKeys = ['top', 'right', 'bottom', 'left', 'width', 'height', 'size', 'weight'];
+// Check if MutationObserver is available.
+var mutationObserverSupported = typeof MutationObserver !== 'undefined';
+/**
+ * Singleton controller class which handles updates of ResizeObserver instances.
+ */
+var ResizeObserverController = /** @class */ (function () {
+    /**
+     * Creates a new instance of ResizeObserverController.
+     *
+     * @private
+     */
+    function ResizeObserverController() {
+        /**
+         * Indicates whether DOM listeners have been added.
+         *
+         * @private {boolean}
+         */
+        this.connected_ = false;
+        /**
+         * Tells that controller has subscribed for Mutation Events.
+         *
+         * @private {boolean}
+         */
+        this.mutationEventsAdded_ = false;
+        /**
+         * Keeps reference to the instance of MutationObserver.
+         *
+         * @private {MutationObserver}
+         */
+        this.mutationsObserver_ = null;
+        /**
+         * A list of connected observers.
+         *
+         * @private {Array<ResizeObserverSPI>}
+         */
+        this.observers_ = [];
+        this.onTransitionEnd_ = this.onTransitionEnd_.bind(this);
+        this.refresh = throttle(this.refresh.bind(this), REFRESH_DELAY);
+    }
+    /**
+     * Adds observer to observers list.
+     *
+     * @param {ResizeObserverSPI} observer - Observer to be added.
+     * @returns {void}
+     */
+    ResizeObserverController.prototype.addObserver = function (observer) {
+        if (!~this.observers_.indexOf(observer)) {
+            this.observers_.push(observer);
+        }
+        // Add listeners if they haven't been added yet.
+        if (!this.connected_) {
+            this.connect_();
+        }
+    };
+    /**
+     * Removes observer from observers list.
+     *
+     * @param {ResizeObserverSPI} observer - Observer to be removed.
+     * @returns {void}
+     */
+    ResizeObserverController.prototype.removeObserver = function (observer) {
+        var observers = this.observers_;
+        var index = observers.indexOf(observer);
+        // Remove observer if it's present in registry.
+        if (~index) {
+            observers.splice(index, 1);
+        }
+        // Remove listeners if controller has no connected observers.
+        if (!observers.length && this.connected_) {
+            this.disconnect_();
+        }
+    };
+    /**
+     * Invokes the update of observers. It will continue running updates insofar
+     * it detects changes.
+     *
+     * @returns {void}
+     */
+    ResizeObserverController.prototype.refresh = function () {
+        var changesDetected = this.updateObservers_();
+        // Continue running updates if changes have been detected as there might
+        // be future ones caused by CSS transitions.
+        if (changesDetected) {
+            this.refresh();
+        }
+    };
+    /**
+     * Updates every observer from observers list and notifies them of queued
+     * entries.
+     *
+     * @private
+     * @returns {boolean} Returns "true" if any observer has detected changes in
+     *      dimensions of it's elements.
+     */
+    ResizeObserverController.prototype.updateObservers_ = function () {
+        // Collect observers that have active observations.
+        var activeObservers = this.observers_.filter(function (observer) {
+            return observer.gatherActive(), observer.hasActive();
+        });
+        // Deliver notifications in a separate cycle in order to avoid any
+        // collisions between observers, e.g. when multiple instances of
+        // ResizeObserver are tracking the same element and the callback of one
+        // of them changes content dimensions of the observed target. Sometimes
+        // this may result in notifications being blocked for the rest of observers.
+        activeObservers.forEach(function (observer) { return observer.broadcastActive(); });
+        return activeObservers.length > 0;
+    };
+    /**
+     * Initializes DOM listeners.
+     *
+     * @private
+     * @returns {void}
+     */
+    ResizeObserverController.prototype.connect_ = function () {
+        // Do nothing if running in a non-browser environment or if listeners
+        // have been already added.
+        if (!isBrowser$1 || this.connected_) {
+            return;
+        }
+        // Subscription to the "Transitionend" event is used as a workaround for
+        // delayed transitions. This way it's possible to capture at least the
+        // final state of an element.
+        document.addEventListener('transitionend', this.onTransitionEnd_);
+        window.addEventListener('resize', this.refresh);
+        if (mutationObserverSupported) {
+            this.mutationsObserver_ = new MutationObserver(this.refresh);
+            this.mutationsObserver_.observe(document, {
+                attributes: true,
+                childList: true,
+                characterData: true,
+                subtree: true
+            });
+        }
+        else {
+            document.addEventListener('DOMSubtreeModified', this.refresh);
+            this.mutationEventsAdded_ = true;
+        }
+        this.connected_ = true;
+    };
+    /**
+     * Removes DOM listeners.
+     *
+     * @private
+     * @returns {void}
+     */
+    ResizeObserverController.prototype.disconnect_ = function () {
+        // Do nothing if running in a non-browser environment or if listeners
+        // have been already removed.
+        if (!isBrowser$1 || !this.connected_) {
+            return;
+        }
+        document.removeEventListener('transitionend', this.onTransitionEnd_);
+        window.removeEventListener('resize', this.refresh);
+        if (this.mutationsObserver_) {
+            this.mutationsObserver_.disconnect();
+        }
+        if (this.mutationEventsAdded_) {
+            document.removeEventListener('DOMSubtreeModified', this.refresh);
+        }
+        this.mutationsObserver_ = null;
+        this.mutationEventsAdded_ = false;
+        this.connected_ = false;
+    };
+    /**
+     * "Transitionend" event handler.
+     *
+     * @private
+     * @param {TransitionEvent} event
+     * @returns {void}
+     */
+    ResizeObserverController.prototype.onTransitionEnd_ = function (_a) {
+        var _b = _a.propertyName, propertyName = _b === void 0 ? '' : _b;
+        // Detect whether transition may affect dimensions of an element.
+        var isReflowProperty = transitionKeys.some(function (key) {
+            return !!~propertyName.indexOf(key);
+        });
+        if (isReflowProperty) {
+            this.refresh();
+        }
+    };
+    /**
+     * Returns instance of the ResizeObserverController.
+     *
+     * @returns {ResizeObserverController}
+     */
+    ResizeObserverController.getInstance = function () {
+        if (!this.instance_) {
+            this.instance_ = new ResizeObserverController();
+        }
+        return this.instance_;
+    };
+    /**
+     * Holds reference to the controller's instance.
+     *
+     * @private {ResizeObserverController}
+     */
+    ResizeObserverController.instance_ = null;
+    return ResizeObserverController;
+}());
+
+/**
+ * Defines non-writable/enumerable properties of the provided target object.
+ *
+ * @param {Object} target - Object for which to define properties.
+ * @param {Object} props - Properties to be defined.
+ * @returns {Object} Target object.
+ */
+var defineConfigurable = (function (target, props) {
+    for (var _i = 0, _a = Object.keys(props); _i < _a.length; _i++) {
+        var key = _a[_i];
+        Object.defineProperty(target, key, {
+            value: props[key],
+            enumerable: false,
+            writable: false,
+            configurable: true
+        });
+    }
+    return target;
+});
+
+/**
+ * Returns the global object associated with provided element.
+ *
+ * @param {Object} target
+ * @returns {Object}
+ */
+var getWindowOf = (function (target) {
+    // Assume that the element is an instance of Node, which means that it
+    // has the "ownerDocument" property from which we can retrieve a
+    // corresponding global object.
+    var ownerGlobal = target && target.ownerDocument && target.ownerDocument.defaultView;
+    // Return the local global object if it's not possible extract one from
+    // provided element.
+    return ownerGlobal || global$1;
+});
+
+// Placeholder of an empty content rectangle.
+var emptyRect = createRectInit(0, 0, 0, 0);
+/**
+ * Converts provided string to a number.
+ *
+ * @param {number|string} value
+ * @returns {number}
+ */
+function toFloat(value) {
+    return parseFloat(value) || 0;
+}
+/**
+ * Extracts borders size from provided styles.
+ *
+ * @param {CSSStyleDeclaration} styles
+ * @param {...string} positions - Borders positions (top, right, ...)
+ * @returns {number}
+ */
+function getBordersSize(styles) {
+    var positions = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        positions[_i - 1] = arguments[_i];
+    }
+    return positions.reduce(function (size, position) {
+        var value = styles['border-' + position + '-width'];
+        return size + toFloat(value);
+    }, 0);
+}
+/**
+ * Extracts paddings sizes from provided styles.
+ *
+ * @param {CSSStyleDeclaration} styles
+ * @returns {Object} Paddings box.
+ */
+function getPaddings(styles) {
+    var positions = ['top', 'right', 'bottom', 'left'];
+    var paddings = {};
+    for (var _i = 0, positions_1 = positions; _i < positions_1.length; _i++) {
+        var position = positions_1[_i];
+        var value = styles['padding-' + position];
+        paddings[position] = toFloat(value);
+    }
+    return paddings;
+}
+/**
+ * Calculates content rectangle of provided SVG element.
+ *
+ * @param {SVGGraphicsElement} target - Element content rectangle of which needs
+ *      to be calculated.
+ * @returns {DOMRectInit}
+ */
+function getSVGContentRect(target) {
+    var bbox = target.getBBox();
+    return createRectInit(0, 0, bbox.width, bbox.height);
+}
+/**
+ * Calculates content rectangle of provided HTMLElement.
+ *
+ * @param {HTMLElement} target - Element for which to calculate the content rectangle.
+ * @returns {DOMRectInit}
+ */
+function getHTMLElementContentRect(target) {
+    // Client width & height properties can't be
+    // used exclusively as they provide rounded values.
+    var clientWidth = target.clientWidth, clientHeight = target.clientHeight;
+    // By this condition we can catch all non-replaced inline, hidden and
+    // detached elements. Though elements with width & height properties less
+    // than 0.5 will be discarded as well.
+    //
+    // Without it we would need to implement separate methods for each of
+    // those cases and it's not possible to perform a precise and performance
+    // effective test for hidden elements. E.g. even jQuery's ':visible' filter
+    // gives wrong results for elements with width & height less than 0.5.
+    if (!clientWidth && !clientHeight) {
+        return emptyRect;
+    }
+    var styles = getWindowOf(target).getComputedStyle(target);
+    var paddings = getPaddings(styles);
+    var horizPad = paddings.left + paddings.right;
+    var vertPad = paddings.top + paddings.bottom;
+    // Computed styles of width & height are being used because they are the
+    // only dimensions available to JS that contain non-rounded values. It could
+    // be possible to utilize the getBoundingClientRect if only it's data wasn't
+    // affected by CSS transformations let alone paddings, borders and scroll bars.
+    var width = toFloat(styles.width), height = toFloat(styles.height);
+    // Width & height include paddings and borders when the 'border-box' box
+    // model is applied (except for IE).
+    if (styles.boxSizing === 'border-box') {
+        // Following conditions are required to handle Internet Explorer which
+        // doesn't include paddings and borders to computed CSS dimensions.
+        //
+        // We can say that if CSS dimensions + paddings are equal to the "client"
+        // properties then it's either IE, and thus we don't need to subtract
+        // anything, or an element merely doesn't have paddings/borders styles.
+        if (Math.round(width + horizPad) !== clientWidth) {
+            width -= getBordersSize(styles, 'left', 'right') + horizPad;
+        }
+        if (Math.round(height + vertPad) !== clientHeight) {
+            height -= getBordersSize(styles, 'top', 'bottom') + vertPad;
+        }
+    }
+    // Following steps can't be applied to the document's root element as its
+    // client[Width/Height] properties represent viewport area of the window.
+    // Besides, it's as well not necessary as the <html> itself neither has
+    // rendered scroll bars nor it can be clipped.
+    if (!isDocumentElement(target)) {
+        // In some browsers (only in Firefox, actually) CSS width & height
+        // include scroll bars size which can be removed at this step as scroll
+        // bars are the only difference between rounded dimensions + paddings
+        // and "client" properties, though that is not always true in Chrome.
+        var vertScrollbar = Math.round(width + horizPad) - clientWidth;
+        var horizScrollbar = Math.round(height + vertPad) - clientHeight;
+        // Chrome has a rather weird rounding of "client" properties.
+        // E.g. for an element with content width of 314.2px it sometimes gives
+        // the client width of 315px and for the width of 314.7px it may give
+        // 314px. And it doesn't happen all the time. So just ignore this delta
+        // as a non-relevant.
+        if (Math.abs(vertScrollbar) !== 1) {
+            width -= vertScrollbar;
+        }
+        if (Math.abs(horizScrollbar) !== 1) {
+            height -= horizScrollbar;
+        }
+    }
+    return createRectInit(paddings.left, paddings.top, width, height);
+}
+/**
+ * Checks whether provided element is an instance of the SVGGraphicsElement.
+ *
+ * @param {Element} target - Element to be checked.
+ * @returns {boolean}
+ */
+var isSVGGraphicsElement = (function () {
+    // Some browsers, namely IE and Edge, don't have the SVGGraphicsElement
+    // interface.
+    if (typeof SVGGraphicsElement !== 'undefined') {
+        return function (target) { return target instanceof getWindowOf(target).SVGGraphicsElement; };
+    }
+    // If it's so, then check that element is at least an instance of the
+    // SVGElement and that it has the "getBBox" method.
+    // eslint-disable-next-line no-extra-parens
+    return function (target) { return (target instanceof getWindowOf(target).SVGElement &&
+        typeof target.getBBox === 'function'); };
+})();
+/**
+ * Checks whether provided element is a document element (<html>).
+ *
+ * @param {Element} target - Element to be checked.
+ * @returns {boolean}
+ */
+function isDocumentElement(target) {
+    return target === getWindowOf(target).document.documentElement;
+}
+/**
+ * Calculates an appropriate content rectangle for provided html or svg element.
+ *
+ * @param {Element} target - Element content rectangle of which needs to be calculated.
+ * @returns {DOMRectInit}
+ */
+function getContentRect(target) {
+    if (!isBrowser$1) {
+        return emptyRect;
+    }
+    if (isSVGGraphicsElement(target)) {
+        return getSVGContentRect(target);
+    }
+    return getHTMLElementContentRect(target);
+}
+/**
+ * Creates rectangle with an interface of the DOMRectReadOnly.
+ * Spec: https://drafts.fxtf.org/geometry/#domrectreadonly
+ *
+ * @param {DOMRectInit} rectInit - Object with rectangle's x/y coordinates and dimensions.
+ * @returns {DOMRectReadOnly}
+ */
+function createReadOnlyRect(_a) {
+    var x = _a.x, y = _a.y, width = _a.width, height = _a.height;
+    // If DOMRectReadOnly is available use it as a prototype for the rectangle.
+    var Constr = typeof DOMRectReadOnly !== 'undefined' ? DOMRectReadOnly : Object;
+    var rect = Object.create(Constr.prototype);
+    // Rectangle's properties are not writable and non-enumerable.
+    defineConfigurable(rect, {
+        x: x, y: y, width: width, height: height,
+        top: y,
+        right: x + width,
+        bottom: height + y,
+        left: x
+    });
+    return rect;
+}
+/**
+ * Creates DOMRectInit object based on the provided dimensions and the x/y coordinates.
+ * Spec: https://drafts.fxtf.org/geometry/#dictdef-domrectinit
+ *
+ * @param {number} x - X coordinate.
+ * @param {number} y - Y coordinate.
+ * @param {number} width - Rectangle's width.
+ * @param {number} height - Rectangle's height.
+ * @returns {DOMRectInit}
+ */
+function createRectInit(x, y, width, height) {
+    return { x: x, y: y, width: width, height: height };
+}
+
+/**
+ * Class that is responsible for computations of the content rectangle of
+ * provided DOM element and for keeping track of it's changes.
+ */
+var ResizeObservation = /** @class */ (function () {
+    /**
+     * Creates an instance of ResizeObservation.
+     *
+     * @param {Element} target - Element to be observed.
+     */
+    function ResizeObservation(target) {
+        /**
+         * Broadcasted width of content rectangle.
+         *
+         * @type {number}
+         */
+        this.broadcastWidth = 0;
+        /**
+         * Broadcasted height of content rectangle.
+         *
+         * @type {number}
+         */
+        this.broadcastHeight = 0;
+        /**
+         * Reference to the last observed content rectangle.
+         *
+         * @private {DOMRectInit}
+         */
+        this.contentRect_ = createRectInit(0, 0, 0, 0);
+        this.target = target;
+    }
+    /**
+     * Updates content rectangle and tells whether it's width or height properties
+     * have changed since the last broadcast.
+     *
+     * @returns {boolean}
+     */
+    ResizeObservation.prototype.isActive = function () {
+        var rect = getContentRect(this.target);
+        this.contentRect_ = rect;
+        return (rect.width !== this.broadcastWidth ||
+            rect.height !== this.broadcastHeight);
+    };
+    /**
+     * Updates 'broadcastWidth' and 'broadcastHeight' properties with a data
+     * from the corresponding properties of the last observed content rectangle.
+     *
+     * @returns {DOMRectInit} Last observed content rectangle.
+     */
+    ResizeObservation.prototype.broadcastRect = function () {
+        var rect = this.contentRect_;
+        this.broadcastWidth = rect.width;
+        this.broadcastHeight = rect.height;
+        return rect;
+    };
+    return ResizeObservation;
+}());
+
+var ResizeObserverEntry = /** @class */ (function () {
+    /**
+     * Creates an instance of ResizeObserverEntry.
+     *
+     * @param {Element} target - Element that is being observed.
+     * @param {DOMRectInit} rectInit - Data of the element's content rectangle.
+     */
+    function ResizeObserverEntry(target, rectInit) {
+        var contentRect = createReadOnlyRect(rectInit);
+        // According to the specification following properties are not writable
+        // and are also not enumerable in the native implementation.
+        //
+        // Property accessors are not being used as they'd require to define a
+        // private WeakMap storage which may cause memory leaks in browsers that
+        // don't support this type of collections.
+        defineConfigurable(this, { target: target, contentRect: contentRect });
+    }
+    return ResizeObserverEntry;
+}());
+
+var ResizeObserverSPI = /** @class */ (function () {
+    /**
+     * Creates a new instance of ResizeObserver.
+     *
+     * @param {ResizeObserverCallback} callback - Callback function that is invoked
+     *      when one of the observed elements changes it's content dimensions.
+     * @param {ResizeObserverController} controller - Controller instance which
+     *      is responsible for the updates of observer.
+     * @param {ResizeObserver} callbackCtx - Reference to the public
+     *      ResizeObserver instance which will be passed to callback function.
+     */
+    function ResizeObserverSPI(callback, controller, callbackCtx) {
+        /**
+         * Collection of resize observations that have detected changes in dimensions
+         * of elements.
+         *
+         * @private {Array<ResizeObservation>}
+         */
+        this.activeObservations_ = [];
+        /**
+         * Registry of the ResizeObservation instances.
+         *
+         * @private {Map<Element, ResizeObservation>}
+         */
+        this.observations_ = new MapShim();
+        if (typeof callback !== 'function') {
+            throw new TypeError('The callback provided as parameter 1 is not a function.');
+        }
+        this.callback_ = callback;
+        this.controller_ = controller;
+        this.callbackCtx_ = callbackCtx;
+    }
+    /**
+     * Starts observing provided element.
+     *
+     * @param {Element} target - Element to be observed.
+     * @returns {void}
+     */
+    ResizeObserverSPI.prototype.observe = function (target) {
+        if (!arguments.length) {
+            throw new TypeError('1 argument required, but only 0 present.');
+        }
+        // Do nothing if current environment doesn't have the Element interface.
+        if (typeof Element === 'undefined' || !(Element instanceof Object)) {
+            return;
+        }
+        if (!(target instanceof getWindowOf(target).Element)) {
+            throw new TypeError('parameter 1 is not of type "Element".');
+        }
+        var observations = this.observations_;
+        // Do nothing if element is already being observed.
+        if (observations.has(target)) {
+            return;
+        }
+        observations.set(target, new ResizeObservation(target));
+        this.controller_.addObserver(this);
+        // Force the update of observations.
+        this.controller_.refresh();
+    };
+    /**
+     * Stops observing provided element.
+     *
+     * @param {Element} target - Element to stop observing.
+     * @returns {void}
+     */
+    ResizeObserverSPI.prototype.unobserve = function (target) {
+        if (!arguments.length) {
+            throw new TypeError('1 argument required, but only 0 present.');
+        }
+        // Do nothing if current environment doesn't have the Element interface.
+        if (typeof Element === 'undefined' || !(Element instanceof Object)) {
+            return;
+        }
+        if (!(target instanceof getWindowOf(target).Element)) {
+            throw new TypeError('parameter 1 is not of type "Element".');
+        }
+        var observations = this.observations_;
+        // Do nothing if element is not being observed.
+        if (!observations.has(target)) {
+            return;
+        }
+        observations.delete(target);
+        if (!observations.size) {
+            this.controller_.removeObserver(this);
+        }
+    };
+    /**
+     * Stops observing all elements.
+     *
+     * @returns {void}
+     */
+    ResizeObserverSPI.prototype.disconnect = function () {
+        this.clearActive();
+        this.observations_.clear();
+        this.controller_.removeObserver(this);
+    };
+    /**
+     * Collects observation instances the associated element of which has changed
+     * it's content rectangle.
+     *
+     * @returns {void}
+     */
+    ResizeObserverSPI.prototype.gatherActive = function () {
+        var _this = this;
+        this.clearActive();
+        this.observations_.forEach(function (observation) {
+            if (observation.isActive()) {
+                _this.activeObservations_.push(observation);
+            }
+        });
+    };
+    /**
+     * Invokes initial callback function with a list of ResizeObserverEntry
+     * instances collected from active resize observations.
+     *
+     * @returns {void}
+     */
+    ResizeObserverSPI.prototype.broadcastActive = function () {
+        // Do nothing if observer doesn't have active observations.
+        if (!this.hasActive()) {
+            return;
+        }
+        var ctx = this.callbackCtx_;
+        // Create ResizeObserverEntry instance for every active observation.
+        var entries = this.activeObservations_.map(function (observation) {
+            return new ResizeObserverEntry(observation.target, observation.broadcastRect());
+        });
+        this.callback_.call(ctx, entries, ctx);
+        this.clearActive();
+    };
+    /**
+     * Clears the collection of active observations.
+     *
+     * @returns {void}
+     */
+    ResizeObserverSPI.prototype.clearActive = function () {
+        this.activeObservations_.splice(0);
+    };
+    /**
+     * Tells whether observer has active observations.
+     *
+     * @returns {boolean}
+     */
+    ResizeObserverSPI.prototype.hasActive = function () {
+        return this.activeObservations_.length > 0;
+    };
+    return ResizeObserverSPI;
+}());
+
+// Registry of internal observers. If WeakMap is not available use current shim
+// for the Map collection as it has all required methods and because WeakMap
+// can't be fully polyfilled anyway.
+var observers = typeof WeakMap !== 'undefined' ? new WeakMap() : new MapShim();
+/**
+ * ResizeObserver API. Encapsulates the ResizeObserver SPI implementation
+ * exposing only those methods and properties that are defined in the spec.
+ */
+var ResizeObserver = /** @class */ (function () {
+    /**
+     * Creates a new instance of ResizeObserver.
+     *
+     * @param {ResizeObserverCallback} callback - Callback that is invoked when
+     *      dimensions of the observed elements change.
+     */
+    function ResizeObserver(callback) {
+        if (!(this instanceof ResizeObserver)) {
+            throw new TypeError('Cannot call a class as a function.');
+        }
+        if (!arguments.length) {
+            throw new TypeError('1 argument required, but only 0 present.');
+        }
+        var controller = ResizeObserverController.getInstance();
+        var observer = new ResizeObserverSPI(callback, controller, this);
+        observers.set(this, observer);
+    }
+    return ResizeObserver;
+}());
+// Expose public methods of ResizeObserver.
+[
+    'observe',
+    'unobserve',
+    'disconnect'
+].forEach(function (method) {
+    ResizeObserver.prototype[method] = function () {
+        var _a;
+        return (_a = observers.get(this))[method].apply(_a, arguments);
+    };
+});
+
+var index = (function () {
+    // Export existing implementation if available.
+    if (typeof global$1.ResizeObserver !== 'undefined') {
+        return global$1.ResizeObserver;
+    }
+    return ResizeObserver;
+})();
+
 /**
  * Main component
  *
@@ -151,27 +4323,419 @@ class TemplateInstance{constructor(t,e,n){this.__parts=[],this.template=t,this.p
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function Main(t,e={}){const{api:n,state:i,onDestroy:s,Actions:o,update:r,createComponent:a,html:l,StyleMap:c,schedule:d}=t,h=n.name;s(i.subscribe("config.plugins",e=>{if(void 0!==e&&Array.isArray(e))for(const n of e){const e=n(t);"function"==typeof e?s(e):e&&e.hasOwnProperty("destroy")&&e.destroy()}}));const u=[];let p,m;u.push(i.subscribe("config.components.List",t=>p=t)),u.push(i.subscribe("config.components.Chart",t=>m=t));const f=a(p);s(f.destroy);const g=a(m);let v;s(g.destroy),s(()=>{u.forEach(t=>t())}),s(i.subscribe("config.wrappers.Main",t=>v=t));const y=n.getActions("main");let b,w;const _=new c({}),x=new c({}),$=new c({});let C,M=0,P=!1;function generateTree(t,e){if(i.get("_internal.flatTreeMap").length&&"subscribe"===e.type)return;const s=i.get("config.list.rows"),o=[];for(const t in s)o.push(s[t]);n.fillEmptyRowValues(o);const a=i.get("config.chart.items"),l=[];for(const t in a)l.push(a[t]);const c=n.makeTreeMap(o,l);i.update("_internal.treeMap",c);const d=n.getFlatTreeMapById(c);i.update("_internal.flatTreeMapById",d);const h=n.flattenTreeMap(c);i.update("_internal.flatTreeMap",h),r()}s(i.subscribe("config.classNames",t=>{const e=i.get("config");b=n.getClass(h,{config:e}),P&&(b+=` ${h}__list-column-header-resizer--active`),w=n.getClass("vertical-scroll",{config:e}),r()})),s(i.subscribeAll(["config.height","config.headerHeight","_internal.scrollBarHeight"],(function heightChange(){const t=i.get("config"),e=i.get("_internal.scrollBarHeight"),n=t.height-t.headerHeight-e;i.update("_internal.height",n),_.style["--height"]=t.height+"px",x.style.height=n+"px",x.style.width=e+"px",x.style["margin-top"]=t.headerHeight+"px",r()}))),s(i.subscribe("_internal.list.columns.resizer.active",(function resizerActiveChange(t){P=t,b=n.getClass(n.name),P&&(b+=` ${n.name}__list-column-header-resizer--active`),r()}))),s(i.subscribeAll(["config.list.rows;","config.chart.items;"],generateTree)),s(i.subscribeAll(["config.list.rows.*.parentId","config.chart.items.*.rowId"],generateTree,{bulk:!0})),s(i.subscribeAll(["config.list.rows.*.expanded","_internal.treeMap;"],(function prepareExpanded(){const t=i.get("config.list.rows"),e=n.getRowsFromIds(n.getRowsWithParentsExpanded(i.get("_internal.flatTreeMap"),i.get("_internal.flatTreeMapById"),t),t);M=n.getRowsHeight(e),i.update("_internal.list.rowsHeight",M),i.update("_internal.list.rowsWithParentsExpanded",e),r()}),{bulk:!0})),s(i.subscribeAll(["_internal.list.rowsWithParentsExpanded;","config.scroll.top","config.chart.items"],(function generateVisibleRowsAndItems(){const{visibleRows:t,compensation:e}=n.getVisibleRowsAndCompensation(i.get("_internal.list.rowsWithParentsExpanded")),s=i.get("config.scroll.smooth"),o=i.get("_internal.list.visibleRows");let a=!0;i.update("config.scroll.compensation.y",s?-e:0),t.length&&(a=t.some((t,e)=>void 0===o[e]||t.id!==o[e].id)),a&&i.update("_internal.list.visibleRows",t);const l=[];for(const e of t)for(const t of e._internal.items)l.push(t);i.update("_internal.chart.visibleItems",l),r()}),{bulk:!0}));let O=0;s(i.subscribe("_internal.list.visibleRows;",(function onVisibleRowsChange(){const t=i.get("config.scroll.top");$.style.width="1px",$.style.height=M+"px",O!==t&&C&&(O=t,C.scrollTop=t),r()})));const generateAndAddPeriodDates=(t,e)=>{const i=[];let s=e.leftGlobal;const o=e.rightGlobal,r=e.timePerPixel;let a=s-n.time.date(s).startOf(t),l=a/r,c=0,d=0;for(;s<o;){const e={sub:a,subPx:l,leftGlobal:s,rightGlobal:n.time.date(s).endOf(t).valueOf(),width:0,leftPx:0,rightPx:0};e.width=(e.rightGlobal-e.leftGlobal+a)/r,d=e.width>d?e.width:d,e.leftPx=c,c+=e.width,e.rightPx=c,i.push(e),s=e.rightGlobal+1,a=0,l=0}e.maxWidth[t]=d,e.dates[t]=i};if(s(i.subscribeAll(["config.chart.time","_internal.dimensions.width","config.scroll.left","_internal.scrollBarHeight","_internal.list.width","_internal.chart.dimensions"],d((function recalculateTimes(){const t=i.get("_internal.chart.dimensions.width");let e=n.mergeDeep({},i.get("config.chart.time"));e=n.time.recalculateFromTo(e);let s=i.get("config.scroll.left");if(e.timePerPixel=Math.pow(2,e.zoom),e.totalViewDurationMs=n.time.date(e.to).diff(e.from,"milliseconds"),e.totalViewDurationPx=e.totalViewDurationMs/e.timePerPixel,s>e.totalViewDurationPx&&(s=e.totalViewDurationPx-t),e.leftGlobal=s*e.timePerPixel+e.from,e.rightGlobal=e.leftGlobal+t*e.timePerPixel,e.leftInner=e.leftGlobal-e.from,e.rightInner=e.rightGlobal-e.from,e.leftPx=e.leftInner/e.timePerPixel,e.rightPx=e.rightInner/e.timePerPixel,Math.round(e.rightGlobal/e.timePerPixel)>Math.round(e.to/e.timePerPixel)&&0===s){const t=(e.rightGlobal-e.to)/(e.rightGlobal-e.from);e.timePerPixel=e.timePerPixel-e.timePerPixel*t,e.zoom=Math.log(e.timePerPixel)/Math.log(2),e.leftGlobal=s*e.timePerPixel+e.from,e.rightGlobal=e.to,e.rightInner=e.rightGlobal-e.from,e.totalViewDurationMs=e.to-e.from,e.totalViewDurationPx=e.totalViewDurationMs/e.timePerPixel,e.rightInner=e.rightGlobal-e.from,e.rightPx=e.rightInner/e.timePerPixel,e.leftPx=e.leftInner/e.timePerPixel}generateAndAddPeriodDates("day",e),generateAndAddPeriodDates("month",e),i.update("_internal.chart.time",e);let o=0;e.dates.day&&0!==e.dates.day.length&&(o=e.dates.day[0].subPx),i.update("config.scroll.compensation.x",o),r()})),{bulk:!0})),!0===i.get("config.usageStatistics")&&""===location.port&&""!==location.host&&!location.host.startsWith("localhost"))try{const t=new XMLHttpRequest;t.open("POST","https://gstc-us.neuronet.io/"),t.send(JSON.stringify({location:{href:location.href,host:location.host}}))}catch(t){}let T=0;const A={handleEvent:function handleEvent(t){if("scroll"===t.type){const e=t.target.scrollTop,handleOnScroll=t=>{t.top=e,T=t.top;const n=i.get("_internal.elements.vertical-scroll-inner");if(n){const e=n.clientHeight;t.percent.top=t.top/e}return t};T!==e&&i.update("config.scroll",handleOnScroll,{only:["top","percent.top"]})}else{const e=n.normalizeMouseWheelEvent(t),s=i.get("config.scroll.xMultiplier"),o=i.get("config.scroll.yMultiplier");t.shiftKey&&e.y?i.update("config.scroll.left",t=>n.limitScroll("left",t+=e.y*s)):e.x?i.update("config.scroll.left",t=>n.limitScroll("left",t+=e.x*s)):i.update("config.scroll.top",t=>T=n.limitScroll("top",t+=e.y*o))}},passive:!0,capture:!1};function onScrollStop(t){t.stopPropagation(),t.stopImmediatePropagation(),t.preventDefault()}const S={width:0,height:0};let I;class ResizeAction{constructor(t){I||(I=new ot((e,n)=>{const s=t.clientWidth,o=t.clientHeight;S.width===s&&S.height===o||(S.width=s,S.height=o,i.update("_internal.dimensions",S))}),I.observe(t),i.update("_internal.elements.main",t))}update(){}destroy(t){I.unobserve(t)}}y.includes(ResizeAction)||y.push(ResizeAction),s(()=>{I.disconnect()});const D=Object.assign(Object.assign({},e),{api:n,state:i}),E=o.create(y,D),R=o.create([t=>{C||(C=t,i.update("_internal.elements.vertical-scroll",t))}]),L=o.create([t=>{i.update("_internal.elements.vertical-scroll-inner",t)}]);return n=>v(l`
+ */
+function Main(vido, props = {}) {
+    const { api, state, onDestroy, Actions, update, createComponent, html, StyleMap, schedule } = vido;
+    const componentName = api.name;
+    // Initialize plugins
+    onDestroy(state.subscribe('config.plugins', plugins => {
+        if (typeof plugins !== 'undefined' && Array.isArray(plugins)) {
+            for (const initializePlugin of plugins) {
+                const destroyPlugin = initializePlugin(vido);
+                if (typeof destroyPlugin === 'function') {
+                    onDestroy(destroyPlugin);
+                }
+                else if (destroyPlugin && destroyPlugin.hasOwnProperty('destroy')) {
+                    destroyPlugin.destroy();
+                }
+            }
+        }
+    }));
+    const componentSubs = [];
+    let ListComponent;
+    componentSubs.push(state.subscribe('config.components.List', value => (ListComponent = value)));
+    let ChartComponent;
+    componentSubs.push(state.subscribe('config.components.Chart', value => (ChartComponent = value)));
+    const List = createComponent(ListComponent);
+    onDestroy(List.destroy);
+    const Chart = createComponent(ChartComponent);
+    onDestroy(Chart.destroy);
+    onDestroy(() => {
+        componentSubs.forEach(unsub => unsub());
+    });
+    let wrapper;
+    onDestroy(state.subscribe('config.wrappers.Main', value => (wrapper = value)));
+    const componentActions = api.getActions('main');
+    let className, classNameVerticalScroll;
+    const styleMap = new StyleMap({}), verticalScrollStyleMap = new StyleMap({}), verticalScrollAreaStyleMap = new StyleMap({});
+    let verticalScrollBarElement;
+    let rowsHeight = 0;
+    let resizerActive = false;
+    /**
+     * Update class names
+     * @param {object} classNames
+     */
+    const updateClassNames = classNames => {
+        const config = state.get('config');
+        className = api.getClass(componentName, { config });
+        if (resizerActive) {
+            className += ` ${componentName}__list-column-header-resizer--active`;
+        }
+        classNameVerticalScroll = api.getClass('vertical-scroll', { config });
+        update();
+    };
+    onDestroy(state.subscribe('config.classNames', updateClassNames));
+    /**
+     * Height change
+     */
+    function heightChange() {
+        const config = state.get('config');
+        const scrollBarHeight = state.get('_internal.scrollBarHeight');
+        const height = config.height - config.headerHeight - scrollBarHeight;
+        state.update('_internal.height', height);
+        styleMap.style['--height'] = config.height + 'px';
+        verticalScrollStyleMap.style.height = height + 'px';
+        verticalScrollStyleMap.style.width = scrollBarHeight + 'px';
+        verticalScrollStyleMap.style['margin-top'] = config.headerHeight + 'px';
+        update();
+    }
+    onDestroy(state.subscribeAll(['config.height', 'config.headerHeight', '_internal.scrollBarHeight'], heightChange));
+    /**
+     * Resizer active change
+     * @param {boolean} active
+     */
+    function resizerActiveChange(active) {
+        resizerActive = active;
+        className = api.getClass(api.name);
+        if (resizerActive) {
+            className += ` ${api.name}__list-column-header-resizer--active`;
+        }
+        update();
+    }
+    onDestroy(state.subscribe('_internal.list.columns.resizer.active', resizerActiveChange));
+    /**
+     * Generate tree
+     * @param {object} bulk
+     * @param {object} eventInfo
+     */
+    function generateTree(bulk, eventInfo) {
+        if (state.get('_internal.flatTreeMap').length && eventInfo.type === 'subscribe') {
+            return;
+        }
+        const configRows = state.get('config.list.rows');
+        const rows = [];
+        for (const rowId in configRows) {
+            rows.push(configRows[rowId]);
+        }
+        api.fillEmptyRowValues(rows);
+        const configItems = state.get('config.chart.items');
+        const items = [];
+        for (const itemId in configItems) {
+            items.push(configItems[itemId]);
+        }
+        const treeMap = api.makeTreeMap(rows, items);
+        state.update('_internal.treeMap', treeMap);
+        const flatTreeMapById = api.getFlatTreeMapById(treeMap);
+        state.update('_internal.flatTreeMapById', flatTreeMapById);
+        const flatTreeMap = api.flattenTreeMap(treeMap);
+        state.update('_internal.flatTreeMap', flatTreeMap);
+        update();
+    }
+    onDestroy(state.subscribeAll(['config.list.rows;', 'config.chart.items;'], generateTree));
+    onDestroy(state.subscribeAll(['config.list.rows.*.parentId', 'config.chart.items.*.rowId'], generateTree, { bulk: true }));
+    /**
+     * Prepare expanded
+     */
+    function prepareExpanded() {
+        const configRows = state.get('config.list.rows');
+        const rowsWithParentsExpanded = api.getRowsFromIds(api.getRowsWithParentsExpanded(state.get('_internal.flatTreeMap'), state.get('_internal.flatTreeMapById'), configRows), configRows);
+        rowsHeight = api.getRowsHeight(rowsWithParentsExpanded);
+        state.update('_internal.list.rowsHeight', rowsHeight);
+        state.update('_internal.list.rowsWithParentsExpanded', rowsWithParentsExpanded);
+        update();
+    }
+    onDestroy(state.subscribeAll(['config.list.rows.*.expanded', '_internal.treeMap;'], prepareExpanded, { bulk: true }));
+    /**
+     * Generate visible rows
+     */
+    function generateVisibleRowsAndItems() {
+        const { visibleRows, compensation } = api.getVisibleRowsAndCompensation(state.get('_internal.list.rowsWithParentsExpanded'));
+        const smoothScroll = state.get('config.scroll.smooth');
+        const currentVisibleRows = state.get('_internal.list.visibleRows');
+        let shouldUpdate = true;
+        state.update('config.scroll.compensation.y', smoothScroll ? -compensation : 0);
+        if (visibleRows.length) {
+            shouldUpdate = visibleRows.some((row, index) => {
+                if (typeof currentVisibleRows[index] === 'undefined') {
+                    return true;
+                }
+                return row.id !== currentVisibleRows[index].id;
+            });
+        }
+        if (shouldUpdate) {
+            state.update('_internal.list.visibleRows', visibleRows);
+        }
+        const visibleItems = [];
+        for (const row of visibleRows) {
+            for (const item of row._internal.items) {
+                visibleItems.push(item);
+            }
+        }
+        state.update('_internal.chart.visibleItems', visibleItems);
+        update();
+    }
+    onDestroy(state.subscribeAll(['_internal.list.rowsWithParentsExpanded;', 'config.scroll.top', 'config.chart.items'], generateVisibleRowsAndItems, { bulk: true }));
+    let elementScrollTop = 0;
+    /**
+     * On visible rows change
+     */
+    function onVisibleRowsChange() {
+        const top = state.get('config.scroll.top');
+        verticalScrollAreaStyleMap.style.width = '1px';
+        verticalScrollAreaStyleMap.style.height = rowsHeight + 'px';
+        if (elementScrollTop !== top && verticalScrollBarElement) {
+            elementScrollTop = top;
+            verticalScrollBarElement.scrollTop = top;
+        }
+        update();
+    }
+    onDestroy(state.subscribe('_internal.list.visibleRows;', onVisibleRowsChange));
+    /**
+     * Generate and add period dates
+     * @param {string} period
+     * @param {object} internalTime
+     */
+    const generateAndAddPeriodDates = (period, internalTime) => {
+        const dates = [];
+        let leftGlobal = internalTime.leftGlobal;
+        const rightGlobal = internalTime.rightGlobal;
+        const timePerPixel = internalTime.timePerPixel;
+        let sub = leftGlobal - api.time.date(leftGlobal).startOf(period);
+        let subPx = sub / timePerPixel;
+        let leftPx = 0;
+        let maxWidth = 0;
+        while (leftGlobal < rightGlobal) {
+            const date = {
+                sub,
+                subPx,
+                leftGlobal,
+                rightGlobal: api.time
+                    .date(leftGlobal)
+                    .endOf(period)
+                    .valueOf(),
+                width: 0,
+                leftPx: 0,
+                rightPx: 0
+            };
+            date.width = (date.rightGlobal - date.leftGlobal + sub) / timePerPixel;
+            maxWidth = date.width > maxWidth ? date.width : maxWidth;
+            date.leftPx = leftPx;
+            leftPx += date.width;
+            date.rightPx = leftPx;
+            dates.push(date);
+            leftGlobal = date.rightGlobal + 1;
+            sub = 0;
+            subPx = 0;
+        }
+        internalTime.maxWidth[period] = maxWidth;
+        internalTime.dates[period] = dates;
+    };
+    /**
+     * Recalculate times action
+     */
+    function recalculateTimes() {
+        const chartWidth = state.get('_internal.chart.dimensions.width');
+        let time = api.mergeDeep({}, state.get('config.chart.time'));
+        time = api.time.recalculateFromTo(time);
+        let scrollLeft = state.get('config.scroll.left');
+        time.timePerPixel = Math.pow(2, time.zoom);
+        time.totalViewDurationMs = api.time.date(time.to).diff(time.from, 'milliseconds');
+        time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
+        if (scrollLeft > time.totalViewDurationPx) {
+            scrollLeft = time.totalViewDurationPx - chartWidth;
+        }
+        time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
+        time.rightGlobal = time.leftGlobal + chartWidth * time.timePerPixel;
+        time.leftInner = time.leftGlobal - time.from;
+        time.rightInner = time.rightGlobal - time.from;
+        time.leftPx = time.leftInner / time.timePerPixel;
+        time.rightPx = time.rightInner / time.timePerPixel;
+        const rightPixelGlobal = Math.round(time.rightGlobal / time.timePerPixel);
+        const pixelTo = Math.round(time.to / time.timePerPixel);
+        if (rightPixelGlobal > pixelTo && scrollLeft === 0) {
+            const diff = time.rightGlobal - time.to;
+            const diffPercent = diff / (time.rightGlobal - time.from);
+            time.timePerPixel = time.timePerPixel - time.timePerPixel * diffPercent;
+            time.zoom = Math.log(time.timePerPixel) / Math.log(2);
+            time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
+            time.rightGlobal = time.to;
+            time.rightInner = time.rightGlobal - time.from;
+            time.totalViewDurationMs = time.to - time.from;
+            time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
+            time.rightInner = time.rightGlobal - time.from;
+            time.rightPx = time.rightInner / time.timePerPixel;
+            time.leftPx = time.leftInner / time.timePerPixel;
+        }
+        generateAndAddPeriodDates('day', time);
+        generateAndAddPeriodDates('month', time);
+        state.update(`_internal.chart.time`, time);
+        let xCompensation = 0;
+        if (time.dates.day && time.dates.day.length !== 0) {
+            xCompensation = time.dates.day[0].subPx;
+        }
+        state.update('config.scroll.compensation.x', xCompensation);
+        update();
+    }
+    onDestroy(state.subscribeAll([
+        'config.chart.time',
+        '_internal.dimensions.width',
+        'config.scroll.left',
+        '_internal.scrollBarHeight',
+        '_internal.list.width',
+        '_internal.chart.dimensions'
+    ], schedule(recalculateTimes), { bulk: true }));
+    if (state.get('config.usageStatistics') === true &&
+        location.port === '' &&
+        location.host !== '' &&
+        !location.host.startsWith('localhost')) {
+        try {
+            const oReq = new XMLHttpRequest();
+            oReq.open('POST', 'https://gstc-us.neuronet.io/');
+            oReq.send(JSON.stringify({ location: { href: location.href, host: location.host } }));
+        }
+        catch (e) { }
+    }
+    let scrollTop = 0;
+    /**
+     * Handle scroll Event
+     * @param {MouseEvent} event
+     */
+    function handleEvent(event) {
+        if (event.type === 'scroll') {
+            // @ts-ignore
+            const top = event.target.scrollTop;
+            /**
+             * Handle on scroll event
+             * @param {object} scroll
+             * @returns {object} scroll
+             */
+            const handleOnScroll = scroll => {
+                scroll.top = top;
+                scrollTop = scroll.top;
+                const scrollInner = state.get('_internal.elements.vertical-scroll-inner');
+                if (scrollInner) {
+                    const scrollHeight = scrollInner.clientHeight;
+                    scroll.percent.top = scroll.top / scrollHeight;
+                }
+                return scroll;
+            };
+            if (scrollTop !== top)
+                state.update('config.scroll', handleOnScroll, {
+                    only: ['top', 'percent.top']
+                });
+        }
+        else {
+            const wheel = api.normalizeMouseWheelEvent(event);
+            const xMultiplier = state.get('config.scroll.xMultiplier');
+            const yMultiplier = state.get('config.scroll.yMultiplier');
+            if (event.shiftKey && wheel.y) {
+                state.update('config.scroll.left', left => {
+                    return api.limitScroll('left', (left += wheel.y * xMultiplier));
+                });
+            }
+            else if (wheel.x) {
+                state.update('config.scroll.left', left => {
+                    return api.limitScroll('left', (left += wheel.x * xMultiplier));
+                });
+            }
+            else {
+                state.update('config.scroll.top', top => {
+                    return (scrollTop = api.limitScroll('top', (top += wheel.y * yMultiplier)));
+                });
+            }
+        }
+    }
+    const onScroll = {
+        handleEvent: handleEvent,
+        passive: true,
+        capture: false
+    };
+    /**
+     * Stop scroll / wheel to sink into parent elements
+     * @param {Event} event
+     */
+    function onScrollStop(event) {
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        event.preventDefault();
+    }
+    const dimensions = { width: 0, height: 0 };
+    let ro;
+    /**
+     * Resize action
+     * @param {Element} element
+     */
+    class ResizeAction {
+        constructor(element) {
+            if (!ro) {
+                ro = new index((entries, observer) => {
+                    const width = element.clientWidth;
+                    const height = element.clientHeight;
+                    if (dimensions.width !== width || dimensions.height !== height) {
+                        dimensions.width = width;
+                        dimensions.height = height;
+                        state.update('_internal.dimensions', dimensions);
+                    }
+                });
+                ro.observe(element);
+                state.update('_internal.elements.main', element);
+            }
+        }
+        update() { }
+        destroy(element) {
+            ro.unobserve(element);
+        }
+    }
+    if (!componentActions.includes(ResizeAction)) {
+        componentActions.push(ResizeAction);
+    }
+    onDestroy(() => {
+        ro.disconnect();
+    });
+    /**
+     * Bind scroll element
+     * @param {Element} element
+     */
+    const bindScrollElement = (element) => {
+        if (!verticalScrollBarElement) {
+            verticalScrollBarElement = element;
+            state.update('_internal.elements.vertical-scroll', element);
+        }
+    };
+    /**
+     * Bind scroll inner element
+     * @param {Element} element
+     */
+    const bindScrollInnerElement = (element) => {
+        state.update('_internal.elements.vertical-scroll-inner', element);
+    };
+    const actionProps = Object.assign(Object.assign({}, props), { api, state });
+    const mainActions = Actions.create(componentActions, actionProps);
+    const verticalScrollActions = Actions.create([bindScrollElement]);
+    const verticalScrollAreaActions = Actions.create([bindScrollInnerElement]);
+    return templateProps => wrapper(html `
         <div
           data-info-url="https://github.com/neuronetio/gantt-schedule-timeline-calendar"
-          class=${b}
-          style=${_}
+          class=${className}
+          style=${styleMap}
           @scroll=${onScrollStop}
           @wheel=${onScrollStop}
-          data-actions=${E}
+          data-actions=${mainActions}
         >
-          ${f.html()}${g.html()}
+          ${List.html()}${Chart.html()}
           <div
-            class=${w}
-            style=${x}
-            @scroll=${A}
-            @wheel=${A}
-            data-actions=${R}
+            class=${classNameVerticalScroll}
+            style=${verticalScrollStyleMap}
+            @scroll=${onScroll}
+            @wheel=${onScroll}
+            data-actions=${verticalScrollActions}
           >
-            <div style=${$} data-actions=${L} />
+            <div style=${verticalScrollAreaStyleMap} data-actions=${verticalScrollAreaActions} />
           </div>
         </div>
-      `,{props:e,vido:t,templateProps:n})}
+      `, { props, vido, templateProps });
+}
+
 /**
  * List component
  *
@@ -180,11 +4744,118 @@ class TemplateInstance{constructor(t,e,n){this.__parts=[],this.template=t,this.p
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function List(t,e={}){const{api:n,state:i,onDestroy:s,Actions:o,update:r,reuseComponents:a,html:l,schedule:c,StyleMap:d,cache:h}=t,u=n.getActions("list");let p,m;s(i.subscribe("config.wrappers.List",t=>p=t));const f=i.subscribe("config.components.ListColumn",t=>m=t);let g,v,y;!function renderExpanderIcons(){const t=i.get("config.list.expander.icons"),e={};for(const i in t){const s=t[i];e[i]=n.getSVGIconSrc(s)}i.update("_internal.list.expander.icons",e)}(),function renderToggleIcons(){const t={open:"",close:""},e=i.get("config.list.toggle.icons");for(const i in e){const s=e[i];t[i]=n.getSVGIconSrc(s)}i.update("_internal.list.toggle.icons",t)}(),s(i.subscribe("config.list",(function onListChange(){v=i.get("config.list"),y=v.columns.percent,r()}))),s(i.subscribe("config.classNames",()=>{g=n.getClass("list",{list:v}),r()}));let b=[];s(i.subscribe("config.list.columns.data;",(function onListColumnsDataChange(t){const e=a(b,Object.values(t),t=>({columnId:t.id}),m);return r(),e})));const w=new d({height:"","--expander-padding-width":"","--expander-size":""});function onScroll(t){t.stopPropagation(),t.preventDefault(),c(()=>{if("scroll"===t.type)i.update("config.scroll.top",t.target.scrollTop);else{const e=n.normalizeMouseWheelEvent(t);i.update("config.scroll.top",t=>n.limitScroll("top",t+=e.y*i.get("config.scroll.yMultiplier")))}})()}let _;function getWidth(t){_||(_=t.clientWidth,0===y&&(_=0),i.update("_internal.list.width",_))}s(i.subscribeAll(["config.height","config.list.expander"],t=>{const e=i.get("config.list.expander");w.style.height=i.get("config.height")+"px",w.style["--expander-padding-width"]=e.padding+"px",w.style["--expander-size"]=e.size+"px",r()})),s(()=>{b.forEach(t=>t.destroy()),f()});u.push(class ListAction{constructor(t,e){e.state.update("_internal.elements.list",t),getWidth(t)}update(t){return getWidth(t)}});const x=o.create(u,Object.assign(Object.assign({},e),{api:n,state:i}));return e=>p(h(v.columns.percent>0?l`
-              <div class=${g} data-actions=${x} style=${w} @scroll=${onScroll} @wheel=${onScroll}>
-                ${b.map(t=>t.html())}
+ */
+function List(vido, props = {}) {
+    const { api, state, onDestroy, Actions, update, reuseComponents, html, schedule, StyleMap, cache } = vido;
+    const componentName = 'list';
+    const componentActions = api.getActions(componentName);
+    let wrapper;
+    onDestroy(state.subscribe('config.wrappers.List', value => (wrapper = value)));
+    let ListColumnComponent;
+    const listColumnUnsub = state.subscribe('config.components.ListColumn', value => (ListColumnComponent = value));
+    function renderExpanderIcons() {
+        const icons = state.get('config.list.expander.icons');
+        const rendered = {};
+        for (const iconName in icons) {
+            const html = icons[iconName];
+            rendered[iconName] = api.getSVGIconSrc(html);
+        }
+        state.update('_internal.list.expander.icons', rendered);
+    }
+    renderExpanderIcons();
+    function renderToggleIcons() {
+        const toggleIconsSrc = {
+            open: '',
+            close: ''
+        };
+        const icons = state.get('config.list.toggle.icons');
+        for (const iconName in icons) {
+            const html = icons[iconName];
+            toggleIconsSrc[iconName] = api.getSVGIconSrc(html);
+        }
+        state.update('_internal.list.toggle.icons', toggleIconsSrc);
+    }
+    renderToggleIcons();
+    let className;
+    let list, percent;
+    function onListChange() {
+        list = state.get('config.list');
+        percent = list.columns.percent;
+        update();
+    }
+    onDestroy(state.subscribe('config.list', onListChange));
+    onDestroy(state.subscribe('config.classNames', () => {
+        className = api.getClass(componentName, { list });
+        update();
+    }));
+    let listColumns = [];
+    function onListColumnsDataChange(data) {
+        const destroy = reuseComponents(listColumns, Object.values(data), column => ({ columnId: column.id }), ListColumnComponent);
+        update();
+        return destroy;
+    }
+    onDestroy(state.subscribe('config.list.columns.data;', onListColumnsDataChange));
+    const styleMap = new StyleMap({
+        height: '',
+        '--expander-padding-width': '',
+        '--expander-size': ''
+    });
+    onDestroy(state.subscribeAll(['config.height', 'config.list.expander'], bulk => {
+        const expander = state.get('config.list.expander');
+        styleMap.style['height'] = state.get('config.height') + 'px';
+        styleMap.style['--expander-padding-width'] = expander.padding + 'px';
+        styleMap.style['--expander-size'] = expander.size + 'px';
+        update();
+    }));
+    onDestroy(() => {
+        listColumns.forEach(listColumn => listColumn.destroy());
+        listColumnUnsub();
+    });
+    function onScroll(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        schedule(() => {
+            if (event.type === 'scroll') {
+                state.update('config.scroll.top', event.target.scrollTop);
+            }
+            else {
+                const wheel = api.normalizeMouseWheelEvent(event);
+                state.update('config.scroll.top', top => {
+                    return api.limitScroll('top', (top += wheel.y * state.get('config.scroll.yMultiplier')));
+                });
+            }
+        })();
+    }
+    let width;
+    function getWidth(element) {
+        if (!width) {
+            width = element.clientWidth;
+            if (percent === 0) {
+                width = 0;
+            }
+            state.update('_internal.list.width', width);
+        }
+    }
+    class ListAction {
+        constructor(element, data) {
+            data.state.update('_internal.elements.list', element);
+            getWidth(element);
+        }
+        update(element) {
+            return getWidth(element);
+        }
+    }
+    componentActions.push(ListAction);
+    const actions = Actions.create(componentActions, Object.assign(Object.assign({}, props), { api, state }));
+    return templateProps => wrapper(cache(list.columns.percent > 0
+        ? html `
+              <div class=${className} data-actions=${actions} style=${styleMap} @scroll=${onScroll} @wheel=${onScroll}>
+                ${listColumns.map(c => c.html())}
               </div>
-            `:""),{vido:t,props:{},templateProps:e})}
+            `
+        : ''), { vido, props: {}, templateProps });
+}
+
 /**
  * ListColumn component
  *
@@ -193,16 +4864,142 @@ class TemplateInstance{constructor(t,e,n){this.__parts=[],this.template=t,this.p
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */class BindElementAction{constructor(t,e){let n=!1,i=e.state.get("_internal.elements.list-columns");void 0===i&&(i=[],n=!0),i.includes(t)||(i.push(t),n=!0),n&&e.state.update("_internal.elements.list-columns",i)}destroy(t,e){e.state.update("_internal.elements.list-columns",e=>e.filter(e=>e!==t))}}function ListColumn(t,e){const{api:n,state:i,onDestroy:s,onChange:o,Actions:r,update:a,createComponent:l,reuseComponents:c,html:d,StyleMap:h}=t;let u;s(i.subscribe("config.wrappers.ListColumn",t=>u=t));const p=[];let m,f;p.push(i.subscribe("config.components.ListColumnRow",t=>m=t)),p.push(i.subscribe("config.components.ListColumnHeader",t=>f=t));const g=Object.assign(Object.assign({},e),{api:n,state:i}),v=n.getActions("list-column"),y=n.getActions("list-column-rows");let b,w,_;const x=new h({width:"","--width":""}),$=new h({width:"",height:""}),C=new h({width:"",height:""});let M,P,O=`config.list.columns.data.${e.columnId}`,T=i.subscribe(O,(function columnChanged(t){M=t,a()}));function calculateStyle(){const t=i.get("config.list"),e=i.get("config.scroll.compensation.y");_=t.columns.data[M.id].width*t.columns.percent*.01,P=_;const n=i.get("_internal.height");x.style.width=P+"px",x.style["--width"]=P+"px",$.style.height=n+"px",C.style.height=n+Math.abs(e)+"px",C.style.transform=`translate(0px, ${e}px)`}let A=i.subscribeAll(["config.list.columns.percent","config.list.columns.resizer.width",`config.list.columns.data.${M.id}.width`,"_internal.chart.dimensions.width","_internal.height","config.scroll.compensation.y","_internal.list.width"],calculateStyle,{bulk:!0});const S=l(f,{columnId:e.columnId});s(S.destroy),o(t=>{e=t;for(const t in e)g[t]=e[t];T&&T(),S.change({columnId:e.columnId}),O=`config.list.columns.data.${e.columnId}`,T=i.subscribe(O,(function columnChanged(t){M=t,a()})),A&&A(),A=i.subscribeAll(["config.list.columns.percent","config.list.columns.resizer.width",`config.list.columns.data.${M.id}.width`,"_internal.chart.dimensions.width","_internal.height","config.scroll.compensation.y","_internal.list.width"],calculateStyle,{bulk:!0}),S.change(e)}),s(()=>{T(),A()}),s(i.subscribe("config.classNames",t=>{b=n.getClass("list-column"),w=n.getClass("list-column-rows"),a()}));const I=[];function getRowHtml(t){return t.html()}s(i.subscribe("_internal.list.visibleRows;",t=>{const n=c(I,t,t=>t&&{columnId:e.columnId,rowId:t.id,width:P},m);return a(),n})),s(()=>{I.forEach(t=>t.destroy()),p.forEach(t=>t())}),v.push(BindElementAction);const D=r.create(v,{column:M,state:i,api:n}),E=r.create(y,{api:n,state:i});return n=>u(d`
-        <div class=${b} data-actions=${D} style=${x}>
-          ${S.html()}
-          <div class=${w} style=${$} data-actions=${E}>
-            <div class=${w+"--scroll-compensation"} style=${C}>
-              ${I.map(getRowHtml)}
+ */
+/**
+ * Bind element action
+ */
+class BindElementAction {
+    constructor(element, data) {
+        let shouldUpdate = false;
+        let elements = data.state.get('_internal.elements.list-columns');
+        if (typeof elements === 'undefined') {
+            elements = [];
+            shouldUpdate = true;
+        }
+        if (!elements.includes(element)) {
+            elements.push(element);
+            shouldUpdate = true;
+        }
+        if (shouldUpdate)
+            data.state.update('_internal.elements.list-columns', elements);
+    }
+    destroy(element, data) {
+        data.state.update('_internal.elements.list-columns', elements => {
+            return elements.filter(el => el !== element);
+        });
+    }
+}
+function ListColumn(vido, props) {
+    const { api, state, onDestroy, onChange, Actions, update, createComponent, reuseComponents, html, StyleMap } = vido;
+    let wrapper;
+    onDestroy(state.subscribe('config.wrappers.ListColumn', value => (wrapper = value)));
+    const componentsSub = [];
+    let ListColumnRowComponent;
+    componentsSub.push(state.subscribe('config.components.ListColumnRow', value => (ListColumnRowComponent = value)));
+    let ListColumnHeaderComponent;
+    componentsSub.push(state.subscribe('config.components.ListColumnHeader', value => (ListColumnHeaderComponent = value)));
+    const actionProps = Object.assign(Object.assign({}, props), { api, state });
+    const componentName = 'list-column';
+    const rowsComponentName = componentName + '-rows';
+    const componentActions = api.getActions(componentName);
+    const rowsActions = api.getActions(rowsComponentName);
+    let className, classNameContainer, calculatedWidth;
+    const widthStyleMap = new StyleMap({ width: '', '--width': '' });
+    const containerStyleMap = new StyleMap({ width: '', height: '' });
+    const scrollCompensationStyleMap = new StyleMap({ width: '', height: '' });
+    let column, columnPath = `config.list.columns.data.${props.columnId}`;
+    let columnSub = state.subscribe(columnPath, function columnChanged(val) {
+        column = val;
+        update();
+    });
+    let width;
+    function calculateStyle() {
+        const list = state.get('config.list');
+        const compensationY = state.get('config.scroll.compensation.y');
+        calculatedWidth = list.columns.data[column.id].width * list.columns.percent * 0.01;
+        width = calculatedWidth;
+        const height = state.get('_internal.height');
+        widthStyleMap.style.width = width + 'px';
+        widthStyleMap.style['--width'] = width + 'px';
+        containerStyleMap.style.height = height + 'px';
+        scrollCompensationStyleMap.style.height = height + Math.abs(compensationY) + 'px';
+        scrollCompensationStyleMap.style.transform = `translate(0px, ${compensationY}px)`;
+    }
+    let styleSub = state.subscribeAll([
+        'config.list.columns.percent',
+        'config.list.columns.resizer.width',
+        `config.list.columns.data.${column.id}.width`,
+        '_internal.chart.dimensions.width',
+        '_internal.height',
+        'config.scroll.compensation.y',
+        '_internal.list.width'
+    ], calculateStyle, { bulk: true });
+    const ListColumnHeader = createComponent(ListColumnHeaderComponent, { columnId: props.columnId });
+    onDestroy(ListColumnHeader.destroy);
+    onChange(changedProps => {
+        props = changedProps;
+        for (const prop in props) {
+            actionProps[prop] = props[prop];
+        }
+        if (columnSub)
+            columnSub();
+        ListColumnHeader.change({ columnId: props.columnId });
+        columnPath = `config.list.columns.data.${props.columnId}`;
+        columnSub = state.subscribe(columnPath, function columnChanged(val) {
+            column = val;
+            update();
+        });
+        if (styleSub)
+            styleSub();
+        styleSub = state.subscribeAll([
+            'config.list.columns.percent',
+            'config.list.columns.resizer.width',
+            `config.list.columns.data.${column.id}.width`,
+            '_internal.chart.dimensions.width',
+            '_internal.height',
+            'config.scroll.compensation.y',
+            '_internal.list.width'
+        ], calculateStyle, { bulk: true });
+        ListColumnHeader.change(props);
+    });
+    onDestroy(() => {
+        columnSub();
+        styleSub();
+    });
+    onDestroy(state.subscribe('config.classNames', value => {
+        className = api.getClass(componentName);
+        classNameContainer = api.getClass(rowsComponentName);
+        update();
+    }));
+    const visibleRows = [];
+    const visibleRowsChange = val => {
+        const destroy = reuseComponents(visibleRows, val, row => row && { columnId: props.columnId, rowId: row.id, width }, ListColumnRowComponent);
+        update();
+        return destroy;
+    };
+    onDestroy(state.subscribe('_internal.list.visibleRows;', visibleRowsChange));
+    onDestroy(() => {
+        visibleRows.forEach(row => row.destroy());
+        componentsSub.forEach(unsub => unsub());
+    });
+    function getRowHtml(row) {
+        return row.html();
+    }
+    componentActions.push(BindElementAction);
+    const headerActions = Actions.create(componentActions, { column, state: state, api: api });
+    const rowActions = Actions.create(rowsActions, { api, state });
+    return templateProps => wrapper(html `
+        <div class=${className} data-actions=${headerActions} style=${widthStyleMap}>
+          ${ListColumnHeader.html()}
+          <div class=${classNameContainer} style=${containerStyleMap} data-actions=${rowActions}>
+            <div class=${classNameContainer + '--scroll-compensation'} style=${scrollCompensationStyleMap}>
+              ${visibleRows.map(getRowHtml)}
             </div>
           </div>
         </div>
-      `,{vido:t,props:e,templateProps:n})}
+      `, { vido, props, templateProps });
+}
+
 /**
  * ListColumnHeader component
  *
@@ -211,19 +5008,83 @@ class TemplateInstance{constructor(t,e,n){this.__parts=[],this.template=t,this.p
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function ListColumnHeader(t,e){const{api:n,state:i,onDestroy:s,onChange:o,Actions:r,update:a,createComponent:l,html:c,cache:d,StyleMap:h}=t,u=Object.assign(Object.assign({},e),{api:n,state:i});let p;s(i.subscribe("config.wrappers.ListColumnHeader",t=>p=t));const m=n.getActions("list-column-header"),f=[];let g;f.push(i.subscribe("config.components.ListColumnHeaderResizer",t=>g=t));const v=l(g,{columnId:e.columnId});let y;f.push(i.subscribe("config.components.ListColumnRowExpander",t=>y=t));const b=l(y,{});let w;s(()=>{v.destroy(),b.destroy(),f.forEach(t=>t())});let _,x,$=i.subscribe(`config.list.columns.data.${e.columnId}`,t=>{w=t,a()});s($),o(t=>{e=t;for(const t in e)u[t]=e[t];$&&$(),$=i.subscribe(`config.list.columns.data.${e.columnId}`,t=>{w=t,a()})}),s(i.subscribe("config.classNames",()=>{_=n.getClass("list-column-header"),x=n.getClass("list-column-header-content")}));const C=new h({height:"","--height":"","--paddings-count":""});s(i.subscribe("config.headerHeight",()=>{const t=i.get("config");C.style.height=t.headerHeight+"px",C.style["--height"]=t.headerHeight+"px",C.style["--paddings-count"]="1",a()}));const M=r.create(m,u);return n=>p(c`
-        <div class=${_} style=${C} data-actions=${M}>
-          ${d(w.expander?function withExpander(){return c`
-      <div class=${x}>
-        ${b.html()}${v.html(w)}
+ */
+function ListColumnHeader(vido, props) {
+    const { api, state, onDestroy, onChange, Actions, update, createComponent, html, cache, StyleMap } = vido;
+    const actionProps = Object.assign(Object.assign({}, props), { api, state });
+    let wrapper;
+    onDestroy(state.subscribe('config.wrappers.ListColumnHeader', value => (wrapper = value)));
+    const componentName = 'list-column-header';
+    const componentActions = api.getActions(componentName);
+    const componentsSubs = [];
+    let ListColumnHeaderResizerComponent;
+    componentsSubs.push(state.subscribe('config.components.ListColumnHeaderResizer', value => (ListColumnHeaderResizerComponent = value)));
+    const ListColumnHeaderResizer = createComponent(ListColumnHeaderResizerComponent, { columnId: props.columnId });
+    let ListColumnRowExpanderComponent;
+    componentsSubs.push(state.subscribe('config.components.ListColumnRowExpander', value => (ListColumnRowExpanderComponent = value)));
+    const ListColumnRowExpander = createComponent(ListColumnRowExpanderComponent, {});
+    onDestroy(() => {
+        ListColumnHeaderResizer.destroy();
+        ListColumnRowExpander.destroy();
+        componentsSubs.forEach(unsub => unsub());
+    });
+    let column;
+    let columnSub = state.subscribe(`config.list.columns.data.${props.columnId}`, val => {
+        column = val;
+        update();
+    });
+    onDestroy(columnSub);
+    onChange(changedProps => {
+        props = changedProps;
+        for (const prop in props) {
+            actionProps[prop] = props[prop];
+        }
+        if (columnSub)
+            columnSub();
+        columnSub = state.subscribe(`config.list.columns.data.${props.columnId}`, val => {
+            column = val;
+            update();
+        });
+    });
+    let className, contentClass;
+    onDestroy(state.subscribe('config.classNames', () => {
+        className = api.getClass(componentName);
+        contentClass = api.getClass(componentName + '-content');
+    }));
+    const styleMap = new StyleMap({
+        height: '',
+        '--height': '',
+        '--paddings-count': ''
+    });
+    onDestroy(state.subscribe('config.headerHeight', () => {
+        const value = state.get('config');
+        styleMap.style['height'] = value.headerHeight + 'px';
+        styleMap.style['--height'] = value.headerHeight + 'px';
+        styleMap.style['--paddings-count'] = '1';
+        update();
+    }));
+    function withExpander() {
+        return html `
+      <div class=${contentClass}>
+        ${ListColumnRowExpander.html()}${ListColumnHeaderResizer.html(column)}
       </div>
-    `}():function withoutExpander(){return c`
-      <div class=${x}>
-        ${v.html(w)}
+    `;
+    }
+    function withoutExpander() {
+        return html `
+      <div class=${contentClass}>
+        ${ListColumnHeaderResizer.html(column)}
       </div>
-    `}())}
+    `;
+    }
+    const actions = Actions.create(componentActions, actionProps);
+    return templateProps => wrapper(html `
+        <div class=${className} style=${styleMap} data-actions=${actions}>
+          ${cache(column.expander ? withExpander() : withoutExpander())}
         </div>
-      `,{vido:t,props:e,templateProps:n})}
+      `, { vido, props, templateProps });
+}
+
 /**
  * ListColumnHeaderResizer component
  *
@@ -232,20 +5093,100 @@ class TemplateInstance{constructor(t,e,n){this.__parts=[],this.template=t,this.p
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function ListColumnHeaderResizer(t,e){const{api:n,state:i,onDestroy:s,update:o,html:r,schedule:a,Actions:l,PointerAction:c,cache:d,StyleMap:h}=t,u="list-column-header-resizer",p=n.getActions(u),m=n.getActions(u+"-dots");let f,g,v,y,b,w,_;s(i.subscribe("config.wrappers.ListColumnHeaderResizer",t=>f=t)),s(i.subscribe(`config.list.columns.data.${e.columnId}`,t=>{g=t,o()}));const x=new h({width:""});let $=!1;s(i.subscribe("config.classNames",t=>{v=n.getClass(u,{column:g}),y=n.getClass(u+"-container",{column:g}),b=n.getClass(u+"-dots",{column:g}),w=n.getClass(u+"-dots-dot",{column:g}),o()})),s(i.subscribeAll([`config.list.columns.data.${g.id}.width`,"config.list.columns.percent","config.list.columns.resizer.width","config.list.columns.resizer.inRealTime"],(t,e)=>{const n=i.get("config.list");_=g.width*n.columns.percent*.01,x.style["--width"]=n.columns.resizer.width+"px",$=n.columns.resizer.inRealTime,i.update("_internal.list.width",_),o()}));let C=[1,2,3,4,5,6,7,8];s(i.subscribe("config.list.columns.resizer.dots",t=>{C=[];for(let e=0;e<t;e++)C.push(e);o()}));let M=_;const P=`config.list.columns.data.${g.id}.width`,O={column:g,api:n,state:i,pointerOptions:{axis:"x",onMove:a((function onMove({movementX:t}){let e=i.get("config.list.columns.minWidth");"number"==typeof g.minWidth&&(e=g.minWidth),M+=t,M<e&&(M=e),$&&i.update(P,M)}))}};p.push(c);const T=l.create(p,O),A=l.create(m,O);return n=>f(r`
-        <div class=${v} data-actions=${T}>
-          <div class=${y}>
-            ${d(g.header.html?r`
-                    ${g.header.html}
-                  `:g.header.content)}
+ */
+function ListColumnHeaderResizer(vido, props) {
+    const { api, state, onDestroy, update, html, schedule, Actions, PointerAction, cache, StyleMap } = vido;
+    const componentName = 'list-column-header-resizer';
+    const componentActions = api.getActions(componentName);
+    const componentDotsActions = api.getActions(componentName + '-dots');
+    let wrapper;
+    onDestroy(state.subscribe('config.wrappers.ListColumnHeaderResizer', value => (wrapper = value)));
+    let column;
+    onDestroy(state.subscribe(`config.list.columns.data.${props.columnId}`, val => {
+        column = val;
+        update();
+    }));
+    let className, containerClass, dotsClass, dotClass, calculatedWidth;
+    const dotsStyleMap = new StyleMap({ width: '' });
+    let inRealTime = false;
+    onDestroy(state.subscribe('config.classNames', value => {
+        className = api.getClass(componentName, { column });
+        containerClass = api.getClass(componentName + '-container', { column });
+        dotsClass = api.getClass(componentName + '-dots', { column });
+        dotClass = api.getClass(componentName + '-dots-dot', { column });
+        update();
+    }));
+    onDestroy(state.subscribeAll([
+        `config.list.columns.data.${column.id}.width`,
+        'config.list.columns.percent',
+        'config.list.columns.resizer.width',
+        'config.list.columns.resizer.inRealTime'
+    ], (value, path) => {
+        const list = state.get('config.list');
+        calculatedWidth = column.width * list.columns.percent * 0.01;
+        dotsStyleMap.style['--width'] = list.columns.resizer.width + 'px';
+        inRealTime = list.columns.resizer.inRealTime;
+        state.update('_internal.list.width', calculatedWidth);
+        update();
+    }));
+    let dots = [1, 2, 3, 4, 5, 6, 7, 8];
+    onDestroy(state.subscribe('config.list.columns.resizer.dots', value => {
+        dots = [];
+        for (let i = 0; i < value; i++) {
+            dots.push(i);
+        }
+        update();
+    }));
+    /*
+    let isMoving = false;
+    const lineStyleMap = new StyleMap({
+      '--display': 'none',
+      '--left': left + 'px'
+    });*/
+    let left = calculatedWidth;
+    const columnWidthPath = `config.list.columns.data.${column.id}.width`;
+    const actionProps = {
+        column,
+        api,
+        state,
+        pointerOptions: {
+            axis: 'x',
+            onMove: schedule(function onMove({ movementX }) {
+                let minWidth = state.get('config.list.columns.minWidth');
+                if (typeof column.minWidth === 'number') {
+                    minWidth = column.minWidth;
+                }
+                left += movementX;
+                if (left < minWidth) {
+                    left = minWidth;
+                }
+                if (inRealTime) {
+                    state.update(columnWidthPath, left);
+                }
+            })
+        }
+    };
+    componentActions.push(PointerAction);
+    const actions = Actions.create(componentActions, actionProps);
+    const dotsActions = Actions.create(componentDotsActions, actionProps);
+    return templateProps => wrapper(html `
+        <div class=${className} data-actions=${actions}>
+          <div class=${containerClass}>
+            ${cache(column.header.html
+        ? html `
+                    ${column.header.html}
+                  `
+        : column.header.content)}
           </div>
-          <div class=${b} style=${x} data-actions=${A}>
-            ${C.map(t=>r`
-                  <div class=${w} />
+          <div class=${dotsClass} style=${dotsStyleMap} data-actions=${dotsActions}>
+            ${dots.map(dot => html `
+                  <div class=${dotClass} />
                 `)}
           </div>
         </div>
-      `,{vido:t,props:e,templateProps:n})}
+      `, { vido, props, templateProps });
+}
+
 /**
  * ListColumnRow component
  *
@@ -254,14 +5195,193 @@ class TemplateInstance{constructor(t,e,n){this.__parts=[],this.template=t,this.p
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */class BindElementAction$1{constructor(t,e){let n=e.state.get("_internal.elements.list-column-rows"),i=!1;void 0===n&&(i=!0,n=[]),n.includes(t)||(n.push(t),i=!0),i&&e.state.update("_internal.elements.list-column-rows",n)}destroy(t,e){e.state.update("_internal.elements.list-column-rows",e=>e.filter(e=>e!==t))}}function ListColumnRow(t,e){const{api:n,state:i,onDestroy:s,Detach:o,Actions:r,update:a,html:l,createComponent:c,onChange:d,StyleMap:h,unsafeHTML:u,PointerAction:p}=t,m=Object.assign(Object.assign({},e),{api:n,state:i});let f=!1;const g=new o(()=>f);let v,y;s(i.subscribe("config.wrappers.ListColumnRow",t=>v=t)),s(i.subscribe("config.components.ListColumnRowExpander",t=>y=t));let b=`_internal.flatTreeMapById.${e.rowId}`,w=i.get(b),_=`config.list.columns.data.${e.columnId}`,x=i.get(_);const $=new h(x.expander?{height:"",top:"","--height":"","--expander-padding-width":"","--expander-size":""}:{height:"",top:"","--height":""},!0);let C,M;const P=c(y,{row:w});d((t,n)=>{if(n.leave||void 0===t.rowId||void 0===t.columnId)return f=!0,C&&C(),M&&M(),void a();f=!1,e=t;for(const t in e)m[t]=e[t];const s=e.rowId,o=e.columnId;C&&C(),M&&M(),b=`_internal.flatTreeMapById.${s}`,_=`config.list.columns.data.${o}`,C=i.subscribeAll([b,_,"config.list.expander"],t=>{if(x=i.get(_),w=i.get(b),void 0===x||void 0===w)return f=!0,void a();if(void 0===x||void 0===w)return;const e=i.get("config.list.expander");$.setStyle({}),$.style.height=w.height+"px",$.style["--height"]=w.height+"px",x.expander&&($.style["--expander-padding-width"]=e.padding*(w._internal.parents.length+1)+"px");for(const t of w._internal.parents){const e=i.get(`_internal.flatTreeMapById.${t}`);if("object"==typeof e.style&&"Object"===e.style.constructor.name&&"object"==typeof e.style.children){const t=e.style.children;for(const e in t)$.style[e]=t[e]}}if("object"==typeof w.style&&"Object"===w.style.constructor.name&&"object"==typeof w.style.current){const t=w.style.current;for(const e in t)$.style[e]=t[e]}a()},{bulk:!0}),P&&P.change({row:w}),M=i.subscribe(_,t=>{x=t,a()})}),s(()=>{P&&P.destroy(),M(),C()});const O=n.getActions("list-column-row");let T;s(i.subscribe("config.classNames",t=>{T=n.getClass("list-column-row"),a()})),O.includes(BindElementAction$1)||O.push(BindElementAction$1),m.pointerOptions={axis:"x|y",onMove({event:t,movementX:e,movementY:s}){t.stopPropagation(),t.preventDefault(),e?i.update("config.list.columns.percent",t=>((t+=e*i.get("config.scroll.xMultiplier"))<0&&(t=0),t>100&&(t=100),t)):s&&i.update("config.scroll.top",t=>(t-=s*i.get("config.scroll.yMultiplier"),t=n.limitScroll("top",t)))}},O.push(p);const A=r.create(O,m);return n=>v(l`
-        <div detach=${g} class=${T} style=${$} data-actions=${A}>
-          ${x.expander?P.html():null}
-          <div class=${T+"-content"}>
-            ${x.isHTML?function getHtml(){return void 0===w?null:"function"==typeof x.data?u(x.data(w)):u(w[x.data])}():function getText(){return void 0===w?null:"function"==typeof x.data?x.data(w):w[x.data]}()}
+ */
+/**
+ * Bind element action
+ */
+class BindElementAction$1 {
+    constructor(element, data) {
+        let elements = data.state.get('_internal.elements.list-column-rows');
+        let shouldUpdate = false;
+        if (typeof elements === 'undefined') {
+            shouldUpdate = true;
+            elements = [];
+        }
+        if (!elements.includes(element)) {
+            elements.push(element);
+            shouldUpdate = true;
+        }
+        if (shouldUpdate)
+            data.state.update('_internal.elements.list-column-rows', elements);
+    }
+    destroy(element, data) {
+        data.state.update('_internal.elements.list-column-rows', elements => {
+            return elements.filter(el => el !== element);
+        });
+    }
+}
+function ListColumnRow(vido, props) {
+    const { api, state, onDestroy, Detach, Actions, update, html, createComponent, onChange, StyleMap, unsafeHTML, PointerAction } = vido;
+    const actionProps = Object.assign(Object.assign({}, props), { api, state });
+    let shouldDetach = false;
+    const detach = new Detach(() => shouldDetach);
+    let wrapper;
+    onDestroy(state.subscribe('config.wrappers.ListColumnRow', value => (wrapper = value)));
+    let ListColumnRowExpanderComponent;
+    onDestroy(state.subscribe('config.components.ListColumnRowExpander', value => (ListColumnRowExpanderComponent = value)));
+    let rowPath = `_internal.flatTreeMapById.${props.rowId}`, row = state.get(rowPath);
+    let colPath = `config.list.columns.data.${props.columnId}`, column = state.get(colPath);
+    const styleMap = new StyleMap(column.expander
+        ? {
+            height: '',
+            top: '',
+            '--height': '',
+            '--expander-padding-width': '',
+            '--expander-size': ''
+        }
+        : {
+            height: '',
+            top: '',
+            '--height': ''
+        }, true);
+    let rowSub, colSub;
+    const ListColumnRowExpander = createComponent(ListColumnRowExpanderComponent, { row });
+    const onPropsChange = (changedProps, options) => {
+        if (options.leave || changedProps.rowId === undefined || changedProps.columnId === undefined) {
+            shouldDetach = true;
+            if (rowSub)
+                rowSub();
+            if (colSub)
+                colSub();
+            update();
+            return;
+        }
+        shouldDetach = false;
+        props = changedProps;
+        for (const prop in props) {
+            actionProps[prop] = props[prop];
+        }
+        const rowId = props.rowId;
+        const columnId = props.columnId;
+        if (rowSub)
+            rowSub();
+        if (colSub)
+            colSub();
+        rowPath = `_internal.flatTreeMapById.${rowId}`;
+        colPath = `config.list.columns.data.${columnId}`;
+        rowSub = state.subscribeAll([rowPath, colPath, 'config.list.expander'], bulk => {
+            column = state.get(colPath);
+            row = state.get(rowPath);
+            if (column === undefined || row === undefined) {
+                shouldDetach = true;
+                update();
+                return;
+            }
+            if (column === undefined || row === undefined)
+                return;
+            const expander = state.get('config.list.expander');
+            // @ts-ignore
+            styleMap.setStyle({}); // we must reset style because of user specified styling
+            styleMap.style['height'] = row.height + 'px';
+            styleMap.style['--height'] = row.height + 'px';
+            if (column.expander) {
+                styleMap.style['--expander-padding-width'] = expander.padding * (row._internal.parents.length + 1) + 'px';
+            }
+            for (const parentId of row._internal.parents) {
+                const parent = state.get(`_internal.flatTreeMapById.${parentId}`);
+                if (typeof parent.style === 'object' && parent.style.constructor.name === 'Object') {
+                    if (typeof parent.style.children === 'object') {
+                        const childrenStyle = parent.style.children;
+                        for (const name in childrenStyle) {
+                            styleMap.style[name] = childrenStyle[name];
+                        }
+                    }
+                }
+            }
+            if (typeof row.style === 'object' &&
+                row.style.constructor.name === 'Object' &&
+                typeof row.style.current === 'object') {
+                const rowCurrentStyle = row.style.current;
+                for (const name in rowCurrentStyle) {
+                    styleMap.style[name] = rowCurrentStyle[name];
+                }
+            }
+            update();
+        }, { bulk: true });
+        if (ListColumnRowExpander) {
+            ListColumnRowExpander.change({ row });
+        }
+        colSub = state.subscribe(colPath, val => {
+            column = val;
+            update();
+        });
+    };
+    onChange(onPropsChange);
+    onDestroy(() => {
+        if (ListColumnRowExpander)
+            ListColumnRowExpander.destroy();
+        colSub();
+        rowSub();
+    });
+    const componentName = 'list-column-row';
+    const componentActions = api.getActions(componentName);
+    let className;
+    onDestroy(state.subscribe('config.classNames', value => {
+        className = api.getClass(componentName);
+        update();
+    }));
+    function getHtml() {
+        if (row === undefined)
+            return null;
+        if (typeof column.data === 'function')
+            return unsafeHTML(column.data(row));
+        return unsafeHTML(row[column.data]);
+    }
+    function getText() {
+        if (row === undefined)
+            return null;
+        if (typeof column.data === 'function')
+            return column.data(row);
+        return row[column.data];
+    }
+    if (!componentActions.includes(BindElementAction$1))
+        componentActions.push(BindElementAction$1);
+    actionProps.pointerOptions = {
+        axis: 'x|y',
+        onMove({ event, movementX, movementY }) {
+            event.stopPropagation();
+            event.preventDefault();
+            if (movementX) {
+                state.update('config.list.columns.percent', percent => {
+                    percent += movementX * state.get('config.scroll.xMultiplier');
+                    if (percent < 0)
+                        percent = 0;
+                    if (percent > 100)
+                        percent = 100;
+                    return percent;
+                });
+            }
+            else if (movementY) {
+                state.update('config.scroll.top', top => {
+                    top -= movementY * state.get('config.scroll.yMultiplier');
+                    top = api.limitScroll('top', top);
+                    return top;
+                });
+            }
+        }
+    };
+    componentActions.push(PointerAction);
+    const actions = Actions.create(componentActions, actionProps);
+    return templateProps => wrapper(html `
+        <div detach=${detach} class=${className} style=${styleMap} data-actions=${actions}>
+          ${column.expander ? ListColumnRowExpander.html() : null}
+          <div class=${className + '-content'}>
+            ${column.isHTML ? getHtml() : getText()}
           </div>
         </div>
-      `,{vido:t,props:e,templateProps:n})}
+      `, { vido, props, templateProps });
+}
+
 /**
  * ListColumnRowExpander component
  *
@@ -270,11 +5390,44 @@ class TemplateInstance{constructor(t,e,n){this.__parts=[],this.template=t,this.p
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function ListColumnRowExpander(t,e){const{api:n,state:i,onDestroy:s,Actions:o,update:r,html:a,createComponent:l,onChange:c}=t,d=n.getActions("list-column-row-expander"),h=Object.assign(Object.assign({},e),{api:n,state:i});let u,p;const m=i.subscribe("config.components.ListColumnRowExpanderToggle",t=>p=t),f=l(p,e.row?{row:e.row}:{});let g;if(s(()=>{f.destroy(),m()}),s(i.subscribe("config.wrappers.ListColumnRowExpander",t=>g=t)),s(i.subscribe("config.classNames",t=>{u=n.getClass("list-column-row-expander"),r()})),e.row){c((function onPropsChange(t){e=t;for(const t in e)h[t]=e[t];f.change(e)}))}const v=o.create(d,h);return n=>g(a`
-        <div class=${u} data-action=${v}>
-          ${f.html()}
+ */
+function ListColumnRowExpander(vido, props) {
+    const { api, state, onDestroy, Actions, update, html, createComponent, onChange } = vido;
+    const componentName = 'list-column-row-expander';
+    const componentActions = api.getActions(componentName);
+    const actionProps = Object.assign(Object.assign({}, props), { api, state });
+    let className;
+    let ListColumnRowExpanderToggleComponent;
+    const toggleUnsub = state.subscribe('config.components.ListColumnRowExpanderToggle', value => (ListColumnRowExpanderToggleComponent = value));
+    const ListColumnRowExpanderToggle = createComponent(ListColumnRowExpanderToggleComponent, props.row ? { row: props.row } : {});
+    onDestroy(() => {
+        ListColumnRowExpanderToggle.destroy();
+        toggleUnsub();
+    });
+    let wrapper;
+    onDestroy(state.subscribe('config.wrappers.ListColumnRowExpander', value => (wrapper = value)));
+    onDestroy(state.subscribe('config.classNames', value => {
+        className = api.getClass(componentName);
+        update();
+    }));
+    if (props.row) {
+        function onPropsChange(changedProps) {
+            props = changedProps;
+            for (const prop in props) {
+                actionProps[prop] = props[prop];
+            }
+            ListColumnRowExpanderToggle.change(props);
+        }
+        onChange(onPropsChange);
+    }
+    const actions = Actions.create(componentActions, actionProps);
+    return templateProps => wrapper(html `
+        <div class=${className} data-action=${actions}>
+          ${ListColumnRowExpanderToggle.html()}
         </div>
-      `,{vido:t,props:e,templateProps:n})}
+      `, { vido, props, templateProps });
+}
+
 /**
  * ListColumnRowExpanderToggle component
  *
@@ -283,17 +5436,107 @@ class TemplateInstance{constructor(t,e,n){this.__parts=[],this.template=t,this.p
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function ListColumnRowExpanderToggle(t,e){const{api:n,state:i,onDestroy:s,Actions:o,update:r,html:a,onChange:l,cache:c}=t,d=Object.assign(Object.assign({},e),{api:n,state:i});let h;s(i.subscribe("config.wrappers.ListColumnRowExpanderToggle",t=>h=t));const u=n.getActions("list-column-row-expander-toggle");let p,m,f,g,v,y,b,w=!1;if(s(i.subscribe("config.classNames",t=>{p=n.getClass("list-column-row-expander-toggle"),m=p+"-child",f=p+"-open",g=p+"-closed",r()})),s(i.subscribe("_internal.list.expander.icons",t=>{t&&(v=t.child,y=t.open,b=t.closed),r()})),e.row){function expandedChange(t){w=t,r()}let t;function onPropsChange(n){var s,o;e=n;for(const t in e)d[t]=e[t];t&&t(),(null===(o=null===(s=e)||void 0===s?void 0:s.row)||void 0===o?void 0:o.id)&&(t=i.subscribe(`config.list.rows.${e.row.id}.expanded`,expandedChange))}l(onPropsChange),s((function listToggleDestroy(){t&&t()}))}else{function expandedChange(t){for(const e of t)if(e.value){w=!0;break}r()}s(i.subscribe("config.list.rows.*.expanded",expandedChange,{bulk:!0}))}function toggle(){w=!w,e.row?i.update(`config.list.rows.${e.row.id}.expanded`,w):i.update("config.list.rows",t=>{for(const e in t)t[e].expanded=w;return t},{only:["*.expanded"]})}const _=o.create(u,d);return n=>h(a`
-        <div class=${p} data-action=${_} @click=${toggle}>
-          ${c((()=>{var t,n,i;return v?0===(null===(i=null===(n=null===(t=e.row)||void 0===t?void 0:t._internal)||void 0===n?void 0:n.children)||void 0===i?void 0:i.length)?a`
-          <img width="16" height="16" class=${m} src=${v} />
-        `:w?a`
-            <img width="16" height="16" class=${f} src=${y} />
-          `:a`
-            <img width="16" height="16" class=${g} src=${b} />
-          `:""})())}
+ */
+function ListColumnRowExpanderToggle(vido, props) {
+    const { api, state, onDestroy, Actions, update, html, onChange, cache } = vido;
+    const componentName = 'list-column-row-expander-toggle';
+    const actionProps = Object.assign(Object.assign({}, props), { api, state });
+    let wrapper;
+    onDestroy(state.subscribe('config.wrappers.ListColumnRowExpanderToggle', value => (wrapper = value)));
+    const componentActions = api.getActions(componentName);
+    let className, classNameChild, classNameOpen, classNameClosed;
+    let expanded = false;
+    let iconChild, iconOpen, iconClosed;
+    onDestroy(state.subscribe('config.classNames', value => {
+        className = api.getClass(componentName);
+        classNameChild = className + '-child';
+        classNameOpen = className + '-open';
+        classNameClosed = className + '-closed';
+        update();
+    }));
+    onDestroy(state.subscribe('_internal.list.expander.icons', icons => {
+        if (icons) {
+            iconChild = icons.child;
+            iconOpen = icons.open;
+            iconClosed = icons.closed;
+        }
+        update();
+    }));
+    if (props.row) {
+        function expandedChange(isExpanded) {
+            expanded = isExpanded;
+            update();
+        }
+        let expandedSub;
+        function onPropsChange(changedProps) {
+            var _a, _b;
+            props = changedProps;
+            for (const prop in props) {
+                actionProps[prop] = props[prop];
+            }
+            if (expandedSub)
+                expandedSub();
+            if ((_b = (_a = props) === null || _a === void 0 ? void 0 : _a.row) === null || _b === void 0 ? void 0 : _b.id)
+                expandedSub = state.subscribe(`config.list.rows.${props.row.id}.expanded`, expandedChange);
+        }
+        onChange(onPropsChange);
+        onDestroy(function listToggleDestroy() {
+            if (expandedSub)
+                expandedSub();
+        });
+    }
+    else {
+        function expandedChange(bulk) {
+            for (const rowExpanded of bulk) {
+                if (rowExpanded.value) {
+                    expanded = true;
+                    break;
+                }
+            }
+            update();
+        }
+        onDestroy(state.subscribe('config.list.rows.*.expanded', expandedChange, { bulk: true }));
+    }
+    function toggle() {
+        expanded = !expanded;
+        if (props.row) {
+            state.update(`config.list.rows.${props.row.id}.expanded`, expanded);
+        }
+        else {
+            state.update(`config.list.rows`, rows => {
+                for (const rowId in rows) {
+                    rows[rowId].expanded = expanded;
+                }
+                return rows;
+            }, { only: ['*.expanded'] });
+        }
+    }
+    const getIcon = () => {
+        var _a, _b, _c;
+        if (iconChild) {
+            if (((_c = (_b = (_a = props.row) === null || _a === void 0 ? void 0 : _a._internal) === null || _b === void 0 ? void 0 : _b.children) === null || _c === void 0 ? void 0 : _c.length) === 0) {
+                return html `
+          <img width="16" height="16" class=${classNameChild} src=${iconChild} />
+        `;
+            }
+            return expanded
+                ? html `
+            <img width="16" height="16" class=${classNameOpen} src=${iconOpen} />
+          `
+                : html `
+            <img width="16" height="16" class=${classNameClosed} src=${iconClosed} />
+          `;
+        }
+        return '';
+    };
+    const actions = Actions.create(componentActions, actionProps);
+    return templateProps => wrapper(html `
+        <div class=${className} data-action=${actions} @click=${toggle}>
+          ${cache(getIcon())}
         </div>
-      `,{vido:t,props:e,templateProps:n})}
+      `, { vido, props, templateProps });
+}
+
 /**
  * ListToggle component
  *
@@ -302,9 +5545,38 @@ class TemplateInstance{constructor(t,e,n){this.__parts=[],this.template=t,this.p
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function ListToggle(t,e={}){const{html:n,onDestroy:i,api:s,state:o,update:r}=t;let a,l;i(o.subscribe("config.classNames",t=>{a=s.getClass("list-toggle")})),i(o.subscribe("config.wrappers.ListToggle",t=>l=t));let c={open:"",close:""};i(o.subscribe("_internal.list.toggle.icons",t=>{t&&(c=t,r())}));let d=!0;function toggle(t){o.update("config.list.columns.percent",t=>0===t?100:0)}return i(o.subscribe("config.list.columns.percent",t=>d=0!==t)),i=>l(n`
-        <div class=${a} @click=${toggle}><img src=${d?c.close:c.open} /></div>
-      `,{props:e,vido:t,templateProps:i})}
+ */
+function ListToggle(vido, props = {}) {
+    const { html, onDestroy, api, state, update } = vido;
+    const componentName = 'list-toggle';
+    let className;
+    onDestroy(state.subscribe('config.classNames', classNames => {
+        className = api.getClass(componentName);
+    }));
+    let wrapper;
+    onDestroy(state.subscribe('config.wrappers.ListToggle', ListToggleWrapper => (wrapper = ListToggleWrapper)));
+    let toggleIconsSrc = {
+        open: '',
+        close: ''
+    };
+    onDestroy(state.subscribe('_internal.list.toggle.icons', value => {
+        if (value) {
+            toggleIconsSrc = value;
+            update();
+        }
+    }));
+    let open = true;
+    onDestroy(state.subscribe('config.list.columns.percent', percent => (percent === 0 ? (open = false) : (open = true))));
+    function toggle(ev) {
+        state.update('config.list.columns.percent', percent => {
+            return percent === 0 ? 100 : 0;
+        });
+    }
+    return templateProps => wrapper(html `
+        <div class=${className} @click=${toggle}><img src=${open ? toggleIconsSrc.close : toggleIconsSrc.open} /></div>
+      `, { props, vido, templateProps });
+}
+
 /**
  * Chart component
  *
@@ -313,14 +5585,121 @@ class TemplateInstance{constructor(t,e,n){this.__parts=[],this.template=t,this.p
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function Chart(t,e={}){const{api:n,state:i,onDestroy:s,Actions:o,update:r,html:a,StyleMap:l,createComponent:c}=t,d=i.get("config.components.ChartCalendar"),h=i.get("config.components.ChartTimeline");let u;s(i.subscribe("config.wrappers.Chart",t=>u=t));const p=c(d);s(p.destroy);const m=c(h);let f,g,v,y;s(m.destroy);const b=new l({}),w=new l({}),_=n.getActions("chart");function onScroll(t){let e,s;if("scroll"===t.type)i.update("config.scroll.left",t.target.scrollLeft),e=t.target.scrollLeft;else{const o=n.normalizeMouseWheelEvent(t),r=i.get("config.scroll.xMultiplier"),a=i.get("config.scroll.yMultiplier");t.shiftKey&&o.y?i.update("config.scroll.left",t=>e=n.limitScroll("left",t+=o.y*r)):o.x?i.update("config.scroll.left",t=>e=n.limitScroll("left",t+=o.x*r)):i.update("config.scroll.top",t=>s=n.limitScroll("top",t+=o.y*a))}const o=i.get("_internal.elements.chart"),r=i.get("_internal.elements.horizontal-scroll-inner");if(o){const t=i.get("config.scroll.left");let e=0;t&&(e=Math.round(t/(r.clientWidth-o.clientWidth)*100),e>100&&(e=100)),i.update("config.scroll.percent.left",e)}}s(i.subscribe("config.classNames",t=>{f=n.getClass("chart"),g=n.getClass("horizontal-scroll"),v=n.getClass("horizontal-scroll-inner"),r()})),s(i.subscribe("config.scroll.left",t=>{y&&(y.scrollLeft=t),r()})),s(i.subscribeAll(["_internal.chart.dimensions.width","_internal.chart.time.totalViewDurationPx"],(function horizontalScroll(t,e){b.style.width=i.get("_internal.chart.dimensions.width")+"px",w.style.width=i.get("_internal.chart.time.totalViewDurationPx")+"px",w.style.height="1px",r()})));let x,$=0;_.push((function bindElement(t){x||(x=new ot((e,n)=>{const s=t.clientWidth,o=t.clientHeight,r=s-i.get("_internal.scrollBarHeight");$!==s&&($=s,i.update("_internal.chart.dimensions",{width:s,innerWidth:r,height:o}))}),x.observe(t),i.update("_internal.elements.chart",t))})),s(()=>{x.disconnect()});const C=o.create(_,{api:n,state:i}),M=o.create([function bindElement(t){y||(y=t,i.update("_internal.elements.horizontal-scroll",t))}]),P=o.create([function bindInnerScroll(t){i.get("_internal.elements.horizontal-scroll-inner")!==t&&i.update("_internal.elements.horizontal-scroll-inner",t)}]);return e=>u(a`
-        <div class=${f} data-actions=${C} @wheel=${onScroll}>
-          ${p.html()}${m.html()}
-          <div class=${g} style=${b} data-actions=${M} @scroll=${onScroll}>
-            <div class=${v} style=${w} data-actions=${P} />
+ */
+function Chart(vido, props = {}) {
+    const { api, state, onDestroy, Actions, update, html, StyleMap, createComponent } = vido;
+    const componentName = 'chart';
+    const ChartCalendarComponent = state.get('config.components.ChartCalendar');
+    const ChartTimelineComponent = state.get('config.components.ChartTimeline');
+    let wrapper;
+    onDestroy(state.subscribe('config.wrappers.Chart', value => (wrapper = value)));
+    const Calendar = createComponent(ChartCalendarComponent);
+    onDestroy(Calendar.destroy);
+    const Timeline = createComponent(ChartTimelineComponent);
+    onDestroy(Timeline.destroy);
+    let className, classNameScroll, classNameScrollInner, scrollElement;
+    const scrollStyleMap = new StyleMap({}), scrollInnerStyleMap = new StyleMap({}), componentActions = api.getActions(componentName);
+    onDestroy(state.subscribe('config.classNames', value => {
+        className = api.getClass(componentName);
+        classNameScroll = api.getClass('horizontal-scroll');
+        classNameScrollInner = api.getClass('horizontal-scroll-inner');
+        update();
+    }));
+    onDestroy(state.subscribe('config.scroll.left', left => {
+        if (scrollElement) {
+            scrollElement.scrollLeft = left;
+        }
+        update();
+    }));
+    onDestroy(state.subscribeAll(['_internal.chart.dimensions.width', '_internal.chart.time.totalViewDurationPx'], function horizontalScroll(value, eventInfo) {
+        scrollStyleMap.style.width = state.get('_internal.chart.dimensions.width') + 'px';
+        scrollInnerStyleMap.style.width = state.get('_internal.chart.time.totalViewDurationPx') + 'px';
+        scrollInnerStyleMap.style.height = '1px';
+        update();
+    }));
+    function onScroll(event) {
+        let scrollLeft, scrollTop;
+        if (event.type === 'scroll') {
+            state.update('config.scroll.left', event.target.scrollLeft);
+            scrollLeft = event.target.scrollLeft;
+        }
+        else {
+            const wheel = api.normalizeMouseWheelEvent(event);
+            const xMultiplier = state.get('config.scroll.xMultiplier');
+            const yMultiplier = state.get('config.scroll.yMultiplier');
+            if (event.shiftKey && wheel.y) {
+                state.update('config.scroll.left', left => {
+                    return (scrollLeft = api.limitScroll('left', (left += wheel.y * xMultiplier)));
+                });
+            }
+            else if (wheel.x) {
+                state.update('config.scroll.left', left => {
+                    return (scrollLeft = api.limitScroll('left', (left += wheel.x * xMultiplier)));
+                });
+            }
+            else {
+                state.update('config.scroll.top', top => {
+                    return (scrollTop = api.limitScroll('top', (top += wheel.y * yMultiplier)));
+                });
+            }
+        }
+        const chart = state.get('_internal.elements.chart');
+        const scrollInner = state.get('_internal.elements.horizontal-scroll-inner');
+        if (chart) {
+            const scrollLeft = state.get('config.scroll.left');
+            let percent = 0;
+            if (scrollLeft) {
+                percent = Math.round((scrollLeft / (scrollInner.clientWidth - chart.clientWidth)) * 100);
+                if (percent > 100)
+                    percent = 100;
+            }
+            state.update('config.scroll.percent.left', percent);
+        }
+    }
+    function bindElement(element) {
+        if (!scrollElement) {
+            scrollElement = element;
+            state.update('_internal.elements.horizontal-scroll', element);
+        }
+    }
+    function bindInnerScroll(element) {
+        const old = state.get('_internal.elements.horizontal-scroll-inner');
+        if (old !== element)
+            state.update('_internal.elements.horizontal-scroll-inner', element);
+    }
+    let chartWidth = 0;
+    let ro;
+    componentActions.push(function bindElement(element) {
+        if (!ro) {
+            ro = new index((entries, observer) => {
+                const width = element.clientWidth;
+                const height = element.clientHeight;
+                const innerWidth = width - state.get('_internal.scrollBarHeight');
+                if (chartWidth !== width) {
+                    chartWidth = width;
+                    state.update('_internal.chart.dimensions', { width, innerWidth, height });
+                }
+            });
+            ro.observe(element);
+            state.update('_internal.elements.chart', element);
+        }
+    });
+    onDestroy(() => {
+        ro.disconnect();
+    });
+    const actions = Actions.create(componentActions, { api, state });
+    const scrollActions = Actions.create([bindElement]);
+    const scrollAreaActions = Actions.create([bindInnerScroll]);
+    return templateProps => wrapper(html `
+        <div class=${className} data-actions=${actions} @wheel=${onScroll}>
+          ${Calendar.html()}${Timeline.html()}
+          <div class=${classNameScroll} style=${scrollStyleMap} data-actions=${scrollActions} @scroll=${onScroll}>
+            <div class=${classNameScrollInner} style=${scrollInnerStyleMap} data-actions=${scrollAreaActions} />
           </div>
         </div>
-      `,{vido:t,props:{},templateProps:e})}
+      `, { vido, props: {}, templateProps });
+}
+
 /**
  * ChartCalendar component
  *
@@ -329,12 +5708,62 @@ class TemplateInstance{constructor(t,e,n){this.__parts=[],this.template=t,this.p
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function ChartCalendar(t,e){const{api:n,state:i,onDestroy:s,Actions:o,update:r,reuseComponents:a,html:l,StyleMap:c}=t,d=n.getActions("chart-calendar"),h=Object.assign(Object.assign({},e),{api:n,state:i}),u=i.get("config.components.ChartCalendarDate");let p,m,f;s(i.subscribe("config.wrappers.ChartCalendar",t=>p=t)),s(i.subscribe("config.classNames",t=>{m=n.getClass("chart-calendar"),r()}));const g=new c({height:"","--headerHeight":""});s(i.subscribe("config.headerHeight",t=>{f=t,g.style.height=f+"px",g.style["--calendar-height"]=f+"px",r()}));const v=[],y=[];s(i.subscribe("_internal.chart.time.dates",t=>{const e=n.time.date().format("YYYY-MM-DD");"object"==typeof t.day&&Array.isArray(t.day)&&t.day.length&&a(v,t.day,t=>t&&{period:"day",date:t,currentDate:e},u),"object"==typeof t.month&&Array.isArray(t.month)&&t.month.length&&a(y,t.month,t=>t&&{period:"month",date:t,currentDate:e},u),r()})),s(()=>{v.forEach(t=>t.destroy()),y.forEach(t=>t.destroy())}),d.push(t=>{i.update("_internal.elements.chart-calendar",t)});const b=o.create(d,h);return n=>p(l`
-        <div class=${m} data-actions=${b} style=${g}>
-          <div class=${m+"-dates "+m+"-dates--months"}>${y.map(t=>t.html())}</div>
-          <div class=${m+"-dates "+m+"-dates--days"}>${v.map(t=>t.html())}</div>
+ */
+function ChartCalendar(vido, props) {
+    const { api, state, onDestroy, Actions, update, reuseComponents, html, StyleMap } = vido;
+    const componentName = 'chart-calendar';
+    const componentActions = api.getActions(componentName);
+    const actionProps = Object.assign(Object.assign({}, props), { api, state });
+    const ChartCalendarDateComponent = state.get('config.components.ChartCalendarDate');
+    let wrapper;
+    onDestroy(state.subscribe('config.wrappers.ChartCalendar', value => (wrapper = value)));
+    let className;
+    onDestroy(state.subscribe('config.classNames', value => {
+        className = api.getClass(componentName);
+        update();
+    }));
+    let headerHeight;
+    const styleMap = new StyleMap({ height: '', '--headerHeight': '' });
+    onDestroy(state.subscribe('config.headerHeight', value => {
+        headerHeight = value;
+        styleMap.style['height'] = headerHeight + 'px';
+        styleMap.style['--calendar-height'] = headerHeight + 'px';
+        update();
+    }));
+    const dayComponents = [], monthComponents = [];
+    onDestroy(state.subscribe(`_internal.chart.time.dates`, dates => {
+        const currentDate = api.time.date().format('YYYY-MM-DD');
+        if (typeof dates.day === 'object' && Array.isArray(dates.day) && dates.day.length) {
+            reuseComponents(dayComponents, dates.day, date => date && { period: 'day', date, currentDate }, ChartCalendarDateComponent);
+        }
+        if (typeof dates.month === 'object' && Array.isArray(dates.month) && dates.month.length) {
+            reuseComponents(monthComponents, dates.month, date => date && { period: 'month', date, currentDate }, ChartCalendarDateComponent);
+        }
+        update();
+    }));
+    onDestroy(() => {
+        dayComponents.forEach(day => day.destroy());
+        monthComponents.forEach(month => month.destroy());
+    });
+    componentActions.push(element => {
+        state.update('_internal.elements.chart-calendar', element);
+    });
+    const actions = Actions.create(componentActions, actionProps);
+    return templateProps => wrapper(html `
+        <div class=${className} data-actions=${actions} style=${styleMap}>
+          <div class=${className + '-dates ' + className + '-dates--months'}>${monthComponents.map(m => m.html())}</div>
+          <div class=${className + '-dates ' + className + '-dates--days'}>${dayComponents.map(d => d.html())}</div>
         </div>
-      `,{props:e,vido:t,templateProps:n})}class Action$1{constructor(){this.isAction=!0}}Action$1.prototype.isAction=!0;
+      `, { props, vido, templateProps });
+}
+
+class Action$1 {
+    constructor() {
+        this.isAction = true;
+    }
+}
+Action$1.prototype.isAction = true;
+
 /**
  * ChartCalendarDate component
  *
@@ -344,138 +5773,346 @@ class TemplateInstance{constructor(t,e,n){this.__parts=[],this.template=t,this.p
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
-class BindElementAction$2 extends Action$1{constructor(t,e){super(),e.state.update("_internal.elements.chart-calendar-dates",e=>(void 0===e&&(e=[]),e.includes(t)||e.push(t),e))}}function ChartCalendarDate(t,e){const{api:n,state:i,onDestroy:s,Actions:o,update:r,onChange:a,html:l,StyleMap:c,Detach:d}=t,h=n.getActions("chart-calendar-date");let u,p;s(i.subscribe("config.wrappers.ChartCalendarDate",t=>u=t)),s(i.subscribe("config.classNames",()=>{p=n.getClass("chart-calendar-date",e)}));let m,f,g="";g=n.time.date(e.date.leftGlobal).format("YYYY-MM-DD")===e.currentDate?" current":"";const v=new c({width:"","margin-left":"",visibility:"visible"}),y=new c({overflow:"hidden","text-align":"left","margin-left":e.date.subPx+8+"px"}),updateDate=()=>{if(!e)return;m=i.get("_internal.chart.time"),v.style.width=e.date.width+"px",v.style["margin-left"]=-e.date.subPx+"px",v.style.visibility="visible",y.style={overflow:"hidden","text-align":"left","margin-left":e.date.subPx+8+"px"};const t=n.time.date(e.date.leftGlobal);g=t.format("YYYY-MM-DD")===e.currentDate?" current":t.subtract(1,"days").format("YYYY-MM-DD")===e.currentDate?" next":t.add(1,"days").format("YYYY-MM-DD")===e.currentDate?" previous":"";const s=m.maxWidth[e.period];switch(e.period){case"month":f=l`
-          <div class=${p+"-content "+p+"-content--month"+g} style=${y}>
-            ${t.format("MMMM YYYY")}
+/**
+ * Save element
+ * @param {HTMLElement} element
+ * @param {object} data
+ */
+class BindElementAction$2 extends Action$1 {
+    constructor(element, data) {
+        super();
+        data.state.update('_internal.elements.chart-calendar-dates', elements => {
+            if (typeof elements === 'undefined') {
+                elements = [];
+            }
+            if (!elements.includes(element)) {
+                elements.push(element);
+            }
+            return elements;
+        });
+    }
+}
+function ChartCalendarDate(vido, props) {
+    const { api, state, onDestroy, Actions, update, onChange, html, StyleMap, Detach } = vido;
+    const componentName = 'chart-calendar-date';
+    const componentActions = api.getActions(componentName);
+    let wrapper;
+    onDestroy(state.subscribe('config.wrappers.ChartCalendarDate', value => (wrapper = value)));
+    let className;
+    onDestroy(state.subscribe('config.classNames', () => {
+        className = api.getClass(componentName, props);
+    }));
+    let current = '';
+    if (api.time.date(props.date.leftGlobal).format('YYYY-MM-DD') === props.currentDate) {
+        current = ' current';
+    }
+    else {
+        current = '';
+    }
+    let time, htmlFormatted;
+    const styleMap = new StyleMap({ width: '', 'margin-left': '', visibility: 'visible' }), scrollStyleMap = new StyleMap({
+        overflow: 'hidden',
+        'text-align': 'left',
+        'margin-left': props.date.subPx + 8 + 'px'
+    });
+    const updateDate = () => {
+        if (!props)
+            return;
+        time = state.get('_internal.chart.time');
+        styleMap.style.width = props.date.width + 'px';
+        styleMap.style['margin-left'] = -props.date.subPx + 'px';
+        styleMap.style.visibility = 'visible';
+        scrollStyleMap.style = { overflow: 'hidden', 'text-align': 'left', 'margin-left': props.date.subPx + 8 + 'px' };
+        const dateMod = api.time.date(props.date.leftGlobal);
+        if (dateMod.format('YYYY-MM-DD') === props.currentDate) {
+            current = ' current';
+        }
+        else if (dateMod.subtract(1, 'days').format('YYYY-MM-DD') === props.currentDate) {
+            current = ' next';
+        }
+        else if (dateMod.add(1, 'days').format('YYYY-MM-DD') === props.currentDate) {
+            current = ' previous';
+        }
+        else {
+            current = '';
+        }
+        const maxWidth = time.maxWidth[props.period];
+        switch (props.period) {
+            case 'month':
+                htmlFormatted = html `
+          <div class=${className + '-content ' + className + '-content--month' + current} style=${scrollStyleMap}>
+            ${dateMod.format('MMMM YYYY')}
           </div>
-        `,s<=100&&(f=l`
-            <div class=${p+"-content "+p+"-content--month"+g}>
-              ${t.format("MMM'YY")}
+        `;
+                if (maxWidth <= 100) {
+                    htmlFormatted = html `
+            <div class=${className + '-content ' + className + '-content--month' + current}>
+              ${dateMod.format("MMM'YY")}
             </div>
-          `);break;case"day":if(f=l`
-          <div class=${p+"-content "+p+"-content--day _0"+g}>
-            <div class=${p+"-content "+p+"-content--day-small"+g}>
-              ${t.format("DD")} ${t.format("ddd")}
+          `;
+                }
+                break;
+            case 'day':
+                htmlFormatted = html `
+          <div class=${className + '-content ' + className + '-content--day _0' + current}>
+            <div class=${className + '-content ' + className + '-content--day-small' + current}>
+              ${dateMod.format('DD')} ${dateMod.format('ddd')}
             </div>
           </div>
-        `,s>=40&&s<50)f=l`
-            <div class=${p+"-content "+p+"-content--day _40"+g}>
-              ${t.format("DD")}
+        `;
+                if (maxWidth >= 40 && maxWidth < 50) {
+                    htmlFormatted = html `
+            <div class=${className + '-content ' + className + '-content--day _40' + current}>
+              ${dateMod.format('DD')}
             </div>
-            <div class=${p+"-content "+p+"-content--day-word"+g}>
-              ${t.format("dd")}
+            <div class=${className + '-content ' + className + '-content--day-word' + current}>
+              ${dateMod.format('dd')}
             </div>
-          `;else if(s>=50&&s<90)f=l`
-            <div class=${p+"-content "+p+"-content--day _50"+g}>
-              ${t.format("DD")}
+          `;
+                }
+                else if (maxWidth >= 50 && maxWidth < 90) {
+                    htmlFormatted = html `
+            <div class=${className + '-content ' + className + '-content--day _50' + current}>
+              ${dateMod.format('DD')}
             </div>
-            <div class=${p+"-content "+p+"-content--day-word"+g}>
-              ${t.format("ddd")}
+            <div class=${className + '-content ' + className + '-content--day-word' + current}>
+              ${dateMod.format('ddd')}
             </div>
-          `;else if(s>=90&&s<180)f=l`
-            <div class=${p+"-content "+p+"-content--day _90"+g}>
-              ${t.format("DD")}
+          `;
+                }
+                else if (maxWidth >= 90 && maxWidth < 180) {
+                    htmlFormatted = html `
+            <div class=${className + '-content ' + className + '-content--day _90' + current}>
+              ${dateMod.format('DD')}
             </div>
-            <div class=${p+"-content "+p+"-content--day-word"+g}>
-              ${t.format("dddd")}
+            <div class=${className + '-content ' + className + '-content--day-word' + current}>
+              ${dateMod.format('dddd')}
             </div>
-          `;else if(s>=180&&s<400){const e=[],n=t.startOf("day");for(let t=0;t<12;t++){const i=n.add(2*t,"hours"),s=(n.add(2*t+1,"hours").endOf("hour").valueOf()-i.valueOf())/m.timePerPixel;e.push({width:s,formatted:i.format("HH")})}f=l`
-            <div class=${p+"-content "+p+"-content--day _180"+g}>
-              ${t.format("DD dddd")}
+          `;
+                }
+                else if (maxWidth >= 180 && maxWidth < 400) {
+                    const hours = [];
+                    const start = dateMod.startOf('day');
+                    for (let i = 0; i < 12; i++) {
+                        const left = start.add(i * 2, 'hours');
+                        const width = (start
+                            .add(i * 2 + 1, 'hours')
+                            .endOf('hour')
+                            .valueOf() -
+                            left.valueOf()) /
+                            time.timePerPixel;
+                        hours.push({
+                            width,
+                            formatted: left.format('HH')
+                        });
+                    }
+                    htmlFormatted = html `
+            <div class=${className + '-content ' + className + '-content--day _180' + current}>
+              ${dateMod.format('DD dddd')}
             </div>
-            <div class=${p+"-content "+p+"-content--hours"+g}>
-              ${e.map(t=>l`
+            <div class=${className + '-content ' + className + '-content--hours' + current}>
+              ${hours.map(hour => html `
                     <div
-                      class="${p+"-content "+p+"-content--hours-hour"+g}"
-                      style="width: ${t.width}px"
+                      class="${className + '-content ' + className + '-content--hours-hour' + current}"
+                      style="width: ${hour.width}px"
                     >
-                      ${t.formatted}
+                      ${hour.formatted}
                     </div>
                   `)}
             </div>
-          `}else if(s>=400&&s<1e3){const e=[],n=t.startOf("day");for(let t=0;t<24;t++){const i=n.add(t,"hours"),s=(n.add(t,"hours").endOf("hour").valueOf()-i.valueOf())/m.timePerPixel;e.push({width:s,formatted:i.format("HH")})}f=l`
-            <div class=${p+"-content "+p+"-content--day _400"+g}>
-              ${t.format("DD dddd")}
+          `;
+                }
+                else if (maxWidth >= 400 && maxWidth < 1000) {
+                    const hours = [];
+                    const start = dateMod.startOf('day');
+                    for (let i = 0; i < 24; i++) {
+                        const left = start.add(i, 'hours');
+                        const width = (start
+                            .add(i, 'hours')
+                            .endOf('hour')
+                            .valueOf() -
+                            left.valueOf()) /
+                            time.timePerPixel;
+                        hours.push({
+                            width,
+                            formatted: left.format('HH')
+                        });
+                    }
+                    htmlFormatted = html `
+            <div class=${className + '-content ' + className + '-content--day _400' + current}>
+              ${dateMod.format('DD dddd')}
             </div>
-            <div class=${p+"-content "+p+"-content--hours"+g}>
-              ${e.map(t=>l`
+            <div class=${className + '-content ' + className + '-content--hours' + current}>
+              ${hours.map(hour => html `
                     <div
-                      class=${p+"-content "+p+"-content--hours-hour"+g}
-                      style="width: ${t.width}px"
+                      class=${className + '-content ' + className + '-content--hours-hour' + current}
+                      style="width: ${hour.width}px"
                     >
-                      ${t.formatted}
+                      ${hour.formatted}
                     </div>
                   `)}
             </div>
-          `}else if(s>=1e3&&s<2e3){const e=[],n=t.startOf("day");for(let t=0;t<24;t++){const i=n.add(t,"hours"),s=(n.add(t,"hours").endOf("hour").valueOf()-i.valueOf())/m.timePerPixel;e.push({width:s,formatted:i.format("HH:mm")})}f=l`
-            <div class=${p+"-content "+p+"-content--day _1000"+g} style=${y}>
-              ${t.format("DD dddd")}
+          `;
+                }
+                // scroll day from now on
+                else if (maxWidth >= 1000 && maxWidth < 2000) {
+                    const hours = [];
+                    const start = dateMod.startOf('day');
+                    for (let i = 0; i < 24; i++) {
+                        const left = start.add(i, 'hours');
+                        const width = (start
+                            .add(i, 'hours')
+                            .endOf('hour')
+                            .valueOf() -
+                            left.valueOf()) /
+                            time.timePerPixel;
+                        hours.push({
+                            width,
+                            formatted: left.format('HH:mm')
+                        });
+                    }
+                    htmlFormatted = html `
+            <div class=${className + '-content ' + className + '-content--day _1000' + current} style=${scrollStyleMap}>
+              ${dateMod.format('DD dddd')}
             </div>
-            <div class=${p+"-content "+p+"-content--hours"+g}>
-              ${e.map(t=>l`
+            <div class=${className + '-content ' + className + '-content--hours' + current}>
+              ${hours.map(hour => html `
                     <div
-                      class=${p+"-content "+p+"-content--hours-hour"+g}
-                      style="width: ${t.width}px"
+                      class=${className + '-content ' + className + '-content--hours-hour' + current}
+                      style="width: ${hour.width}px"
                     >
-                      ${t.formatted}
+                      ${hour.formatted}
                     </div>
                   `)}
             </div>
-          `}else if(s>=2e3&&s<5e3){const e=[],n=t.startOf("day");for(let t=0;t<48;t++){const i=n.add(30*t,"minutes"),s=(n.add(30*(t+1),"minutes").valueOf()-i.valueOf())/m.timePerPixel;e.push({width:s,formatted:i.format("HH:mm")})}f=l`
-            <div class=${p+"-content "+p+"-content--day _2000"+g} style=${y}>
-              ${t.format("DD dddd")}
+          `;
+                }
+                else if (maxWidth >= 2000 && maxWidth < 5000) {
+                    const hours = [];
+                    const start = dateMod.startOf('day');
+                    for (let i = 0; i < 24 * 2; i++) {
+                        const left = start.add(i * 30, 'minutes');
+                        const width = (start.add((i + 1) * 30, 'minutes').valueOf() - left.valueOf()) / time.timePerPixel;
+                        hours.push({
+                            width,
+                            formatted: left.format('HH:mm')
+                        });
+                    }
+                    htmlFormatted = html `
+            <div class=${className + '-content ' + className + '-content--day _2000' + current} style=${scrollStyleMap}>
+              ${dateMod.format('DD dddd')}
             </div>
-            <div class=${p+"-content "+p+"-content--hours"+g}>
-              ${e.map(t=>l`
+            <div class=${className + '-content ' + className + '-content--hours' + current}>
+              ${hours.map(hour => html `
                     <div
-                      class=${p+"-content "+p+"-content--hours-hour"+g}
-                      style="width: ${t.width}px"
+                      class=${className + '-content ' + className + '-content--hours-hour' + current}
+                      style="width: ${hour.width}px"
                     >
-                      ${t.formatted}
+                      ${hour.formatted}
                     </div>
                   `)}
             </div>
-          `}else if(s>=5e3&&s<2e4){const e=[],n=t.startOf("day");for(let t=0;t<96;t++){const i=n.add(15*t,"minutes"),s=(n.add(15*(t+1),"minutes").valueOf()-i.valueOf())/m.timePerPixel;e.push({width:s,formatted:i.format("HH:mm")})}f=l`
-            <div class=${p+"-content "+p+"-content--day _5000"+g} style=${y}>
-              ${t.format("DD dddd")}
+          `;
+                }
+                else if (maxWidth >= 5000 && maxWidth < 20000) {
+                    const hours = [];
+                    const start = dateMod.startOf('day');
+                    for (let i = 0; i < 24 * 4; i++) {
+                        const left = start.add(i * 15, 'minutes');
+                        const width = (start.add((i + 1) * 15, 'minutes').valueOf() - left.valueOf()) / time.timePerPixel;
+                        hours.push({
+                            width,
+                            formatted: left.format('HH:mm')
+                        });
+                    }
+                    htmlFormatted = html `
+            <div class=${className + '-content ' + className + '-content--day _5000' + current} style=${scrollStyleMap}>
+              ${dateMod.format('DD dddd')}
             </div>
-            <div class=${p+"-content "+p+"-content--hours"+g}>
-              ${e.map(t=>l`
+            <div class=${className + '-content ' + className + '-content--hours' + current}>
+              ${hours.map(hour => html `
                     <div
-                      class=${p+"-content "+p+"-content--hours-hour"+g}
-                      style="width: ${t.width}px"
+                      class=${className + '-content ' + className + '-content--hours-hour' + current}
+                      style="width: ${hour.width}px"
                     >
-                      ${t.formatted}
+                      ${hour.formatted}
                     </div>
                   `)}
             </div>
-          `}else if(s>=2e4){const e=[],n=t.startOf("day");for(let t=0;t<288;t++){const i=n.add(5*t,"minutes"),s=(n.add(5*(t+1),"minutes").valueOf()-i.valueOf())/m.timePerPixel;e.push({width:s,formatted:i.format("HH:mm")})}f=l`
+          `;
+                }
+                else if (maxWidth >= 20000) {
+                    const hours = [];
+                    const start = dateMod.startOf('day');
+                    for (let i = 0; i < 24 * 12; i++) {
+                        const left = start.add(i * 5, 'minutes');
+                        const width = (start.add((i + 1) * 5, 'minutes').valueOf() - left.valueOf()) / time.timePerPixel;
+                        hours.push({
+                            width,
+                            formatted: left.format('HH:mm')
+                        });
+                    }
+                    htmlFormatted = html `
             <div
-              class=${p+"-content "+p+"-content--day _20000"+g}
-              style=${y}
+              class=${className + '-content ' + className + '-content--day _20000' + current}
+              style=${scrollStyleMap}
             >
-              ${t.format("DD dddd")}
+              ${dateMod.format('DD dddd')}
             </div>
-            <div class=${p+"-content "+p+"-content--hours"+g}>
-              ${e.map(t=>l`
+            <div class=${className + '-content ' + className + '-content--hours' + current}>
+              ${hours.map(hour => html `
                     <div
-                      class=${p+"-content "+p+"-content--hours-hour"+g}
-                      style="width: ${t.width}px"
+                      class=${className + '-content ' + className + '-content--hours-hour' + current}
+                      style="width: ${hour.width}px"
                     >
-                      ${t.formatted}
+                      ${hour.formatted}
                     </div>
                   `)}
             </div>
-          `}}r()};let b=!1;const w=new d(()=>b);let _;const x={date:e.date,period:e.period,api:n,state:i};a((t,n)=>{if(n.leave)return b=!0,r();b=!1,e=t,x.date=e.date,x.period=e.period,_&&_(),_=i.subscribeAll(["_internal.chart.time","config.chart.calendar.vertical.smallFormat"],updateDate,{bulk:!0})}),s(()=>{_()}),h.includes(BindElementAction$2)||h.push(BindElementAction$2);const $=o.create(h,x);return n=>u(l`
+          `;
+                }
+                break;
+        }
+        update();
+    };
+    let shouldDetach = false;
+    const detach = new Detach(() => shouldDetach);
+    let timeSub;
+    const actionProps = { date: props.date, period: props.period, api, state };
+    onChange((changedProps, options) => {
+        if (options.leave) {
+            shouldDetach = true;
+            return update();
+        }
+        shouldDetach = false;
+        props = changedProps;
+        actionProps.date = props.date;
+        actionProps.period = props.period;
+        if (timeSub) {
+            timeSub();
+        }
+        timeSub = state.subscribeAll(['_internal.chart.time', 'config.chart.calendar.vertical.smallFormat'], updateDate, {
+            bulk: true
+        });
+    });
+    onDestroy(() => {
+        timeSub();
+    });
+    if (!componentActions.includes(BindElementAction$2))
+        componentActions.push(BindElementAction$2);
+    const actions = Actions.create(componentActions, actionProps);
+    return templateProps => wrapper(html `
         <div
-          detach=${w}
-          class=${p+" "+p+"--"+e.period+g}
-          style=${v}
-          data-actions=${$}
+          detach=${detach}
+          class=${className + ' ' + className + '--' + props.period + current}
+          style=${styleMap}
+          data-actions=${actions}
         >
-          ${f}
+          ${htmlFormatted}
         </div>
-      `,{props:e,vido:t,templateProps:n})}
+      `, { props, vido, templateProps });
+}
+
 /**
  * ChartTimeline component
  *
@@ -484,13 +6121,86 @@ class BindElementAction$2 extends Action$1{constructor(t,e){super(),e.state.upda
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function ChartTimeline(t,e){const{api:n,state:i,onDestroy:s,Action:o,Actions:r,update:a,html:l,createComponent:c,StyleMap:d}=t,h=n.getActions("chart-timeline"),u=Object.assign(Object.assign({},e),{api:n,state:i});let p;s(i.subscribe("config.wrappers.ChartTimeline",t=>p=t));const m=i.get("config.components.ChartTimelineGrid"),f=i.get("config.components.ChartTimelineItems"),g=i.get("config.components.ListToggle"),v=c(m);s(v.destroy);const y=c(f);s(y.destroy);const b=c(g);let w,_,x;s(b.destroy),s(i.subscribe("config.classNames",()=>{w=n.getClass("chart-timeline"),_=n.getClass("chart-timeline-inner"),a()})),s(i.subscribe("config.list.toggle.display",t=>x=t));const $=new d({}),C=new d({});s(i.subscribeAll(["_internal.height","_internal.chart.dimensions.width","_internal.list.rowsHeight","config.scroll.compensation","_internal.chart.time.dates.day"],(function calculateStyle(){const t=n.getCompensationX(),e=n.getCompensationY(),s=i.get("_internal.chart.dimensions.width"),o=i.get("_internal.list.rowsHeight");$.style.height=i.get("_internal.height")+"px",$.style["--height"]=$.style.height,$.style["--negative-compensation-x"]=t+"px",$.style["--compensation-x"]=Math.round(Math.abs(t))+"px",$.style["--negative-compensation-y"]=e+"px",$.style["--compensation-y"]=Math.abs(e)+"px",s?($.style.width=s+"px",$.style["--width"]=s+"px"):($.style.width="0px",$.style["--width"]="0px"),C.style.height=o+"px",C.style.width=s?s+t+"px":"0px",C.style.transform=`translate(-${t}px, ${e}px)`,a()}))),h.push(class BindElementAction extends o{constructor(t){super(),i.get("_internal.elements.chart-timeline")!==t&&i.update("_internal.elements.chart-timeline",t)}});const M=r.create(h,u);return i=>p(l`
-        <div class=${w} style=${$} data-actions=${M} @wheel=${n.onScroll}>
-          <div class=${_} style=${C}>
-            ${v.html()}${y.html()}${x?b.html():""}
+ */
+function ChartTimeline(vido, props) {
+    const { api, state, onDestroy, Action, Actions, update, html, createComponent, StyleMap } = vido;
+    const componentName = 'chart-timeline';
+    const componentActions = api.getActions(componentName);
+    const actionProps = Object.assign(Object.assign({}, props), { api, state });
+    let wrapper;
+    onDestroy(state.subscribe('config.wrappers.ChartTimeline', value => (wrapper = value)));
+    const GridComponent = state.get('config.components.ChartTimelineGrid');
+    const ItemsComponent = state.get('config.components.ChartTimelineItems');
+    const ListToggleComponent = state.get('config.components.ListToggle');
+    const Grid = createComponent(GridComponent);
+    onDestroy(Grid.destroy);
+    const Items = createComponent(ItemsComponent);
+    onDestroy(Items.destroy);
+    const ListToggle = createComponent(ListToggleComponent);
+    onDestroy(ListToggle.destroy);
+    let className, classNameInner;
+    onDestroy(state.subscribe('config.classNames', () => {
+        className = api.getClass(componentName);
+        classNameInner = api.getClass(componentName + '-inner');
+        update();
+    }));
+    let showToggle;
+    onDestroy(state.subscribe('config.list.toggle.display', val => (showToggle = val)));
+    const styleMap = new StyleMap({}), innerStyleMap = new StyleMap({});
+    function calculateStyle() {
+        const xCompensation = api.getCompensationX();
+        const yCompensation = api.getCompensationY();
+        const width = state.get('_internal.chart.dimensions.width');
+        const height = state.get('_internal.list.rowsHeight');
+        styleMap.style.height = state.get('_internal.height') + 'px';
+        styleMap.style['--height'] = styleMap.style.height;
+        styleMap.style['--negative-compensation-x'] = xCompensation + 'px';
+        styleMap.style['--compensation-x'] = Math.round(Math.abs(xCompensation)) + 'px';
+        styleMap.style['--negative-compensation-y'] = yCompensation + 'px';
+        styleMap.style['--compensation-y'] = Math.abs(yCompensation) + 'px';
+        if (width) {
+            styleMap.style.width = width + 'px';
+            styleMap.style['--width'] = width + 'px';
+        }
+        else {
+            styleMap.style.width = '0px';
+            styleMap.style['--width'] = '0px';
+        }
+        innerStyleMap.style.height = height + 'px';
+        if (width) {
+            innerStyleMap.style.width = width + xCompensation + 'px';
+        }
+        else {
+            innerStyleMap.style.width = '0px';
+        }
+        innerStyleMap.style.transform = `translate(-${xCompensation}px, ${yCompensation}px)`;
+        update();
+    }
+    onDestroy(state.subscribeAll([
+        '_internal.height',
+        '_internal.chart.dimensions.width',
+        '_internal.list.rowsHeight',
+        'config.scroll.compensation',
+        '_internal.chart.time.dates.day'
+    ], calculateStyle));
+    componentActions.push(class BindElementAction extends Action {
+        constructor(element) {
+            super();
+            const old = state.get('_internal.elements.chart-timeline');
+            if (old !== element)
+                state.update('_internal.elements.chart-timeline', element);
+        }
+    });
+    const actions = Actions.create(componentActions, actionProps);
+    return templateProps => wrapper(html `
+        <div class=${className} style=${styleMap} data-actions=${actions} @wheel=${api.onScroll}>
+          <div class=${classNameInner} style=${innerStyleMap}>
+            ${Grid.html()}${Items.html()}${showToggle ? ListToggle.html() : ''}
           </div>
         </div>
-      `,{props:e,vido:t,templateProps:i})}
+      `, { props, vido, templateProps });
+}
+
 /**
  * ChartTimelineGrid component
  *
@@ -499,11 +6209,114 @@ class BindElementAction$2 extends Action$1{constructor(t,e){super(),e.state.upda
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */class BindElementAction$3{constructor(t,e){e.state.get("_internal.elements.chart-timeline-grid")!==t&&e.state.update("_internal.elements.chart-timeline-grid",t)}destroy(t,e){e.state.update("_internal.elements",t=>(delete t["chart-timeline-grid"],t))}}function ChartTimelineGrid(t,e){const{api:n,state:i,onDestroy:s,Actions:o,update:r,html:a,reuseComponents:l,StyleMap:c}=t,d=n.getActions("chart-timeline-grid"),h={api:n,state:i};let u;s(i.subscribe("config.wrappers.ChartTimelineGrid",t=>u=t));const p=i.get("config.components.ChartTimelineGridRow");let m,f,g;s(i.subscribe("config.classNames",()=>{m=n.getClass("chart-timeline-grid"),r()})),s(i.subscribe("config.chart.time.period",t=>f=t)),s(i.subscribe("config.chart.grid.block.onCreate",t=>g=t));const v=[],y=[],b=new Map,w=new c({});s(i.subscribeAll(["_internal.list.visibleRows;",`_internal.chart.time.dates.${f};`,"_internal.height","_internal.chart.dimensions.width"],(function generateBlocks(){const t=i.get("_internal.chart.dimensions.width"),e=i.get("_internal.height"),s=i.get(`_internal.chart.time.dates.${f}`);if(!s||0===s.length)return void i.update("_internal.chart.grid.rowsWithBlocks",[]);const o=i.get("_internal.list.visibleRows"),r=n.getCompensationX(),a=n.getCompensationY();w.style.height=e+Math.abs(a)+"px",w.style.width=t+r+"px";let l=0;y.length=0;for(const e of o){const i=[];for(const t of s){let s;b.has(t.leftGlobal)?s=b.get(t.leftGlobal):(s=n.time.date(t.leftGlobal).format("YYYY-MM-DD"),b.set(t.leftGlobal,s));let o={id:e.id+":"+s,time:t,row:e,top:l};for(const t of g)o=t(o);i.push(o)}y.push({row:e,blocks:i,top:l,width:t}),l+=e.height}i.update("_internal.chart.grid.rowsWithBlocks",y)}),{bulk:!0}));s(i.subscribe("_internal.chart.grid.rowsWithBlocks",t=>{l(v,t||[],t=>t,p),r()})),s(()=>{v.forEach(t=>t.destroy())}),d.push(BindElementAction$3);const _=o.create(d,h);return n=>u(a`
-        <div class=${m} data-actions=${_} style=${w}>
-          ${v.map(t=>t.html())}
+ */
+/**
+ * Bind element action
+ */
+class BindElementAction$3 {
+    constructor(element, data) {
+        const old = data.state.get('_internal.elements.chart-timeline-grid');
+        if (old !== element)
+            data.state.update('_internal.elements.chart-timeline-grid', element);
+    }
+    destroy(element, data) {
+        data.state.update('_internal.elements', elements => {
+            delete elements['chart-timeline-grid'];
+            return elements;
+        });
+    }
+}
+function ChartTimelineGrid(vido, props) {
+    const { api, state, onDestroy, Actions, update, html, reuseComponents, StyleMap } = vido;
+    const componentName = 'chart-timeline-grid';
+    const componentActions = api.getActions(componentName);
+    const actionProps = { api, state };
+    let wrapper;
+    onDestroy(state.subscribe('config.wrappers.ChartTimelineGrid', value => (wrapper = value)));
+    const GridRowComponent = state.get('config.components.ChartTimelineGridRow');
+    let className;
+    onDestroy(state.subscribe('config.classNames', () => {
+        className = api.getClass(componentName);
+        update();
+    }));
+    let period;
+    onDestroy(state.subscribe('config.chart.time.period', value => (period = value)));
+    let onBlockCreate;
+    onDestroy(state.subscribe('config.chart.grid.block.onCreate', onCreate => (onBlockCreate = onCreate)));
+    const rowsComponents = [];
+    const rowsWithBlocks = [];
+    const formatCache = new Map();
+    const styleMap = new StyleMap({});
+    /**
+     * Generate blocks
+     */
+    function generateBlocks() {
+        const width = state.get('_internal.chart.dimensions.width');
+        const height = state.get('_internal.height');
+        const periodDates = state.get(`_internal.chart.time.dates.${period}`);
+        if (!periodDates || periodDates.length === 0) {
+            state.update('_internal.chart.grid.rowsWithBlocks', []);
+            return;
+        }
+        const visibleRows = state.get('_internal.list.visibleRows');
+        const xCompensation = api.getCompensationX();
+        const yCompensation = api.getCompensationY();
+        styleMap.style.height = height + Math.abs(yCompensation) + 'px';
+        styleMap.style.width = width + xCompensation + 'px';
+        let top = 0;
+        rowsWithBlocks.length = 0;
+        for (const row of visibleRows) {
+            const blocks = [];
+            for (const time of periodDates) {
+                let format;
+                if (formatCache.has(time.leftGlobal)) {
+                    format = formatCache.get(time.leftGlobal);
+                }
+                else {
+                    format = api.time.date(time.leftGlobal).format('YYYY-MM-DD');
+                    formatCache.set(time.leftGlobal, format);
+                }
+                const id = row.id + ':' + format;
+                let block = { id, time, row, top };
+                for (const onCreate of onBlockCreate) {
+                    block = onCreate(block);
+                }
+                blocks.push(block);
+            }
+            rowsWithBlocks.push({ row, blocks, top, width });
+            top += row.height;
+        }
+        state.update('_internal.chart.grid.rowsWithBlocks', rowsWithBlocks);
+    }
+    onDestroy(state.subscribeAll([
+        '_internal.list.visibleRows;',
+        `_internal.chart.time.dates.${period};`,
+        '_internal.height',
+        '_internal.chart.dimensions.width'
+    ], generateBlocks, {
+        bulk: true
+    }));
+    /**
+     * Generate rows components
+     * @param {array} rowsWithBlocks
+     */
+    const generateRowsComponents = rowsWithBlocks => {
+        reuseComponents(rowsComponents, rowsWithBlocks || [], row => row, GridRowComponent);
+        update();
+    };
+    onDestroy(state.subscribe('_internal.chart.grid.rowsWithBlocks', generateRowsComponents));
+    onDestroy(() => {
+        rowsComponents.forEach(row => row.destroy());
+    });
+    componentActions.push(BindElementAction$3);
+    const actions = Actions.create(componentActions, actionProps);
+    return templateProps => wrapper(html `
+        <div class=${className} data-actions=${actions} style=${styleMap}>
+          ${rowsComponents.map(r => r.html())}
         </div>
-      `,{props:e,vido:t,templateProps:n})}
+      `, { props, vido, templateProps });
+}
+
 /**
  * ChartTimelineGridRow component
  *
@@ -512,11 +6325,104 @@ class BindElementAction$2 extends Action$1{constructor(t,e){super(),e.state.upda
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */class BindElementAction$4{constructor(t,e){let n=!1,i=e.state.get("_internal.elements.chart-timeline-grid-rows");void 0===i&&(i=[],n=!0),i.includes(t)||(i.push(t),n=!0),n&&e.state.update("_internal.elements.chart-timeline-grid-rows",i,{only:null})}destroy(t,e){e.state.update("_internal.elements.chart-timeline-grid-rows",e=>e.filter(e=>e!==t))}}function ChartTimelineGridRow(t,e){const{api:n,state:i,onDestroy:s,Detach:o,Actions:r,update:a,html:l,reuseComponents:c,onChange:d,StyleMap:h}=t,u=Object.assign(Object.assign({},e),{api:n,state:i});let p;s(i.subscribe("config.wrappers.ChartTimelineGridRow",t=>{p=t,a()}));const m=i.get("config.components.ChartTimelineGridRowBlock"),f=n.getActions("chart-timeline-grid-row");let g;s(i.subscribe("config.classNames",()=>{g=n.getClass("chart-timeline-grid-row")}));const v=new h({width:e.width+"px",height:e.row.height+"px",overflow:"hidden"},!0);let y=!1;const b=new o(()=>y),w=[];d((function onPropsChange(t,n){var s,o,r,l,d,h,p,f,g;if(n.leave||void 0===t.row)return y=!0,c(w,[],t=>t,m),void a();y=!1,c(w,(e=t).blocks,t=>t,m),v.setStyle({}),v.style.height=e.row.height+"px",v.style.width=e.width+"px";const b=i.get("config.list.rows");for(const t of e.row._internal.parents){const e=null===(l=null===(r=null===(o=null===(s=b[t])||void 0===s?void 0:s.style)||void 0===o?void 0:o.grid)||void 0===r?void 0:r.row)||void 0===l?void 0:l.children;if(e)for(const t in e)v.style[t]=e[t]}const _=null===(g=null===(f=null===(p=null===(h=null===(d=e)||void 0===d?void 0:d.row)||void 0===h?void 0:h.style)||void 0===p?void 0:p.grid)||void 0===f?void 0:f.row)||void 0===g?void 0:g.current;if(_)for(const t in _)v.style[t]=_[t];for(const t in e)u[t]=e[t];a()})),s((function destroy(){w.forEach(t=>t.destroy())})),-1===f.indexOf(BindElementAction$4)&&f.push(BindElementAction$4);const _=r.create(f,u);return n=>p(l`
-        <div detach=${b} class=${g} data-actions=${_} style=${v}>
-          ${w.map(t=>t.html())}
+ */
+/**
+ * Bind element action
+ */
+class BindElementAction$4 {
+    constructor(element, data) {
+        let shouldUpdate = false;
+        let rows = data.state.get('_internal.elements.chart-timeline-grid-rows');
+        if (typeof rows === 'undefined') {
+            rows = [];
+            shouldUpdate = true;
+        }
+        if (!rows.includes(element)) {
+            rows.push(element);
+            shouldUpdate = true;
+        }
+        if (shouldUpdate)
+            data.state.update('_internal.elements.chart-timeline-grid-rows', rows, { only: null });
+    }
+    destroy(element, data) {
+        data.state.update('_internal.elements.chart-timeline-grid-rows', rows => {
+            return rows.filter(el => el !== element);
+        });
+    }
+}
+function ChartTimelineGridRow(vido, props) {
+    const { api, state, onDestroy, Detach, Actions, update, html, reuseComponents, onChange, StyleMap } = vido;
+    const componentName = 'chart-timeline-grid-row';
+    const actionProps = Object.assign(Object.assign({}, props), { api,
+        state });
+    let wrapper;
+    onDestroy(state.subscribe('config.wrappers.ChartTimelineGridRow', value => {
+        wrapper = value;
+        update();
+    }));
+    const GridBlockComponent = state.get('config.components.ChartTimelineGridRowBlock');
+    const componentActions = api.getActions(componentName);
+    let className;
+    onDestroy(state.subscribe('config.classNames', () => {
+        className = api.getClass(componentName);
+    }));
+    const styleMap = new StyleMap({
+        width: props.width + 'px',
+        height: props.row.height + 'px',
+        overflow: 'hidden'
+    }, true);
+    let shouldDetach = false;
+    const detach = new Detach(() => shouldDetach);
+    const rowsBlocksComponents = [];
+    onChange(function onPropsChange(changedProps, options) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+        if (options.leave || changedProps.row === undefined) {
+            shouldDetach = true;
+            reuseComponents(rowsBlocksComponents, [], block => block, GridBlockComponent);
+            update();
+            return;
+        }
+        shouldDetach = false;
+        props = changedProps;
+        reuseComponents(rowsBlocksComponents, props.blocks, block => block, GridBlockComponent);
+        styleMap.setStyle({});
+        styleMap.style.height = props.row.height + 'px';
+        styleMap.style.width = props.width + 'px';
+        const rows = state.get('config.list.rows');
+        for (const parentId of props.row._internal.parents) {
+            const parent = rows[parentId];
+            const childrenStyle = (_d = (_c = (_b = (_a = parent) === null || _a === void 0 ? void 0 : _a.style) === null || _b === void 0 ? void 0 : _b.grid) === null || _c === void 0 ? void 0 : _c.row) === null || _d === void 0 ? void 0 : _d.children;
+            if (childrenStyle)
+                for (const name in childrenStyle) {
+                    styleMap.style[name] = childrenStyle[name];
+                }
+        }
+        const currentStyle = (_j = (_h = (_g = (_f = (_e = props) === null || _e === void 0 ? void 0 : _e.row) === null || _f === void 0 ? void 0 : _f.style) === null || _g === void 0 ? void 0 : _g.grid) === null || _h === void 0 ? void 0 : _h.row) === null || _j === void 0 ? void 0 : _j.current;
+        if (currentStyle)
+            for (const name in currentStyle) {
+                styleMap.style[name] = currentStyle[name];
+            }
+        for (const prop in props) {
+            actionProps[prop] = props[prop];
+        }
+        update();
+    });
+    onDestroy(function destroy() {
+        rowsBlocksComponents.forEach(rowBlock => rowBlock.destroy());
+    });
+    if (componentActions.indexOf(BindElementAction$4) === -1) {
+        componentActions.push(BindElementAction$4);
+    }
+    const actions = Actions.create(componentActions, actionProps);
+    return templateProps => {
+        return wrapper(html `
+        <div detach=${detach} class=${className} data-actions=${actions} style=${styleMap}>
+          ${rowsBlocksComponents.map(r => r.html())}
         </div>
-      `,{vido:t,props:e,templateProps:n})}
+      `, { vido, props, templateProps });
+    };
+}
+
 /**
  * ChartTimelineGridRowBlock component
  *
@@ -525,9 +6431,101 @@ class BindElementAction$2 extends Action$1{constructor(t,e){super(),e.state.upda
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */class BindElementAction$5{constructor(t,e){let n=!1,i=e.state.get("_internal.elements.chart-timeline-grid-row-blocks");void 0===i&&(i=[],n=!0),i.includes(t)||(i.push(t),n=!0),n&&e.state.update("_internal.elements.chart-timeline-grid-row-blocks",i,{only:null})}destroy(t,e){e.state.update("_internal.elements.chart-timeline-grid-row-blocks",e=>e.filter(e=>e!==t),{only:[""]})}}const ChartTimelineGridRowBlock=(t,e)=>{const{api:n,state:i,onDestroy:s,Detach:o,Actions:r,update:a,html:l,onChange:c,StyleMap:d}=t,h="chart-timeline-grid-row-block",u=Object.assign(Object.assign({},e),{api:n,state:i});let p=!1;const m=new o(()=>p),f=n.getActions(h);let g;s(i.subscribe("config.wrappers.ChartTimelineGridRowBlock",t=>{g=t,a()}));const v=n.time.date().startOf("day").valueOf();let y;function updateClassName(t){y=n.getClass(h),t.leftGlobal===v&&(y+=" current")}updateClassName(e.time);const b=new d({width:"",height:""});c((function onPropsChange(t,n){var s,o,r,l,c,d,h,m,f,g,v,y,w;if(n.leave||void 0===t.row)return p=!0,a();p=!1,e=t;for(const t in e)u[t]=e[t];updateClassName(e.time),b.setStyle({}),b.style.width=((null===(o=null===(s=e)||void 0===s?void 0:s.time)||void 0===o?void 0:o.width)||0)+"px",b.style.height=((null===(l=null===(r=e)||void 0===r?void 0:r.row)||void 0===l?void 0:l.height)||0)+"px";const _=i.get("config.list.rows");for(const t of e.row._internal.parents){const e=null===(m=null===(h=null===(d=null===(c=_[t])||void 0===c?void 0:c.style)||void 0===d?void 0:d.grid)||void 0===h?void 0:h.block)||void 0===m?void 0:m.children;e&&b.setStyle(Object.assign(Object.assign({},b.style),e))}const x=null===(w=null===(y=null===(v=null===(g=null===(f=e)||void 0===f?void 0:f.row)||void 0===g?void 0:g.style)||void 0===v?void 0:v.grid)||void 0===y?void 0:y.block)||void 0===w?void 0:w.current;x&&b.setStyle(Object.assign(Object.assign({},b.style),x)),a()})),f.push(BindElementAction$5);const w=r.create(f,u);return n=>g(l`
-        <div detach=${m} class=${y} data-actions=${w} style=${b}></div>
-      `,{props:e,vido:t,templateProps:n})};
+ */
+/**
+ * Bind element action
+ * @param {Element} element
+ * @param {any} data
+ * @returns {object} with update and destroy
+ */
+class BindElementAction$5 {
+    constructor(element, data) {
+        let shouldUpdate = false;
+        let blocks = data.state.get('_internal.elements.chart-timeline-grid-row-blocks');
+        if (typeof blocks === 'undefined') {
+            blocks = [];
+            shouldUpdate = true;
+        }
+        if (!blocks.includes(element)) {
+            blocks.push(element);
+            shouldUpdate = true;
+        }
+        if (shouldUpdate)
+            data.state.update('_internal.elements.chart-timeline-grid-row-blocks', blocks, { only: null });
+    }
+    destroy(element, data) {
+        data.state.update('_internal.elements.chart-timeline-grid-row-blocks', blocks => {
+            return blocks.filter(el => el !== element);
+        }, { only: [''] });
+    }
+}
+const ChartTimelineGridRowBlock = (vido, props) => {
+    const { api, state, onDestroy, Detach, Actions, update, html, onChange, StyleMap } = vido;
+    const componentName = 'chart-timeline-grid-row-block';
+    const actionProps = Object.assign(Object.assign({}, props), { api,
+        state });
+    let shouldDetach = false;
+    const detach = new Detach(() => shouldDetach);
+    const componentActions = api.getActions(componentName);
+    let wrapper;
+    onDestroy(state.subscribe('config.wrappers.ChartTimelineGridRowBlock', value => {
+        wrapper = value;
+        update();
+    }));
+    const currentTime = api.time
+        .date()
+        .startOf('day')
+        .valueOf();
+    let className;
+    function updateClassName(time) {
+        className = api.getClass(componentName);
+        if (time.leftGlobal === currentTime) {
+            className += ' current';
+        }
+    }
+    updateClassName(props.time);
+    const styleMap = new StyleMap({ width: '', height: '' });
+    /**
+     * On props change
+     * @param {any} changedProps
+     */
+    function onPropsChange(changedProps, options) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
+        if (options.leave || changedProps.row === undefined) {
+            shouldDetach = true;
+            return update();
+        }
+        shouldDetach = false;
+        props = changedProps;
+        for (const prop in props) {
+            actionProps[prop] = props[prop];
+        }
+        updateClassName(props.time);
+        styleMap.setStyle({});
+        styleMap.style.width = (((_b = (_a = props) === null || _a === void 0 ? void 0 : _a.time) === null || _b === void 0 ? void 0 : _b.width) || 0) + 'px';
+        styleMap.style.height = (((_d = (_c = props) === null || _c === void 0 ? void 0 : _c.row) === null || _d === void 0 ? void 0 : _d.height) || 0) + 'px';
+        const rows = state.get('config.list.rows');
+        for (const parentId of props.row._internal.parents) {
+            const parent = rows[parentId];
+            const childrenStyle = (_h = (_g = (_f = (_e = parent) === null || _e === void 0 ? void 0 : _e.style) === null || _f === void 0 ? void 0 : _f.grid) === null || _g === void 0 ? void 0 : _g.block) === null || _h === void 0 ? void 0 : _h.children;
+            if (childrenStyle)
+                styleMap.setStyle(Object.assign(Object.assign({}, styleMap.style), childrenStyle));
+        }
+        const currentStyle = (_o = (_m = (_l = (_k = (_j = props) === null || _j === void 0 ? void 0 : _j.row) === null || _k === void 0 ? void 0 : _k.style) === null || _l === void 0 ? void 0 : _l.grid) === null || _m === void 0 ? void 0 : _m.block) === null || _o === void 0 ? void 0 : _o.current;
+        if (currentStyle)
+            styleMap.setStyle(Object.assign(Object.assign({}, styleMap.style), currentStyle));
+        update();
+    }
+    onChange(onPropsChange);
+    componentActions.push(BindElementAction$5);
+    const actions = Actions.create(componentActions, actionProps);
+    return templateProps => {
+        return wrapper(html `
+        <div detach=${detach} class=${className} data-actions=${actions} style=${styleMap}></div>
+      `, { props, vido, templateProps });
+    };
+};
+
 /**
  * ChartTimelineItems component
  *
@@ -536,11 +6534,53 @@ class BindElementAction$2 extends Action$1{constructor(t,e){super(),e.state.upda
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */function ChartTimelineItems(t,e={}){const{api:n,state:i,onDestroy:s,Actions:o,update:r,html:a,reuseComponents:l,StyleMap:c}=t,d=n.getActions("chart-timeline-items");let h,u,p;s(i.subscribe("config.wrappers.ChartTimelineItems",t=>h=t)),s(i.subscribe("config.components.ChartTimelineItemsRow",t=>u=t)),s(i.subscribe("config.classNames",()=>{p=n.getClass("chart-timeline-items"),r()}));const m=new c({},!0);s(i.subscribeAll(["_internal.height","_internal.chart.dimensions.width","config.scroll.compensation","_internal.chart.time.dates.day"],(function calculateStyle(){const t=i.get("_internal.chart.dimensions.width"),e=i.get("_internal.height"),s=n.getCompensationY(),o=n.getCompensationX();m.style.width=t+o+"px",m.style.height=e+Math.abs(s)+"px"})));const f=[];s(i.subscribeAll(["_internal.list.visibleRows;","config.chart.items"],(function createRowComponents(){const t=i.get("_internal.list.visibleRows");l(f,t||[],t=>({row:t}),u),r()}))),s(()=>{f.forEach(t=>t.destroy())});const g=o.create(d,{api:n,state:i});return n=>h(a`
-        <div class=${p} style=${m} data-actions=${g}>
-          ${f.map(t=>t.html())}
+ */
+function ChartTimelineItems(vido, props = {}) {
+    const { api, state, onDestroy, Actions, update, html, reuseComponents, StyleMap } = vido;
+    const componentName = 'chart-timeline-items';
+    const componentActions = api.getActions(componentName);
+    let wrapper;
+    onDestroy(state.subscribe('config.wrappers.ChartTimelineItems', value => (wrapper = value)));
+    let ItemsRowComponent;
+    onDestroy(state.subscribe('config.components.ChartTimelineItemsRow', value => (ItemsRowComponent = value)));
+    let className;
+    onDestroy(state.subscribe('config.classNames', () => {
+        className = api.getClass(componentName);
+        update();
+    }));
+    const styleMap = new StyleMap({}, true);
+    function calculateStyle() {
+        const width = state.get('_internal.chart.dimensions.width');
+        const height = state.get('_internal.height');
+        const yCompensation = api.getCompensationY();
+        const xCompensation = api.getCompensationX();
+        styleMap.style.width = width + xCompensation + 'px';
+        styleMap.style.height = height + Math.abs(yCompensation) + 'px';
+    }
+    onDestroy(state.subscribeAll([
+        '_internal.height',
+        '_internal.chart.dimensions.width',
+        'config.scroll.compensation',
+        '_internal.chart.time.dates.day'
+    ], calculateStyle));
+    const rowsComponents = [];
+    function createRowComponents() {
+        const visibleRows = state.get('_internal.list.visibleRows');
+        reuseComponents(rowsComponents, visibleRows || [], row => ({ row }), ItemsRowComponent);
+        update();
+    }
+    onDestroy(state.subscribeAll(['_internal.list.visibleRows;', 'config.chart.items'], createRowComponents));
+    onDestroy(() => {
+        rowsComponents.forEach(row => row.destroy());
+    });
+    const actions = Actions.create(componentActions, { api, state });
+    return templateProps => wrapper(html `
+        <div class=${className} style=${styleMap} data-actions=${actions}>
+          ${rowsComponents.map(r => r.html())}
         </div>
-      `,{props:e,vido:t,templateProps:n})}
+      `, { props, vido, templateProps });
+}
+
 /**
  * ChartTimelineItemsRow component
  *
@@ -549,11 +6589,122 @@ class BindElementAction$2 extends Action$1{constructor(t,e){super(),e.state.upda
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */class BindElementAction$6{constructor(t,e){let n=!1,i=e.state.get("_internal.elements.chart-timeline-items-rows");void 0===i&&(i=[],n=!0),i.includes(t)||(i.push(t),n=!0),n&&e.state.update("_internal.elements.chart-timeline-items-rows",i,{only:null})}destroy(t,e){e.state.update("_internal.elements.chart-timeline-items-rows",e=>e.filter(e=>e!==t))}}const ChartTimelineItemsRow=(t,e)=>{const{api:n,state:i,onDestroy:s,Detach:o,Actions:r,update:a,html:l,onChange:c,reuseComponents:d,StyleMap:h}=t,u=Object.assign(Object.assign({},e),{api:n,state:i});let p,m;s(i.subscribe("config.wrappers.ChartTimelineItemsRow",t=>p=t)),s(i.subscribe("config.components.ChartTimelineItemsRowItem",t=>m=t));let f,g,v=`_internal.flatTreeMapById.${e.row.id}._internal.items`;const y=[],b=new h({width:"",height:""},!0);let w=!1;const _=new o(()=>w),updateDom=()=>{const t=i.get("_internal.chart");w=!1;const s=n.getCompensationX();b.style.width=t.dimensions.width+s+"px",e?(b.style.height=e.row.height+"px",b.style["--row-height"]=e.row.height+"px"):w=!0};c((t,n)=>{if(n.leave||void 0===t.row)return w=!0,a();e=t;for(const t in e)u[t]=e[t];!function updateRow(t){v=`_internal.flatTreeMapById.${t.id}._internal.items`,"function"==typeof f&&f(),"function"==typeof g&&g(),f=i.subscribe("_internal.chart",t=>{if(void 0===t)return w=!0,a();updateDom(),a()}),g=i.subscribe(v,e=>{if(void 0===e)return w=!0,d(y,[],e=>({row:t,item:e}),m),a();d(y,e,e=>({row:t,item:e}),m),updateDom(),a()})}(e.row)}),s(()=>{g(),f(),y.forEach(t=>t.destroy())});const x=n.getActions("chart-timeline-items-row");let $;s(i.subscribe("config.classNames",()=>{$=n.getClass("chart-timeline-items-row",e),a()})),x.push(BindElementAction$6);const C=r.create(x,u);return n=>p(l`
-        <div detach=${_} class=${$} data-actions=${C} style=${b}>
-          ${y.map(t=>t.html())}
+ */
+/**
+ * Bind element action
+ * @param {Element} element
+ * @param {any} data
+ */
+class BindElementAction$6 {
+    constructor(element, data) {
+        let shouldUpdate = false;
+        let rows = data.state.get('_internal.elements.chart-timeline-items-rows');
+        if (typeof rows === 'undefined') {
+            rows = [];
+            shouldUpdate = true;
+        }
+        if (!rows.includes(element)) {
+            rows.push(element);
+            shouldUpdate = true;
+        }
+        if (shouldUpdate)
+            data.state.update('_internal.elements.chart-timeline-items-rows', rows, { only: null });
+    }
+    destroy(element, data) {
+        data.state.update('_internal.elements.chart-timeline-items-rows', rows => {
+            return rows.filter(el => el !== element);
+        });
+    }
+}
+const ChartTimelineItemsRow = (vido, props) => {
+    const { api, state, onDestroy, Detach, Actions, update, html, onChange, reuseComponents, StyleMap } = vido;
+    const actionProps = Object.assign(Object.assign({}, props), { api, state });
+    let wrapper;
+    onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRow', value => (wrapper = value)));
+    let ItemComponent;
+    onDestroy(state.subscribe('config.components.ChartTimelineItemsRowItem', value => (ItemComponent = value)));
+    let itemsPath = `_internal.flatTreeMapById.${props.row.id}._internal.items`;
+    let rowSub, itemsSub;
+    const itemComponents = [], styleMap = new StyleMap({ width: '', height: '' }, true);
+    let shouldDetach = false;
+    const detach = new Detach(() => shouldDetach);
+    const updateDom = () => {
+        const chart = state.get('_internal.chart');
+        shouldDetach = false;
+        const xCompensation = api.getCompensationX();
+        styleMap.style.width = chart.dimensions.width + xCompensation + 'px';
+        if (!props) {
+            shouldDetach = true;
+            return;
+        }
+        styleMap.style.height = props.row.height + 'px';
+        styleMap.style['--row-height'] = props.row.height + 'px';
+    };
+    function updateRow(row) {
+        itemsPath = `_internal.flatTreeMapById.${row.id}._internal.items`;
+        if (typeof rowSub === 'function') {
+            rowSub();
+        }
+        if (typeof itemsSub === 'function') {
+            itemsSub();
+        }
+        rowSub = state.subscribe('_internal.chart', value => {
+            if (value === undefined) {
+                shouldDetach = true;
+                return update();
+            }
+            updateDom();
+            update();
+        });
+        itemsSub = state.subscribe(itemsPath, value => {
+            if (value === undefined) {
+                shouldDetach = true;
+                reuseComponents(itemComponents, [], item => ({ row, item }), ItemComponent);
+                return update();
+            }
+            reuseComponents(itemComponents, value, item => ({ row, item }), ItemComponent);
+            updateDom();
+            update();
+        });
+    }
+    /**
+     * On props change
+     * @param {any} changedProps
+     */
+    onChange((changedProps, options) => {
+        if (options.leave || changedProps.row === undefined) {
+            shouldDetach = true;
+            return update();
+        }
+        props = changedProps;
+        for (const prop in props) {
+            actionProps[prop] = props[prop];
+        }
+        updateRow(props.row);
+    });
+    onDestroy(() => {
+        itemsSub();
+        rowSub();
+        itemComponents.forEach(item => item.destroy());
+    });
+    const componentName = 'chart-timeline-items-row';
+    const componentActions = api.getActions(componentName);
+    let className;
+    onDestroy(state.subscribe('config.classNames', () => {
+        className = api.getClass(componentName, props);
+        update();
+    }));
+    componentActions.push(BindElementAction$6);
+    const actions = Actions.create(componentActions, actionProps);
+    return templateProps => {
+        return wrapper(html `
+        <div detach=${detach} class=${className} data-actions=${actions} style=${styleMap}>
+          ${itemComponents.map(i => i.html())}
         </div>
-      `,{props:e,vido:t,templateProps:n})};
+      `, { props, vido, templateProps });
+    };
+};
+
 /**
  * ChartTimelineItemsRowItem component
  *
@@ -562,21 +6713,130 @@ class BindElementAction$2 extends Action$1{constructor(t,e){super(),e.state.upda
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- */class BindElementAction$7{constructor(t,e){let n=!1,i=e.state.get("_internal.elements.chart-timeline-items-row-items");void 0===i&&(i=[],n=!0),i.includes(t)||(i.push(t),n=!0),n&&e.state.update("_internal.elements.chart-timeline-items-row-items",i,{only:null})}destroy(t,e){e.state.update("_internal.elements.chart-timeline-items-row-items",e=>e.filter(e=>e!==t))}}function ChartTimelineItemsRowItem(t,e){const{api:n,state:i,onDestroy:s,Detach:o,Actions:r,update:a,html:l,onChange:c,unsafeHTML:d,StyleMap:h}=t;let u;s(i.subscribe("config.wrappers.ChartTimelineItemsRowItem",t=>u=t));let p=0,m=0,f=!1;const g=new h({width:"",height:"",left:""}),v={item:e.item,row:e.row,left:p,width:m,api:n,state:i};let y=!1;function updateItem(){var t,s,o,r,l,c,d,h,u,b,w;if(f)return;const _=i.get("_internal.chart.time");p=n.time.globalTimeToViewPixelOffset(e.item.time.start),p=.1*Math.round(10*p),m=(e.item.time.end-e.item.time.start)/_.timePerPixel,m-=i.get("config.chart.spacing")||0,m&&(m=.1*Math.round(10*m));const x=g.style.width,$=g.style.left,C=n.getCompensationX();g.setStyle({});const M=n.isItemInViewport(e.item,_.leftGlobal,_.rightGlobal);y=!M,M?(g.style.width=m+"px",g.style.left=p+C+"px"):(g.style.width=x,g.style.left=$);const P=i.get("config.list.rows");for(const n of e.row._internal.parents){const e=null===(r=null===(o=null===(s=null===(t=P[n])||void 0===t?void 0:t.style)||void 0===s?void 0:s.items)||void 0===o?void 0:o.item)||void 0===r?void 0:r.children;e&&g.setStyle(Object.assign(Object.assign({},g.style),e))}const O=null===(u=null===(h=null===(d=null===(c=null===(l=e)||void 0===l?void 0:l.row)||void 0===c?void 0:c.style)||void 0===d?void 0:d.items)||void 0===h?void 0:h.item)||void 0===u?void 0:u.current;O&&g.setStyle(Object.assign(Object.assign({},g.style),O));const T=null===(w=null===(b=e)||void 0===b?void 0:b.item)||void 0===w?void 0:w.style;T&&g.setStyle(Object.assign(Object.assign({},g.style),T)),v.left=p+C,v.width=m,a()}const b="chart-timeline-items-row-item";c((function onPropsChange(t,n){if(n.leave||void 0===t.row||void 0===t.item)return f=!0,y=!0,a();y=!1,f=!1,e=t,v.item=e.item,v.row=e.row,updateItem()}));const w=n.getActions(b);let _,x;s(i.subscribe("config.classNames",()=>{_=n.getClass(b,e),x=n.getClass(b+"-label",e),a()})),s(i.subscribeAll(["_internal.chart.time","config.scroll.compensation.x"],t=>{updateItem()})),w.push(BindElementAction$7);const $=r.create(w,v),C=new o(()=>y);return n=>u(l`
-        <div detach=${C} class=${_} data-actions=${$} style=${g}>
-          <div class=${x}>
-            ${e.item.isHtml?d(e.item.label):e.item.label}
+ */
+/**
+ * Bind element action
+ */
+class BindElementAction$7 {
+    constructor(element, data) {
+        let shouldUpdate = false;
+        let items = data.state.get('_internal.elements.chart-timeline-items-row-items');
+        if (typeof items === 'undefined') {
+            items = [];
+            shouldUpdate = true;
+        }
+        if (!items.includes(element)) {
+            items.push(element);
+            shouldUpdate = true;
+        }
+        if (shouldUpdate)
+            data.state.update('_internal.elements.chart-timeline-items-row-items', items, { only: null });
+    }
+    destroy(element, data) {
+        data.state.update('_internal.elements.chart-timeline-items-row-items', items => {
+            return items.filter(el => el !== element);
+        });
+    }
+}
+function ChartTimelineItemsRowItem(vido, props) {
+    const { api, state, onDestroy, Detach, Actions, update, html, onChange, unsafeHTML, StyleMap } = vido;
+    let wrapper;
+    onDestroy(state.subscribe('config.wrappers.ChartTimelineItemsRowItem', value => (wrapper = value)));
+    let itemLeftPx = 0, itemWidthPx = 0, leave = false;
+    const styleMap = new StyleMap({ width: '', height: '', left: '' }), actionProps = {
+        item: props.item,
+        row: props.row,
+        left: itemLeftPx,
+        width: itemWidthPx,
+        api,
+        state
+    };
+    let shouldDetach = false;
+    function updateItem() {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+        if (leave)
+            return;
+        const time = state.get('_internal.chart.time');
+        itemLeftPx = api.time.globalTimeToViewPixelOffset(props.item.time.start);
+        itemLeftPx = Math.round(itemLeftPx * 10) * 0.1;
+        itemWidthPx = (props.item.time.end - props.item.time.start) / time.timePerPixel;
+        itemWidthPx -= state.get('config.chart.spacing') || 0;
+        if (itemWidthPx) {
+            itemWidthPx = Math.round(itemWidthPx * 10) * 0.1;
+        }
+        const oldWidth = styleMap.style.width;
+        const oldLeft = styleMap.style.left;
+        const xCompensation = api.getCompensationX();
+        styleMap.setStyle({});
+        const inViewPort = api.isItemInViewport(props.item, time.leftGlobal, time.rightGlobal);
+        shouldDetach = !inViewPort;
+        if (inViewPort) {
+            // update style only when visible to prevent browser's recalculate style
+            styleMap.style.width = itemWidthPx + 'px';
+            styleMap.style.left = itemLeftPx + xCompensation + 'px';
+        }
+        else {
+            styleMap.style.width = oldWidth;
+            styleMap.style.left = oldLeft;
+        }
+        const rows = state.get('config.list.rows');
+        for (const parentId of props.row._internal.parents) {
+            const parent = rows[parentId];
+            const childrenStyle = (_d = (_c = (_b = (_a = parent) === null || _a === void 0 ? void 0 : _a.style) === null || _b === void 0 ? void 0 : _b.items) === null || _c === void 0 ? void 0 : _c.item) === null || _d === void 0 ? void 0 : _d.children;
+            if (childrenStyle)
+                styleMap.setStyle(Object.assign(Object.assign({}, styleMap.style), childrenStyle));
+        }
+        const currentRowItemsStyle = (_j = (_h = (_g = (_f = (_e = props) === null || _e === void 0 ? void 0 : _e.row) === null || _f === void 0 ? void 0 : _f.style) === null || _g === void 0 ? void 0 : _g.items) === null || _h === void 0 ? void 0 : _h.item) === null || _j === void 0 ? void 0 : _j.current;
+        if (currentRowItemsStyle)
+            styleMap.setStyle(Object.assign(Object.assign({}, styleMap.style), currentRowItemsStyle));
+        const currentStyle = (_l = (_k = props) === null || _k === void 0 ? void 0 : _k.item) === null || _l === void 0 ? void 0 : _l.style;
+        if (currentStyle)
+            styleMap.setStyle(Object.assign(Object.assign({}, styleMap.style), currentStyle));
+        actionProps.left = itemLeftPx + xCompensation;
+        actionProps.width = itemWidthPx;
+        update();
+    }
+    const componentName = 'chart-timeline-items-row-item';
+    function onPropsChange(changedProps, options) {
+        if (options.leave || changedProps.row === undefined || changedProps.item === undefined) {
+            leave = true;
+            shouldDetach = true;
+            return update();
+        }
+        else {
+            shouldDetach = false;
+            leave = false;
+        }
+        props = changedProps;
+        actionProps.item = props.item;
+        actionProps.row = props.row;
+        updateItem();
+    }
+    onChange(onPropsChange);
+    const componentActions = api.getActions(componentName);
+    let className, labelClassName;
+    onDestroy(state.subscribe('config.classNames', () => {
+        className = api.getClass(componentName, props);
+        labelClassName = api.getClass(componentName + '-label', props);
+        update();
+    }));
+    onDestroy(state.subscribeAll(['_internal.chart.time', 'config.scroll.compensation.x'], bulk => {
+        updateItem();
+    }));
+    componentActions.push(BindElementAction$7);
+    const actions = Actions.create(componentActions, actionProps);
+    const detach = new Detach(() => shouldDetach);
+    return templateProps => {
+        return wrapper(html `
+        <div detach=${detach} class=${className} data-actions=${actions} style=${styleMap}>
+          <div class=${labelClassName}>
+            ${props.item.isHtml ? unsafeHTML(props.item.label) : props.item.label}
           </div>
         </div>
-      `,{vido:t,props:e,templateProps:n})}
-/**
- * Gantt-Schedule-Timeline-Calendar
- *
- * @copyright Rafal Pospiech <https://neuronet.io>
- * @author    Rafal Pospiech <neuronet.io@gmail.com>
- * @package   gantt-schedule-timeline-calendar
- * @license   GPL-3.0
- */const rt=["main","list","list-column","list-column-header","list-column-header-resizer","list-column-header-resizer-dots","list-column-row","list-column-row-expander","list-column-row-expander-toggle","list-toggle","chart","chart-calendar","chart-calendar-date","chart-timeline","chart-timeline-grid","chart-timeline-grid-row","chart-timeline-grid-row-block","chart-timeline-items","chart-timeline-items-row","chart-timeline-items-row-item"];function defaultConfig(){const t=function generateEmptyActions(){const t={};return rt.forEach(e=>t[e]=[]),t}(),e=function generateEmptySlots(){const t={};return rt.forEach(e=>{t[e]={before:[],after:[]}}),t}();return{plugins:[],plugin:{},height:822,headerHeight:86,components:{Main:Main,List:List,ListColumn:ListColumn,ListColumnHeader:ListColumnHeader,ListColumnHeaderResizer:ListColumnHeaderResizer,ListColumnRow:ListColumnRow,ListColumnRowExpander:ListColumnRowExpander,ListColumnRowExpanderToggle:ListColumnRowExpanderToggle,ListToggle:ListToggle,Chart:Chart,ChartCalendar:ChartCalendar,ChartCalendarDate:ChartCalendarDate,ChartTimeline:ChartTimeline,ChartTimelineGrid:ChartTimelineGrid,ChartTimelineGridRow:ChartTimelineGridRow,ChartTimelineGridRowBlock:ChartTimelineGridRowBlock,ChartTimelineItems:ChartTimelineItems,ChartTimelineItemsRow:ChartTimelineItemsRow,ChartTimelineItemsRowItem:ChartTimelineItemsRowItem},wrappers:{Main:t=>t,List:t=>t,ListColumn:t=>t,ListColumnHeader:t=>t,ListColumnHeaderResizer:t=>t,ListColumnRow:t=>t,ListColumnRowExpander:t=>t,ListColumnRowExpanderToggle:t=>t,ListToggle:t=>t,Chart:t=>t,ChartCalendar:t=>t,ChartCalendarDate:t=>t,ChartTimeline:t=>t,ChartTimelineGrid:t=>t,ChartTimelineGridRow:t=>t,ChartTimelineGridRowBlock:t=>t,ChartTimelineItems:t=>t,ChartTimelineItemsRow:t=>t,ChartTimelineItemsRowItem:t=>t},list:{rows:{},rowHeight:40,columns:{percent:100,resizer:{width:10,inRealTime:!0,dots:6},minWidth:50,data:{}},expander:{padding:18,size:20,icon:{width:16,height:16},icons:{child:'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><ellipse ry="4" rx="4" id="svg_1" cy="12" cx="12" fill="#000000B0"/></svg>',open:'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>',closed:'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>'}},toggle:{display:!0,icons:{open:'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path stroke="null" d="m16.406954,16.012672l4.00393,-4.012673l-4.00393,-4.012673l1.232651,-1.232651l5.245324,5.245324l-5.245324,5.245324l-1.232651,-1.232651z"/><path stroke="null" d="m-0.343497,12.97734zm1.620144,0l11.341011,0l0,-1.954681l-11.341011,0l0,1.954681zm0,3.909362l11.341011,0l0,-1.954681l-11.341011,0l0,1.954681zm0,-9.773404l0,1.95468l11.341011,0l0,-1.95468l-11.341011,0z"/></svg>',close:'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path transform="rotate(-180 4.392796516418457,12) " stroke="null" d="m1.153809,16.012672l4.00393,-4.012673l-4.00393,-4.012673l1.232651,-1.232651l5.245324,5.245324l-5.245324,5.245324l-1.232651,-1.232651z"/><path stroke="null" d="m9.773297,12.97734zm1.620144,0l11.341011,0l0,-1.954681l-11.341011,0l0,1.954681zm0,3.909362l11.341011,0l0,-1.954681l-11.341011,0l0,1.954681zm0,-9.773404l0,1.95468l11.341011,0l0,-1.95468l-11.341011,0z"/></svg>'}}},scroll:{smooth:!1,top:0,left:0,xMultiplier:3,yMultiplier:3,percent:{top:0,left:0},compensation:{x:0,y:0}},chart:{time:{from:0,to:0,zoom:21,period:"day",dates:{},maxWidth:{}},calendar:{vertical:{smallFormat:"YYYY-MM-DD"}},grid:{block:{onCreate:[]}},items:{},spacing:1},slots:e,classNames:{},actions:t,locale:{name:"en",weekdays:"Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split("_"),weekdaysShort:"Sun_Mon_Tue_Wed_Thu_Fri_Sat".split("_"),weekdaysMin:"Su_Mo_Tu_We_Th_Fr_Sa".split("_"),months:"January_February_March_April_May_June_July_August_September_October_November_December".split("_"),monthsShort:"Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec".split("_"),weekStart:1,relativeTime:{future:"in %s",past:"%s ago",s:"a few seconds",m:"a minute",mm:"%d minutes",h:"an hour",hh:"%d hours",d:"a day",dd:"%d days",M:"a month",MM:"%d months",y:"a year",yy:"%d years"},formats:{LT:"HH:mm",LTS:"HH:mm:ss",L:"DD/MM/YYYY",LL:"D MMMM YYYY",LLL:"D MMMM YYYY HH:mm",LLLL:"dddd, D MMMM YYYY HH:mm"},ordinal:t=>{const e=["th","st","nd","rd"],n=t%100;return`[${t}${e[(n-20)%10]||e[n]||e[0]}]`}},utcMode:!1,usageStatistics:!0}}"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self&&self;function createCommonjsModule(t,e){return t(e={exports:{}},e.exports),e.exports}var at=createCommonjsModule((function(t,e){t.exports=function(){var t="millisecond",e="second",n="minute",i="hour",s="day",o="week",r="month",a="quarter",l="year",d=/^(\d{4})-?(\d{1,2})-?(\d{0,2})[^0-9]*(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?.?(\d{1,3})?$/,h=/\[([^\]]+)]|Y{2,4}|M{1,4}|D{1,2}|d{1,4}|H{1,2}|h{1,2}|a|A|m{1,2}|s{1,2}|Z{1,2}|SSS/g,c=function(t,e,n){var i=String(t);return!i||i.length>=e?t:""+Array(e+1-i.length).join(n)+t},u={s:c,z:function(t){var e=-t.utcOffset(),n=Math.abs(e),i=Math.floor(n/60),s=n%60;return(e<=0?"+":"-")+c(i,2,"0")+":"+c(s,2,"0")},m:function(t,e){var n=12*(e.year()-t.year())+(e.month()-t.month()),i=t.clone().add(n,r),s=e-i<0,o=t.clone().add(n+(s?-1:1),r);return Number(-(n+(e-i)/(s?i-o:o-i))||0)},a:function(t){return t<0?Math.ceil(t)||0:Math.floor(t)},p:function(c){return{M:r,y:l,w:o,d:s,h:i,m:n,s:e,ms:t,Q:a}[c]||String(c||"").toLowerCase().replace(/s$/,"")},u:function(t){return void 0===t}},p={name:"en",weekdays:"Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split("_"),months:"January_February_March_April_May_June_July_August_September_October_November_December".split("_")},m="en",f={};f[m]=p;var y=function(t){return t instanceof b},M=function(t,e,n){var i;if(!t)return m;if("string"==typeof t)f[t]&&(i=t),e&&(f[t]=e,i=t);else{var s=t.name;f[s]=t,i=s}return n||(m=i),i},g=function(t,e,n){if(y(t))return t.clone();var i=e?"string"==typeof e?{format:e,pl:n}:e:{};return i.date=t,new b(i)},v=u;v.l=M,v.i=y,v.w=function(t,e){return g(t,{locale:e.$L,utc:e.$u,$offset:e.$offset})};var b=function(){function c(t){this.$L=this.$L||M(t.locale,null,!0),this.parse(t)}var u=c.prototype;return u.parse=function(t){this.$d=function(t){var e=t.date,n=t.utc;if(null===e)return new Date(NaN);if(v.u(e))return new Date;if(e instanceof Date)return new Date(e);if("string"==typeof e&&!/Z$/i.test(e)){var i=e.match(d);if(i)return n?new Date(Date.UTC(i[1],i[2]-1,i[3]||1,i[4]||0,i[5]||0,i[6]||0,i[7]||0)):new Date(i[1],i[2]-1,i[3]||1,i[4]||0,i[5]||0,i[6]||0,i[7]||0)}return new Date(e)}(t),this.init()},u.init=function(){var t=this.$d;this.$y=t.getFullYear(),this.$M=t.getMonth(),this.$D=t.getDate(),this.$W=t.getDay(),this.$H=t.getHours(),this.$m=t.getMinutes(),this.$s=t.getSeconds(),this.$ms=t.getMilliseconds()},u.$utils=function(){return v},u.isValid=function(){return!("Invalid Date"===this.$d.toString())},u.isSame=function(t,e){var n=g(t);return this.startOf(e)<=n&&n<=this.endOf(e)},u.isAfter=function(t,e){return g(t)<this.startOf(e)},u.isBefore=function(t,e){return this.endOf(e)<g(t)},u.$g=function(t,e,n){return v.u(t)?this[e]:this.set(n,t)},u.year=function(t){return this.$g(t,"$y",l)},u.month=function(t){return this.$g(t,"$M",r)},u.day=function(t){return this.$g(t,"$W",s)},u.date=function(t){return this.$g(t,"$D","date")},u.hour=function(t){return this.$g(t,"$H",i)},u.minute=function(t){return this.$g(t,"$m",n)},u.second=function(t){return this.$g(t,"$s",e)},u.millisecond=function(e){return this.$g(e,"$ms",t)},u.unix=function(){return Math.floor(this.valueOf()/1e3)},u.valueOf=function(){return this.$d.getTime()},u.startOf=function(t,a){var c=this,h=!!v.u(a)||a,u=v.p(t),d=function(t,e){var n=v.w(c.$u?Date.UTC(c.$y,e,t):new Date(c.$y,e,t),c);return h?n:n.endOf(s)},$=function(t,e){return v.w(c.toDate()[t].apply(c.toDate(),(h?[0,0,0,0]:[23,59,59,999]).slice(e)),c)},p=this.$W,m=this.$M,f=this.$D,g="set"+(this.$u?"UTC":"");switch(u){case l:return h?d(1,0):d(31,11);case r:return h?d(1,m):d(0,m+1);case o:var y=this.$locale().weekStart||0,b=(p<y?p+7:p)-y;return d(h?f-b:f+(6-b),m);case s:case"date":return $(g+"Hours",0);case i:return $(g+"Minutes",1);case n:return $(g+"Seconds",2);case e:return $(g+"Milliseconds",3);default:return this.clone()}},u.endOf=function(t){return this.startOf(t,!1)},u.$set=function(o,a){var c,d=v.p(o),h="set"+(this.$u?"UTC":""),u=(c={},c[s]=h+"Date",c.date=h+"Date",c[r]=h+"Month",c[l]=h+"FullYear",c[i]=h+"Hours",c[n]=h+"Minutes",c[e]=h+"Seconds",c[t]=h+"Milliseconds",c)[d],p=d===s?this.$D+(a-this.$W):a;if(d===r||d===l){var m=this.clone().set("date",1);m.$d[u](p),m.init(),this.$d=m.set("date",Math.min(this.$D,m.daysInMonth())).toDate()}else u&&this.$d[u](p);return this.init(),this},u.set=function(t,e){return this.clone().$set(t,e)},u.get=function(t){return this[v.p(t)]()},u.add=function(t,a){var c,h=this;t=Number(t);var u=v.p(a),d=function(e){var n=g(h);return v.w(n.date(n.date()+Math.round(e*t)),h)};if(u===r)return this.set(r,this.$M+t);if(u===l)return this.set(l,this.$y+t);if(u===s)return d(1);if(u===o)return d(7);var p=(c={},c[n]=6e4,c[i]=36e5,c[e]=1e3,c)[u]||1,m=this.$d.getTime()+t*p;return v.w(m,this)},u.subtract=function(t,e){return this.add(-1*t,e)},u.format=function(t){var e=this;if(!this.isValid())return"Invalid Date";var n=t||"YYYY-MM-DDTHH:mm:ssZ",i=v.z(this),s=this.$locale(),o=this.$H,r=this.$m,a=this.$M,l=s.weekdays,u=s.months,c=function(t,i,s,o){return t&&(t[i]||t(e,n))||s[i].substr(0,o)},d=function(t){return v.s(o%12||12,t,"0")},p=s.meridiem||function(t,e,n){var i=t<12?"AM":"PM";return n?i.toLowerCase():i},m={YY:String(this.$y).slice(-2),YYYY:this.$y,M:a+1,MM:v.s(a+1,2,"0"),MMM:c(s.monthsShort,a,u,3),MMMM:u[a]||u(this,n),D:this.$D,DD:v.s(this.$D,2,"0"),d:String(this.$W),dd:c(s.weekdaysMin,this.$W,l,2),ddd:c(s.weekdaysShort,this.$W,l,3),dddd:l[this.$W],H:String(o),HH:v.s(o,2,"0"),h:d(1),hh:d(2),a:p(o,r,!0),A:p(o,r,!1),m:String(r),mm:v.s(r,2,"0"),s:String(this.$s),ss:v.s(this.$s,2,"0"),SSS:v.s(this.$ms,3,"0"),Z:i};return n.replace(h,(function(t,e){return e||m[t]||i.replace(":","")}))},u.utcOffset=function(){return 15*-Math.round(this.$d.getTimezoneOffset()/15)},u.diff=function(t,c,d){var h,u=v.p(c),p=g(t),m=6e4*(p.utcOffset()-this.utcOffset()),f=this-p,y=v.m(this,p);return y=(h={},h[l]=y/12,h[r]=y,h[a]=y/3,h[o]=(f-m)/6048e5,h[s]=(f-m)/864e5,h[i]=f/36e5,h[n]=f/6e4,h[e]=f/1e3,h)[u]||f,d?y:v.a(y)},u.daysInMonth=function(){return this.endOf(r).$D},u.$locale=function(){return f[this.$L]},u.locale=function(t,e){if(!t)return this.$L;var n=this.clone();return n.$L=M(t,e,!0),n},u.clone=function(){return v.w(this.$d,this)},u.toDate=function(){return new Date(this.valueOf())},u.toJSON=function(){return this.isValid()?this.toISOString():null},u.toISOString=function(){return this.$d.toISOString()},u.toString=function(){return this.$d.toUTCString()},c}();return g.prototype=b.prototype,g.extend=function(t,e){return t(e,b,g),g},g.locale=M,g.isDayjs=y,g.unix=function(t){return g(1e3*t)},g.en=f[m],g.Ls=f,g}()})),lt=createCommonjsModule((function(t,e){t.exports=function(t,e,n){var i=(new Date).getTimezoneOffset(),s=e.prototype;n.utc=function(t,n){return new e({date:t,utc:!0,format:n})},s.utc=function(){return n(this.toDate(),{locale:this.$L,utc:!0})},s.local=function(){return n(this.toDate(),{locale:this.$L,utc:!1})};var o=s.parse;s.parse=function(t){t.utc&&(this.$u=!0),this.$utils().u(t.$offset)||(this.$offset=t.$offset),o.call(this,t)};var r=s.init;s.init=function(){if(this.$u){var t=this.$d;this.$y=t.getUTCFullYear(),this.$M=t.getUTCMonth(),this.$D=t.getUTCDate(),this.$W=t.getUTCDay(),this.$H=t.getUTCHours(),this.$m=t.getUTCMinutes(),this.$s=t.getUTCSeconds(),this.$ms=t.getUTCMilliseconds()}else r.call(this)};var a=s.utcOffset;s.utcOffset=function(t){var e=this.$utils().u;if(e(t))return this.$u?0:e(this.$offset)?a.call(this):this.$offset;var n,s=Math.abs(t)<=16?60*t:t;return 0!==t?(n=this.local().add(s+i,"minute")).$offset=s:n=this.utc(),n};var l=s.format;s.format=function(t){var e=t||(this.$u?"YYYY-MM-DDTHH:mm:ss[Z]":"");return l.call(this,e)},s.valueOf=function(){var t=this.$utils().u(this.$offset)?0:this.$offset+i;return this.$d.valueOf()-6e4*t},s.isUTC=function(){return!!this.$u},s.toISOString=function(){return this.toDate().toISOString()},s.toString=function(){return this.toDate().toUTCString()}}}));
+      `, { vido, props, templateProps });
+    };
+}
+
 /**
  * Gantt-Schedule-Timeline-Calendar
  *
@@ -585,7 +6845,1250 @@ class BindElementAction$2 extends Action$1{constructor(t,e){super(),e.state.upda
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0
  */
-class TimeApi{constructor(t){this.utcMode=!1,this.state=t,this.locale=t.get("config.locale"),this.utcMode=t.get("config.utcMode"),this.utcMode&&at.extend(lt),at.locale(this.locale,null,!0)}date(t){const e=this.utcMode?at.utc:at;return t?e(t).locale(this.locale.name):e().locale(this.locale.name)}recalculateFromTo(t){0!==(t=Object.assign({},t)).from&&(t.from=this.date(t.from).startOf("day").valueOf()),0!==t.to&&(t.to=this.date(t.to).endOf("day").valueOf());let e=Number.MAX_SAFE_INTEGER,n=0;const i=this.state.get("config.chart.items");if(0===Object.keys(i).length)return t;if(0===t.from||0===t.to){for(const t in i){const s=i[t];e>s.time.start&&(e=s.time.start),n<s.time.end&&(n=s.time.end)}0===t.from&&(t.from=this.date(e).startOf("day").valueOf()),0===t.to&&(t.to=this.date(n).endOf("day").valueOf())}return t}timeToPixelOffset(t){return t/(this.state.get("_internal.chart.time.timePerPixel")||1)}globalTimeToViewPixelOffset(t,e=!1){const n=this.state.get("_internal.chart.time");let i=this.state.get("config.scroll.compensation.x")||0;const s=(t-n.leftGlobal)/n.timePerPixel;return e?s+i:s}}function Matcher(t,e="*"){this.wchar=e,this.pattern=t,this.segments=[],this.starCount=0,this.minLength=0,this.maxLength=0,this.segStartIndex=0;for(let n=0,i=t.length;n<i;n+=1){const i=t[n];i===e&&(this.starCount+=1,n>this.segStartIndex&&this.segments.push(t.substring(this.segStartIndex,n)),this.segments.push(i),this.segStartIndex=n+1)}this.segStartIndex<t.length&&this.segments.push(t.substring(this.segStartIndex)),this.starCount?(this.minLength=t.length-this.starCount,this.maxLength=1/0):this.maxLength=this.minLength=t.length}function WildcardObject(t,e,n){this.obj=t,this.delimeter=e,this.wildcard=n}Matcher.prototype.match=function match(match){if(this.pattern===this.wchar)return!0;if(0===this.segments.length)return this.pattern===match;const{length:t}=match;if(t<this.minLength||t>this.maxLength)return!1;let e=this.segments.length-1,n=match.length-1,i=!1;for(;;){const t=this.segments[e];if(e-=1,t===this.wchar)i=!0;else{const e=n+1-t.length,s=match.lastIndexOf(t,e);if(-1===s||s>e)return!1;if(i)n=s-1,i=!1;else{if(s!==e)return!1;n-=t.length}}if(0>e)break}return!0},WildcardObject.prototype.simpleMatch=function simpleMatch(t,e){if(t===e)return!0;if(t===this.wildcard)return!0;const n=t.indexOf(this.wildcard);if(n>-1){const i=t.substr(n+1);if(0===n||e.substring(0,n)===t.substring(0,n)){const t=i.length;return!(t>0)||e.substr(-t)===i}}return!1},WildcardObject.prototype.match=function match(t,e){return t===e||t===this.wildcard||e===this.wildcard||this.simpleMatch(t,e)||new Matcher(t).match(e)},WildcardObject.prototype.handleArray=function handleArray(t,e,n,i,s={}){let o=t.indexOf(this.delimeter,n),r=!1;-1===o&&(r=!0,o=t.length);const a=t.substring(n,o);let l=0;for(const n of e){const e=l.toString(),c=""===i?e:i+this.delimeter+l;(a===this.wildcard||a===e||this.simpleMatch(a,e))&&(r?s[c]=n:this.goFurther(t,n,o+1,c,s)),l++}return s},WildcardObject.prototype.handleObject=function handleObject(t,e,n,i,s={}){let o=t.indexOf(this.delimeter,n),r=!1;-1===o&&(r=!0,o=t.length);const a=t.substring(n,o);for(let n in e){n=n.toString();const l=""===i?n:i+this.delimeter+n;(a===this.wildcard||a===n||this.simpleMatch(a,n))&&(r?s[l]=e[n]:this.goFurther(t,e[n],o+1,l,s))}return s},WildcardObject.prototype.goFurther=function goFurther(t,e,n,i,s={}){return Array.isArray(e)?this.handleArray(t,e,n,i,s):this.handleObject(t,e,n,i,s)},WildcardObject.prototype.get=function get(t){return this.goFurther(t,this.obj,0,"")};class ObjectPath{static get(t,e,n=null){if(null===n&&(n=t.slice()),0===n.length||void 0===e)return e;const i=n.shift();return e.hasOwnProperty(i)?0===n.length?e[i]:ObjectPath.get(t,e[i],n):void 0}static set(t,e,n,i=null){if(null===i&&(i=t.slice()),0===i.length){for(const t in n)delete n[t];for(const t in e)n[t]=e[t];return}const s=i.shift();0!==i.length?(n||(n={}),n.hasOwnProperty(s)||(n[s]={}),ObjectPath.set(t,e,n[s],i)):n[s]=e}}const ct={delimeter:".",notRecursive:";",param:":",wildcard:"*",log:function log(t,e){console.debug(t,e)}},dt={bulk:!1,debug:!1,source:"",data:void 0},ht={only:[],source:"",debug:!1,data:void 0};class DeepState{constructor(t={},e=ct){this.listeners=new Map,this.waitingListeners=new Map,this.data=t,this.options=Object.assign(Object.assign({},ct),e),this.id=0,this.pathGet=ObjectPath.get,this.pathSet=ObjectPath.set,this.scan=new WildcardObject(this.data,this.options.delimeter,this.options.wildcard)}getListeners(){return this.listeners}destroy(){this.data=void 0,this.listeners=new Map}match(t,e){return t===e||(t===this.options.wildcard||e===this.options.wildcard||this.scan.match(t,e))}getIndicesOf(t,e){const n=t.length;if(0==n)return[];let i,s=0,o=[];for(;(i=e.indexOf(t,s))>-1;)o.push(i),s=i+n;return o}getIndicesCount(t,e){const n=t.length;if(0==n)return 0;let i,s=0,o=0;for(;(i=e.indexOf(t,s))>-1;)o++,s=i+n;return o}cutPath(t,e){t=this.cleanNotRecursivePath(t),e=this.cleanNotRecursivePath(e);const n=this.getIndicesCount(this.options.delimeter,e),i=this.getIndicesOf(this.options.delimeter,t);return t.substr(0,i[n])}trimPath(t){return(t=this.cleanNotRecursivePath(t)).charAt(0)===this.options.delimeter?t.substr(1):t}split(t){return""===t?[]:t.split(this.options.delimeter)}isWildcard(t){return t.includes(this.options.wildcard)}isNotRecursive(t){return t.endsWith(this.options.notRecursive)}cleanNotRecursivePath(t){return this.isNotRecursive(t)?t.substring(0,t.length-1):t}hasParams(t){return t.includes(this.options.param)}getParamsInfo(t){let e={replaced:"",original:t,params:{}},n=0,i=[];for(const s of this.split(t)){e.params[n]={original:s,replaced:"",name:""};const t=new RegExp(`\\${this.options.param}([^\\${this.options.delimeter}\\${this.options.param}]+)`,"g");let o=t.exec(s);o?(e.params[n].name=o[1],t.lastIndex=0,e.params[n].replaced=s.replace(t,this.options.wildcard),i.push(e.params[n].replaced),n++):(delete e.params[n],i.push(s),n++)}return e.replaced=i.join(this.options.delimeter),e}getParams(t,e){if(!t)return;const n=this.split(e),i={};for(const e in t.params){i[t.params[e].name]=n[e]}return i}waitForAll(t,e){const n={};for(let e of t)n[e]={dirty:!1},this.hasParams(e)&&(n[e].paramsInfo=this.getParamsInfo(e)),n[e].isWildcard=this.isWildcard(e),n[e].isRecursive=!this.isNotRecursive(e);return this.waitingListeners.set(t,{fn:e,paths:n}),e(n),function unsubscribe(){this.waitingListeners.delete(t)}}executeWaitingListeners(t){for(const e of this.waitingListeners.values()){const{fn:n,paths:i}=e;let s=0,o=0;for(let e in i){const n=i[e];let r=!1;n.isRecursive&&(t=this.cutPath(t,e)),n.isWildcard&&this.match(e,t)&&(r=!0),t===e&&(r=!0),r&&(n.dirty=!0),n.dirty&&s++,o++}s===o&&n(i)}}subscribeAll(t,e,n=dt){let i=[];for(const s of t)i.push(this.subscribe(s,e,n));return function unsubscribe(){for(const t of i)t()}}getCleanListenersCollection(t={}){return Object.assign({listeners:new Map,isRecursive:!1,isWildcard:!1,hasParams:!1,match:void 0,paramsInfo:void 0,path:void 0,count:0},t)}getCleanListener(t,e=dt){return{fn:t,options:Object.assign(Object.assign({},dt),e)}}getListenerCollectionMatch(t,e,n){t=this.cleanNotRecursivePath(t);const i=this;return function listenerCollectionMatch(s){return e&&(s=i.cutPath(s,t)),!(!n||!i.match(t,s))||t===s}}getListenersCollection(t,e){if(this.listeners.has(t)){let n=this.listeners.get(t);return n.listeners.set(++this.id,e),n}let n={isRecursive:!0,isWildcard:!1,hasParams:!1,paramsInfo:void 0,originalPath:t,path:t};this.hasParams(n.path)&&(n.paramsInfo=this.getParamsInfo(n.path),n.path=n.paramsInfo.replaced,n.hasParams=!0),n.isWildcard=this.isWildcard(n.path),this.isNotRecursive(n.path)&&(n.isRecursive=!1);let i=this.getCleanListenersCollection(Object.assign(Object.assign({},n),{match:this.getListenerCollectionMatch(n.path,n.isRecursive,n.isWildcard)}));return this.id++,i.listeners.set(this.id,e),this.listeners.set(n.path,i),i}subscribe(t,e,n=dt,i="subscribe"){let s=this.getCleanListener(e,n);const o=this.getListenersCollection(t,s);if(o.count++,t=o.path,o.isWildcard){const r=this.scan.get(this.cleanNotRecursivePath(t));if(n.bulk){const a=[];for(const t in r)a.push({path:t,params:this.getParams(o.paramsInfo,t),value:r[t]});e(a,{type:i,listener:s,listenersCollection:o,path:{listener:t,update:void 0,resolved:void 0},options:n,params:void 0})}else for(const a in r)e(r[a],{type:i,listener:s,listenersCollection:o,path:{listener:t,update:void 0,resolved:this.cleanNotRecursivePath(a)},params:this.getParams(o.paramsInfo,a),options:n})}else e(this.pathGet(this.split(this.cleanNotRecursivePath(t)),this.data),{type:i,listener:s,listenersCollection:o,path:{listener:t,update:void 0,resolved:this.cleanNotRecursivePath(t)},params:this.getParams(o.paramsInfo,t),options:n});return this.debugSubscribe(s,o,t),this.unsubscribe(t,this.id)}unsubscribe(t,e){const n=this.listeners,i=n.get(t);return function unsub(){i.listeners.delete(e),i.count--,0===i.count&&n.delete(t)}}same(t,e){return(["number","string","undefined","boolean"].includes(typeof t)||null===t)&&e===t}notifyListeners(t,e=[],n=!0){const i=[];for(const s in t){let{single:o,bulk:r}=t[s];for(const t of o){if(e.includes(t))continue;const s=this.debugTime(t);t.listener.fn(t.value(),t.eventInfo),n&&i.push(t),this.debugListener(s,t)}for(const t of r){if(e.includes(t))continue;const s=this.debugTime(t),o=[];for(const e of t.value)o.push(Object.assign(Object.assign({},e),{value:e.value()}));t.listener.fn(o,t.eventInfo),n&&i.push(t),this.debugListener(s,t)}}return i}getSubscribedListeners(t,e,n,i="update",s=null){n=Object.assign(Object.assign({},ht),n);const o={};for(let[r,a]of this.listeners)if(o[r]={single:[],bulk:[],bulkData:[]},a.match(t)){const l=a.paramsInfo?this.getParams(a.paramsInfo,t):void 0,c=a.isRecursive||a.isWildcard?()=>this.get(this.cutPath(t,r)):()=>e,d=[{value:c,path:t,params:l}];for(const e of a.listeners.values())e.options.bulk?o[r].bulk.push({listener:e,listenersCollection:a,eventInfo:{type:i,listener:e,path:{listener:r,update:s||t,resolved:void 0},params:l,options:n},value:d}):o[r].single.push({listener:e,listenersCollection:a,eventInfo:{type:i,listener:e,path:{listener:r,update:s||t,resolved:this.cleanNotRecursivePath(t)},params:l,options:n},value:c})}return o}notifySubscribedListeners(t,e,n,i="update",s=null){return this.notifyListeners(this.getSubscribedListeners(t,e,n,i,s))}getNestedListeners(t,e,n,i="update",s=null){const o={};for(let[r,a]of this.listeners){o[r]={single:[],bulk:[]};const l=this.cutPath(r,t);if(this.match(l,t)){const c=this.trimPath(r.substr(l.length)),d=new WildcardObject(e,this.options.delimeter,this.options.wildcard).get(c),h=a.paramsInfo?this.getParams(a.paramsInfo,t):void 0,u=[],p={};for(const e in d){const value=()=>d[e],l=[t,e].join(this.options.delimeter);for(const[e,c]of a.listeners){const d={type:i,listener:c,listenersCollection:a,path:{listener:r,update:s||t,resolved:this.cleanNotRecursivePath(l)},params:h,options:n};c.options.bulk?(u.push({value:value,path:l,params:h}),p[e]=c):o[r].single.push({listener:c,listenersCollection:a,eventInfo:d,value:value})}}for(const e in p){const s=p[e],l={type:i,listener:s,listenersCollection:a,path:{listener:r,update:t,resolved:void 0},options:n,params:h};o[r].bulk.push({listener:s,listenersCollection:a,eventInfo:l,value:u})}}}return o}notifyNestedListeners(t,e,n,i="update",s,o=null){return this.notifyListeners(this.getNestedListeners(t,e,n,i,o),s,!1)}getNotifyOnlyListeners(t,e,n,i="update",s=null){const o={};if("object"!=typeof n.only||!Array.isArray(n.only)||void 0===n.only[0]||!this.canBeNested(e))return o;for(const r of n.only){const a=new WildcardObject(e,this.options.delimeter,this.options.wildcard).get(r);o[r]={bulk:[],single:[]};for(const e in a){const l=t+this.options.delimeter+e;for(const[c,d]of this.listeners){const h=d.paramsInfo?this.getParams(d.paramsInfo,l):void 0;if(this.match(c,l)){const value=()=>a[e],u=[{value:value,path:l,params:h}];for(const e of d.listeners.values()){const a={type:i,listener:e,listenersCollection:d,path:{listener:c,update:s||t,resolved:this.cleanNotRecursivePath(l)},params:h,options:n};e.options.bulk?o[r].bulk.some(t=>t.listener===e)||o[r].bulk.push({listener:e,listenersCollection:d,eventInfo:a,value:u}):o[r].single.push({listener:e,listenersCollection:d,eventInfo:a,value:value})}}}}}return o}notifyOnly(t,e,n,i="update",s=""){return void 0!==this.notifyListeners(this.getNotifyOnlyListeners(t,e,n,i,s))[0]}canBeNested(t){return"object"==typeof t&&null!==t}getUpdateValues(t,e,n){"object"==typeof t&&null!==t&&(t=Array.isArray(t)?t.slice():Object.assign({},t));let i=n;return"function"==typeof n&&(i=n(this.pathGet(e,this.data))),{newValue:i,oldValue:t}}wildcardUpdate(t,e,n=ht){n=Object.assign(Object.assign({},ht),n);const i=this.scan.get(t),s={};for(const t in i){const n=this.split(t),{oldValue:o,newValue:r}=this.getUpdateValues(i[t],n,e);this.same(r,o)||(s[t]=r)}const o=[],r=[];for(const e in s){const i=s[e];n.only.length?o.push(this.getNotifyOnlyListeners(e,i,n,"update",t)):(o.push(this.getSubscribedListeners(e,i,n,"update",t)),this.canBeNested(i)&&o.push(this.getNestedListeners(e,i,n,"update",t))),n.debug&&this.options.log("Wildcard update",{path:e,newValue:i}),this.pathSet(this.split(e),i,this.data),r.push(e)}let a=[];for(const t of o)a=[...a,...this.notifyListeners(t,a)];for(const t of r)this.executeWaitingListeners(t)}update(t,e,n=ht){if(this.isWildcard(t))return this.wildcardUpdate(t,e,n);const i=this.split(t),{oldValue:s,newValue:o}=this.getUpdateValues(this.pathGet(i,this.data),i,e);if(n.debug&&this.options.log(`Updating ${t} ${n.source?`from ${n.source}`:""}`,{oldValue:s,newValue:o}),this.same(o,s))return o;if(this.pathSet(i,o,this.data),null===(n=Object.assign(Object.assign({},ht),n)).only)return o;if(n.only.length)return this.notifyOnly(t,o,n),this.executeWaitingListeners(t),o;const r=this.notifySubscribedListeners(t,o,n);return this.canBeNested(o)&&this.notifyNestedListeners(t,o,n,"update",r),this.executeWaitingListeners(t),o}get(t){return void 0===t||""===t?this.data:this.pathGet(this.split(t),this.data)}debugSubscribe(t,e,n){t.options.debug&&this.options.log("listener subscribed",{listenerPath:n,listener:t,listenersCollection:e})}debugListener(t,e){(e.eventInfo.options.debug||e.listener.options.debug)&&this.options.log("Listener fired",{time:Date.now()-t,info:e})}debugTime(t){return t.listener.options.debug||t.eventInfo.options.debug?Date.now():0}}function isObject$1(t){return t&&"object"==typeof t&&!Array.isArray(t)}function mergeDeep$1(t,...e){const n=e.shift();if(isObject$1(t)&&isObject$1(n))for(const e in n)if(isObject$1(n[e]))void 0===t[e]&&(t[e]={}),t[e]=mergeDeep$1(t[e],n[e]);else if(Array.isArray(n[e])){t[e]=[];for(let i of n[e])isObject$1(i)?t[e].push(mergeDeep$1({},i)):t[e].push(i)}else t[e]=n[e];return e.length?mergeDeep$1(t,...e):t}
+const actionNames = [
+    'main',
+    'list',
+    'list-column',
+    'list-column-header',
+    'list-column-header-resizer',
+    'list-column-header-resizer-dots',
+    'list-column-row',
+    'list-column-row-expander',
+    'list-column-row-expander-toggle',
+    'list-toggle',
+    'chart',
+    'chart-calendar',
+    'chart-calendar-date',
+    'chart-timeline',
+    'chart-timeline-grid',
+    'chart-timeline-grid-row',
+    'chart-timeline-grid-row-block',
+    'chart-timeline-items',
+    'chart-timeline-items-row',
+    'chart-timeline-items-row-item'
+];
+function generateEmptyActions() {
+    const actions = {};
+    actionNames.forEach(name => (actions[name] = []));
+    return actions;
+}
+function generateEmptySlots() {
+    const slots = {};
+    actionNames.forEach(name => {
+        slots[name] = { before: [], after: [] };
+    });
+    return slots;
+}
+// default configuration
+function defaultConfig() {
+    const actions = generateEmptyActions();
+    const slots = generateEmptySlots();
+    return {
+        plugins: [],
+        plugin: {},
+        height: 822,
+        headerHeight: 86,
+        components: {
+            Main,
+            List,
+            ListColumn,
+            ListColumnHeader,
+            ListColumnHeaderResizer,
+            ListColumnRow,
+            ListColumnRowExpander,
+            ListColumnRowExpanderToggle,
+            ListToggle,
+            Chart,
+            ChartCalendar,
+            ChartCalendarDate,
+            ChartTimeline,
+            ChartTimelineGrid,
+            ChartTimelineGridRow,
+            ChartTimelineGridRowBlock,
+            ChartTimelineItems,
+            ChartTimelineItemsRow,
+            ChartTimelineItemsRowItem
+        },
+        wrappers: {
+            Main(input) {
+                return input;
+            },
+            List(input) {
+                return input;
+            },
+            ListColumn(input) {
+                return input;
+            },
+            ListColumnHeader(input) {
+                return input;
+            },
+            ListColumnHeaderResizer(input) {
+                return input;
+            },
+            ListColumnRow(input) {
+                return input;
+            },
+            ListColumnRowExpander(input) {
+                return input;
+            },
+            ListColumnRowExpanderToggle(input) {
+                return input;
+            },
+            ListToggle(input) {
+                return input;
+            },
+            Chart(input) {
+                return input;
+            },
+            ChartCalendar(input) {
+                return input;
+            },
+            ChartCalendarDate(input) {
+                return input;
+            },
+            ChartTimeline(input) {
+                return input;
+            },
+            ChartTimelineGrid(input) {
+                return input;
+            },
+            ChartTimelineGridRow(input) {
+                return input;
+            },
+            ChartTimelineGridRowBlock(input) {
+                return input;
+            },
+            ChartTimelineItems(input) {
+                return input;
+            },
+            ChartTimelineItemsRow(input) {
+                return input;
+            },
+            ChartTimelineItemsRowItem(input) {
+                return input;
+            }
+        },
+        list: {
+            rows: {},
+            rowHeight: 40,
+            columns: {
+                percent: 100,
+                resizer: {
+                    width: 10,
+                    inRealTime: true,
+                    dots: 6
+                },
+                minWidth: 50,
+                data: {}
+            },
+            expander: {
+                padding: 18,
+                size: 20,
+                icon: {
+                    width: 16,
+                    height: 16
+                },
+                icons: {
+                    child: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><ellipse ry="4" rx="4" id="svg_1" cy="12" cx="12" fill="#000000B0"/></svg>',
+                    open: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>',
+                    closed: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>'
+                }
+            },
+            toggle: {
+                display: true,
+                icons: {
+                    open: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path stroke="null" d="m16.406954,16.012672l4.00393,-4.012673l-4.00393,-4.012673l1.232651,-1.232651l5.245324,5.245324l-5.245324,5.245324l-1.232651,-1.232651z"/><path stroke="null" d="m-0.343497,12.97734zm1.620144,0l11.341011,0l0,-1.954681l-11.341011,0l0,1.954681zm0,3.909362l11.341011,0l0,-1.954681l-11.341011,0l0,1.954681zm0,-9.773404l0,1.95468l11.341011,0l0,-1.95468l-11.341011,0z"/></svg>`,
+                    close: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path transform="rotate(-180 4.392796516418457,12) " stroke="null" d="m1.153809,16.012672l4.00393,-4.012673l-4.00393,-4.012673l1.232651,-1.232651l5.245324,5.245324l-5.245324,5.245324l-1.232651,-1.232651z"/><path stroke="null" d="m9.773297,12.97734zm1.620144,0l11.341011,0l0,-1.954681l-11.341011,0l0,1.954681zm0,3.909362l11.341011,0l0,-1.954681l-11.341011,0l0,1.954681zm0,-9.773404l0,1.95468l11.341011,0l0,-1.95468l-11.341011,0z"/></svg>`
+                }
+            }
+        },
+        scroll: {
+            smooth: false,
+            top: 0,
+            left: 0,
+            xMultiplier: 3,
+            yMultiplier: 3,
+            percent: {
+                top: 0,
+                left: 0
+            },
+            compensation: {
+                x: 0,
+                y: 0
+            }
+        },
+        chart: {
+            time: {
+                from: 0,
+                to: 0,
+                zoom: 21,
+                period: 'day',
+                dates: {},
+                maxWidth: {}
+            },
+            calendar: {
+                vertical: {
+                    smallFormat: 'YYYY-MM-DD'
+                }
+            },
+            grid: {
+                block: {
+                    onCreate: []
+                }
+            },
+            items: {},
+            spacing: 1
+        },
+        slots,
+        classNames: {},
+        actions,
+        locale: {
+            name: 'en',
+            weekdays: 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split('_'),
+            weekdaysShort: 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_'),
+            weekdaysMin: 'Su_Mo_Tu_We_Th_Fr_Sa'.split('_'),
+            months: 'January_February_March_April_May_June_July_August_September_October_November_December'.split('_'),
+            monthsShort: 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_'),
+            weekStart: 1,
+            relativeTime: {
+                future: 'in %s',
+                past: '%s ago',
+                s: 'a few seconds',
+                m: 'a minute',
+                mm: '%d minutes',
+                h: 'an hour',
+                hh: '%d hours',
+                d: 'a day',
+                dd: '%d days',
+                M: 'a month',
+                MM: '%d months',
+                y: 'a year',
+                yy: '%d years'
+            },
+            formats: {
+                LT: 'HH:mm',
+                LTS: 'HH:mm:ss',
+                L: 'DD/MM/YYYY',
+                LL: 'D MMMM YYYY',
+                LLL: 'D MMMM YYYY HH:mm',
+                LLLL: 'dddd, D MMMM YYYY HH:mm'
+            },
+            ordinal: (n) => {
+                const s = ['th', 'st', 'nd', 'rd'];
+                const v = n % 100;
+                return `[${n}${s[(v - 20) % 10] || s[v] || s[0]}]`;
+            }
+        },
+        utcMode: false,
+        usageStatistics: true
+    };
+}
+
+var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+function createCommonjsModule(fn, module) {
+	return module = { exports: {} }, fn(module, module.exports), module.exports;
+}
+
+var dayjs_min = createCommonjsModule(function (module, exports) {
+!function(t,n){module.exports=n();}(commonjsGlobal,function(){var t="millisecond",n="second",e="minute",r="hour",i="day",s="week",u="month",o="quarter",a="year",h=/^(\d{4})-?(\d{1,2})-?(\d{0,2})[^0-9]*(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?.?(\d{1,3})?$/,f=/\[([^\]]+)]|Y{2,4}|M{1,4}|D{1,2}|d{1,4}|H{1,2}|h{1,2}|a|A|m{1,2}|s{1,2}|Z{1,2}|SSS/g,c=function(t,n,e){var r=String(t);return !r||r.length>=n?t:""+Array(n+1-r.length).join(e)+t},d={s:c,z:function(t){var n=-t.utcOffset(),e=Math.abs(n),r=Math.floor(e/60),i=e%60;return (n<=0?"+":"-")+c(r,2,"0")+":"+c(i,2,"0")},m:function(t,n){var e=12*(n.year()-t.year())+(n.month()-t.month()),r=t.clone().add(e,u),i=n-r<0,s=t.clone().add(e+(i?-1:1),u);return Number(-(e+(n-r)/(i?r-s:s-r))||0)},a:function(t){return t<0?Math.ceil(t)||0:Math.floor(t)},p:function(h){return {M:u,y:a,w:s,d:i,h:r,m:e,s:n,ms:t,Q:o}[h]||String(h||"").toLowerCase().replace(/s$/,"")},u:function(t){return void 0===t}},$={name:"en",weekdays:"Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split("_"),months:"January_February_March_April_May_June_July_August_September_October_November_December".split("_")},l="en",m={};m[l]=$;var y=function(t){return t instanceof v},M=function(t,n,e){var r;if(!t)return l;if("string"==typeof t)m[t]&&(r=t),n&&(m[t]=n,r=t);else{var i=t.name;m[i]=t,r=i;}return e||(l=r),r},g=function(t,n,e){if(y(t))return t.clone();var r=n?"string"==typeof n?{format:n,pl:e}:n:{};return r.date=t,new v(r)},D=d;D.l=M,D.i=y,D.w=function(t,n){return g(t,{locale:n.$L,utc:n.$u,$offset:n.$offset})};var v=function(){function c(t){this.$L=this.$L||M(t.locale,null,!0),this.parse(t);}var d=c.prototype;return d.parse=function(t){this.$d=function(t){var n=t.date,e=t.utc;if(null===n)return new Date(NaN);if(D.u(n))return new Date;if(n instanceof Date)return new Date(n);if("string"==typeof n&&!/Z$/i.test(n)){var r=n.match(h);if(r)return e?new Date(Date.UTC(r[1],r[2]-1,r[3]||1,r[4]||0,r[5]||0,r[6]||0,r[7]||0)):new Date(r[1],r[2]-1,r[3]||1,r[4]||0,r[5]||0,r[6]||0,r[7]||0)}return new Date(n)}(t),this.init();},d.init=function(){var t=this.$d;this.$y=t.getFullYear(),this.$M=t.getMonth(),this.$D=t.getDate(),this.$W=t.getDay(),this.$H=t.getHours(),this.$m=t.getMinutes(),this.$s=t.getSeconds(),this.$ms=t.getMilliseconds();},d.$utils=function(){return D},d.isValid=function(){return !("Invalid Date"===this.$d.toString())},d.isSame=function(t,n){var e=g(t);return this.startOf(n)<=e&&e<=this.endOf(n)},d.isAfter=function(t,n){return g(t)<this.startOf(n)},d.isBefore=function(t,n){return this.endOf(n)<g(t)},d.$g=function(t,n,e){return D.u(t)?this[n]:this.set(e,t)},d.year=function(t){return this.$g(t,"$y",a)},d.month=function(t){return this.$g(t,"$M",u)},d.day=function(t){return this.$g(t,"$W",i)},d.date=function(t){return this.$g(t,"$D","date")},d.hour=function(t){return this.$g(t,"$H",r)},d.minute=function(t){return this.$g(t,"$m",e)},d.second=function(t){return this.$g(t,"$s",n)},d.millisecond=function(n){return this.$g(n,"$ms",t)},d.unix=function(){return Math.floor(this.valueOf()/1e3)},d.valueOf=function(){return this.$d.getTime()},d.startOf=function(t,o){var h=this,f=!!D.u(o)||o,c=D.p(t),d=function(t,n){var e=D.w(h.$u?Date.UTC(h.$y,n,t):new Date(h.$y,n,t),h);return f?e:e.endOf(i)},$=function(t,n){return D.w(h.toDate()[t].apply(h.toDate(),(f?[0,0,0,0]:[23,59,59,999]).slice(n)),h)},l=this.$W,m=this.$M,y=this.$D,M="set"+(this.$u?"UTC":"");switch(c){case a:return f?d(1,0):d(31,11);case u:return f?d(1,m):d(0,m+1);case s:var g=this.$locale().weekStart||0,v=(l<g?l+7:l)-g;return d(f?y-v:y+(6-v),m);case i:case"date":return $(M+"Hours",0);case r:return $(M+"Minutes",1);case e:return $(M+"Seconds",2);case n:return $(M+"Milliseconds",3);default:return this.clone()}},d.endOf=function(t){return this.startOf(t,!1)},d.$set=function(s,o){var h,f=D.p(s),c="set"+(this.$u?"UTC":""),d=(h={},h[i]=c+"Date",h.date=c+"Date",h[u]=c+"Month",h[a]=c+"FullYear",h[r]=c+"Hours",h[e]=c+"Minutes",h[n]=c+"Seconds",h[t]=c+"Milliseconds",h)[f],$=f===i?this.$D+(o-this.$W):o;if(f===u||f===a){var l=this.clone().set("date",1);l.$d[d]($),l.init(),this.$d=l.set("date",Math.min(this.$D,l.daysInMonth())).toDate();}else d&&this.$d[d]($);return this.init(),this},d.set=function(t,n){return this.clone().$set(t,n)},d.get=function(t){return this[D.p(t)]()},d.add=function(t,o){var h,f=this;t=Number(t);var c=D.p(o),d=function(n){var e=g(f);return D.w(e.date(e.date()+Math.round(n*t)),f)};if(c===u)return this.set(u,this.$M+t);if(c===a)return this.set(a,this.$y+t);if(c===i)return d(1);if(c===s)return d(7);var $=(h={},h[e]=6e4,h[r]=36e5,h[n]=1e3,h)[c]||1,l=this.$d.getTime()+t*$;return D.w(l,this)},d.subtract=function(t,n){return this.add(-1*t,n)},d.format=function(t){var n=this;if(!this.isValid())return "Invalid Date";var e=t||"YYYY-MM-DDTHH:mm:ssZ",r=D.z(this),i=this.$locale(),s=this.$H,u=this.$m,o=this.$M,a=i.weekdays,h=i.months,c=function(t,r,i,s){return t&&(t[r]||t(n,e))||i[r].substr(0,s)},d=function(t){return D.s(s%12||12,t,"0")},$=i.meridiem||function(t,n,e){var r=t<12?"AM":"PM";return e?r.toLowerCase():r},l={YY:String(this.$y).slice(-2),YYYY:this.$y,M:o+1,MM:D.s(o+1,2,"0"),MMM:c(i.monthsShort,o,h,3),MMMM:h[o]||h(this,e),D:this.$D,DD:D.s(this.$D,2,"0"),d:String(this.$W),dd:c(i.weekdaysMin,this.$W,a,2),ddd:c(i.weekdaysShort,this.$W,a,3),dddd:a[this.$W],H:String(s),HH:D.s(s,2,"0"),h:d(1),hh:d(2),a:$(s,u,!0),A:$(s,u,!1),m:String(u),mm:D.s(u,2,"0"),s:String(this.$s),ss:D.s(this.$s,2,"0"),SSS:D.s(this.$ms,3,"0"),Z:r};return e.replace(f,function(t,n){return n||l[t]||r.replace(":","")})},d.utcOffset=function(){return 15*-Math.round(this.$d.getTimezoneOffset()/15)},d.diff=function(t,h,f){var c,d=D.p(h),$=g(t),l=6e4*($.utcOffset()-this.utcOffset()),m=this-$,y=D.m(this,$);return y=(c={},c[a]=y/12,c[u]=y,c[o]=y/3,c[s]=(m-l)/6048e5,c[i]=(m-l)/864e5,c[r]=m/36e5,c[e]=m/6e4,c[n]=m/1e3,c)[d]||m,f?y:D.a(y)},d.daysInMonth=function(){return this.endOf(u).$D},d.$locale=function(){return m[this.$L]},d.locale=function(t,n){if(!t)return this.$L;var e=this.clone();return e.$L=M(t,n,!0),e},d.clone=function(){return D.w(this.$d,this)},d.toDate=function(){return new Date(this.valueOf())},d.toJSON=function(){return this.isValid()?this.toISOString():null},d.toISOString=function(){return this.$d.toISOString()},d.toString=function(){return this.$d.toUTCString()},c}();return g.prototype=v.prototype,g.extend=function(t,n){return t(n,v,g),g},g.locale=M,g.isDayjs=y,g.unix=function(t){return g(1e3*t)},g.en=m[l],g.Ls=m,g});
+});
+
+var utc = createCommonjsModule(function (module, exports) {
+!function(t,i){module.exports=i();}(commonjsGlobal,function(){return function(t,i,e){var s=(new Date).getTimezoneOffset(),n=i.prototype;e.utc=function(t,e){return new i({date:t,utc:!0,format:e})},n.utc=function(){return e(this.toDate(),{locale:this.$L,utc:!0})},n.local=function(){return e(this.toDate(),{locale:this.$L,utc:!1})};var u=n.parse;n.parse=function(t){t.utc&&(this.$u=!0),this.$utils().u(t.$offset)||(this.$offset=t.$offset),u.call(this,t);};var o=n.init;n.init=function(){if(this.$u){var t=this.$d;this.$y=t.getUTCFullYear(),this.$M=t.getUTCMonth(),this.$D=t.getUTCDate(),this.$W=t.getUTCDay(),this.$H=t.getUTCHours(),this.$m=t.getUTCMinutes(),this.$s=t.getUTCSeconds(),this.$ms=t.getUTCMilliseconds();}else o.call(this);};var f=n.utcOffset;n.utcOffset=function(t){var i=this.$utils().u;if(i(t))return this.$u?0:i(this.$offset)?f.call(this):this.$offset;var e,n=Math.abs(t)<=16?60*t:t;return 0!==t?(e=this.local().add(n+s,"minute")).$offset=n:e=this.utc(),e};var r=n.format;n.format=function(t){var i=t||(this.$u?"YYYY-MM-DDTHH:mm:ss[Z]":"");return r.call(this,i)},n.valueOf=function(){var t=this.$utils().u(this.$offset)?0:this.$offset+s;return this.$d.valueOf()-6e4*t},n.isUTC=function(){return !!this.$u},n.toISOString=function(){return this.toDate().toISOString()},n.toString=function(){return this.toDate().toUTCString()};}});
+});
+
+/**
+ * Gantt-Schedule-Timeline-Calendar
+ *
+ * @copyright Rafal Pospiech <https://neuronet.io>
+ * @author    Rafal Pospiech <neuronet.io@gmail.com>
+ * @package   gantt-schedule-timeline-calendar
+ * @license   GPL-3.0
+ */
+class TimeApi {
+    constructor(state) {
+        this.utcMode = false;
+        this.state = state;
+        this.locale = state.get('config.locale');
+        this.utcMode = state.get('config.utcMode');
+        if (this.utcMode) {
+            dayjs_min.extend(utc);
+        }
+        // @ts-ignore
+        dayjs_min.locale(this.locale, null, true);
+    }
+    date(time) {
+        const _dayjs = this.utcMode ? dayjs_min.utc : dayjs_min;
+        return time ? _dayjs(time).locale(this.locale.name) : _dayjs().locale(this.locale.name);
+    }
+    recalculateFromTo(time) {
+        time = Object.assign({}, time);
+        if (time.from !== 0) {
+            time.from = this.date(time.from)
+                .startOf('day')
+                .valueOf();
+        }
+        if (time.to !== 0) {
+            time.to = this.date(time.to)
+                .endOf('day')
+                .valueOf();
+        }
+        let from = Number.MAX_SAFE_INTEGER, to = 0;
+        const items = this.state.get('config.chart.items');
+        if (Object.keys(items).length === 0) {
+            return time;
+        }
+        if (time.from === 0 || time.to === 0) {
+            for (const itemId in items) {
+                const item = items[itemId];
+                if (from > item.time.start) {
+                    from = item.time.start;
+                }
+                if (to < item.time.end) {
+                    to = item.time.end;
+                }
+            }
+            if (time.from === 0) {
+                time.from = this.date(from)
+                    .startOf('day')
+                    .valueOf();
+            }
+            if (time.to === 0) {
+                time.to = this.date(to)
+                    .endOf('day')
+                    .valueOf();
+            }
+        }
+        return time;
+    }
+    timeToPixelOffset(miliseconds) {
+        const timePerPixel = this.state.get('_internal.chart.time.timePerPixel') || 1;
+        return miliseconds / timePerPixel;
+    }
+    globalTimeToViewPixelOffset(miliseconds, withCompensation = false) {
+        const time = this.state.get('_internal.chart.time');
+        let xCompensation = this.state.get('config.scroll.compensation.x') || 0;
+        const viewPixelOffset = (miliseconds - time.leftGlobal) / time.timePerPixel;
+        if (withCompensation)
+            return viewPixelOffset + xCompensation;
+        return viewPixelOffset;
+    }
+}
+
+// forked from https://github.com/joonhocho/superwild
+function Matcher(pattern, wchar = '*') {
+    this.wchar = wchar;
+    this.pattern = pattern;
+    this.segments = [];
+    this.starCount = 0;
+    this.minLength = 0;
+    this.maxLength = 0;
+    this.segStartIndex = 0;
+    for (let i = 0, len = pattern.length; i < len; i += 1) {
+        const char = pattern[i];
+        if (char === wchar) {
+            this.starCount += 1;
+            if (i > this.segStartIndex) {
+                this.segments.push(pattern.substring(this.segStartIndex, i));
+            }
+            this.segments.push(char);
+            this.segStartIndex = i + 1;
+        }
+    }
+    if (this.segStartIndex < pattern.length) {
+        this.segments.push(pattern.substring(this.segStartIndex));
+    }
+    if (this.starCount) {
+        this.minLength = pattern.length - this.starCount;
+        this.maxLength = Infinity;
+    }
+    else {
+        this.maxLength = this.minLength = pattern.length;
+    }
+}
+Matcher.prototype.match = function match(match) {
+    if (this.pattern === this.wchar) {
+        return true;
+    }
+    if (this.segments.length === 0) {
+        return this.pattern === match;
+    }
+    const { length } = match;
+    if (length < this.minLength || length > this.maxLength) {
+        return false;
+    }
+    let segLeftIndex = 0;
+    let segRightIndex = this.segments.length - 1;
+    let rightPos = match.length - 1;
+    let rightIsStar = false;
+    while (true) {
+        const segment = this.segments[segRightIndex];
+        segRightIndex -= 1;
+        if (segment === this.wchar) {
+            rightIsStar = true;
+        }
+        else {
+            const lastIndex = rightPos + 1 - segment.length;
+            const index = match.lastIndexOf(segment, lastIndex);
+            if (index === -1 || index > lastIndex) {
+                return false;
+            }
+            if (rightIsStar) {
+                rightPos = index - 1;
+                rightIsStar = false;
+            }
+            else {
+                if (index !== lastIndex) {
+                    return false;
+                }
+                rightPos -= segment.length;
+            }
+        }
+        if (segLeftIndex > segRightIndex) {
+            break;
+        }
+    }
+    return true;
+};
+
+function WildcardObject(obj, delimeter, wildcard) {
+    this.obj = obj;
+    this.delimeter = delimeter;
+    this.wildcard = wildcard;
+}
+WildcardObject.prototype.simpleMatch = function simpleMatch(first, second) {
+    if (first === second)
+        return true;
+    if (first === this.wildcard)
+        return true;
+    const index = first.indexOf(this.wildcard);
+    if (index > -1) {
+        const end = first.substr(index + 1);
+        if (index === 0 || second.substring(0, index) === first.substring(0, index)) {
+            const len = end.length;
+            if (len > 0) {
+                return second.substr(-len) === end;
+            }
+            return true;
+        }
+    }
+    return false;
+};
+WildcardObject.prototype.match = function match(first, second) {
+    return (first === second ||
+        first === this.wildcard ||
+        second === this.wildcard ||
+        this.simpleMatch(first, second) ||
+        new Matcher(first).match(second));
+};
+WildcardObject.prototype.handleArray = function handleArray(wildcard, currentArr, partIndex, path, result = {}) {
+    let nextPartIndex = wildcard.indexOf(this.delimeter, partIndex);
+    let end = false;
+    if (nextPartIndex === -1) {
+        end = true;
+        nextPartIndex = wildcard.length;
+    }
+    const currentWildcardPath = wildcard.substring(partIndex, nextPartIndex);
+    let index = 0;
+    for (const item of currentArr) {
+        const key = index.toString();
+        const currentPath = path === '' ? key : path + this.delimeter + index;
+        if (currentWildcardPath === this.wildcard ||
+            currentWildcardPath === key ||
+            this.simpleMatch(currentWildcardPath, key)) {
+            end ? (result[currentPath] = item) : this.goFurther(wildcard, item, nextPartIndex + 1, currentPath, result);
+        }
+        index++;
+    }
+    return result;
+};
+WildcardObject.prototype.handleObject = function handleObject(wildcard, currentObj, partIndex, path, result = {}) {
+    let nextPartIndex = wildcard.indexOf(this.delimeter, partIndex);
+    let end = false;
+    if (nextPartIndex === -1) {
+        end = true;
+        nextPartIndex = wildcard.length;
+    }
+    const currentWildcardPath = wildcard.substring(partIndex, nextPartIndex);
+    for (let key in currentObj) {
+        key = key.toString();
+        const currentPath = path === '' ? key : path + this.delimeter + key;
+        if (currentWildcardPath === this.wildcard ||
+            currentWildcardPath === key ||
+            this.simpleMatch(currentWildcardPath, key)) {
+            end
+                ? (result[currentPath] = currentObj[key])
+                : this.goFurther(wildcard, currentObj[key], nextPartIndex + 1, currentPath, result);
+        }
+    }
+    return result;
+};
+WildcardObject.prototype.goFurther = function goFurther(wildcard, currentObj, partIndex, currentPath, result = {}) {
+    if (Array.isArray(currentObj)) {
+        return this.handleArray(wildcard, currentObj, partIndex, currentPath, result);
+    }
+    return this.handleObject(wildcard, currentObj, partIndex, currentPath, result);
+};
+WildcardObject.prototype.get = function get(wildcard) {
+    return this.goFurther(wildcard, this.obj, 0, '');
+};
+
+class ObjectPath {
+    static get(path, obj, copiedPath = null) {
+        if (copiedPath === null) {
+            copiedPath = path.slice();
+        }
+        if (copiedPath.length === 0 || typeof obj === "undefined") {
+            return obj;
+        }
+        const currentPath = copiedPath.shift();
+        if (!obj.hasOwnProperty(currentPath)) {
+            return undefined;
+        }
+        if (copiedPath.length === 0) {
+            return obj[currentPath];
+        }
+        return ObjectPath.get(path, obj[currentPath], copiedPath);
+    }
+    static set(path, newValue, obj, copiedPath = null) {
+        if (copiedPath === null) {
+            copiedPath = path.slice();
+        }
+        if (copiedPath.length === 0) {
+            for (const key in obj) {
+                delete obj[key];
+            }
+            for (const key in newValue) {
+                obj[key] = newValue[key];
+            }
+            return;
+        }
+        const currentPath = copiedPath.shift();
+        if (copiedPath.length === 0) {
+            obj[currentPath] = newValue;
+            return;
+        }
+        if (!obj) {
+            obj = {};
+        }
+        if (!obj.hasOwnProperty(currentPath)) {
+            obj[currentPath] = {};
+        }
+        ObjectPath.set(path, newValue, obj[currentPath], copiedPath);
+    }
+}
+
+function log(message, info) {
+    console.debug(message, info);
+}
+const defaultOptions$1 = {
+    delimeter: `.`,
+    notRecursive: `;`,
+    param: `:`,
+    wildcard: `*`,
+    log
+};
+const defaultListenerOptions = {
+    bulk: false,
+    debug: false,
+    source: "",
+    data: undefined
+};
+const defaultUpdateOptions = {
+    only: [],
+    source: "",
+    debug: false,
+    data: undefined
+};
+class DeepState {
+    constructor(data = {}, options = defaultOptions$1) {
+        this.listeners = new Map();
+        this.waitingListeners = new Map();
+        this.data = data;
+        this.options = Object.assign(Object.assign({}, defaultOptions$1), options);
+        this.id = 0;
+        this.pathGet = ObjectPath.get;
+        this.pathSet = ObjectPath.set;
+        this.scan = new WildcardObject(this.data, this.options.delimeter, this.options.wildcard);
+    }
+    getListeners() {
+        return this.listeners;
+    }
+    destroy() {
+        this.data = undefined;
+        this.listeners = new Map();
+    }
+    match(first, second) {
+        if (first === second)
+            return true;
+        if (first === this.options.wildcard || second === this.options.wildcard)
+            return true;
+        return this.scan.match(first, second);
+    }
+    getIndicesOf(searchStr, str) {
+        const searchStrLen = searchStr.length;
+        if (searchStrLen == 0) {
+            return [];
+        }
+        let startIndex = 0, index, indices = [];
+        while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+            indices.push(index);
+            startIndex = index + searchStrLen;
+        }
+        return indices;
+    }
+    getIndicesCount(searchStr, str) {
+        const searchStrLen = searchStr.length;
+        if (searchStrLen == 0) {
+            return 0;
+        }
+        let startIndex = 0, index, indices = 0;
+        while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+            indices++;
+            startIndex = index + searchStrLen;
+        }
+        return indices;
+    }
+    cutPath(longer, shorter) {
+        longer = this.cleanNotRecursivePath(longer);
+        shorter = this.cleanNotRecursivePath(shorter);
+        const shorterPartsLen = this.getIndicesCount(this.options.delimeter, shorter);
+        const longerParts = this.getIndicesOf(this.options.delimeter, longer);
+        return longer.substr(0, longerParts[shorterPartsLen]);
+    }
+    trimPath(path) {
+        path = this.cleanNotRecursivePath(path);
+        if (path.charAt(0) === this.options.delimeter) {
+            return path.substr(1);
+        }
+        return path;
+    }
+    split(path) {
+        return path === "" ? [] : path.split(this.options.delimeter);
+    }
+    isWildcard(path) {
+        return path.includes(this.options.wildcard);
+    }
+    isNotRecursive(path) {
+        return path.endsWith(this.options.notRecursive);
+    }
+    cleanNotRecursivePath(path) {
+        return this.isNotRecursive(path)
+            ? path.substring(0, path.length - 1)
+            : path;
+    }
+    hasParams(path) {
+        return path.includes(this.options.param);
+    }
+    getParamsInfo(path) {
+        let paramsInfo = { replaced: "", original: path, params: {} };
+        let partIndex = 0;
+        let fullReplaced = [];
+        for (const part of this.split(path)) {
+            paramsInfo.params[partIndex] = {
+                original: part,
+                replaced: "",
+                name: ""
+            };
+            const reg = new RegExp(`\\${this.options.param}([^\\${this.options.delimeter}\\${this.options.param}]+)`, "g");
+            let param = reg.exec(part);
+            if (param) {
+                paramsInfo.params[partIndex].name = param[1];
+            }
+            else {
+                delete paramsInfo.params[partIndex];
+                fullReplaced.push(part);
+                partIndex++;
+                continue;
+            }
+            reg.lastIndex = 0;
+            paramsInfo.params[partIndex].replaced = part.replace(reg, this.options.wildcard);
+            fullReplaced.push(paramsInfo.params[partIndex].replaced);
+            partIndex++;
+        }
+        paramsInfo.replaced = fullReplaced.join(this.options.delimeter);
+        return paramsInfo;
+    }
+    getParams(paramsInfo, path) {
+        if (!paramsInfo) {
+            return undefined;
+        }
+        const split = this.split(path);
+        const result = {};
+        for (const partIndex in paramsInfo.params) {
+            const param = paramsInfo.params[partIndex];
+            result[param.name] = split[partIndex];
+        }
+        return result;
+    }
+    waitForAll(userPaths, fn) {
+        const paths = {};
+        for (let path of userPaths) {
+            paths[path] = { dirty: false };
+            if (this.hasParams(path)) {
+                paths[path].paramsInfo = this.getParamsInfo(path);
+            }
+            paths[path].isWildcard = this.isWildcard(path);
+            paths[path].isRecursive = !this.isNotRecursive(path);
+        }
+        this.waitingListeners.set(userPaths, { fn, paths });
+        fn(paths);
+        return function unsubscribe() {
+            this.waitingListeners.delete(userPaths);
+        };
+    }
+    executeWaitingListeners(updatePath) {
+        for (const waitingListener of this.waitingListeners.values()) {
+            const { fn, paths } = waitingListener;
+            let dirty = 0;
+            let all = 0;
+            for (let path in paths) {
+                const pathInfo = paths[path];
+                let match = false;
+                if (pathInfo.isRecursive)
+                    updatePath = this.cutPath(updatePath, path);
+                if (pathInfo.isWildcard && this.match(path, updatePath))
+                    match = true;
+                if (updatePath === path)
+                    match = true;
+                if (match) {
+                    pathInfo.dirty = true;
+                }
+                if (pathInfo.dirty) {
+                    dirty++;
+                }
+                all++;
+            }
+            if (dirty === all) {
+                fn(paths);
+            }
+        }
+    }
+    subscribeAll(userPaths, fn, options = defaultListenerOptions) {
+        let unsubscribers = [];
+        for (const userPath of userPaths) {
+            unsubscribers.push(this.subscribe(userPath, fn, options));
+        }
+        return function unsubscribe() {
+            for (const unsubscribe of unsubscribers) {
+                unsubscribe();
+            }
+        };
+    }
+    getCleanListenersCollection(values = {}) {
+        return Object.assign({ listeners: new Map(), isRecursive: false, isWildcard: false, hasParams: false, match: undefined, paramsInfo: undefined, path: undefined, count: 0 }, values);
+    }
+    getCleanListener(fn, options = defaultListenerOptions) {
+        return {
+            fn,
+            options: Object.assign(Object.assign({}, defaultListenerOptions), options)
+        };
+    }
+    getListenerCollectionMatch(listenerPath, isRecursive, isWildcard) {
+        listenerPath = this.cleanNotRecursivePath(listenerPath);
+        const self = this;
+        return function listenerCollectionMatch(path) {
+            if (isRecursive)
+                path = self.cutPath(path, listenerPath);
+            if (isWildcard && self.match(listenerPath, path))
+                return true;
+            return listenerPath === path;
+        };
+    }
+    getListenersCollection(listenerPath, listener) {
+        if (this.listeners.has(listenerPath)) {
+            let listenersCollection = this.listeners.get(listenerPath);
+            listenersCollection.listeners.set(++this.id, listener);
+            return listenersCollection;
+        }
+        let collCfg = {
+            isRecursive: true,
+            isWildcard: false,
+            hasParams: false,
+            paramsInfo: undefined,
+            originalPath: listenerPath,
+            path: listenerPath
+        };
+        if (this.hasParams(collCfg.path)) {
+            collCfg.paramsInfo = this.getParamsInfo(collCfg.path);
+            collCfg.path = collCfg.paramsInfo.replaced;
+            collCfg.hasParams = true;
+        }
+        collCfg.isWildcard = this.isWildcard(collCfg.path);
+        if (this.isNotRecursive(collCfg.path)) {
+            collCfg.isRecursive = false;
+        }
+        let listenersCollection = this.getCleanListenersCollection(Object.assign(Object.assign({}, collCfg), { match: this.getListenerCollectionMatch(collCfg.path, collCfg.isRecursive, collCfg.isWildcard) }));
+        this.id++;
+        listenersCollection.listeners.set(this.id, listener);
+        this.listeners.set(collCfg.path, listenersCollection);
+        return listenersCollection;
+    }
+    subscribe(listenerPath, fn, options = defaultListenerOptions, type = "subscribe") {
+        let listener = this.getCleanListener(fn, options);
+        const listenersCollection = this.getListenersCollection(listenerPath, listener);
+        listenersCollection.count++;
+        listenerPath = listenersCollection.path;
+        if (!listenersCollection.isWildcard) {
+            fn(this.pathGet(this.split(this.cleanNotRecursivePath(listenerPath)), this.data), {
+                type,
+                listener,
+                listenersCollection,
+                path: {
+                    listener: listenerPath,
+                    update: undefined,
+                    resolved: this.cleanNotRecursivePath(listenerPath)
+                },
+                params: this.getParams(listenersCollection.paramsInfo, listenerPath),
+                options
+            });
+        }
+        else {
+            const paths = this.scan.get(this.cleanNotRecursivePath(listenerPath));
+            if (options.bulk) {
+                const bulkValue = [];
+                for (const path in paths) {
+                    bulkValue.push({
+                        path,
+                        params: this.getParams(listenersCollection.paramsInfo, path),
+                        value: paths[path]
+                    });
+                }
+                fn(bulkValue, {
+                    type,
+                    listener,
+                    listenersCollection,
+                    path: {
+                        listener: listenerPath,
+                        update: undefined,
+                        resolved: undefined
+                    },
+                    options,
+                    params: undefined
+                });
+            }
+            else {
+                for (const path in paths) {
+                    fn(paths[path], {
+                        type,
+                        listener,
+                        listenersCollection,
+                        path: {
+                            listener: listenerPath,
+                            update: undefined,
+                            resolved: this.cleanNotRecursivePath(path)
+                        },
+                        params: this.getParams(listenersCollection.paramsInfo, path),
+                        options
+                    });
+                }
+            }
+        }
+        this.debugSubscribe(listener, listenersCollection, listenerPath);
+        return this.unsubscribe(listenerPath, this.id);
+    }
+    unsubscribe(path, id) {
+        const listeners = this.listeners;
+        const listenersCollection = listeners.get(path);
+        return function unsub() {
+            listenersCollection.listeners.delete(id);
+            listenersCollection.count--;
+            if (listenersCollection.count === 0) {
+                listeners.delete(path);
+            }
+        };
+    }
+    same(newValue, oldValue) {
+        return ((["number", "string", "undefined", "boolean"].includes(typeof newValue) ||
+            newValue === null) &&
+            oldValue === newValue);
+    }
+    notifyListeners(listeners, exclude = [], returnNotified = true) {
+        const alreadyNotified = [];
+        for (const path in listeners) {
+            let { single, bulk } = listeners[path];
+            for (const singleListener of single) {
+                if (exclude.includes(singleListener))
+                    continue;
+                const time = this.debugTime(singleListener);
+                singleListener.listener.fn(singleListener.value(), singleListener.eventInfo);
+                if (returnNotified)
+                    alreadyNotified.push(singleListener);
+                this.debugListener(time, singleListener);
+            }
+            for (const bulkListener of bulk) {
+                if (exclude.includes(bulkListener))
+                    continue;
+                const time = this.debugTime(bulkListener);
+                const bulkValue = [];
+                for (const bulk of bulkListener.value) {
+                    bulkValue.push(Object.assign(Object.assign({}, bulk), { value: bulk.value() }));
+                }
+                bulkListener.listener.fn(bulkValue, bulkListener.eventInfo);
+                if (returnNotified)
+                    alreadyNotified.push(bulkListener);
+                this.debugListener(time, bulkListener);
+            }
+        }
+        return alreadyNotified;
+    }
+    getSubscribedListeners(updatePath, newValue, options, type = "update", originalPath = null) {
+        options = Object.assign(Object.assign({}, defaultUpdateOptions), options);
+        const listeners = {};
+        for (let [listenerPath, listenersCollection] of this.listeners) {
+            listeners[listenerPath] = { single: [], bulk: [], bulkData: [] };
+            if (listenersCollection.match(updatePath)) {
+                const params = listenersCollection.paramsInfo
+                    ? this.getParams(listenersCollection.paramsInfo, updatePath)
+                    : undefined;
+                const value = listenersCollection.isRecursive || listenersCollection.isWildcard
+                    ? () => this.get(this.cutPath(updatePath, listenerPath))
+                    : () => newValue;
+                const bulkValue = [{ value, path: updatePath, params }];
+                for (const listener of listenersCollection.listeners.values()) {
+                    if (listener.options.bulk) {
+                        listeners[listenerPath].bulk.push({
+                            listener,
+                            listenersCollection,
+                            eventInfo: {
+                                type,
+                                listener,
+                                path: {
+                                    listener: listenerPath,
+                                    update: originalPath ? originalPath : updatePath,
+                                    resolved: undefined
+                                },
+                                params,
+                                options
+                            },
+                            value: bulkValue
+                        });
+                    }
+                    else {
+                        listeners[listenerPath].single.push({
+                            listener,
+                            listenersCollection,
+                            eventInfo: {
+                                type,
+                                listener,
+                                path: {
+                                    listener: listenerPath,
+                                    update: originalPath ? originalPath : updatePath,
+                                    resolved: this.cleanNotRecursivePath(updatePath)
+                                },
+                                params,
+                                options
+                            },
+                            value
+                        });
+                    }
+                }
+            }
+        }
+        return listeners;
+    }
+    notifySubscribedListeners(updatePath, newValue, options, type = "update", originalPath = null) {
+        return this.notifyListeners(this.getSubscribedListeners(updatePath, newValue, options, type, originalPath));
+    }
+    getNestedListeners(updatePath, newValue, options, type = "update", originalPath = null) {
+        const listeners = {};
+        for (let [listenerPath, listenersCollection] of this.listeners) {
+            listeners[listenerPath] = { single: [], bulk: [] };
+            const currentCuttedPath = this.cutPath(listenerPath, updatePath);
+            if (this.match(currentCuttedPath, updatePath)) {
+                const restPath = this.trimPath(listenerPath.substr(currentCuttedPath.length));
+                const values = new WildcardObject(newValue, this.options.delimeter, this.options.wildcard).get(restPath);
+                const params = listenersCollection.paramsInfo
+                    ? this.getParams(listenersCollection.paramsInfo, updatePath)
+                    : undefined;
+                const bulk = [];
+                const bulkListeners = {};
+                for (const currentRestPath in values) {
+                    const value = () => values[currentRestPath];
+                    const fullPath = [updatePath, currentRestPath].join(this.options.delimeter);
+                    for (const [listenerId, listener] of listenersCollection.listeners) {
+                        const eventInfo = {
+                            type,
+                            listener,
+                            listenersCollection,
+                            path: {
+                                listener: listenerPath,
+                                update: originalPath ? originalPath : updatePath,
+                                resolved: this.cleanNotRecursivePath(fullPath)
+                            },
+                            params,
+                            options
+                        };
+                        if (listener.options.bulk) {
+                            bulk.push({ value, path: fullPath, params });
+                            bulkListeners[listenerId] = listener;
+                        }
+                        else {
+                            listeners[listenerPath].single.push({
+                                listener,
+                                listenersCollection,
+                                eventInfo,
+                                value
+                            });
+                        }
+                    }
+                }
+                for (const listenerId in bulkListeners) {
+                    const listener = bulkListeners[listenerId];
+                    const eventInfo = {
+                        type,
+                        listener,
+                        listenersCollection,
+                        path: {
+                            listener: listenerPath,
+                            update: updatePath,
+                            resolved: undefined
+                        },
+                        options,
+                        params
+                    };
+                    listeners[listenerPath].bulk.push({
+                        listener,
+                        listenersCollection,
+                        eventInfo,
+                        value: bulk
+                    });
+                }
+            }
+        }
+        return listeners;
+    }
+    notifyNestedListeners(updatePath, newValue, options, type = "update", alreadyNotified, originalPath = null) {
+        return this.notifyListeners(this.getNestedListeners(updatePath, newValue, options, type, originalPath), alreadyNotified, false);
+    }
+    getNotifyOnlyListeners(updatePath, newValue, options, type = "update", originalPath = null) {
+        const listeners = {};
+        if (typeof options.only !== "object" ||
+            !Array.isArray(options.only) ||
+            typeof options.only[0] === "undefined" ||
+            !this.canBeNested(newValue)) {
+            return listeners;
+        }
+        for (const notifyPath of options.only) {
+            const wildcardScan = new WildcardObject(newValue, this.options.delimeter, this.options.wildcard).get(notifyPath);
+            listeners[notifyPath] = { bulk: [], single: [] };
+            for (const wildcardPath in wildcardScan) {
+                const fullPath = updatePath + this.options.delimeter + wildcardPath;
+                for (const [listenerPath, listenersCollection] of this.listeners) {
+                    const params = listenersCollection.paramsInfo
+                        ? this.getParams(listenersCollection.paramsInfo, fullPath)
+                        : undefined;
+                    if (this.match(listenerPath, fullPath)) {
+                        const value = () => wildcardScan[wildcardPath];
+                        const bulkValue = [{ value, path: fullPath, params }];
+                        for (const listener of listenersCollection.listeners.values()) {
+                            const eventInfo = {
+                                type,
+                                listener,
+                                listenersCollection,
+                                path: {
+                                    listener: listenerPath,
+                                    update: originalPath ? originalPath : updatePath,
+                                    resolved: this.cleanNotRecursivePath(fullPath)
+                                },
+                                params,
+                                options
+                            };
+                            if (listener.options.bulk) {
+                                if (!listeners[notifyPath].bulk.some(bulkListener => bulkListener.listener === listener)) {
+                                    listeners[notifyPath].bulk.push({
+                                        listener,
+                                        listenersCollection,
+                                        eventInfo,
+                                        value: bulkValue
+                                    });
+                                }
+                            }
+                            else {
+                                listeners[notifyPath].single.push({
+                                    listener,
+                                    listenersCollection,
+                                    eventInfo,
+                                    value
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return listeners;
+    }
+    notifyOnly(updatePath, newValue, options, type = "update", originalPath = "") {
+        return (typeof this.notifyListeners(this.getNotifyOnlyListeners(updatePath, newValue, options, type, originalPath))[0] !== "undefined");
+    }
+    canBeNested(newValue) {
+        return typeof newValue === "object" && newValue !== null;
+    }
+    getUpdateValues(oldValue, split, fn) {
+        if (typeof oldValue === "object" && oldValue !== null) {
+            Array.isArray(oldValue)
+                ? (oldValue = oldValue.slice())
+                : (oldValue = Object.assign({}, oldValue));
+        }
+        let newValue = fn;
+        if (typeof fn === "function") {
+            newValue = fn(this.pathGet(split, this.data));
+        }
+        return { newValue, oldValue };
+    }
+    wildcardUpdate(updatePath, fn, options = defaultUpdateOptions) {
+        options = Object.assign(Object.assign({}, defaultUpdateOptions), options);
+        const scanned = this.scan.get(updatePath);
+        const bulk = {};
+        for (const path in scanned) {
+            const split = this.split(path);
+            const { oldValue, newValue } = this.getUpdateValues(scanned[path], split, fn);
+            if (!this.same(newValue, oldValue))
+                bulk[path] = newValue;
+        }
+        const groupedListenersPack = [];
+        const waitingPaths = [];
+        for (const path in bulk) {
+            const newValue = bulk[path];
+            if (options.only.length) {
+                groupedListenersPack.push(this.getNotifyOnlyListeners(path, newValue, options, "update", updatePath));
+            }
+            else {
+                groupedListenersPack.push(this.getSubscribedListeners(path, newValue, options, "update", updatePath));
+                this.canBeNested(newValue) &&
+                    groupedListenersPack.push(this.getNestedListeners(path, newValue, options, "update", updatePath));
+            }
+            options.debug && this.options.log("Wildcard update", { path, newValue });
+            this.pathSet(this.split(path), newValue, this.data);
+            waitingPaths.push(path);
+        }
+        let alreadyNotified = [];
+        for (const groupedListeners of groupedListenersPack) {
+            alreadyNotified = [
+                ...alreadyNotified,
+                ...this.notifyListeners(groupedListeners, alreadyNotified)
+            ];
+        }
+        for (const path of waitingPaths) {
+            this.executeWaitingListeners(path);
+        }
+    }
+    update(updatePath, fn, options = defaultUpdateOptions) {
+        if (this.isWildcard(updatePath)) {
+            return this.wildcardUpdate(updatePath, fn, options);
+        }
+        const split = this.split(updatePath);
+        const { oldValue, newValue } = this.getUpdateValues(this.pathGet(split, this.data), split, fn);
+        if (options.debug) {
+            this.options.log(`Updating ${updatePath} ${options.source ? `from ${options.source}` : ""}`, { oldValue, newValue });
+        }
+        if (this.same(newValue, oldValue)) {
+            return newValue;
+        }
+        this.pathSet(split, newValue, this.data);
+        options = Object.assign(Object.assign({}, defaultUpdateOptions), options);
+        if (options.only === null) {
+            return newValue;
+        }
+        if (options.only.length) {
+            this.notifyOnly(updatePath, newValue, options);
+            this.executeWaitingListeners(updatePath);
+            return newValue;
+        }
+        const alreadyNotified = this.notifySubscribedListeners(updatePath, newValue, options);
+        if (this.canBeNested(newValue)) {
+            this.notifyNestedListeners(updatePath, newValue, options, "update", alreadyNotified);
+        }
+        this.executeWaitingListeners(updatePath);
+        return newValue;
+    }
+    get(userPath = undefined) {
+        if (typeof userPath === "undefined" || userPath === "") {
+            return this.data;
+        }
+        return this.pathGet(this.split(userPath), this.data);
+    }
+    debugSubscribe(listener, listenersCollection, listenerPath) {
+        if (listener.options.debug) {
+            this.options.log("listener subscribed", {
+                listenerPath,
+                listener,
+                listenersCollection
+            });
+        }
+    }
+    debugListener(time, groupedListener) {
+        if (groupedListener.eventInfo.options.debug ||
+            groupedListener.listener.options.debug) {
+            this.options.log("Listener fired", {
+                time: Date.now() - time,
+                info: groupedListener
+            });
+        }
+    }
+    debugTime(groupedListener) {
+        return groupedListener.listener.options.debug ||
+            groupedListener.eventInfo.options.debug
+            ? Date.now()
+            : 0;
+    }
+}
+
+/**
+ * Schedule - a throttle function that uses requestAnimationFrame to limit the rate at which a function is called.
+ *
+ * @param {function} fn
+ * @returns {function}
+ */
+/**
+ * Is object - helper function to determine if specified variable is an object
+ *
+ * @param {any} item
+ * @returns {boolean}
+ */
+function isObject$1(item) {
+    return item && typeof item === 'object' && !Array.isArray(item);
+}
+/**
+ * Merge deep - helper function which will merge objects recursively - creating brand new one - like clone
+ *
+ * @param {object} target
+ * @params {object} sources
+ * @returns {object}
+ */
+function mergeDeep$1(target, ...sources) {
+    const source = sources.shift();
+    if (isObject$1(target) && isObject$1(source)) {
+        for (const key in source) {
+            if (isObject$1(source[key])) {
+                if (typeof target[key] === 'undefined') {
+                    target[key] = {};
+                }
+                target[key] = mergeDeep$1(target[key], source[key]);
+            }
+            else if (Array.isArray(source[key])) {
+                target[key] = [];
+                for (let item of source[key]) {
+                    if (isObject$1(item)) {
+                        target[key].push(mergeDeep$1({}, item));
+                        continue;
+                    }
+                    target[key].push(item);
+                }
+            }
+            else {
+                target[key] = source[key];
+            }
+        }
+    }
+    if (!sources.length) {
+        return target;
+    }
+    return mergeDeep$1(target, ...sources);
+}
+
 /**
  * Api functions
  *
@@ -593,7 +8096,385 @@ class TimeApi{constructor(t){this.utcMode=!1,this.state=t,this.locale=t.get("con
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0
- */const ut="gantt-schedule-timeline-calendar";const pt={name:ut,stateFromConfig:function stateFromConfig(t){const e=defaultConfig(),n=function mergeActions(t,e){const n=mergeDeep$1({},e.actions),i=mergeDeep$1({},t.actions);let s=[...Object.keys(n),...Object.keys(i)];s=s.filter(t=>s.includes(t));const o={};for(const t of s)o[t]=[],void 0!==n[t]&&Array.isArray(n[t])&&(o[t]=[...n[t]]),void 0!==i[t]&&Array.isArray(i[t])&&(o[t]=[...o[t],...i[t]]);return delete t.actions,delete e.actions,o}(t,e),i={config:mergeDeep$1({},e,t)};return i.config.actions=n,new DeepState(i,{delimeter:"."})},mergeDeep:mergeDeep$1,date:t=>t?at(t):at(),dayjs:at};
+ */
+const lib = 'gantt-schedule-timeline-calendar';
+function mergeActions(userConfig, defaultConfig) {
+    const defaultConfigActions = mergeDeep$1({}, defaultConfig.actions);
+    const userActions = mergeDeep$1({}, userConfig.actions);
+    let allActionNames = [...Object.keys(defaultConfigActions), ...Object.keys(userActions)];
+    allActionNames = allActionNames.filter(i => allActionNames.includes(i));
+    const actions = {};
+    for (const actionName of allActionNames) {
+        actions[actionName] = [];
+        if (typeof defaultConfigActions[actionName] !== 'undefined' && Array.isArray(defaultConfigActions[actionName])) {
+            actions[actionName] = [...defaultConfigActions[actionName]];
+        }
+        if (typeof userActions[actionName] !== 'undefined' && Array.isArray(userActions[actionName])) {
+            actions[actionName] = [...actions[actionName], ...userActions[actionName]];
+        }
+    }
+    delete userConfig.actions;
+    delete defaultConfig.actions;
+    return actions;
+}
+function stateFromConfig(userConfig) {
+    const defaultConfig$1 = defaultConfig();
+    const actions = mergeActions(userConfig, defaultConfig$1);
+    const state = { config: mergeDeep$1({}, defaultConfig$1, userConfig) };
+    state.config.actions = actions;
+    // @ts-ignore
+    return new DeepState(state, { delimeter: '.' });
+}
+const publicApi = {
+    name: lib,
+    stateFromConfig,
+    mergeDeep: mergeDeep$1,
+    date(time) {
+        return time ? dayjs_min(time) : dayjs_min();
+    },
+    dayjs: dayjs_min
+};
+function getInternalApi(state) {
+    let $state = state.get();
+    let unsubscribers = [];
+    const iconsCache = {};
+    const api = {
+        name: lib,
+        debug: false,
+        setVido(Vido) {
+        },
+        log(...args) {
+            if (this.debug) {
+                console.log.call(console, ...args);
+            }
+        },
+        mergeDeep: mergeDeep$1,
+        getClass(name) {
+            let simple = `${lib}__${name}`;
+            if (name === this.name) {
+                simple = this.name;
+            }
+            return simple;
+        },
+        allActions: [],
+        getActions(name) {
+            if (!this.allActions.includes(name))
+                this.allActions.push(name);
+            let actions = state.get('config.actions.' + name);
+            if (typeof actions === 'undefined') {
+                actions = [];
+            }
+            return actions.slice();
+        },
+        isItemInViewport(item, left, right) {
+            return ((item.time.start >= left && item.time.start < right) ||
+                (item.time.end >= left && item.time.end < right) ||
+                (item.time.start <= left && item.time.end >= right));
+        },
+        fillEmptyRowValues(rows) {
+            let top = 0;
+            for (const rowId in rows) {
+                const row = rows[rowId];
+                row._internal = {
+                    parents: [],
+                    children: [],
+                    items: []
+                };
+                if (typeof row.height !== 'number') {
+                    row.height = $state.config.list.rowHeight;
+                }
+                if (typeof row.expanded !== 'boolean') {
+                    row.expanded = false;
+                }
+                row.top = top;
+                top += row.height;
+            }
+            return rows;
+        },
+        generateParents(rows, parentName = 'parentId') {
+            const parents = {};
+            for (const row of rows) {
+                const parentId = typeof row[parentName] !== 'undefined' ? row[parentName] : '';
+                if (typeof parents[parentId] === 'undefined') {
+                    parents[parentId] = {};
+                }
+                parents[parentId][row.id] = row;
+            }
+            return parents;
+        },
+        fastTree(rowParents, node, parents = []) {
+            const children = rowParents[node.id];
+            node._internal.parents = parents;
+            if (typeof children === 'undefined') {
+                node._internal.children = [];
+                return node;
+            }
+            if (node.id !== '') {
+                parents = [...parents, node.id];
+            }
+            node._internal.children = Object.values(children);
+            for (const childrenId in children) {
+                const child = children[childrenId];
+                this.fastTree(rowParents, child, parents);
+            }
+            return node;
+        },
+        makeTreeMap(rows, items) {
+            const itemParents = this.generateParents(items, 'rowId');
+            for (const row of rows) {
+                row._internal.items = typeof itemParents[row.id] !== 'undefined' ? Object.values(itemParents[row.id]) : [];
+            }
+            const rowParents = this.generateParents(rows);
+            const tree = { id: '', _internal: { children: [], parents: [], items: [] } };
+            return this.fastTree(rowParents, tree);
+        },
+        getFlatTreeMapById(treeMap, flatTreeMapById = {}) {
+            for (const child of treeMap._internal.children) {
+                flatTreeMapById[child.id] = child;
+                this.getFlatTreeMapById(child, flatTreeMapById);
+            }
+            return flatTreeMapById;
+        },
+        flattenTreeMap(treeMap, rows = []) {
+            for (const child of treeMap._internal.children) {
+                rows.push(child.id);
+                this.flattenTreeMap(child, rows);
+            }
+            return rows;
+        },
+        getRowsFromMap(flatTreeMap, rows) {
+            return flatTreeMap.map(node => rows[node.id]);
+        },
+        getRowsFromIds(ids, rows) {
+            const result = [];
+            for (const id of ids) {
+                result.push(rows[id]);
+            }
+            return result;
+        },
+        getRowsWithParentsExpanded(flatTreeMap, flatTreeMapById, rows) {
+            if (!flatTreeMap ||
+                !flatTreeMapById ||
+                !rows ||
+                flatTreeMap.length === 0 ||
+                flatTreeMapById.length === 0 ||
+                Object.keys(rows).length === 0) {
+                return [];
+            }
+            const rowsWithParentsExpanded = [];
+            next: for (const rowId of flatTreeMap) {
+                for (const parentId of flatTreeMapById[rowId]._internal.parents) {
+                    const parent = rows[parentId];
+                    if (!parent.expanded) {
+                        continue next;
+                    }
+                }
+                rowsWithParentsExpanded.push(rowId);
+            }
+            return rowsWithParentsExpanded;
+        },
+        getRowsHeight(rows) {
+            let height = 0;
+            for (const row of rows) {
+                if (row)
+                    height += row.height;
+            }
+            return height;
+        },
+        /**
+         * Get visible rows - get rows that are inside current viewport (height)
+         *
+         * @param {array} rowsWithParentsExpanded rows that have parent expanded- they are visible
+         */
+        getVisibleRowsAndCompensation(rowsWithParentsExpanded) {
+            const visibleRows = [];
+            let currentRowsOffset = 0;
+            let rowOffset = 0;
+            const scrollTop = state.get('config.scroll.top');
+            const height = state.get('_internal.height');
+            let chartViewBottom = 0;
+            let compensation = 0;
+            for (const row of rowsWithParentsExpanded) {
+                if (row === undefined)
+                    continue;
+                chartViewBottom = scrollTop + height;
+                if (currentRowsOffset + row.height >= scrollTop && currentRowsOffset <= chartViewBottom) {
+                    row.top = rowOffset;
+                    compensation = row.top + scrollTop - currentRowsOffset;
+                    rowOffset += row.height;
+                    visibleRows.push(row);
+                }
+                currentRowsOffset += row.height;
+                if (currentRowsOffset >= chartViewBottom) {
+                    break;
+                }
+            }
+            return { visibleRows, compensation };
+        },
+        /**
+         * Normalize mouse wheel event to get proper scroll metrics
+         *
+         * @param {Event} event mouse wheel event
+         */
+        normalizeMouseWheelEvent(event) {
+            // @ts-ignore
+            let x = event.deltaX || 0;
+            // @ts-ignore
+            let y = event.deltaY || 0;
+            // @ts-ignore
+            let z = event.deltaZ || 0;
+            // @ts-ignore
+            const mode = event.deltaMode;
+            // @ts-ignore
+            const lineHeight = parseInt(getComputedStyle(event.target).getPropertyValue('line-height'));
+            let scale = 1;
+            switch (mode) {
+                case 1:
+                    scale = lineHeight;
+                    break;
+                case 2:
+                    // @ts-ignore
+                    scale = window.height;
+                    break;
+            }
+            x *= scale;
+            y *= scale;
+            z *= scale;
+            return { x, y, z, event };
+        },
+        normalizePointerEvent(event) {
+            const result = { x: 0, y: 0, pageX: 0, pageY: 0, clientX: 0, clientY: 0, screenX: 0, screenY: 0 };
+            switch (event.type) {
+                case 'wheel':
+                    const wheel = this.normalizeMouseWheelEvent(event);
+                    result.x = wheel.x;
+                    result.y = wheel.y;
+                    result.pageX = result.x;
+                    result.pageY = result.y;
+                    result.screenX = result.x;
+                    result.screenY = result.y;
+                    result.clientX = result.x;
+                    result.clientY = result.y;
+                    break;
+                case 'touchstart':
+                case 'touchmove':
+                case 'touchend':
+                case 'touchcancel':
+                    result.x = event.changedTouches[0].screenX;
+                    result.y = event.changedTouches[0].screenY;
+                    result.pageX = event.changedTouches[0].pageX;
+                    result.pageY = event.changedTouches[0].pageY;
+                    result.screenX = event.changedTouches[0].screenX;
+                    result.screenY = event.changedTouches[0].screenY;
+                    result.clientX = event.changedTouches[0].clientX;
+                    result.clientY = event.changedTouches[0].clientY;
+                    break;
+                default:
+                    result.x = event.x;
+                    result.y = event.y;
+                    result.pageX = event.pageX;
+                    result.pageY = event.pageY;
+                    result.screenX = event.screenX;
+                    result.screenY = event.screenY;
+                    result.clientX = event.clientX;
+                    result.clientY = event.clientY;
+                    break;
+            }
+            return result;
+        },
+        limitScroll(which, scroll) {
+            if (which === 'top') {
+                const height = state.get('_internal.list.rowsHeight') - state.get('_internal.height');
+                if (scroll < 0) {
+                    scroll = 0;
+                }
+                else if (scroll > height) {
+                    scroll = height;
+                }
+                return scroll;
+            }
+            else {
+                const width = state.get('_internal.chart.time.totalViewDurationPx') - state.get('_internal.chart.dimensions.width');
+                if (scroll < 0) {
+                    scroll = 0;
+                }
+                else if (scroll > width) {
+                    scroll = width;
+                }
+                return scroll;
+            }
+        },
+        time: new TimeApi(state),
+        /**
+         * Get scrollbar height - compute it from element
+         *
+         * @returns {number}
+         */
+        getScrollBarHeight(add = 0) {
+            const outer = document.createElement('div');
+            outer.style.visibility = 'hidden';
+            outer.style.height = '100px';
+            document.body.appendChild(outer);
+            const noScroll = outer.offsetHeight;
+            outer.style.msOverflowStyle = 'scrollbar';
+            outer.style.overflow = 'scroll';
+            const inner = document.createElement('div');
+            inner.style.height = '100%';
+            outer.appendChild(inner);
+            const withScroll = inner.offsetHeight;
+            outer.parentNode.removeChild(outer);
+            return noScroll - withScroll + add;
+        },
+        /**
+         * Get grid blocks that are under specified rectangle
+         *
+         * @param {number} x beginging at chart-timeline bounding rect
+         * @param {number} y beginging at chart-timeline bounding rect
+         * @param {number} width
+         * @param {number} height
+         * @returns {array} array of {element, data}
+         */
+        getGridBlocksUnderRect(x, y, width, height) {
+            const main = state.get('_internal.elements.main');
+            if (!main)
+                return [];
+        },
+        getCompensationX() {
+            return state.get('config.scroll.compensation.x') || 0;
+        },
+        getCompensationY() {
+            return state.get('config.scroll.compensation.y') || 0;
+        },
+        getSVGIconSrc(svg) {
+            if (typeof iconsCache[svg] === 'string')
+                return iconsCache[svg];
+            iconsCache[svg] = 'data:image/svg+xml;base64,' + btoa(svg);
+            return iconsCache[svg];
+        },
+        /**
+         * Destroy things to release memory
+         */
+        destroy() {
+            $state = undefined;
+            for (const unsubscribe of unsubscribers) {
+                unsubscribe();
+            }
+            unsubscribers = [];
+            if (api.debug) {
+                // @ts-ignore
+                delete window.state;
+            }
+        }
+    };
+    if (api.debug) {
+        // @ts-ignore
+        window.state = state;
+        // @ts-ignore
+        window.api = api;
+    }
+    return api;
+}
+
 /**
  * Gantt-Schedule-Timeline-Calendar
  *
@@ -602,5 +8483,69 @@ class TimeApi{constructor(t){this.utcMode=!1,this.state=t,this.locale=t.get("con
  * @package   gantt-schedule-timeline-calendar
  * @license   GPL-3.0
  */
-function GSTC(t){const e=t.state,n=function getInternalApi(t){let e=t.get(),n=[];const i={},s={name:ut,debug:!1,setVido(t){},log(...t){this.debug&&console.log.call(console,...t)},mergeDeep:mergeDeep$1,getClass(t){let e=`${ut}__${t}`;return t===this.name&&(e=this.name),e},allActions:[],getActions(e){this.allActions.includes(e)||this.allActions.push(e);let n=t.get("config.actions."+e);return void 0===n&&(n=[]),n.slice()},isItemInViewport:(t,e,n)=>t.time.start>=e&&t.time.start<n||t.time.end>=e&&t.time.end<n||t.time.start<=e&&t.time.end>=n,fillEmptyRowValues(t){let n=0;for(const i in t){const s=t[i];s._internal={parents:[],children:[],items:[]},"number"!=typeof s.height&&(s.height=e.config.list.rowHeight),"boolean"!=typeof s.expanded&&(s.expanded=!1),s.top=n,n+=s.height}return t},generateParents(t,e="parentId"){const n={};for(const i of t){const t=void 0!==i[e]?i[e]:"";void 0===n[t]&&(n[t]={}),n[t][i.id]=i}return n},fastTree(t,e,n=[]){const i=t[e.id];if(e._internal.parents=n,void 0===i)return e._internal.children=[],e;""!==e.id&&(n=[...n,e.id]),e._internal.children=Object.values(i);for(const e in i){const s=i[e];this.fastTree(t,s,n)}return e},makeTreeMap(t,e){const n=this.generateParents(e,"rowId");for(const e of t)e._internal.items=void 0!==n[e.id]?Object.values(n[e.id]):[];const i=this.generateParents(t);return this.fastTree(i,{id:"",_internal:{children:[],parents:[],items:[]}})},getFlatTreeMapById(t,e={}){for(const n of t._internal.children)e[n.id]=n,this.getFlatTreeMapById(n,e);return e},flattenTreeMap(t,e=[]){for(const n of t._internal.children)e.push(n.id),this.flattenTreeMap(n,e);return e},getRowsFromMap:(t,e)=>t.map(t=>e[t.id]),getRowsFromIds(t,e){const n=[];for(const i of t)n.push(e[i]);return n},getRowsWithParentsExpanded(t,e,n){if(!t||!e||!n||0===t.length||0===e.length||0===Object.keys(n).length)return[];const i=[];t:for(const s of t){for(const t of e[s]._internal.parents){if(!n[t].expanded)continue t}i.push(s)}return i},getRowsHeight(t){let e=0;for(const n of t)n&&(e+=n.height);return e},getVisibleRowsAndCompensation(e){const n=[];let i=0,s=0;const o=t.get("config.scroll.top"),r=t.get("_internal.height");let a=0,l=0;for(const t of e)if(void 0!==t&&(a=o+r,i+t.height>=o&&i<=a&&(t.top=s,l=t.top+o-i,s+=t.height,n.push(t)),i+=t.height,i>=a))break;return{visibleRows:n,compensation:l}},normalizeMouseWheelEvent(t){let e=t.deltaX||0,n=t.deltaY||0,i=t.deltaZ||0;const s=t.deltaMode,o=parseInt(getComputedStyle(t.target).getPropertyValue("line-height"));let r=1;switch(s){case 1:r=o;break;case 2:r=window.height}return e*=r,n*=r,i*=r,{x:e,y:n,z:i,event:t}},normalizePointerEvent(t){const e={x:0,y:0,pageX:0,pageY:0,clientX:0,clientY:0,screenX:0,screenY:0};switch(t.type){case"wheel":const n=this.normalizeMouseWheelEvent(t);e.x=n.x,e.y=n.y,e.pageX=e.x,e.pageY=e.y,e.screenX=e.x,e.screenY=e.y,e.clientX=e.x,e.clientY=e.y;break;case"touchstart":case"touchmove":case"touchend":case"touchcancel":e.x=t.changedTouches[0].screenX,e.y=t.changedTouches[0].screenY,e.pageX=t.changedTouches[0].pageX,e.pageY=t.changedTouches[0].pageY,e.screenX=t.changedTouches[0].screenX,e.screenY=t.changedTouches[0].screenY,e.clientX=t.changedTouches[0].clientX,e.clientY=t.changedTouches[0].clientY;break;default:e.x=t.x,e.y=t.y,e.pageX=t.pageX,e.pageY=t.pageY,e.screenX=t.screenX,e.screenY=t.screenY,e.clientX=t.clientX,e.clientY=t.clientY}return e},limitScroll(e,n){if("top"===e){const e=t.get("_internal.list.rowsHeight")-t.get("_internal.height");return n<0?n=0:n>e&&(n=e),n}{const e=t.get("_internal.chart.time.totalViewDurationPx")-t.get("_internal.chart.dimensions.width");return n<0?n=0:n>e&&(n=e),n}},time:new TimeApi(t),getScrollBarHeight(t=0){const e=document.createElement("div");e.style.visibility="hidden",e.style.height="100px",document.body.appendChild(e);const n=e.offsetHeight;e.style.msOverflowStyle="scrollbar",e.style.overflow="scroll";const i=document.createElement("div");i.style.height="100%",e.appendChild(i);const s=i.offsetHeight;return e.parentNode.removeChild(e),n-s+t},getGridBlocksUnderRect(e,n,i,s){if(!t.get("_internal.elements.main"))return[]},getCompensationX:()=>t.get("config.scroll.compensation.x")||0,getCompensationY:()=>t.get("config.scroll.compensation.y")||0,getSVGIconSrc:t=>"string"==typeof i[t]?i[t]:(i[t]="data:image/svg+xml;base64,"+btoa(t),i[t]),destroy(){e=void 0;for(const t of n)t();n=[],s.debug&&delete window.state}};return s.debug&&(window.state=t,window.api=s),s}(e),i={components:{Main:Main},scrollBarHeight:n.getScrollBarHeight(2),height:0,treeMap:{},flatTreeMap:[],flatTreeMapById:{},list:{expandedHeight:0,visibleRows:[],rows:{},width:0},dimensions:{width:0,height:0},chart:{dimensions:{width:0,innerWidth:0},visibleItems:[],time:{dates:{},timePerPixel:0,firstTaskTime:0,lastTaskTime:0,totalViewDurationMs:0,totalViewDurationPx:0,leftGlobal:0,rightGlobal:0,leftPx:0,rightPx:0,leftInner:0,rightInner:0,maxWidth:{}}},elements:{}};"boolean"==typeof t.debug&&t.debug&&(window.state=e),e.update("",t=>({config:t.config,_internal:i}));const s=Vido(e,n);return n.setVido(s),{state:e,app:s.createApp({component:Main,props:{},element:t.element})}}GSTC.api=pt;export default GSTC;
+function GSTC(options) {
+    const state = options.state;
+    const api = getInternalApi(state);
+    const _internal = {
+        components: {
+            Main
+        },
+        scrollBarHeight: api.getScrollBarHeight(2),
+        height: 0,
+        treeMap: {},
+        flatTreeMap: [],
+        flatTreeMapById: {},
+        list: {
+            expandedHeight: 0,
+            visibleRows: [],
+            rows: {},
+            width: 0
+        },
+        dimensions: {
+            width: 0,
+            height: 0
+        },
+        chart: {
+            dimensions: {
+                width: 0,
+                innerWidth: 0
+            },
+            visibleItems: [],
+            time: {
+                dates: {},
+                timePerPixel: 0,
+                firstTaskTime: 0,
+                lastTaskTime: 0,
+                totalViewDurationMs: 0,
+                totalViewDurationPx: 0,
+                leftGlobal: 0,
+                rightGlobal: 0,
+                leftPx: 0,
+                rightPx: 0,
+                leftInner: 0,
+                rightInner: 0,
+                maxWidth: {}
+            }
+        },
+        elements: {}
+    };
+    if (typeof options.debug === 'boolean' && options.debug) {
+        // @ts-ignore
+        window.state = state;
+    }
+    state.update('', oldValue => {
+        return {
+            config: oldValue.config,
+            _internal
+        };
+    });
+    // @ts-ignore
+    const vido = Vido(state, api);
+    api.setVido(vido);
+    const app = vido.createApp({ component: Main, props: {}, element: options.element });
+    return { state, app };
+}
+GSTC.api = publicApi;
+
+export default GSTC;
 //# sourceMappingURL=index.esm.js.map

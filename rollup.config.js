@@ -2,6 +2,7 @@ import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import typescript from 'rollup-plugin-typescript';
 import livereload from 'rollup-plugin-livereload';
+import minifyHTML from 'rollup-plugin-minify-html-literals';
 import { terser } from 'rollup-plugin-terser';
 
 import stylusLib from 'stylus';
@@ -71,12 +72,7 @@ const devFiles = [
       resolve({
         browser: true
       }),
-      commonjs({ extensions: ['.js', '.ts'] }),
-      production &&
-        terser({
-          keep_classnames: true,
-          keep_fnames: true
-        })
+      commonjs({ extensions: ['.js', '.ts'] })
     ]
   },
   {
@@ -181,6 +177,7 @@ const prodFiles = Array.prototype.concat(devFiles, [
         browser: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
+      minifyHTML(),
       terser({
         keep_classnames: true,
         keep_fnames: true
@@ -200,6 +197,7 @@ const prodFiles = Array.prototype.concat(devFiles, [
         browser: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
+      minifyHTML(),
       terser({
         keep_classnames: true,
         keep_fnames: true
@@ -221,11 +219,11 @@ const prodFiles = Array.prototype.concat(devFiles, [
         browser: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
-      production &&
-        terser({
-          keep_classnames: true,
-          keep_fnames: true
-        })
+      minifyHTML(),
+      terser({
+        keep_classnames: true,
+        keep_fnames: true
+      })
     ]
   },
   {
@@ -242,11 +240,11 @@ const prodFiles = Array.prototype.concat(devFiles, [
         browser: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
-      production &&
-        terser({
-          keep_classnames: true,
-          keep_fnames: true
-        })
+      minifyHTML(),
+      terser({
+        keep_classnames: true,
+        keep_fnames: true
+      })
     ]
   },
   {
@@ -263,11 +261,11 @@ const prodFiles = Array.prototype.concat(devFiles, [
         browser: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
-      production &&
-        terser({
-          keep_classnames: true,
-          keep_fnames: true
-        })
+      minifyHTML(),
+      terser({
+        keep_classnames: true,
+        keep_fnames: true
+      })
     ]
   },
   {
@@ -284,11 +282,11 @@ const prodFiles = Array.prototype.concat(devFiles, [
         browser: true
       }),
       commonjs({ extensions: ['.js', '.ts'] }),
-      production &&
-        terser({
-          keep_classnames: true,
-          keep_fnames: true
-        })
+      minifyHTML(),
+      terser({
+        keep_classnames: true,
+        keep_fnames: true
+      })
     ]
   }
 ]);
