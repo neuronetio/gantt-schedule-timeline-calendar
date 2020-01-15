@@ -111,9 +111,9 @@ const app = GSTC({
 
 Your configuration will be merged recursively with default configuration options ([default-config](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/default-config.ts)) so almost all options are optional.
 
-TIP: take a look at [types](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/types.d.ts) or [default-config](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/default-config.ts)
+**TIP**: most of the time when you need to modify html or add some events you will need to use [actions](#actions)
 
-TIP: most of the time when you need to modify html or add some events you will need to use [actions](#actions)
+**TIP**: take a look at [types](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/types.d.ts) or [default-config](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/default-config.ts)
 
 - `height` `{number}` - component height in pixels
 - `headerHeight` `{number}` - height of header and calendar in pixels
