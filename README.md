@@ -477,17 +477,23 @@ const config = {
 Actions can be classes too - with `constructor`, `update` and `destroy` methods.
 
 ```javascript
-class AddItemTitle {
-  contructor(element, data) {
-    element.title = data.item.label;
+class ItemClickAction {
+  constructor(element, data) {
+    this.data = data;
+    this.onClick = this.onClick.bind(this);
+    element.addEventListener('click', this.onClick);
   }
 
   update(element, data) {
-    element.title = data.item.label;
+    this.data = data;
   }
 
   destroy(element, data) {
-    element.title = '';
+    element.removeEventListener('click', this.onClick);
+  }
+
+  onClick(event) {
+    alert(`Item ${this.data.item.id} clicked!`);
   }
 }
 ```
