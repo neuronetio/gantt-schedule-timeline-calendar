@@ -444,6 +444,36 @@ const config = {
 };
 ```
 
+Add item click event example:
+
+```javascript
+function eventClickHandler(event, data) {
+  alert(`Event ${data.item.id} clicked!`);
+}
+function clickAction(element, data) {
+  function onEventClick(event) {
+    // data variable will be updated in update method below so it will be always actual
+    eventClickHandler(event, data);
+  }
+  element.addEventListener('click', onEventClick);
+  return {
+    update(element, newData) {
+      data = newData;
+    },
+    destroy(element, data) {
+      element.removeEventListener('click', onEventClick);
+    }
+  };
+}
+const config = {
+  /* ... */
+  actions: {
+    'chart-timeline-items-row-item': [clickAction]
+  }
+  /* ... */
+};
+```
+
 Actions can be classes too - with `constructor`, `update` and `destroy` methods.
 
 ```javascript
