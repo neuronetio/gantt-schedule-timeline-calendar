@@ -447,24 +447,25 @@ const config = {
 Add item click event example:
 
 ```javascript
-function eventClickHandler(event, data) {
-  alert(`Event ${data.item.id} clicked!`);
-}
 function clickAction(element, data) {
-  function onEventClick(event) {
+  function onClick(event) {
     // data variable will be updated in update method below so it will be always actual
-    eventClickHandler(event, data);
+    alert(`Event ${data.item.id} clicked!`);
   }
-  element.addEventListener('click', onEventClick);
+
+  element.addEventListener('click', onClick);
+
   return {
     update(element, newData) {
-      data = newData;
+      data = newData; // data from parent scope updated
     },
+
     destroy(element, data) {
-      element.removeEventListener('click', onEventClick);
+      element.removeEventListener('click', onClick);
     }
   };
 }
+
 const config = {
   /* ... */
   actions: {
@@ -496,6 +497,14 @@ class ItemClickAction {
     alert(`Item ${this.data.item.id} clicked!`);
   }
 }
+
+const config = {
+  /* ... */
+  actions: {
+    'chart-timeline-items-row-item': [ItemClickAction]
+  }
+  /* ... */
+};
 ```
 
 ### wrappers
