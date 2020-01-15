@@ -113,6 +113,8 @@ Your configuration will be merged recursively with default configuration options
 
 TIP: take a look at [types](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/types.d.ts) or [default-config](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/src/default-config.ts)
 
+TIP: most of the time when you need to modify html or add some events you will need to use [actions](#actions)
+
 - `height` `{number}` - component height in pixels
 - `headerHeight` `{number}` - height of header and calendar in pixels
 - `list` `{object}` - [list configuration](#list)
