@@ -59,42 +59,6 @@ export default function Chart(vido, props = {}) {
     )
   );
 
-  function onScroll(event) {
-    let scrollLeft, scrollTop;
-    if (event.type === 'scroll') {
-      state.update('config.scroll.left', event.target.scrollLeft);
-      scrollLeft = event.target.scrollLeft;
-    } else {
-      const wheel = api.normalizeMouseWheelEvent(event);
-      const xMultiplier = state.get('config.scroll.xMultiplier');
-      const yMultiplier = state.get('config.scroll.yMultiplier');
-      if (event.shiftKey && wheel.y) {
-        state.update('config.scroll.left', left => {
-          return (scrollLeft = api.limitScroll('left', (left += wheel.y * xMultiplier)));
-        });
-      } else if (wheel.x) {
-        state.update('config.scroll.left', left => {
-          return (scrollLeft = api.limitScroll('left', (left += wheel.x * xMultiplier)));
-        });
-      } else {
-        state.update('config.scroll.top', top => {
-          return (scrollTop = api.limitScroll('top', (top += wheel.y * yMultiplier)));
-        });
-      }
-    }
-    const chart = state.get('_internal.elements.chart');
-    const scrollInner = state.get('_internal.elements.horizontal-scroll-inner');
-    if (chart) {
-      const scrollLeft = state.get('config.scroll.left');
-      let percent = 0;
-      if (scrollLeft) {
-        percent = Math.round((scrollLeft / (scrollInner.clientWidth - chart.clientWidth)) * 100);
-        if (percent > 100) percent = 100;
-      }
-      state.update('config.scroll.percent.left', percent);
-    }
-  }
-
   function bindElement(element) {
     if (!scrollElement) {
       scrollElement = element;
@@ -136,9 +100,9 @@ export default function Chart(vido, props = {}) {
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions} @wheel=${onScroll}>
+        <div class=${className} data-actions=${actions}>
           ${Calendar.html()}${Timeline.html()}
-          <div class=${classNameScroll} style=${scrollStyleMap} data-actions=${scrollActions} @scroll=${onScroll}>
+          <div class=${classNameScroll} style=${scrollStyleMap} data-actions=${scrollActions}>
             <div class=${classNameScrollInner} style=${scrollInnerStyleMap} data-actions=${scrollAreaActions} />
           </div>
         </div>

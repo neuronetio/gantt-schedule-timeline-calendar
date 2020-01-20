@@ -4601,6 +4601,8 @@ function Main(vido, props = {}) {
      * @param {MouseEvent} event
      */
     function handleEvent(event) {
+        event.stopPropagation();
+        event.preventDefault();
         if (event.type === 'scroll') {
             // @ts-ignore
             const top = event.target.scrollTop;
@@ -4646,19 +4648,10 @@ function Main(vido, props = {}) {
         }
     }
     const onScroll = {
-        handleEvent: handleEvent,
-        passive: true,
+        handleEvent,
+        passive: false,
         capture: false
     };
-    /**
-     * Stop scroll / wheel to sink into parent elements
-     * @param {Event} event
-     */
-    function onScrollStop(event) {
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        event.preventDefault();
-    }
     const dimensions = { width: 0, height: 0 };
     let ro;
     /**
@@ -4694,21 +4687,21 @@ function Main(vido, props = {}) {
     });
     /**
      * Bind scroll element
-     * @param {Element} element
+     * @param {HTMLElement} element
      */
-    const bindScrollElement = (element) => {
+    function bindScrollElement(element) {
         if (!verticalScrollBarElement) {
             verticalScrollBarElement = element;
             state.update('_internal.elements.vertical-scroll', element);
         }
-    };
+    }
     /**
      * Bind scroll inner element
      * @param {Element} element
      */
-    const bindScrollInnerElement = (element) => {
+    function bindScrollInnerElement(element) {
         state.update('_internal.elements.vertical-scroll-inner', element);
-    };
+    }
     const actionProps = Object.assign(Object.assign({}, props), { api, state });
     const mainActions = Actions.create(componentActions, actionProps);
     const verticalScrollActions = Actions.create([bindScrollElement]);
@@ -4718,8 +4711,8 @@ function Main(vido, props = {}) {
           data-info-url="https://github.com/neuronetio/gantt-schedule-timeline-calendar"
           class=${className}
           style=${styleMap}
-          @scroll=${onScrollStop}
-          @wheel=${onScrollStop}
+          @scroll=${onScroll}
+          @wheel=${onScroll}
           data-actions=${mainActions}
         >
           ${List.html()}${Chart.html()}
@@ -5617,45 +5610,6 @@ function Chart(vido, props = {}) {
         scrollInnerStyleMap.style.height = '1px';
         update();
     }));
-    function onScroll(event) {
-        let scrollLeft, scrollTop;
-        if (event.type === 'scroll') {
-            state.update('config.scroll.left', event.target.scrollLeft);
-            scrollLeft = event.target.scrollLeft;
-        }
-        else {
-            const wheel = api.normalizeMouseWheelEvent(event);
-            const xMultiplier = state.get('config.scroll.xMultiplier');
-            const yMultiplier = state.get('config.scroll.yMultiplier');
-            if (event.shiftKey && wheel.y) {
-                state.update('config.scroll.left', left => {
-                    return (scrollLeft = api.limitScroll('left', (left += wheel.y * xMultiplier)));
-                });
-            }
-            else if (wheel.x) {
-                state.update('config.scroll.left', left => {
-                    return (scrollLeft = api.limitScroll('left', (left += wheel.x * xMultiplier)));
-                });
-            }
-            else {
-                state.update('config.scroll.top', top => {
-                    return (scrollTop = api.limitScroll('top', (top += wheel.y * yMultiplier)));
-                });
-            }
-        }
-        const chart = state.get('_internal.elements.chart');
-        const scrollInner = state.get('_internal.elements.horizontal-scroll-inner');
-        if (chart) {
-            const scrollLeft = state.get('config.scroll.left');
-            let percent = 0;
-            if (scrollLeft) {
-                percent = Math.round((scrollLeft / (scrollInner.clientWidth - chart.clientWidth)) * 100);
-                if (percent > 100)
-                    percent = 100;
-            }
-            state.update('config.scroll.percent.left', percent);
-        }
-    }
     function bindElement(element) {
         if (!scrollElement) {
             scrollElement = element;
@@ -5691,9 +5645,9 @@ function Chart(vido, props = {}) {
     const scrollActions = Actions.create([bindElement]);
     const scrollAreaActions = Actions.create([bindInnerScroll]);
     return templateProps => wrapper(html `
-        <div class=${className} data-actions=${actions} @wheel=${onScroll}>
+        <div class=${className} data-actions=${actions}>
           ${Calendar.html()}${Timeline.html()}
-          <div class=${classNameScroll} style=${scrollStyleMap} data-actions=${scrollActions} @scroll=${onScroll}>
+          <div class=${classNameScroll} style=${scrollStyleMap} data-actions=${scrollActions}>
             <div class=${classNameScrollInner} style=${scrollInnerStyleMap} data-actions=${scrollAreaActions} />
           </div>
         </div>
@@ -8325,12 +8279,13 @@ function getInternalApi(state) {
             let z = event.deltaZ || 0;
             // @ts-ignore
             const mode = event.deltaMode;
-            // @ts-ignore
-            const lineHeight = parseInt(getComputedStyle(event.target).getPropertyValue('line-height'));
+            const lineHeight = state.get('config.list.rowHeight');
             let scale = 1;
             switch (mode) {
                 case 1:
-                    scale = lineHeight;
+                    if (lineHeight) {
+                        scale = lineHeight;
+                    }
                     break;
                 case 2:
                     // @ts-ignore

@@ -4,6 +4,7 @@
   color: #606060;
   font-size: 14px;
   background-color: #fdfdfd;
+  line-height: 1.2;
 }
 .gantt-schedule-timeline-calendar * {
   box-sizing: border-box;

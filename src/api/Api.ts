@@ -268,12 +268,13 @@ export function getInternalApi(state) {
       let z = event.deltaZ || 0;
       // @ts-ignore
       const mode = event.deltaMode;
-      // @ts-ignore
-      const lineHeight = parseInt(getComputedStyle(event.target).getPropertyValue('line-height'));
+      const lineHeight = state.get('config.list.rowHeight');
       let scale = 1;
       switch (mode) {
         case 1:
-          scale = lineHeight;
+          if (lineHeight) {
+            scale = lineHeight;
+          }
           break;
         case 2:
           // @ts-ignore

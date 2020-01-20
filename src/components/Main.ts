@@ -333,6 +333,8 @@ export default function Main(vido, props = {}) {
    * @param {MouseEvent} event
    */
   function handleEvent(event: MouseEvent) {
+    event.stopPropagation();
+    event.preventDefault();
     if (event.type === 'scroll') {
       // @ts-ignore
       const top = event.target.scrollTop;
@@ -376,20 +378,10 @@ export default function Main(vido, props = {}) {
   }
 
   const onScroll = {
-    handleEvent: handleEvent,
-    passive: true,
+    handleEvent,
+    passive: false,
     capture: false
   };
-
-  /**
-   * Stop scroll / wheel to sink into parent elements
-   * @param {Event} event
-   */
-  function onScrollStop(event: Event) {
-    event.stopPropagation();
-    event.stopImmediatePropagation();
-    event.preventDefault();
-  }
 
   const dimensions = { width: 0, height: 0 };
   let ro;
@@ -428,22 +420,22 @@ export default function Main(vido, props = {}) {
 
   /**
    * Bind scroll element
-   * @param {Element} element
+   * @param {HTMLElement} element
    */
-  const bindScrollElement = (element: Element) => {
+  function bindScrollElement(element: HTMLElement) {
     if (!verticalScrollBarElement) {
       verticalScrollBarElement = element;
       state.update('_internal.elements.vertical-scroll', element);
     }
-  };
+  }
 
   /**
    * Bind scroll inner element
    * @param {Element} element
    */
-  const bindScrollInnerElement = (element: Element) => {
+  function bindScrollInnerElement(element: Element) {
     state.update('_internal.elements.vertical-scroll-inner', element);
-  };
+  }
 
   const actionProps = { ...props, api, state };
   const mainActions = Actions.create(componentActions, actionProps);
@@ -457,8 +449,8 @@ export default function Main(vido, props = {}) {
           data-info-url="https://github.com/neuronetio/gantt-schedule-timeline-calendar"
           class=${className}
           style=${styleMap}
-          @scroll=${onScrollStop}
-          @wheel=${onScrollStop}
+          @scroll=${onScroll}
+          @wheel=${onScroll}
           data-actions=${mainActions}
         >
           ${List.html()}${Chart.html()}
