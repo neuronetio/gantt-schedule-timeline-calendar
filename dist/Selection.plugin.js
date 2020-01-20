@@ -442,8 +442,9 @@
                  * @param {MouseEvent} ev
                  */
                 const saveAndSwapIfNeeded = (ev) => {
-                    const currentX = ev.x - this.left;
-                    const currentY = ev.y - this.top;
+                    const normalized = vido.api.normalizePointerEvent(ev);
+                    const currentX = normalized.x - this.left;
+                    const currentY = normalized.y - this.top;
                     if (currentX <= selecting.startX) {
                         selecting.fromX = currentX;
                         selecting.toX = selecting.startX;
@@ -489,7 +490,7 @@
                  * @param {string} type
                  * @returns {string[]}
                  */
-                const getSelecting = (rectBoundingRect, elements, type, getId) => {
+                function getSelecting(rectBoundingRect, elements, type, getId) {
                     const selectingResult = [];
                     const currentlySelectingData = [];
                     const all = elements[type + 's'];
@@ -519,15 +520,14 @@
                         }
                     }
                     return selectingResult;
-                };
-                /**
-                 * Select
-                 * @param {Event} ev
-                 */
+                }
                 function trackSelection(ev, virtually = false) {
                     const movement = state.get('config.plugin.ItemMovement.movement');
                     const moving = movement && (movement.moving || movement.waiting);
                     if (!selecting.selecting || moving) {
+                        if (moving) {
+                            selecting.selecting = false;
+                        }
                         return;
                     }
                     clearSelection(false, true);
@@ -555,7 +555,8 @@
                     if (selecting.selecting) {
                         ev.stopPropagation();
                         ev.preventDefault();
-                        if (selecting.fromX === ev.x - this.left && selecting.fromY === ev.y - this.top) {
+                        const normalized = vido.api.normalizePointerEvent(ev);
+                        if (selecting.fromX === normalized.x - this.left && selecting.fromY === normalized.y - this.top) {
                             selecting.selecting = false;
                             rect.style.visibility = 'hidden';
                             return;
@@ -582,12 +583,13 @@
                 this.mouseDown = ev => {
                     const movement = state.get('config.plugin.ItemMovement.movement');
                     const moving = movement && movement.moving;
-                    if (ev.button !== 0 || moving) {
+                    if ((ev.type === 'mousedown' && ev.button !== 0) || moving) {
                         return;
                     }
+                    const normalized = vido.api.normalizePointerEvent(ev);
                     selecting.selecting = true;
-                    selecting.fromX = ev.x - this.left;
-                    selecting.fromY = ev.y - this.top;
+                    selecting.fromX = normalized.x - this.left;
+                    selecting.fromY = normalized.y - this.top;
                     selecting.startX = selecting.fromX;
                     selecting.startY = selecting.fromY;
                     previousSelect = cloneSelection(state.get(pluginPath));
@@ -615,14 +617,20 @@
                     }
                 };
                 element.addEventListener('mousedown', this.mouseDown);
-                document.addEventListener('mousemove', schedule(this.mouseMove));
+                element.addEventListener('touchstart', this.mouseDown);
+                document.addEventListener('mousemove', this.mouseMove);
+                document.addEventListener('touchmove', this.mouseMove);
                 document.addEventListener('mouseup', this.mouseUp);
+                document.addEventListener('touchend', this.mouseUp);
                 options.getApi(api);
             }
             destroy(element) {
                 document.removeEventListener('mouseup', this.mouseUp);
+                document.removeEventListener('touchend', this.mouseUp);
                 document.removeEventListener('mousemove', this.mouseMove);
+                document.removeEventListener('touchmove', this.mouseMove);
                 element.removeEventListener('mousedown', this.mouseDown);
+                element.removeEventListener('touchstart', this.mouseDown);
                 this.unsub();
             }
         }
@@ -630,8 +638,8 @@
          * Update selection
          * @param {any} data
          * @param {HTMLElement} element
-         * @param {string[]} selecting
-         * @param {string[]} selected
+         * @param {boolean} selecting
+         * @param {boolean} selected
          * @param {string} classNameSelecting
          * @param {string} classNameSelected
          */

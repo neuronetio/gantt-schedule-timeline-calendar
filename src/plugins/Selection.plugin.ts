@@ -403,8 +403,9 @@ export default function Selection(options: Options = {}) {
        * @param {MouseEvent} ev
        */
       const saveAndSwapIfNeeded = (ev: MouseEvent) => {
-        const currentX = ev.x - this.left;
-        const currentY = ev.y - this.top;
+        const normalized = vido.api.normalizePointerEvent(ev);
+        const currentX = normalized.x - this.left;
+        const currentY = normalized.y - this.top;
         if (currentX <= selecting.startX) {
           selecting.fromX = currentX;
           selecting.toX = selecting.startX;
@@ -454,7 +455,7 @@ export default function Selection(options: Options = {}) {
        * @param {string} type
        * @returns {string[]}
        */
-      const getSelecting = (rectBoundingRect: DOMRect, elements: Element[], type: string, getId: (any) => string) => {
+      function getSelecting(rectBoundingRect: DOMRect, elements: Element[], type: string, getId: (any) => string) {
         const selectingResult = [];
         const currentlySelectingData = [];
         const all = elements[type + 's'];
@@ -481,16 +482,15 @@ export default function Selection(options: Options = {}) {
           }
         }
         return selectingResult;
-      };
+      }
 
-      /**
-       * Select
-       * @param {Event} ev
-       */
       function trackSelection(ev, virtually = false) {
         const movement = state.get('config.plugin.ItemMovement.movement');
         const moving = movement && (movement.moving || movement.waiting);
         if (!selecting.selecting || moving) {
+          if (moving) {
+            selecting.selecting = false;
+          }
           return;
         }
         clearSelection(false, true);
@@ -519,7 +519,8 @@ export default function Selection(options: Options = {}) {
         if (selecting.selecting) {
           ev.stopPropagation();
           ev.preventDefault();
-          if (selecting.fromX === ev.x - this.left && selecting.fromY === ev.y - this.top) {
+          const normalized = vido.api.normalizePointerEvent(ev);
+          if (selecting.fromX === normalized.x - this.left && selecting.fromY === normalized.y - this.top) {
             selecting.selecting = false;
             rect.style.visibility = 'hidden';
             return;
@@ -544,12 +545,13 @@ export default function Selection(options: Options = {}) {
       this.mouseDown = ev => {
         const movement = state.get('config.plugin.ItemMovement.movement');
         const moving = movement && movement.moving;
-        if (ev.button !== 0 || moving) {
+        if ((ev.type === 'mousedown' && ev.button !== 0) || moving) {
           return;
         }
+        const normalized = vido.api.normalizePointerEvent(ev);
         selecting.selecting = true;
-        selecting.fromX = ev.x - this.left;
-        selecting.fromY = ev.y - this.top;
+        selecting.fromX = normalized.x - this.left;
+        selecting.fromY = normalized.y - this.top;
         selecting.startX = selecting.fromX;
         selecting.startY = selecting.fromY;
         previousSelect = cloneSelection(state.get(pluginPath));
@@ -579,15 +581,21 @@ export default function Selection(options: Options = {}) {
       };
 
       element.addEventListener('mousedown', this.mouseDown);
-      document.addEventListener('mousemove', schedule(this.mouseMove));
+      element.addEventListener('touchstart', this.mouseDown);
+      document.addEventListener('mousemove', this.mouseMove);
+      document.addEventListener('touchmove', this.mouseMove);
       document.addEventListener('mouseup', this.mouseUp);
+      document.addEventListener('touchend', this.mouseUp);
       options.getApi(api);
     }
 
     public destroy(element) {
       document.removeEventListener('mouseup', this.mouseUp);
+      document.removeEventListener('touchend', this.mouseUp);
       document.removeEventListener('mousemove', this.mouseMove);
+      document.removeEventListener('touchmove', this.mouseMove);
       element.removeEventListener('mousedown', this.mouseDown);
+      element.removeEventListener('touchstart', this.mouseDown);
       this.unsub();
     }
   }
@@ -596,15 +604,15 @@ export default function Selection(options: Options = {}) {
    * Update selection
    * @param {any} data
    * @param {HTMLElement} element
-   * @param {string[]} selecting
-   * @param {string[]} selected
+   * @param {boolean} selecting
+   * @param {boolean} selected
    * @param {string} classNameSelecting
    * @param {string} classNameSelected
    */
   function updateSelection(
     element: HTMLElement,
-    selecting: string[],
-    selected: string[],
+    selecting: boolean,
+    selected: boolean,
     classNameSelecting: string,
     classNameSelected: string
   ) {
