@@ -5,3 +5,4 @@ node_modules/
 tests_output/
 geckodriver.log
 chromedriver.log
+deploy.sh
