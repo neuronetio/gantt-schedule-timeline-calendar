@@ -17,7 +17,7 @@
     "url": "git+https://github.com/neuronetio/gantt-schedule-timeline-calendar.git"
   },
   "author": "Rafal Pospiech <neuronet.io@gmail.com>",
-  "license": "GPL-3.0",
+  "license": "AGPL-3.0",
   "dependencies": {
     "@neuronet.io/vido": "^2.5.9",
     "dayjs": "^1.8.17",

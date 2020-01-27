@@ -4,7 +4,7 @@
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
  * @package   gantt-schedule-timeline-calendar
- * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+ * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 function ItemHold(options = {}) {
@@ -94,7 +94,7 @@ function ItemHold(options = {}) {
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
  * @package   gantt-schedule-timeline-calendar
- * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+ * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 const pointerEventsExists = typeof PointerEvent !== 'undefined';
@@ -613,7 +613,7 @@ const defaultOptions = {
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
  * @package   gantt-schedule-timeline-calendar
- * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+ * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 function Selection(options = {}) {
@@ -1392,7 +1392,7 @@ class Nt{constructor(){this.isAction=!0;}}Nt.prototype.isAction=!0;const Et={ele
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
  * @package   gantt-schedule-timeline-calendar
- * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+ * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
  */
 function CalendarScroll(options = {}) {

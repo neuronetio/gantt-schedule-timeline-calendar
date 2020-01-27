@@ -4327,7 +4327,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function Main(vido, props = {}) {
@@ -4741,7 +4741,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function List(vido, props = {}) {
@@ -4861,7 +4861,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     /**
@@ -5005,7 +5005,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnHeader(vido, props) {
@@ -5090,7 +5090,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnHeaderResizer(vido, props) {
@@ -5192,7 +5192,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     /**
@@ -5387,7 +5387,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnRowExpander(vido, props) {
@@ -5433,7 +5433,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListColumnRowExpanderToggle(vido, props) {
@@ -5542,7 +5542,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ListToggle(vido, props = {}) {
@@ -5582,7 +5582,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function Chart(vido, props = {}) {
@@ -5704,7 +5704,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ChartCalendar(vido, props) {
@@ -5768,7 +5768,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     /**
@@ -6117,7 +6117,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ChartTimeline(vido, props) {
@@ -6205,7 +6205,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     /**
@@ -6321,7 +6321,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     /**
@@ -6427,7 +6427,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     /**
@@ -6530,7 +6530,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     function ChartTimelineItems(vido, props = {}) {
@@ -6585,7 +6585,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     /**
@@ -6709,7 +6709,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+     * @license   AGPL-3.0 (https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
      * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
      */
     /**
@@ -6841,7 +6841,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0
+     * @license   AGPL-3.0
      */
     const actionNames = [
         'main',
@@ -7102,7 +7102,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0
+     * @license   AGPL-3.0
      */
     class TimeApi {
         constructor(state) {
@@ -8093,7 +8093,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0
+     * @license   AGPL-3.0
      */
     const lib = 'gantt-schedule-timeline-calendar';
     function mergeActions(userConfig, defaultConfig) {
@@ -8480,7 +8480,7 @@
      * @copyright Rafal Pospiech <https://neuronet.io>
      * @author    Rafal Pospiech <neuronet.io@gmail.com>
      * @package   gantt-schedule-timeline-calendar
-     * @license   GPL-3.0
+     * @license   AGPL-3.0
      */
     function GSTC(options) {
         const state = options.state;
