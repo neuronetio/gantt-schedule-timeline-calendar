@@ -139,6 +139,22 @@ const devFiles = [
     ]
   },
   {
+    input: 'src/plugins/WeekendHighlight.plugin.ts',
+    output: {
+      sourcemap: true,
+      file: 'dist/WeekendHighlight.plugin.js',
+      format: 'umd',
+      name: 'WeekendHighlight'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] })
+    ]
+  },
+  {
     input: 'src/plugins/plugins.ts',
     output: {
       sourcemap: true,
@@ -253,6 +269,48 @@ const prodFiles = Array.prototype.concat(devFiles, [
       file: 'dist/Selection.plugin.min.js',
       format: 'umd',
       name: 'Selection'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] }),
+      terser({
+        //keep_classnames: true,
+        //keep_fnames: true,
+        output: { comments: false }
+      })
+    ]
+  },
+  {
+    input: 'src/plugins/CalendarScroll.plugin.ts',
+    output: {
+      sourcemap: false,
+      file: 'dist/CalendarScroll.plugin.min.js',
+      format: 'umd',
+      name: 'CalendarScroll'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] }),
+      terser({
+        //keep_classnames: true,
+        //keep_fnames: true,
+        output: { comments: false }
+      })
+    ]
+  },
+  {
+    input: 'src/plugins/WeekendHighlight.plugin.ts',
+    output: {
+      sourcemap: false,
+      file: 'dist/WeekendHighlight.plugin.min.js',
+      format: 'umd',
+      name: 'WeekendHighlight'
     },
     plugins: [
       typescript({ target: 'es6' }),
