@@ -328,7 +328,7 @@
   background: rgba(0,119,192,0.75) !important;
 }
 .gantt-schedule-timeline-calendar__chart-timeline-grid-row-block.current {
-  background: #f9fafb;
+  background: rgba(241,196,15,0.1);
 }
 .gantt-schedule-timeline-calendar__chart-timeline-grid-row-block--weekend {
   background: #f9fafb;
