@@ -618,13 +618,21 @@ function ExampleComponent(vido, props) {
 By default there are couple of plugins available:
 
 - [CalendarScroll](#calendarscroll-plugin)
-- **ItemMovement** - you will be able to move / resize items
-- **Selection** - with this plugin you can select cells or items and fire some action
-- **WeekendHighlight** - highlight weekends :)
+- [ItemMovement](#itemmovement-plugin)
+- [Selection](#selection-plugin)
+- [WeekendHighlight](#weekendhighlight-plugin)
 
 #### CalendarScroll plugin
 
-you will be able shift / scroll view horizontally by grabbing and moving dates at the top
+With this plugin you will be able shift / scroll view horizontally by grabbing and moving dates at the top.
+
+##### options
+
+- `speed` `{number}` `default: 1`
+- `hideScroll` `{boolean}` `default: false` - hide gstc bottom scrollbar
+- `onChange` `{function}` - on change callback `onChange(time){/*...*/}`
+
+##### usage
 
 `<script src="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar/dist/CalendarScroll.plugin.js"></script>`
 
@@ -635,14 +643,6 @@ or from your local node_modules dir
 or
 
 `import CalendarScroll from "gantt-schedule-timeline-calendar/dist/CalendarScroll.plugin.js"`
-
-##### options
-
-- `speed` `{number}` `default: 1`
-- `hideScroll` `{boolean}` `default: false` - hide gstc bottom scrollbar
-- `onChange` `{function}` - on change callback `onChange(time){/*...*/}`
-
-##### usage
 
 ```javascript
 const config = {
@@ -660,7 +660,150 @@ const config = {
 };
 ```
 
-#### ItemMovement
+#### ItemMovement plugin
+
+With this plugin you will be able to move / resize items.
+
+##### options
+
+- `moveable` `{boolean | string}` - you can turn off moving capabilities and use just resizing feature, items also might be moveable only along with the specified axis `moveable:'x'`, `moveable:'y'`
+- `resizeable` `{boolean}` - should items be resizeable?
+- `resizerContent` `{string}` - html content of the resizer
+- `collisionDetection` `{boolean}` - block overlaping items when resizing / moving
+- `snapStart` `{function}` `(timeStart: number, startDiff: number, item: object) => number;` - function that will return new item time in miliseconds while moving - if you want snap to days - checkout example
+- `snapEnd` `{function}` `(timeEnd: number, endDiff: number, item: object) => number` same as above but for end of item `api.time.date(timeEnd+endDiff).endOf('day')`
+- `ghostNode` `{boolean}` - ghost node should be visible?
+- `wait` `{number}` - sometimes you just want to click an item and sometimes you want to move it, this option will tell gstc to wait some time while mouse button is down to turn on moving mode to prevent accidental item move while clicking - time in miliseconds
+
+##### usage
+
+`<script src="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar/dist/ItemMovement.plugin.js"></script>`
+
+or from your local node_modules dir
+
+`<script src="/node_modules/gantt-schedule-timeline-calendar/dist/ItemMovement.plugin.js"></script>`
+
+or
+
+`import ItemMovement from "gantt-schedule-timeline-calendar/dist/ItemMovement.plugin.js"`
+
+```javascript
+const config = {
+  /*...*/
+  plugins: [
+    ItemMovement({
+      moveable: 'x',
+      resizerContent: '<div class="resizer">-></div>',
+      ghostNode: false,
+      // snap item start time to start of the day
+      snapStart(time, diff, item) {
+        return api.time
+          .date(time)
+          .add(diff, 'milliseconds')
+          .startOf('day')
+          .valueOf();
+      },
+      // snap item end time to end of the day
+      snapEnd(time, diff, item) {
+        return api.time
+          .date(time)
+          .add(diff, 'milliseconds')
+          .endOf('day')
+          .valueOf();
+      }
+    })
+  ]
+  /*...*/
+};
+```
+
+#### Selection plugin
+
+With this plugin you can select cells or items and then fire some action.
+
+##### options
+
+- `grid` `{boolean}` - can we select grid cells?
+- `items` `{boolean}` - can we select items?
+- `rows` `{boolean}` - can we select rows?
+- `horizontal` `{boolean}` - can we select horizontally? (or just vertically if selected)
+- `vertical` `{boolean}` - can we select vertically? (or just horizontally if selected)
+- `rectStyle` `{object}` - selecting rectangle style definition as object
+- `selecting` `{function}` `(data, type: string) => void;` - event callback while selecting - will inform you what is actually selected while selecting process is running (realtime) so you can modify selected cells
+- `deselecting` `{function}` `(data, type: string) => void;` - event callback that will inform you what was unselected while selecting process is running - realtime
+- `selected` `{function}` `(data, type) => void;` - event callback fired when selection process is finished (final event) and something is selected (or not)
+- `deselected` `{function}` `(data, type) => void;` - event callback fired when something previously selected is unselected now (after selection process is finished - final)
+- `canSelect` `{function}` `(type, state, all) => any[];` - can we select this things? should return what should be selected - you can remove what you don't want to select
+- `canDeselect` `{function}` `(type, state, all) => any[];` - can we deselect this things? should return what could be unselected - you can filter it out
+
+##### usage
+
+##### usage
+
+`<script src="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar/dist/Selection.plugin.js"></script>`
+
+or from your local node_modules dir
+
+`<script src="/node_modules/gantt-schedule-timeline-calendar/dist/Selection.plugin.js"></script>`
+
+or
+
+`import Selection from "gantt-schedule-timeline-calendar/dist/Selection.plugin.js"`
+
+```javascript
+const config = {
+  /*...*/
+  plugins: [
+    Selection({
+      items: false,
+      rows: false,
+      grid: true, // select only grid cells
+      rectStyle: { opacity: '0.0' }, // hide selecting rectangle
+      // if there is an item in the current selected cell - do not select that cell
+      canSelect(type, currentlySelecting) {
+        if (type === 'chart-timeline-grid-row-block') {
+          // check if there is any item that lives inside current cell
+          return currentlySelecting.filter(selected => {
+            if (!selected.row.canSelect) return false;
+            for (const item of selected.row._internal.items) {
+              if (
+                (item.time.start >= selected.time.leftGlobal && item.time.start <= selected.time.rightGlobal) ||
+                (item.time.end >= selected.time.leftGlobal && item.time.end <= selected.time.rightGlobal) ||
+                (item.time.start <= selected.time.leftGlobal && item.time.end >= selected.time.rightGlobal)
+              ) {
+                return false;
+              }
+            }
+            return true;
+          });
+        }
+        return currentlySelecting;
+      },
+      canDeselect(type, currently, all) {
+        if (type === 'chart-timeline-grid-row-blocks') {
+          // if we are selecting we can clear previous selection by returning [] else if
+          // we are not selecting but something is already selected let it be selected - currently
+          return all.selecting['chart-timeline-grid-row-blocks'].length ? [] : currently;
+        }
+        return [];
+      },
+      selecting(data, type) {
+        //console.log(`selecting ${type}`, data);
+      },
+      deselecting(data, type) {
+        //console.log(`deselecting ${type}`, data);
+      },
+      selected(data, type) {
+        //console.log(`selected ${type}`, data);
+      },
+      deselected(data, type) {
+        //console.log(`deselected ${type}`, data);
+      }
+    })
+  ]
+  /*...*/
+};
+```
 
 #### your own plugins - example
 
