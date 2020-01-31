@@ -636,7 +636,7 @@ With this plugin you will be able shift / scroll view horizontally by grabbing a
 
 `<script src="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar/dist/CalendarScroll.plugin.js"></script>`
 
-or from your local node_modules dir
+or from your local `node_modules` dir
 
 `<script src="/node_modules/gantt-schedule-timeline-calendar/dist/CalendarScroll.plugin.js"></script>`
 
@@ -679,7 +679,7 @@ With this plugin you will be able to move / resize items.
 
 `<script src="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar/dist/ItemMovement.plugin.js"></script>`
 
-or from your local node_modules dir
+or from your local `node_modules` dir
 
 `<script src="/node_modules/gantt-schedule-timeline-calendar/dist/ItemMovement.plugin.js"></script>`
 
@@ -740,7 +740,7 @@ With this plugin you can select cells or items and then fire some action.
 
 `<script src="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar/dist/Selection.plugin.js"></script>`
 
-or from your local node_modules dir
+or from your local `node_modules` dir
 
 `<script src="/node_modules/gantt-schedule-timeline-calendar/dist/Selection.plugin.js"></script>`
 
@@ -816,7 +816,7 @@ With this plugin gantt-schedule-timeline-calendar will be able to highlight week
 
 `<script src="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar/dist/WeekendHighlight.plugin.js"></script>`
 
-or from your local node_modules dir
+or from your local `node_modules` dir
 
 `<script src="/node_modules/gantt-schedule-timeline-calendar/dist/WeekendHighlight.plugin.js"></script>`
 
