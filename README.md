@@ -738,8 +738,6 @@ With this plugin you can select cells or items and then fire some action.
 
 ##### usage
 
-##### usage
-
 `<script src="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar/dist/Selection.plugin.js"></script>`
 
 or from your local node_modules dir
@@ -799,6 +797,40 @@ const config = {
       deselected(data, type) {
         //console.log(`deselected ${type}`, data);
       }
+    })
+  ]
+  /*...*/
+};
+```
+
+#### WeekendHighliht plugin
+
+With this plugin gantt-schedule-timeline-calendar will be able to highlight weekends.
+
+##### options
+
+- `weekdays` `{number[]}` - array of weekdays we want to highlight where 0 = Sunday
+- `className` `{string}` - class that you want to add to highlighet days - `gantt-schedule-timeline-calendar__chart-timeline-grid-row-block--weekend` by default
+
+##### usage
+
+`<script src="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar/dist/WeekendHighlight.plugin.js"></script>`
+
+or from your local node_modules dir
+
+`<script src="/node_modules/gantt-schedule-timeline-calendar/dist/WeekendHighlight.plugin.js"></script>`
+
+or
+
+`import WeekendHighlight from "gantt-schedule-timeline-calendar/dist/WeekendHighlight.plugin.js"`
+
+```javascript
+const config = {
+  /*...*/
+  plugins: [
+    WeekendHighlight({
+      weekdays: [6, 0], // Saturnday, Sunday
+      className: 'your-class-for-highlighted-days'
     })
   ]
   /*...*/
