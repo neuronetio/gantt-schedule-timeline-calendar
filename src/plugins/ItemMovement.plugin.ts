@@ -10,7 +10,7 @@
 
 export interface Options {
   moveable?: boolean | string;
-  resizeable?: boolean | string;
+  resizeable?: boolean;
   resizerContent?: string;
   collisionDetection?: boolean;
   outOfBorders?: boolean;
