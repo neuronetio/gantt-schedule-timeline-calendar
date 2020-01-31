@@ -42,19 +42,9 @@
 - attractive visually
 - written in typescript
 
-<br />
-<h3 align="center">If you like it - leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a></h3>
-<br />
-
 <p>
 You can use it in <strong>react</strong>, <strong>vue</strong>, <strong>angular</strong>, <strong>svelte</strong> or any other projects.
 </p>
-
-Additional versions:
-
-- [react-gantt-schedule-timeline-calendar](https://github.com/neuronetio/react-gantt-schedule-timeline-calendar)
-- [angular-gantt-schedule-timeline-calendar](https://github.com/neuronetio/angular-gantt-schedule-timeline-calendar)
-- [vue-gantt-schedule-timeline-calendar](https://github.com/neuronetio/vue-gantt-schedule-timeline-calendar)
 
 <p>
 You can use it as <strong>schedule</strong> for reservation system. You can use it for organizing <strong>events</strong>. You can use it as <strong>gantt chart</strong>. Or you can use it as <strong>calendar</strong> for different purposes.
@@ -65,12 +55,30 @@ You can use it as <strong>schedule</strong> for reservation system. You can use 
 You can control almost everything. You can change html structure, stylize every html element and even override original components without any compilation stage!
 </p>
 
+## examples
+
+[example](https://neuronet.io/gantt-schedule-timeline-calendar/scheduler.html) or [another example](https://neuronet.io/gantt-schedule-timeline-calendar/main.html)
+
+[examples folder](https://github.com/neuronetio/gantt-schedule-timeline-calendar/tree/master/dist/examples)
+
+## react, angular and vue versions
+
+- [react-gantt-schedule-timeline-calendar](https://github.com/neuronetio/react-gantt-schedule-timeline-calendar)
+- [angular-gantt-schedule-timeline-calendar](https://github.com/neuronetio/angular-gantt-schedule-timeline-calendar)
+- [vue-gantt-schedule-timeline-calendar](https://github.com/neuronetio/vue-gantt-schedule-timeline-calendar)
+
+## screenshots
+
 <p align="center">
   <img src="https://neuronet.io/screenshots/scheduler.gif" alt="screencast-1">
   <br />
   <img src="https://neuronet.io/screenshots/gantt.gif" alt="screencast-2">
 </p>
 <hr />
+
+<br />
+<h3 align="center">If you like it - leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a></h3>
+<br />
 
 ## install
 
@@ -99,13 +107,7 @@ const app = GSTC({
 
 ## state
 
-**gantt-schedule-timeline-calendar** is using [deep-state-observer](https://github.com/neuronetio/deep-state-observer) so you can checkout its documentation and start having fun.
-
-## examples
-
-[example](https://neuronet.io/gantt-schedule-timeline-calendar/scheduler.html) or [another example](https://neuronet.io/gantt-schedule-timeline-calendar/main.html)
-
-[examples folder](https://github.com/neuronetio/gantt-schedule-timeline-calendar/tree/master/dist/examples)
+**gantt-schedule-timeline-calendar** is using [deep-state-observer](https://github.com/neuronetio/deep-state-observer) so you can checkout its documentation.
 
 ## configuration
 
