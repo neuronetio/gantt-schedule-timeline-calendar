@@ -77,7 +77,7 @@ You can control almost everything. You can change html structure, stylize every 
 <hr />
 
 <br />
-<h3 align="center">If you like it - leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a></h3>
+<h3 align="center">Remember to leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a></h3>
 <br />
 
 ## install
