@@ -10,7 +10,13 @@
 
 import { Action } from '@neuronet.io/vido';
 
-export default function CalendarScroll(options = {}) {
+export interface Options {
+  speed?: number;
+  hideScroll?: boolean;
+  onChange?: (time) => void;
+}
+
+export default function CalendarScroll(options: Options = {}) {
   let state, api, schedule;
   const defaultOptions = {
     speed: 1,
