@@ -24,9 +24,10 @@
 
 ### features
 
-- elastic - you can change almost everything from DOM tree to logic (without any compilation)
-- multiple items in one row - suitable for different usecases
-- tree like structures
+- elastic - you can change almost everything from DOM tree to logic (without any compilation, without modyfing original code - with config, state or plugin)
+- super fast! even with large dataset
+- multiple items in one row - suitable for different usecases like booking, reservation, resource manager etc.
+- tree like structures - collapsible / expandable groups
 - moveable / resizeable items
 - item movement strategies - x, xy, specified row, basically anything you want
 - snap to specified time when resizing / moving
@@ -38,7 +39,7 @@
 - you can easily stylize things when data has been changed (items, rows, grid)
 - you can easily add third party libraries
 - higly configurable
-- super fast even with large dataset
+- plugins support - no need to modify original code
 - attractive visually
 - written in typescript
 
@@ -609,6 +610,97 @@ function ExampleComponent(vido, props) {
     html`
       <div class="example-component" @click=${onClickHanlder}>Hello ${name}</div>
     `;
+}
+```
+
+### plugins
+
+By default there are couple of plugins availabe:
+
+- CalendarScroll - you will be able shift / scroll view horizontally by grabbing and moving dates at the top
+- ItemMovement - you will be able to move / resize items
+- Selection - with this plugin you can select cells or items and fire some action
+- WeekendHighlight - highlight weekends :)
+
+#### CalendarScroll plugin
+
+`<script src="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar/dist/CalendarScroll.plugin.js"></script>`
+
+or from your local node_modules dir
+
+`<script src="/node_modules/gantt-schedule-timeline-calendar/dist/CalendarScroll.plugin.js"></script>`
+
+or
+
+`import CalendarScroll from "gantt-schedule-timeline-calendar/dist/CalendarScroll.plugin.js"`
+
+##### options
+
+- `speed` `{number}` `default: 1`
+- `hideScroll` `{boolean}` `default: false` - hide gstc bottom scrollbar
+- `onChange` `{function}` - on change callback `onChange(time){/*...*/}`
+
+##### usage
+
+```javascript
+const config = {
+  /*...*/
+  plugins: [
+    CalendarScroll({
+      speed: 1,
+      hideScroll: true,
+      onChange(time) {
+        console.log(time);
+      }
+    })
+  ]
+  /*...*/
+};
+```
+
+to be continued...
+
+#### your own plugins - example
+
+will higlight weekends
+
+```javascript
+import { Action } from '@neuronet.io/vido/vido.esm';
+
+export default function WeekendHiglight(options: {}) {
+  const weekdays = options.weekdays || [6, 0];
+  let className;
+  let api;
+
+  class WeekendHighlightAction extends Action {
+    constructor(element, data) {
+      super();
+      this.highlight(element, data.time.leftGlobal);
+    }
+
+    update(element, data) {
+      this.highlight(element, data.time.leftGlobal);
+    }
+
+    highlight(element, time) {
+      const isWeekend = weekdays.includes(api.time.date(time).day());
+      const hasClass = element.classList.contains(className);
+      if (!hasClass && isWeekend) {
+        element.classList.add(className);
+      } else if (hasClass && !isWeekend) {
+        element.classList.remove(className);
+      }
+    }
+  }
+
+  return function initialize(vido) {
+    api = vido.api;
+    className = options.className || api.getClass('chart-timeline-grid-row-block') + '--weekend';
+    vido.state.update('config.actions.chart-timeline-grid-row-block', actions => {
+      actions.push(WeekendHighlightAction);
+      return actions;
+    });
+  };
 }
 ```
 
