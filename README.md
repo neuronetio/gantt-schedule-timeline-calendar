@@ -803,7 +803,7 @@ const config = {
 };
 ```
 
-#### WeekendHighliht plugin
+#### WeekendHighlight plugin
 
 With this plugin gantt-schedule-timeline-calendar will be able to highlight weekends.
 
