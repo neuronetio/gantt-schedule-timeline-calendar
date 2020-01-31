@@ -615,14 +615,16 @@ function ExampleComponent(vido, props) {
 
 ### plugins
 
-By default there are couple of plugins availabe:
+By default there are couple of plugins available:
 
-- CalendarScroll - you will be able shift / scroll view horizontally by grabbing and moving dates at the top
-- ItemMovement - you will be able to move / resize items
-- Selection - with this plugin you can select cells or items and fire some action
-- WeekendHighlight - highlight weekends :)
+- [CalendarScroll](#calendarscroll-plugin)
+- **ItemMovement** - you will be able to move / resize items
+- **Selection** - with this plugin you can select cells or items and fire some action
+- **WeekendHighlight** - highlight weekends :)
 
 #### CalendarScroll plugin
+
+you will be able shift / scroll view horizontally by grabbing and moving dates at the top
 
 `<script src="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar/dist/CalendarScroll.plugin.js"></script>`
 
@@ -658,7 +660,7 @@ const config = {
 };
 ```
 
-to be continued...
+#### ItemMovement
 
 #### your own plugins - example
 
