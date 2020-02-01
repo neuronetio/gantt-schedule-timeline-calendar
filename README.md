@@ -675,6 +675,9 @@ With this plugin you will be able to move / resize items.
 - `ghostNode` `{boolean}` - ghost node should be visible?
 - `wait` `{number}` - sometimes you just want to click an item and sometimes you want to move it, this option will tell gstc to wait some time while mouse button is down to turn on moving mode to prevent accidental item move while clicking - time in miliseconds
 
+You can also add `moveable` and `resizeable` option to each item so you will be able to block movement / resizing of some items or limit movement / resizing to specified axis.
+When you need to move specified item only in some rows you can set `item.moveable` to array of row ids `item.moveable = ['1','2','5']`.
+
 ##### usage
 
 `<script src="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar/dist/ItemMovement.plugin.js"></script>`
