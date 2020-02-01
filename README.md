@@ -678,6 +678,49 @@ With this plugin you will be able to move / resize items.
 You can also add `moveable` and `resizeable` option to each item so you will be able to block movement / resizing of some items or limit movement / resizing to specified axis.
 When you need to move specified item only in some rows you can set `item.moveable` to array of row ids `item.moveable = ['1','2','5']`.
 
+```javascript
+const config = {
+/*...*/
+  chart: {
+    items: {
+      '1': {
+        id: '1',
+        rowId: '1',
+        moveable: false, // NOT MOVEABLE
+        resizeable: false, // NOT RESIZEABLE
+        label: 'Item 1',
+        time: {
+          start: new Date('2020-01-01').getTime(),
+          end: new Date('2020-01-02').getTime()
+        }
+      },
+      '2': {
+        id: '2',
+        rowId: '2',
+        moveable: ['1'], // MOVEABLE ONLY WITHIN ROW '1'
+        resizeable: true, // RESIZEABLE
+        label: 'Item 2',
+        time: {
+          start: new Date('2020-01-01').getTime(),
+          end: new Date('2020-01-02').getTime()
+        }
+      },
+      '3': {
+        id: '3',
+        rowId: '2',
+        moveable: 'y', // MOVEABLE ONLY WITHIN Y AXIS
+        resizeable: true, // RESIZEABLE
+        label: 'Item 3',
+        time: {
+          start: new Date('2020-01-03').getTime(),
+          end: new Date('2020-01-04').getTime()
+        }
+      }
+    }
+  }
+};
+```
+
 ##### usage
 
 `<script src="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar/dist/ItemMovement.plugin.js"></script>`
