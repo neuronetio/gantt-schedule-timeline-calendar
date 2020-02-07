@@ -562,7 +562,7 @@ const config = {
   }
   /* ... */
   actions: {
-    'chart-timeline-items-row-item': [ItemIsResizing]
+    'chart-timeline-items-row-item': [AddExampleClass]
   }
   /* ... */
 };
