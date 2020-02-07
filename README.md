@@ -734,9 +734,11 @@ With this plugin you will be able to move / resize items.
 You can also add `moveable` and `resizeable` option to each item so you will be able to block movement / resizing of some items or limit movement / resizing to specified axis.
 When you need to move specified item only in some rows you can set `item.moveable` to array of row ids `item.moveable = ['1','2','5']`.
 
+If you need to add some actions or want to be notified whenever any item is moving or resizing you can subscribe to `config.plugin.ItemMovement` like `const unsubscribe = GSTCState.subscribe('config.plugin.ItemMovement', itemMovement => { /* do something with info */})`.
+
 ```javascript
 const config = {
-/*...*/
+  /*...*/
   chart: {
     items: {
       '1': {
