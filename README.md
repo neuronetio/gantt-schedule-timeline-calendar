@@ -512,6 +512,62 @@ const config = {
 };
 ```
 
+Action example - add class if item has property `example` set to `true`.
+
+```js
+class AddExampleClass{
+  constructor(element, data) {
+    this.data = data;
+    this.element = element;
+    this.updateExamplelass();
+  }
+
+  update(element, data) {
+    this.data = data;
+    this.element = element;
+    this.updateExampleClass();
+  }
+
+  destroy(element, data) {
+    element.classList.remove('example-class');
+  }
+
+  updateExampleClass() {
+    const hasClass = this.element.classList.contains('example-class');
+    if(this.data.example && !hasClass){
+      this.element.classList.add('example-class');
+    }else if(!this.data.example && hasClass){
+      this.element.classList.remove('example-class');
+    }
+  }
+}
+
+const config = {
+  /* ... */
+  chart:{
+    items:{
+      '1': {
+        id: '1',
+        time: {/* ... */},
+        label: 'with class',
+        example: true,
+      },
+      '2': {
+        id: '2',
+        time: {/* ... */},
+        label: 'without class',
+        example: false,
+      }
+    }
+  }
+  /* ... */
+  actions: {
+    'chart-timeline-items-row-item': [AddExampleClass]
+  }
+  /* ... */
+};
+```
+
 ### wrappers
 
 **gantt-schedule-timeline-calendar** is using [lit-html](https://github.com/Polymer/lit-html) from polymer project to easly render templates without compilation stage, so if you want to wrap some GSTC component to add some functionality, you can use `html` from `lit-html` and wrappers and at the end your code will be much cleaner.
@@ -674,6 +730,52 @@ With this plugin you will be able to move / resize items.
 - `snapEnd` `{function}` `(timeEnd: number, endDiff: number, item: object) => number` same as above but for end of item `api.time.date(timeEnd+endDiff).endOf('day')`
 - `ghostNode` `{boolean}` - ghost node should be visible?
 - `wait` `{number}` - sometimes you just want to click an item and sometimes you want to move it, this option will tell gstc to wait some time while mouse button is down to turn on moving mode to prevent accidental item move while clicking - time in miliseconds
+
+You can also add `moveable` and `resizeable` option to each item so you will be able to block movement / resizing of some items or limit movement / resizing to specified axis.
+When you need to move specified item only in some rows you can set `item.moveable` to array of row ids `item.moveable = ['1','2','5']`.
+
+```javascript
+const config = {
+/*...*/
+  chart: {
+    items: {
+      '1': {
+        id: '1',
+        rowId: '1',
+        moveable: false, // NOT MOVEABLE
+        resizeable: false, // NOT RESIZEABLE
+        label: 'Item 1',
+        time: {
+          start: new Date('2020-01-01').getTime(),
+          end: new Date('2020-01-02').getTime()
+        }
+      },
+      '2': {
+        id: '2',
+        rowId: '2',
+        moveable: ['1'], // MOVEABLE ONLY WITHIN ROW '1'
+        resizeable: true, // RESIZEABLE
+        label: 'Item 2',
+        time: {
+          start: new Date('2020-01-01').getTime(),
+          end: new Date('2020-01-02').getTime()
+        }
+      },
+      '3': {
+        id: '3',
+        rowId: '2',
+        moveable: 'y', // MOVEABLE ONLY WITHIN Y AXIS
+        resizeable: true, // RESIZEABLE
+        label: 'Item 3',
+        time: {
+          start: new Date('2020-01-03').getTime(),
+          end: new Date('2020-01-04').getTime()
+        }
+      }
+    }
+  }
+};
+```
 
 ##### usage
 
