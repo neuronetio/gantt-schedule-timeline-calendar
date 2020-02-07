@@ -70,12 +70,13 @@
           }
           function saveMovement(itemId, movement) {
               state.update(`config.plugin.ItemMovement.items.${itemId}`, movement);
-              state.update('config.plugin.ItemMovement.movement', current => {
+              state.update('config.plugin.ItemMovement.movement', (current) => {
                   if (!current) {
-                      current = { moving: false, waiting: false };
+                      current = { moving: false, waiting: false, resizing: false };
                   }
                   current.moving = movement.moving;
                   current.waiting = movement.waiting;
+                  current.resizing = movement.resizing;
                   return current;
               });
           }
@@ -343,7 +344,7 @@
               movement.moving = false;
               movement.waiting = false;
               movement.resizing = false;
-              saveMovement(data, movement);
+              saveMovement(data.item.id, movement);
               for (const itemId in movementState) {
                   movementState[itemId].moving = false;
                   movementState[itemId].resizing = false;

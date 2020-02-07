@@ -20,6 +20,12 @@ export interface Options {
   wait?: number;
 }
 
+export interface Movement {
+  moving: boolean;
+  resizing: boolean;
+  waiting: boolean;
+}
+
 const pointerEventsExists = typeof PointerEvent !== 'undefined';
 
 export default function ItemMovement(options: Options = {}) {
@@ -82,14 +88,15 @@ export default function ItemMovement(options: Options = {}) {
       return movementState[itemId];
     }
 
-    function saveMovement(itemId, movement) {
+    function saveMovement(itemId: string, movement: Movement) {
       state.update(`config.plugin.ItemMovement.items.${itemId}`, movement);
-      state.update('config.plugin.ItemMovement.movement', current => {
+      state.update('config.plugin.ItemMovement.movement', (current: Movement) => {
         if (!current) {
-          current = { moving: false, waiting: false };
+          current = { moving: false, waiting: false, resizing: false };
         }
         current.moving = movement.moving;
         current.waiting = movement.waiting;
+        current.resizing = movement.resizing;
         return current;
       });
     }
@@ -371,7 +378,7 @@ export default function ItemMovement(options: Options = {}) {
       movement.moving = false;
       movement.waiting = false;
       movement.resizing = false;
-      saveMovement(data, movement);
+      saveMovement(data.item.id, movement);
       for (const itemId in movementState) {
         movementState[itemId].moving = false;
         movementState[itemId].resizing = false;
