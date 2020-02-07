@@ -512,6 +512,62 @@ const config = {
 };
 ```
 
+Action example - add class if item has property `example` set to `true`.
+
+```js
+class AddExampleClass{
+  constructor(element, data) {
+    this.data = data;
+    this.element = element;
+    this.updateExamplelass();
+  }
+
+  update(element, data) {
+    this.data = data;
+    this.element = element;
+    this.updateExampleClass();
+  }
+
+  destroy(element, data) {
+    element.classList.remove('example-class');
+  }
+
+  updateExampleClass() {
+    const hasClass = this.element.classList.contains('example-class');
+    if(this.data.example && !hasClass){
+      this.element.classList.add('example-class');
+    }else if(!this.data.example && hasClass){
+      this.element.classList.remove('example-class');
+    }
+  }
+}
+
+const config = {
+  /* ... */
+  chart:{
+    items:{
+      '1': {
+        id: '1',
+        time: {/* ... */},
+        label: 'with class',
+        example: true,
+      },
+      '2': {
+        id: '2',
+        time: {/* ... */},
+        label: 'without class',
+        example: false,
+      }
+    }
+  }
+  /* ... */
+  actions: {
+    'chart-timeline-items-row-item': [ItemIsResizing]
+  }
+  /* ... */
+};
+```
+
 ### wrappers
 
 **gantt-schedule-timeline-calendar** is using [lit-html](https://github.com/Polymer/lit-html) from polymer project to easly render templates without compilation stage, so if you want to wrap some GSTC component to add some functionality, you can use `html` from `lit-html` and wrappers and at the end your code will be much cleaner.
