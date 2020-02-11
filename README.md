@@ -779,6 +779,37 @@ const config = {
 };
 ```
 
+Example of adding style to currently resizing item:
+
+```js
+class ResizingItemClassAction {
+  update(element, data) {
+    const hasClass = element.classList.contains('resizing');
+    if (data.item.isResizing && !hasClass) {
+      element.classList.add('resizing');
+    } else if (!data.item.isResizing && hasClass) {
+      element.classList.remove('resizing');
+    }
+  }
+}
+
+const config = {
+  /*...*/
+  actions: {
+    'chart-timeline-items-row-item': [ResizingItemClassAction]
+  }
+  /*...*/
+};
+
+let GSTCState = (window.state = GSTC.api.stateFromConfig(config));
+
+// watch item movement plugin data and set isResizing property to an item for ResizingItemClassAction
+GSTCState.subscribe('config.plugin.ItemMovement', itemMovement => {
+  if (!itemMovement || !itemMovement.item) return;
+  state.update(`config.chart.items.${itemMovement.item.id}.isResizing`, itemMovement.item.resizing);
+});
+```
+
 ##### usage
 
 `<script src="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar/dist/ItemMovement.plugin.js"></script>`

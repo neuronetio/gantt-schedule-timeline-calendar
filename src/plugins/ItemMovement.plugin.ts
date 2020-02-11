@@ -24,6 +24,12 @@ export interface Movement {
   moving: boolean;
   resizing: boolean;
   waiting: boolean;
+  ghost?: HTMLElement;
+  itemLeftCompensation?: number;
+  itemTop?: number;
+  itemX?: number;
+  ganttTop?: number;
+  ganttLeft?: number;
 }
 
 const pointerEventsExists = typeof PointerEvent !== 'undefined';
@@ -54,7 +60,7 @@ export default function ItemMovement(options: Options = {}) {
    * @param {HTMLElement} element DOM Node
    * @param {Object} data
    */
-  function action(element: HTMLElement, data) {
+  function ItemAction(element: HTMLElement, data) {
     if (!options.moveable && !options.resizeable) {
       return;
     }
@@ -89,7 +95,7 @@ export default function ItemMovement(options: Options = {}) {
     }
 
     function saveMovement(itemId: string, movement: Movement) {
-      state.update(`config.plugin.ItemMovement.items.${itemId}`, movement);
+      state.update(`config.plugin.ItemMovement.item`, { id: itemId, ...movement });
       state.update('config.plugin.ItemMovement.movement', (current: Movement) => {
         if (!current) {
           current = { moving: false, waiting: false, resizing: false };
@@ -102,7 +108,7 @@ export default function ItemMovement(options: Options = {}) {
     }
 
     function createGhost(data, normalized, ganttLeft, ganttTop) {
-      const movement = getMovement(data);
+      const movement: Movement = getMovement(data);
       if (!options.ghostNode || typeof movement.ghost !== 'undefined') {
         return;
       }
@@ -188,7 +194,7 @@ export default function ItemMovement(options: Options = {}) {
       if ((ev.type === 'pointerdown' || ev.type === 'mousedown') && ev.button !== 0) {
         return;
       }
-      const movement = getMovement(data);
+      const movement: Movement = getMovement(data);
       movement.waiting = true;
       saveMovement(data.item.id, movement);
       setTimeout(() => {
@@ -374,6 +380,8 @@ export default function ItemMovement(options: Options = {}) {
       if (movement.moving || movement.resizing) {
         ev.stopPropagation();
         ev.preventDefault();
+      } else {
+        return;
       }
       movement.moving = false;
       movement.waiting = false;
@@ -437,7 +445,7 @@ export default function ItemMovement(options: Options = {}) {
 
   return function initialize(vido) {
     vido.state.update('config.actions.chart-timeline-items-row-item', actions => {
-      actions.push(action);
+      actions.push(ItemAction);
       return actions;
     });
   };

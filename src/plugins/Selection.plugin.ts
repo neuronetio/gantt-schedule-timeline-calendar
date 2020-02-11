@@ -520,7 +520,7 @@ export default function Selection(options: Options = {}) {
           ev.stopPropagation();
           ev.preventDefault();
           const normalized = vido.api.normalizePointerEvent(ev);
-          if (selecting.fromX === normalized.x - this.left && selecting.fromY === normalized.y - this.top) {
+          if (selecting.startX === normalized.x - this.left && selecting.startY === normalized.y - this.top) {
             selecting.selecting = false;
             rect.style.visibility = 'hidden';
             return;

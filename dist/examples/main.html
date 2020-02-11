@@ -16,6 +16,9 @@
         font-size: 20px;
         line-height: 20px;
       }
+      .resizing {
+        background: rgb(33, 188, 235) !important;
+      }
     </style>
     <link rel="stylesheet" href="../style.css" />
   </head>
@@ -132,6 +135,18 @@
           }
         }
       };
+
+      class ResizingItemClass {
+        update(element, data) {
+          const hasClass = element.classList.contains('resizing');
+          if (data.item.isResizing && !hasClass) {
+            element.classList.add('resizing');
+          } else if (!data.item.isResizing && hasClass) {
+            element.classList.remove('resizing');
+          }
+        }
+      }
+
       let selectionApi;
       const config = {
         plugins: [
@@ -156,10 +171,16 @@
           }
         },
         classNames: {},
-        actions: {}
+        actions: {
+          'chart-timeline-items-row-item': [ResizingItemClass]
+        }
       };
 
       let GSTCState = (window.state = GSTC.api.stateFromConfig(config));
+      GSTCState.subscribe('config.plugin.ItemMovement', itemMovement => {
+        if (!itemMovement || !itemMovement.item) return;
+        state.update(`config.chart.items.${itemMovement.item.id}.isResizing`, itemMovement.item.resizing);
+      });
 
       const gstc = GSTC({
         element: document.getElementById('app'),

@@ -122,7 +122,7 @@ function ItemMovement(options = {}) {
      * @param {HTMLElement} element DOM Node
      * @param {Object} data
      */
-    function action(element, data) {
+    function ItemAction(element, data) {
         if (!options.moveable && !options.resizeable) {
             return;
         }
@@ -153,7 +153,7 @@ function ItemMovement(options = {}) {
             return movementState[itemId];
         }
         function saveMovement(itemId, movement) {
-            state.update(`config.plugin.ItemMovement.items.${itemId}`, movement);
+            state.update(`config.plugin.ItemMovement.item`, Object.assign({ id: itemId }, movement));
             state.update('config.plugin.ItemMovement.movement', (current) => {
                 if (!current) {
                     current = { moving: false, waiting: false, resizing: false };
@@ -425,6 +425,9 @@ function ItemMovement(options = {}) {
                 ev.stopPropagation();
                 ev.preventDefault();
             }
+            else {
+                return;
+            }
             movement.moving = false;
             movement.waiting = false;
             movement.resizing = false;
@@ -487,7 +490,7 @@ function ItemMovement(options = {}) {
     }
     return function initialize(vido) {
         vido.state.update('config.actions.chart-timeline-items-row-item', actions => {
-            actions.push(action);
+            actions.push(ItemAction);
             return actions;
         });
     };
@@ -1045,7 +1048,7 @@ function Selection(options = {}) {
                     ev.stopPropagation();
                     ev.preventDefault();
                     const normalized = vido.api.normalizePointerEvent(ev);
-                    if (selecting.fromX === normalized.x - this.left && selecting.fromY === normalized.y - this.top) {
+                    if (selecting.startX === normalized.x - this.left && selecting.startY === normalized.y - this.top) {
                         selecting.selecting = false;
                         rect.style.visibility = 'hidden';
                         return;
