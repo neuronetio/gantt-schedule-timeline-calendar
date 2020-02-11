@@ -604,8 +604,8 @@ Example that shows how to wrap list column row with `div` and additional class.
 ```javascript
 let oldWrapper;
 
-function addClassWrapper(input) {
-  let result = oldWrapper(input);
+function addClassWrapper(input, data) {
+  let result = oldWrapper(input, data);
   result = html`
     <div class="additional-class">${result}</div>
   `;
