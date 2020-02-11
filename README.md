@@ -308,6 +308,7 @@ Items like rows and columns are objects where key is an item id (`{string}`) and
 - `rowId` `{string}` - in which row this item should appear
 - `label` `{string}` - item label
 - `time` `{object}` - [item time configuration](#item-time)
+- `style` `{object}` - you can define styling for an item here like `{background:'red'}`
 
 ### item time
 
