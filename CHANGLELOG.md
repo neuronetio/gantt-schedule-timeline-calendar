@@ -7,3 +7,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - WeekendHighlight plugin
+
+## [1.2.0] - 2020-02-11
+
+- Selection plugin bugfix (cannot select from right bottom to left top)
+- ItemMovement plugin data improvement
