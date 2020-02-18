@@ -337,7 +337,7 @@
           }
           function documentUp(ev) {
               const movement = getMovement(data);
-              if (movement.moving || movement.resizing) {
+              if (movement.moving || movement.resizing || movement.waiting) {
                   ev.stopPropagation();
                   ev.preventDefault();
               }
