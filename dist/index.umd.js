@@ -4460,7 +4460,10 @@
             const currentVisibleRows = state.get('_internal.list.visibleRows');
             let shouldUpdate = true;
             state.update('config.scroll.compensation.y', smoothScroll ? -compensation : 0);
-            if (visibleRows.length) {
+            if (visibleRows.length !== currentVisibleRows.length) {
+                shouldUpdate = true;
+            }
+            else if (visibleRows.length) {
                 shouldUpdate = visibleRows.some((row, index) => {
                     if (typeof currentVisibleRows[index] === 'undefined') {
                         return true;
@@ -4972,7 +4975,7 @@
         }));
         const visibleRows = [];
         const visibleRowsChange = val => {
-            const destroy = reuseComponents(visibleRows, val, row => row && { columnId: props.columnId, rowId: row.id, width }, ListColumnRowComponent);
+            const destroy = reuseComponents(visibleRows, val || [], row => row && { columnId: props.columnId, rowId: row.id, width }, ListColumnRowComponent);
             update();
             return destroy;
         };

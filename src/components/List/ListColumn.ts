@@ -31,6 +31,7 @@ class BindElementAction {
     });
   }
 }
+
 export default function ListColumn(vido, props) {
   const { api, state, onDestroy, onChange, Actions, update, createComponent, reuseComponents, html, StyleMap } = vido;
 
@@ -143,7 +144,7 @@ export default function ListColumn(vido, props) {
   const visibleRowsChange = val => {
     const destroy = reuseComponents(
       visibleRows,
-      val,
+      val || [],
       row => row && { columnId: props.columnId, rowId: row.id, width },
       ListColumnRowComponent
     );
