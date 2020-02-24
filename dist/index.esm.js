@@ -8288,7 +8288,7 @@ function getInternalApi(state) {
             next: for (const rowId of flatTreeMap) {
                 for (const parentId of flatTreeMapById[rowId]._internal.parents) {
                     const parent = rows[parentId];
-                    if (!parent.expanded) {
+                    if (!parent || !parent.expanded) {
                         continue next;
                     }
                 }

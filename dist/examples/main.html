@@ -34,6 +34,7 @@
       <button onclick="clearAll()">clear all</button>
       <button onclick="randomizeItems()">randomize items</button>
       <button onclick="destroy()">destroy</button>
+      <button onclick="replaceData()">replace</button>
     </div>
     <div id="app"></div>
     <script src="../ItemMovement.plugin.js"></script>
@@ -155,7 +156,11 @@
             resizeable: true,
             collisionDetection: true
           }),
-          Selection(),
+          Selection({
+            selected(data, type) {
+              console.log(data, type);
+            }
+          }),
           CalendarScroll({ speed: 2 }),
           WeekendHighlight()
         ],
@@ -223,6 +228,47 @@
             item.rowId = rows[Math.floor(Math.random() * rows.length)];
           });
           return items;
+        });
+      }
+      function replaceData() {
+        const data = {
+          rows: {
+            row_1: {
+              id: 'row_1',
+              label: 'new row'
+            },
+            row_2: {
+              id: 'row_2',
+              label: 'new row 2'
+            }
+          },
+          items: {
+            item_1: {
+              id: 'item_1',
+              label: 'new item 1',
+              rowId: 'row_1',
+              time: {
+                start: new Date('2020-01-01').getTime(),
+                end: new Date('2020-01-05').getTime()
+              }
+            },
+            item_2: {
+              id: 'item_2',
+              label: 'new item 2',
+              rowId: 'row_2',
+              time: {
+                start: new Date('2020-01-01').getTime(),
+                end: new Date('2020-01-05').getTime()
+              }
+            }
+          }
+        };
+        GSTCState.update('config', config => {
+          config.list.rows = data.rows;
+          config.chart.items = data.items;
+          config.chart.time.from = new Date('2020-01-01').getTime();
+          config.chart.time.to = new Date('2020-01-31').getTime();
+          return config;
         });
       }
 
