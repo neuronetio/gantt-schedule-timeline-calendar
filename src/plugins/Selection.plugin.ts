@@ -295,17 +295,17 @@ export default function Selection(options: Options = {}) {
       for (const itemId in items) {
         const item = items[itemId];
         if (currentSelect.selecting['chart-timeline-items-row-items'].includes(item.id)) {
+          item.selected = true;
           if (typeof item.selected === 'undefined' || !item.selected) {
             options.selected(item, 'chart-timeline-items-row-item');
           }
-          item.selected = true;
         } else if (addToPrevious && previousSelect.selected['chart-timeline-items-row-items'].includes(item.id)) {
           item.selected = true;
         } else {
+          item.selected = false;
           if (currentSelect.selected['chart-timeline-items-row-items'].includes(item.id)) {
             options.deselected(item, 'chart-timeline-items-row-item');
           }
-          item.selected = false;
         }
       }
       return items;
