@@ -16,3 +16,7 @@ All notable changes to this project will be documented in this file.
 ## [1.3.3] - 2020-02-24
 
 - replace all rows and items bugfix
+
+## [1.3.4]
+
+- list rows not hidding bugfix #42
