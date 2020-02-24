@@ -12,3 +12,7 @@ All notable changes to this project will be documented in this file.
 
 - Selection plugin bugfix (cannot select from right bottom to left top)
 - ItemMovement plugin data improvement
+
+## [1.3.3] - 2020-02-24
+
+- replace all rows and items bugfix
