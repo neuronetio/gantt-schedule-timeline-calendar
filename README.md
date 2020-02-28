@@ -58,7 +58,7 @@ You can control almost everything. You can change html structure, stylize every 
 
 ## examples
 
-[example](https://neuronet.io/gantt-schedule-timeline-calendar/scheduler.html) or [another example](https://neuronet.io/gantt-schedule-timeline-calendar/main.html)
+[basic](https://neuronet.io/gantt-schedule-timeline-calendar/scheduler.html), [booking](https://neuronet.io/gantt-schedule-timeline-calendar/main.html) or [period selector](https://neuronet.io/gantt-schedule-timeline-calendar/period.html)
 
 [examples folder](https://github.com/neuronetio/gantt-schedule-timeline-calendar/tree/master/dist/examples)
 
