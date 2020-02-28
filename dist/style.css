@@ -267,7 +267,7 @@
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-month-level-1 {
   font-size: 16px;
-  line-height: 2em;
+  line-height: 1.6em;
   text-align: center;
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-big {
@@ -285,7 +285,7 @@
 .gantt-schedule-timeline-calendar__chart-calendar-date-content--day,
 .gantt-schedule-timeline-calendar__chart-calendar-date-content--week {
   font-size: 18px;
-  line-height: 2em;
+  line-height: 1.7em;
   overflow: visible;
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date-content--day.gstc-date-week-small,

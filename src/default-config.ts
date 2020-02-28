@@ -341,14 +341,6 @@ function defaultConfig(): Config {
                   )} - ${timeEnd.format('dd')}</div>`;
                 }
               },
-              /*{
-                zoomTo: 24,
-                period: 'week',
-                className: 'gstc-date-week-small',
-                format({ timeStart, timeEnd, vido }) {
-                  return vido.html`<div>${timeStart.format('DD')}</div> | <div>${timeEnd.format('DD')}</div>`;
-                }
-              },*/
               {
                 zoomTo: 25,
                 period: 'week',
@@ -362,8 +354,10 @@ function defaultConfig(): Config {
                 period: 'month',
                 default: true,
                 className: 'gstc-date-month-level-1',
-                format({ timeStart }) {
-                  return timeStart.format('MMM');
+                format({ timeStart, vido, className }) {
+                  return vido.html`<div>${timeStart.format(
+                    'MMM'
+                  )}</div><div class="${className}-content gstc-date-medium">${timeStart.format('MM')}</div>`;
                 }
               },
               {
