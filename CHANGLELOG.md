@@ -20,3 +20,7 @@ All notable changes to this project will be documented in this file.
 ## [1.3.4]
 
 - list rows not hidding bugfix #42
+
+## [2.0.0]
+
+- calendar dates and timeline period mechanism refactored
