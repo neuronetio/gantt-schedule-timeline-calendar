@@ -150,6 +150,7 @@ export type Period = 'year' | 'month' | 'week' | 'day' | 'hour';
 export interface ChartCalendarFormat {
   zoomTo: number;
   period: Period;
+  default?: boolean;
   className?: string;
   format: (arguments: ChartCalendarFormatArguments) => string | htmlResult;
 }

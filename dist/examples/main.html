@@ -36,6 +36,13 @@
       <button onclick="randomizeItems()">randomize items</button>
       <button onclick="destroy()">destroy</button>
       <button onclick="replaceData()">replace</button>
+      <select id="setperiod" onchange="changePeriod()">
+        <option value="hour">Hour</option>
+        <option value="day">Day</option>
+        <option value="week">Week</option>
+        <option value="month">Month</option>
+        <option value="year">Year</option>
+      </select>
     </div>
     <div id="app"></div>
     <script src="../ItemMovement.plugin.js"></script>
@@ -278,15 +285,28 @@
         });
       }
 
+      function changePeriod() {
+        const period = document.getElementById('setperiod').value;
+        const zoom = GSTC.api.setPeriod(period);
+      }
+
       function destroy() {
         gstc.app.destroy();
       }
 
+      gstc.state.subscribe('config.chart.time.period', period => {
+        document.getElementById('setperiod').value = period;
+      });
+      gstc.state.subscribe('config.chart.time.zoom', zoom => {
+        document.getElementById('zoom').value = zoom;
+      });
+
       document.getElementById('percent').addEventListener('input', ev => {
-        gstc.state.update('config.list.columns.percent', ev.target.value);
+        gstc.state.update('config.list.columns.percent', +ev.target.value);
       });
       document.getElementById('zoom').addEventListener('input', ev => {
         gstc.state.update('config.chart.time.zoom', +ev.target.value);
+        const period = gstc.state.get('config.chart.time');
       });
       document.getElementById('change-something').addEventListener('click', () => {
         gstc.state.update('config.list.rows', rows => {

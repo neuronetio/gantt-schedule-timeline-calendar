@@ -4546,7 +4546,15 @@ function Main(vido, props = {}) {
     function recalculateTimes() {
         const chartWidth = state.get('_internal.chart.dimensions.width');
         const calendar = state.get('config.chart.calendar');
-        let time = api.mergeDeep({}, state.get('config.chart.time'));
+        const configTime = state.get('config.chart.time');
+        let time = api.mergeDeep({}, configTime);
+        if (time.period !== state.get('_internal.chart.time.format.period')) {
+            const level = state.get('config.chart.calendar.levels').find(level => level.main);
+            let periodFormat = level.formats.find(format => format.period === time.period && format.default);
+            if (periodFormat) {
+                time.zoom = periodFormat.zoomTo;
+            }
+        }
         time = api.time.recalculateFromTo(time);
         let scrollLeft = state.get('config.scroll.left');
         time.timePerPixel = Math.pow(2, time.zoom);
@@ -4596,11 +4604,13 @@ function Main(vido, props = {}) {
         }
         state.update('config.scroll.compensation.x', xCompensation);
         state.update(`_internal.chart.time`, time);
-        console.log(time.zoom);
+        state.update('config.chart.time.zoom', time.zoom);
+        state.update('config.chart.time.period', time.format.period);
         update();
     }
     onDestroy(state.subscribeAll([
         'config.chart.time',
+        'config.chart.time.period',
         'config.chart.calendar.levels',
         '_internal.dimensions.width',
         'config.scroll.left',
@@ -6970,6 +6980,7 @@ function defaultConfig() {
                             {
                                 zoomTo: 17,
                                 period: 'hour',
+                                default: true,
                                 format({ timeStart }) {
                                     return timeStart.format('HH');
                                 }
@@ -6993,6 +7004,7 @@ function defaultConfig() {
                             {
                                 zoomTo: 21,
                                 period: 'day',
+                                default: true,
                                 className: 'gstc-date-medium',
                                 format({ timeStart, vido, className }) {
                                     return vido.html `<div>${timeStart.format('DD')}</div><div class="${className}-content gstc-date-small">${timeStart.format('ddd')}</div>`;
@@ -7009,19 +7021,20 @@ function defaultConfig() {
                             {
                                 zoomTo: 23,
                                 period: 'week',
+                                default: true,
                                 className: 'gstc-date-medium',
-                                format({ timeStart, timeEnd }) {
-                                    return timeStart.format('DD') + ' - ' + timeEnd.format('DD');
+                                format({ timeStart, timeEnd, className, vido }) {
+                                    return vido.html `<div>${timeStart.format('DD')} - ${timeEnd.format('DD')}</div><div class="${className}-content gstc-date-small">${timeStart.format('ddd')} - ${timeEnd.format('dd')}</div>`;
                                 }
                             },
-                            {
-                                zoomTo: 24,
-                                period: 'week',
-                                className: 'gstc-date-week-small',
-                                format({ timeStart, timeEnd, vido }) {
-                                    return vido.html `<div>${timeStart.format('DD')}</div> | <div>${timeEnd.format('DD')}</div>`;
-                                }
-                            },
+                            /*{
+                              zoomTo: 24,
+                              period: 'week',
+                              className: 'gstc-date-week-small',
+                              format({ timeStart, timeEnd, vido }) {
+                                return vido.html`<div>${timeStart.format('DD')}</div> | <div>${timeEnd.format('DD')}</div>`;
+                              }
+                            },*/
                             {
                                 zoomTo: 25,
                                 period: 'week',
@@ -7033,6 +7046,7 @@ function defaultConfig() {
                             {
                                 zoomTo: 26,
                                 period: 'month',
+                                default: true,
                                 className: 'gstc-date-month-level-1',
                                 format({ timeStart }) {
                                     return timeStart.format('MMM');
@@ -7049,6 +7063,7 @@ function defaultConfig() {
                             {
                                 zoomTo: 28,
                                 period: 'year',
+                                default: true,
                                 format() {
                                     return null;
                                 }
@@ -8159,7 +8174,7 @@ function stateFromConfig(userConfig) {
     const state = { config: mergeDeep$1({}, defaultConfig$1, userConfig) };
     state.config.actions = actions;
     // @ts-ignore
-    return new DeepState(state, { delimeter: '.' });
+    return (this.state = new DeepState(state, { delimeter: '.' }));
 }
 const publicApi = {
     name: lib,
@@ -8167,6 +8182,10 @@ const publicApi = {
     mergeDeep: mergeDeep$1,
     date(time) {
         return time ? dayjs_min(time) : dayjs_min();
+    },
+    setPeriod(period) {
+        this.state.update('config.chart.time.period', period);
+        return this.state.get('config.chart.time.zoom');
     },
     dayjs: dayjs_min
 };

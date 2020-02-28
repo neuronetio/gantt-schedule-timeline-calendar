@@ -286,6 +286,7 @@ function defaultConfig(): Config {
               {
                 zoomTo: 17,
                 period: 'hour',
+                default: true,
                 format({ timeStart }) {
                   return timeStart.format('HH');
                 }
@@ -311,6 +312,7 @@ function defaultConfig(): Config {
               {
                 zoomTo: 21,
                 period: 'day',
+                default: true,
                 className: 'gstc-date-medium',
                 format({ timeStart, vido, className }) {
                   return vido.html`<div>${timeStart.format(
@@ -329,19 +331,24 @@ function defaultConfig(): Config {
               {
                 zoomTo: 23,
                 period: 'week',
+                default: true,
                 className: 'gstc-date-medium',
-                format({ timeStart, timeEnd }) {
-                  return timeStart.format('DD') + ' - ' + timeEnd.format('DD');
+                format({ timeStart, timeEnd, className, vido }) {
+                  return vido.html`<div>${timeStart.format('DD')} - ${timeEnd.format(
+                    'DD'
+                  )}</div><div class="${className}-content gstc-date-small">${timeStart.format(
+                    'ddd'
+                  )} - ${timeEnd.format('dd')}</div>`;
                 }
               },
-              {
+              /*{
                 zoomTo: 24,
                 period: 'week',
                 className: 'gstc-date-week-small',
                 format({ timeStart, timeEnd, vido }) {
                   return vido.html`<div>${timeStart.format('DD')}</div> | <div>${timeEnd.format('DD')}</div>`;
                 }
-              },
+              },*/
               {
                 zoomTo: 25,
                 period: 'week',
@@ -353,6 +360,7 @@ function defaultConfig(): Config {
               {
                 zoomTo: 26,
                 period: 'month',
+                default: true,
                 className: 'gstc-date-month-level-1',
                 format({ timeStart }) {
                   return timeStart.format('MMM');
@@ -369,6 +377,7 @@ function defaultConfig(): Config {
               {
                 zoomTo: 28,
                 period: 'year',
+                default: true,
                 format() {
                   return null;
                 }

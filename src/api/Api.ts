@@ -11,7 +11,7 @@ import defaultConfigFn from '../default-config';
 import TimeApi from './Time';
 import State from 'deep-state-observer';
 import dayjs from 'dayjs';
-import { Config } from '../types';
+import { Config, Period } from '../types';
 import { mergeDeep } from '@neuronet.io/vido/helpers';
 const lib = 'gantt-schedule-timeline-calendar';
 
@@ -41,7 +41,7 @@ export function stateFromConfig(userConfig: Config) {
   const state = { config: mergeDeep({}, defaultConfig, userConfig) };
   state.config.actions = actions;
   // @ts-ignore
-  return new State(state, { delimeter: '.' });
+  return (this.state = new State(state, { delimeter: '.' }));
 }
 
 const publicApi = {
@@ -50,6 +50,10 @@ const publicApi = {
   mergeDeep,
   date(time) {
     return time ? dayjs(time) : dayjs();
+  },
+  setPeriod(period: Period): number {
+    this.state.update('config.chart.time.period', period);
+    return this.state.get('config.chart.time.zoom');
   },
   dayjs
 };

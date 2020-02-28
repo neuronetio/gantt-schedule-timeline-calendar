@@ -24,3 +24,9 @@ All notable changes to this project will be documented in this file.
 ## [2.0.0]
 
 - calendar dates and timeline period mechanism refactored
+
+## [2.1.0]
+
+- default periods - ability to change period
+- config.chart.time reactivity bugfix
+- calendar config improvements

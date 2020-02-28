@@ -255,7 +255,8 @@
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-vertical {
   font-size: 14px;
-  transform: rotate(90deg);
+  transform: rotate(90deg) translate(50%, -50%);
+  transform-origin: 50% 0%;
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-small {
   font-size: 14px;
