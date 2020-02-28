@@ -4554,6 +4554,9 @@
             const calendar = state.get('config.chart.calendar');
             const configTime = state.get('config.chart.time');
             let time = api.mergeDeep({}, configTime);
+            if ((!time.from || !time.to) && !Object.keys(state.get('config.chart.items')).length) {
+                return;
+            }
             if (time.period !== state.get('_internal.chart.time.format.period')) {
                 const level = state.get('config.chart.calendar.levels').find(level => level.main);
                 let periodFormat = level.formats.find(format => format.period === time.period && format.default);
@@ -4610,13 +4613,18 @@
             }
             state.update('config.scroll.compensation.x', xCompensation);
             state.update(`_internal.chart.time`, time);
-            state.update('config.chart.time.zoom', time.zoom);
-            state.update('config.chart.time.period', time.format.period);
+            const newTime = Object.assign({}, time);
+            state.update('config.chart.time', oldTime => {
+                delete newTime.from;
+                delete newTime.to;
+                newTime.period = time.format.period;
+                return Object.assign(Object.assign({}, oldTime), newTime);
+            }, { only: Object.keys(newTime) } // we don't want notify config.chart.time because it will trigger infinite loop
+            );
             update();
         }
         onDestroy(state.subscribeAll([
             'config.chart.time',
-            'config.chart.time.period',
             'config.chart.calendar.levels',
             '_internal.dimensions.width',
             'config.scroll.left',

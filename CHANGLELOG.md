@@ -29,4 +29,9 @@ All notable changes to this project will be documented in this file.
 
 - default periods - ability to change period
 - config.chart.time reactivity bugfix
-- calendar config improvements
+- calendar config improvements (config.chart.calendar.levels) - you can now specify formats and periods for each level of calendar
+- calendar - you can turn of timeline / calendar expanding option to fill (or not) free space
+
+## [2.1.1]
+
+- [bugfix] empty items breaks time calculation at first load -> second load with items

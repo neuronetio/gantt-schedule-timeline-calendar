@@ -27,7 +27,7 @@
     <h1>Gantt Schedule Timeline Calendar example #1</h1>
     <div>
       <input type="range" min="0" max="100" value="100" id="percent" />
-      <input type="range" min="12" max="22" value="20" id="zoom" />
+      <input type="range" min="12" max="28" value="20" id="zoom" />
       <div style="display: inline-block;width: 100px; text-align: center;font-weight: bold;" id="period"></div>
       <button id="change-something">Change something</button>
       <button onclick="deleteRow()">Delete row</button>
@@ -36,6 +36,13 @@
       <button onclick="randomizeItems()">randomize items</button>
       <button onclick="destroy()">destroy</button>
       <button onclick="replaceData()">replace</button>
+      <select id="setperiod" onchange="changePeriod()">
+        <option value="hour">Hour</option>
+        <option value="day">Day</option>
+        <option value="week">Week</option>
+        <option value="month">Month</option>
+        <option value="year">Year</option>
+      </select>
     </div>
     <div id="app"></div>
     <script src="../ItemMovement.plugin.js"></script>
@@ -86,7 +93,7 @@
         let startDayjs = GSTC.api
           .date(startDate)
           .startOf('day')
-          .add(Math.floor(Math.random() * 90), 'days');
+          .add(Math.floor(Math.random() * 365 * 10), 'days');
         items[id] = {
           id,
           label: 'item id ' + id,
@@ -94,7 +101,87 @@
             start: startDayjs.valueOf(),
             end: startDayjs
               .clone()
-              .add(Math.floor(Math.random() * 10) + 4, 'days')
+              .add(Math.floor(Math.random() * 60) + 4, 'days')
+              .valueOf()
+          },
+          progress: 50,
+          rowId,
+          lines: i > 0 && i % 2 === 0 ? [(i + 1).toString()] : [],
+          style: { background: pallete[Math.floor(Math.random() * pallete.length)] }
+        };
+        id = i.toString() + '-2';
+        startDayjs = GSTC.api
+          .date(startDate)
+          .startOf('day')
+          .add(Math.floor(Math.random() * 365 * 10), 'days');
+        items[id] = {
+          id,
+          label: 'item id ' + id,
+          time: {
+            start: startDayjs.valueOf(),
+            end: startDayjs
+              .clone()
+              .add(Math.floor(Math.random() * 60) + 4, 'days')
+              .valueOf()
+          },
+          progress: 50,
+          rowId,
+          lines: i > 0 && i % 2 === 0 ? [(i + 1).toString()] : [],
+          style: { background: pallete[Math.floor(Math.random() * pallete.length)] }
+        };
+        id = i.toString() + '-3';
+        startDayjs = GSTC.api
+          .date(startDate)
+          .startOf('day')
+          .add(Math.floor(Math.random() * 365 * 10), 'days');
+        items[id] = {
+          id,
+          label: 'item id ' + id,
+          time: {
+            start: startDayjs.valueOf(),
+            end: startDayjs
+              .clone()
+              .add(Math.floor(Math.random() * 60) + 4, 'days')
+              .valueOf()
+          },
+          progress: 50,
+          rowId,
+          lines: i > 0 && i % 2 === 0 ? [(i + 1).toString()] : [],
+          style: { background: pallete[Math.floor(Math.random() * pallete.length)] }
+        };
+        id = i.toString() + '-4';
+        startDayjs = GSTC.api
+          .date(startDate)
+          .startOf('day')
+          .add(Math.floor(Math.random() * 365 * 10), 'days');
+        items[id] = {
+          id,
+          label: 'item id ' + id,
+          time: {
+            start: startDayjs.valueOf(),
+            end: startDayjs
+              .clone()
+              .add(Math.floor(Math.random() * 60) + 4, 'days')
+              .valueOf()
+          },
+          progress: 50,
+          rowId,
+          lines: i > 0 && i % 2 === 0 ? [(i + 1).toString()] : [],
+          style: { background: pallete[Math.floor(Math.random() * pallete.length)] }
+        };
+        id = i.toString() + '-5';
+        startDayjs = GSTC.api
+          .date(startDate)
+          .startOf('day')
+          .add(Math.floor(Math.random() * 365 * 10), 'days');
+        items[id] = {
+          id,
+          label: 'item id ' + id,
+          time: {
+            start: startDayjs.valueOf(),
+            end: startDayjs
+              .clone()
+              .add(Math.floor(Math.random() * 60) + 4, 'days')
               .valueOf()
           },
           progress: 50,
@@ -288,6 +375,10 @@
         gstc.app.destroy();
       }
 
+      gstc.state.subscribe('config.chart.time.period', period => {
+        console.log('period', period);
+        document.getElementById('setperiod').value = period;
+      });
       gstc.state.subscribe('config.chart.time.zoom', zoom => {
         document.getElementById('zoom').value = zoom;
       });
