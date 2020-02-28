@@ -225,16 +225,20 @@
   flex-shrink: 0;
   border: none;
   white-space: nowrap;
+  border-right: 1px solid rgba(177,184,189,0.5);
+  overflow: hidden;
+}
+.gantt-schedule-timeline-calendar__chart-calendar-date.gstc-date-vertical {
+  height: calc(var(--calendar-height) - 20px);
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date--month {
   font-size: 14px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  height: 20px;
 }
-.gantt-schedule-timeline-calendar__chart-calendar-date--day {
-  height: calc(var(--calendar-height) - 20px);
+.gantt-schedule-timeline-calendar__chart-calendar-date--day,
+.gantt-schedule-timeline-calendar__chart-calendar-date--week {
   text-align: center;
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date--day.current {
@@ -243,47 +247,58 @@
 .gantt-schedule-timeline-calendar__chart-calendar-date-content {
   white-space: nowrap;
 }
-.gantt-schedule-timeline-calendar__chart-calendar-date-content--hours {
-  display: flex;
+.gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-left {
+  text-align: left;
 }
-.gantt-schedule-timeline-calendar__chart-calendar-date-content--hours-hour {
-  flex-grow: 1;
-  flex-shrink: 1;
-  border-right: 1px solid rgba(177,184,189,0.5);
+.gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-center {
+  text-align: center;
 }
-.gantt-schedule-timeline-calendar__chart-calendar-date-content--hours-hour.current:last-child {
-  border-right: none;
-}
-.gantt-schedule-timeline-calendar__chart-calendar-date-content--hours-hour.previous:last-child {
-  border-right: none;
-}
-.gantt-schedule-timeline-calendar__chart-calendar-date-content--day-small {
+.gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-vertical {
   font-size: 14px;
   transform: rotate(90deg);
 }
+.gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-small {
+  font-size: 14px;
+  line-height: 1em;
+}
+.gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-medium {
+  font-size: 16px;
+}
+.gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-month-level-1 {
+  font-size: 16px;
+  line-height: 2em;
+  text-align: center;
+}
+.gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-big {
+  text-align: center;
+  font-size: 23px;
+  height: var(--calendar-height);
+  line-height: var(--calendar-height);
+}
+.gantt-schedule-timeline-calendar__chart-calendar-date-content--hour {
+  text-align: center;
+}
 .gantt-schedule-timeline-calendar__chart-calendar-date-content--month {
   margin: 2px 0px;
-  border-right: 1px solid rgba(177,184,189,0.5);
 }
-.gantt-schedule-timeline-calendar__chart-calendar-date-content--day {
-  border-right: 1px solid rgba(177,184,189,0.5);
+.gantt-schedule-timeline-calendar__chart-calendar-date-content--day,
+.gantt-schedule-timeline-calendar__chart-calendar-date-content--week {
   font-size: 18px;
   line-height: 2em;
   overflow: visible;
 }
-.gantt-schedule-timeline-calendar__chart-calendar-date-content--day.current {
+.gantt-schedule-timeline-calendar__chart-calendar-date-content--day.gstc-date-week-small,
+.gantt-schedule-timeline-calendar__chart-calendar-date-content--week.gstc-date-week-small {
+  line-height: 1.2em;
+  height: calc(var(--calendar-height) - 20px);
+  font-size: 14px;
+}
+.gantt-schedule-timeline-calendar__chart-calendar-date-content--day.current,
+.gantt-schedule-timeline-calendar__chart-calendar-date-content--week.current {
   border-right: none;
 }
-.gantt-schedule-timeline-calendar__chart-calendar-date-content--day.previous {
-  border-right: none;
-}
-.gantt-schedule-timeline-calendar__chart-calendar-date-content--day-word {
-  border-right: 1px solid rgba(177,184,189,0.5);
-}
-.gantt-schedule-timeline-calendar__chart-calendar-date-content--day-word.current {
-  border-right: none;
-}
-.gantt-schedule-timeline-calendar__chart-calendar-date-content--day-word.previous {
+.gantt-schedule-timeline-calendar__chart-calendar-date-content--day.previous,
+.gantt-schedule-timeline-calendar__chart-calendar-date-content--week.previous {
   border-right: none;
 }
 .gantt-schedule-timeline-calendar__chart-timeline {

@@ -4498,19 +4498,26 @@ function Main(vido, props = {}) {
      * @param {string} period
      * @param {object} internalTime
      */
-    const generateAndAddPeriodDates = (period, internalTime) => {
+    const generatePeriodDates = (period, internalTime) => {
         const dates = [];
         let leftGlobal = internalTime.leftGlobal;
         const rightGlobal = internalTime.rightGlobal;
         const timePerPixel = internalTime.timePerPixel;
-        let sub = leftGlobal - api.time.date(leftGlobal).startOf(period);
+        let startOfLeft = api.time
+            .date(leftGlobal)
+            .startOf(period)
+            .valueOf();
+        let start = startOfLeft;
+        if (startOfLeft < leftGlobal)
+            startOfLeft = leftGlobal;
+        let sub = leftGlobal - startOfLeft.valueOf();
         let subPx = sub / timePerPixel;
         let leftPx = 0;
-        let maxWidth = 0;
         while (leftGlobal < rightGlobal) {
             const date = {
                 sub,
                 subPx,
+                start,
                 leftGlobal,
                 rightGlobal: api.time
                     .date(leftGlobal)
@@ -4518,26 +4525,27 @@ function Main(vido, props = {}) {
                     .valueOf(),
                 width: 0,
                 leftPx: 0,
-                rightPx: 0
+                rightPx: 0,
+                period
             };
             date.width = (date.rightGlobal - date.leftGlobal + sub) / timePerPixel;
-            maxWidth = date.width > maxWidth ? date.width : maxWidth;
             date.leftPx = leftPx;
             leftPx += date.width;
             date.rightPx = leftPx;
             dates.push(date);
             leftGlobal = date.rightGlobal + 1;
+            start = leftGlobal;
             sub = 0;
             subPx = 0;
         }
-        internalTime.maxWidth[period] = maxWidth;
-        internalTime.dates[period] = dates;
+        return dates;
     };
     /**
      * Recalculate times action
      */
     function recalculateTimes() {
         const chartWidth = state.get('_internal.chart.dimensions.width');
+        const calendar = state.get('config.chart.calendar');
         let time = api.mergeDeep({}, state.get('config.chart.time'));
         time = api.time.recalculateFromTo(time);
         let scrollLeft = state.get('config.scroll.left');
@@ -4555,7 +4563,7 @@ function Main(vido, props = {}) {
         time.rightPx = time.rightInner / time.timePerPixel;
         const rightPixelGlobal = Math.round(time.rightGlobal / time.timePerPixel);
         const pixelTo = Math.round(time.to / time.timePerPixel);
-        if (rightPixelGlobal > pixelTo && scrollLeft === 0) {
+        if (calendar.expand && rightPixelGlobal > pixelTo && scrollLeft === 0) {
             const diff = time.rightGlobal - time.to;
             const diffPercent = diff / (time.rightGlobal - time.from);
             time.timePerPixel = time.timePerPixel - time.timePerPixel * diffPercent;
@@ -4569,18 +4577,31 @@ function Main(vido, props = {}) {
             time.rightPx = time.rightInner / time.timePerPixel;
             time.leftPx = time.leftInner / time.timePerPixel;
         }
-        generateAndAddPeriodDates('day', time);
-        generateAndAddPeriodDates('month', time);
-        state.update(`_internal.chart.time`, time);
+        time.levels = [];
+        let index = 0;
+        for (const level of calendar.levels) {
+            const formatting = level.formats.find(format => +time.zoom <= +format.zoomTo);
+            if (level.main) {
+                time.format = formatting;
+                time.level = index;
+            }
+            if (formatting) {
+                time.levels.push(generatePeriodDates(formatting.period, time));
+            }
+            index++;
+        }
         let xCompensation = 0;
-        if (time.dates.day && time.dates.day.length !== 0) {
-            xCompensation = time.dates.day[0].subPx;
+        if (time.levels[time.level] && time.levels[time.level].length !== 0) {
+            xCompensation = time.levels[time.level][0].subPx;
         }
         state.update('config.scroll.compensation.x', xCompensation);
+        state.update(`_internal.chart.time`, time);
+        console.log(time.zoom);
         update();
     }
     onDestroy(state.subscribeAll([
         'config.chart.time',
+        'config.chart.calendar.levels',
         '_internal.dimensions.width',
         'config.scroll.left',
         '_internal.scrollBarHeight',
@@ -5718,27 +5739,46 @@ function ChartCalendar(vido, props) {
         update();
     }));
     let headerHeight;
-    const styleMap = new StyleMap({ height: '', '--headerHeight': '' });
+    const styleMap = new StyleMap({ height: '', '--headerHeight': '', 'margin-left': '' });
     onDestroy(state.subscribe('config.headerHeight', value => {
         headerHeight = value;
         styleMap.style['height'] = headerHeight + 'px';
         styleMap.style['--calendar-height'] = headerHeight + 'px';
         update();
     }));
-    const dayComponents = [], monthComponents = [];
-    onDestroy(state.subscribe(`_internal.chart.time.dates`, dates => {
+    onDestroy(state.subscribe('config.scroll.compensation.x', compensation => {
+        styleMap.style['margin-left'] = -compensation + 'px';
+        update();
+    }));
+    const components = [[], []];
+    onDestroy(state.subscribe(`_internal.chart.time.levels`, levels => {
         const currentDate = api.time.date().format('YYYY-MM-DD');
-        if (typeof dates.day === 'object' && Array.isArray(dates.day) && dates.day.length) {
-            reuseComponents(dayComponents, dates.day, date => date && { period: 'day', date, currentDate }, ChartCalendarDateComponent);
-        }
-        if (typeof dates.month === 'object' && Array.isArray(dates.month) && dates.month.length) {
-            reuseComponents(monthComponents, dates.month, date => date && { period: 'month', date, currentDate }, ChartCalendarDateComponent);
+        let level = 0;
+        for (const dates of levels) {
+            if (!dates.length)
+                continue;
+            let currentDateFormat = 'YYYY-MM-DD HH'; // hour
+            switch (dates[0].period) {
+                case 'day':
+                    currentDateFormat = 'YYYY-MM-DD';
+                    break;
+                case 'week':
+                    currentDateFormat = 'YYYY-MM-ww';
+                    break;
+                case 'month':
+                    currentDateFormat = 'YYYY-MM';
+                    break;
+                case 'year':
+                    currentDateFormat = 'YYYY';
+                    break;
+            }
+            reuseComponents(components[level], dates, date => date && { level, date, currentDate, currentDateFormat }, ChartCalendarDateComponent);
+            level++;
         }
         update();
     }));
     onDestroy(() => {
-        dayComponents.forEach(day => day.destroy());
-        monthComponents.forEach(month => month.destroy());
+        components.forEach(level => level.forEach(component => component.destroy()));
     });
     componentActions.push(element => {
         state.update('_internal.elements.chart-calendar', element);
@@ -5746,8 +5786,11 @@ function ChartCalendar(vido, props) {
     const actions = Actions.create(componentActions, actionProps);
     return templateProps => wrapper(html `
         <div class=${className} data-actions=${actions} style=${styleMap}>
-          <div class=${className + '-dates ' + className + '-dates--months'}>${monthComponents.map(m => m.html())}</div>
-          <div class=${className + '-dates ' + className + '-dates--days'}>${dayComponents.map(d => d.html())}</div>
+          ${components.map((components, level) => html `
+              <div class=${className + '-dates ' + className + `-dates--level-${level}`}>
+                ${components.map(m => m.html())}
+              </div>
+            `)}
         </div>
       `, { props, vido, templateProps });
 }
@@ -5760,7 +5803,7 @@ class Action$1 {
 Action$1.prototype.isAction = true;
 
 /**
- * ChartCalendarDate component
+ * ChartCalendarDay component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -5787,7 +5830,7 @@ class BindElementAction$2 extends Action$1 {
         });
     }
 }
-function ChartCalendarDate(vido, props) {
+function ChartCalendarDay(vido, props) {
     const { api, state, onDestroy, Actions, update, onChange, html, StyleMap, Detach } = vido;
     const componentName = 'chart-calendar-date';
     const componentActions = api.getActions(componentName);
@@ -5798,278 +5841,81 @@ function ChartCalendarDate(vido, props) {
         className = api.getClass(componentName, props);
     }));
     let current = '';
-    if (api.time.date(props.date.leftGlobal).format('YYYY-MM-DD') === props.currentDate) {
-        current = ' current';
-    }
-    else {
-        current = '';
-    }
     let time, htmlFormatted;
-    const styleMap = new StyleMap({ width: '', 'margin-left': '', visibility: 'visible' }), scrollStyleMap = new StyleMap({
+    const styleMap = new StyleMap({ width: '', visibility: 'visible' }), scrollStyleMap = new StyleMap({
         overflow: 'hidden',
-        'text-align': 'left',
-        'margin-left': props.date.subPx + 8 + 'px'
+        'text-align': 'left'
     });
-    const updateDate = () => {
+    let formatClassName = '';
+    function updateDate() {
         if (!props)
             return;
-        time = state.get('_internal.chart.time');
+        const cache = state.get('_internal.cache.calendar');
+        const level = state.get(`config.chart.calendar.levels.${props.level}`);
+        const useCache = level.doNotUseCache ? false : true;
         styleMap.style.width = props.date.width + 'px';
-        styleMap.style['margin-left'] = -props.date.subPx + 'px';
         styleMap.style.visibility = 'visible';
         scrollStyleMap.style = { overflow: 'hidden', 'text-align': 'left', 'margin-left': props.date.subPx + 8 + 'px' };
-        const dateMod = api.time.date(props.date.leftGlobal);
-        if (dateMod.format('YYYY-MM-DD') === props.currentDate) {
-            current = ' current';
+        time = state.get('_internal.chart.time');
+        const cacheKey = `${new Date(props.date.start).toISOString()}-${props.date.period}-${props.level}-${time.zoom}`;
+        if (!cache[cacheKey]) {
+            cache[cacheKey] = {};
         }
-        else if (dateMod.subtract(1, 'days').format('YYYY-MM-DD') === props.currentDate) {
-            current = ' next';
-        }
-        else if (dateMod.add(1, 'days').format('YYYY-MM-DD') === props.currentDate) {
-            current = ' previous';
+        let timeStart, timeEnd;
+        if (useCache && cache[cacheKey].timeStart) {
+            timeStart = cache[cacheKey].timeStart;
+            timeEnd = cache[cacheKey].timeEnd;
         }
         else {
-            current = '';
+            timeStart = api.time.date(props.date.start);
+            timeEnd = api.time.date(props.date.rightGlobal);
+            cache[cacheKey].timeStart = timeStart;
+            cache[cacheKey].timeEnd = timeEnd;
         }
-        const maxWidth = time.maxWidth[props.period];
-        switch (props.period) {
-            case 'month':
-                htmlFormatted = html `
-          <div class=${className + '-content ' + className + '-content--month' + current} style=${scrollStyleMap}>
-            ${dateMod.format('MMMM YYYY')}
-          </div>
-        `;
-                if (maxWidth <= 100) {
-                    htmlFormatted = html `
-            <div class=${className + '-content ' + className + '-content--month' + current}>
-              ${dateMod.format("MMM'YY")}
-            </div>
-          `;
-                }
-                break;
-            case 'day':
-                htmlFormatted = html `
-          <div class=${className + '-content ' + className + '-content--day _0' + current}>
-            <div class=${className + '-content ' + className + '-content--day-small' + current}>
-              ${dateMod.format('DD')} ${dateMod.format('ddd')}
-            </div>
-          </div>
-        `;
-                if (maxWidth >= 40 && maxWidth < 50) {
-                    htmlFormatted = html `
-            <div class=${className + '-content ' + className + '-content--day _40' + current}>
-              ${dateMod.format('DD')}
-            </div>
-            <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${dateMod.format('dd')}
-            </div>
-          `;
-                }
-                else if (maxWidth >= 50 && maxWidth < 90) {
-                    htmlFormatted = html `
-            <div class=${className + '-content ' + className + '-content--day _50' + current}>
-              ${dateMod.format('DD')}
-            </div>
-            <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${dateMod.format('ddd')}
-            </div>
-          `;
-                }
-                else if (maxWidth >= 90 && maxWidth < 180) {
-                    htmlFormatted = html `
-            <div class=${className + '-content ' + className + '-content--day _90' + current}>
-              ${dateMod.format('DD')}
-            </div>
-            <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${dateMod.format('dddd')}
-            </div>
-          `;
-                }
-                else if (maxWidth >= 180 && maxWidth < 400) {
-                    const hours = [];
-                    const start = dateMod.startOf('day');
-                    for (let i = 0; i < 12; i++) {
-                        const left = start.add(i * 2, 'hours');
-                        const width = (start
-                            .add(i * 2 + 1, 'hours')
-                            .endOf('hour')
-                            .valueOf() -
-                            left.valueOf()) /
-                            time.timePerPixel;
-                        hours.push({
-                            width,
-                            formatted: left.format('HH')
-                        });
-                    }
-                    htmlFormatted = html `
-            <div class=${className + '-content ' + className + '-content--day _180' + current}>
-              ${dateMod.format('DD dddd')}
-            </div>
-            <div class=${className + '-content ' + className + '-content--hours' + current}>
-              ${hours.map(hour => html `
-                    <div
-                      class="${className + '-content ' + className + '-content--hours-hour' + current}"
-                      style="width: ${hour.width}px"
-                    >
-                      ${hour.formatted}
-                    </div>
-                  `)}
-            </div>
-          `;
-                }
-                else if (maxWidth >= 400 && maxWidth < 1000) {
-                    const hours = [];
-                    const start = dateMod.startOf('day');
-                    for (let i = 0; i < 24; i++) {
-                        const left = start.add(i, 'hours');
-                        const width = (start
-                            .add(i, 'hours')
-                            .endOf('hour')
-                            .valueOf() -
-                            left.valueOf()) /
-                            time.timePerPixel;
-                        hours.push({
-                            width,
-                            formatted: left.format('HH')
-                        });
-                    }
-                    htmlFormatted = html `
-            <div class=${className + '-content ' + className + '-content--day _400' + current}>
-              ${dateMod.format('DD dddd')}
-            </div>
-            <div class=${className + '-content ' + className + '-content--hours' + current}>
-              ${hours.map(hour => html `
-                    <div
-                      class=${className + '-content ' + className + '-content--hours-hour' + current}
-                      style="width: ${hour.width}px"
-                    >
-                      ${hour.formatted}
-                    </div>
-                  `)}
-            </div>
-          `;
-                }
-                // scroll day from now on
-                else if (maxWidth >= 1000 && maxWidth < 2000) {
-                    const hours = [];
-                    const start = dateMod.startOf('day');
-                    for (let i = 0; i < 24; i++) {
-                        const left = start.add(i, 'hours');
-                        const width = (start
-                            .add(i, 'hours')
-                            .endOf('hour')
-                            .valueOf() -
-                            left.valueOf()) /
-                            time.timePerPixel;
-                        hours.push({
-                            width,
-                            formatted: left.format('HH:mm')
-                        });
-                    }
-                    htmlFormatted = html `
-            <div class=${className + '-content ' + className + '-content--day _1000' + current} style=${scrollStyleMap}>
-              ${dateMod.format('DD dddd')}
-            </div>
-            <div class=${className + '-content ' + className + '-content--hours' + current}>
-              ${hours.map(hour => html `
-                    <div
-                      class=${className + '-content ' + className + '-content--hours-hour' + current}
-                      style="width: ${hour.width}px"
-                    >
-                      ${hour.formatted}
-                    </div>
-                  `)}
-            </div>
-          `;
-                }
-                else if (maxWidth >= 2000 && maxWidth < 5000) {
-                    const hours = [];
-                    const start = dateMod.startOf('day');
-                    for (let i = 0; i < 24 * 2; i++) {
-                        const left = start.add(i * 30, 'minutes');
-                        const width = (start.add((i + 1) * 30, 'minutes').valueOf() - left.valueOf()) / time.timePerPixel;
-                        hours.push({
-                            width,
-                            formatted: left.format('HH:mm')
-                        });
-                    }
-                    htmlFormatted = html `
-            <div class=${className + '-content ' + className + '-content--day _2000' + current} style=${scrollStyleMap}>
-              ${dateMod.format('DD dddd')}
-            </div>
-            <div class=${className + '-content ' + className + '-content--hours' + current}>
-              ${hours.map(hour => html `
-                    <div
-                      class=${className + '-content ' + className + '-content--hours-hour' + current}
-                      style="width: ${hour.width}px"
-                    >
-                      ${hour.formatted}
-                    </div>
-                  `)}
-            </div>
-          `;
-                }
-                else if (maxWidth >= 5000 && maxWidth < 20000) {
-                    const hours = [];
-                    const start = dateMod.startOf('day');
-                    for (let i = 0; i < 24 * 4; i++) {
-                        const left = start.add(i * 15, 'minutes');
-                        const width = (start.add((i + 1) * 15, 'minutes').valueOf() - left.valueOf()) / time.timePerPixel;
-                        hours.push({
-                            width,
-                            formatted: left.format('HH:mm')
-                        });
-                    }
-                    htmlFormatted = html `
-            <div class=${className + '-content ' + className + '-content--day _5000' + current} style=${scrollStyleMap}>
-              ${dateMod.format('DD dddd')}
-            </div>
-            <div class=${className + '-content ' + className + '-content--hours' + current}>
-              ${hours.map(hour => html `
-                    <div
-                      class=${className + '-content ' + className + '-content--hours-hour' + current}
-                      style="width: ${hour.width}px"
-                    >
-                      ${hour.formatted}
-                    </div>
-                  `)}
-            </div>
-          `;
-                }
-                else if (maxWidth >= 20000) {
-                    const hours = [];
-                    const start = dateMod.startOf('day');
-                    for (let i = 0; i < 24 * 12; i++) {
-                        const left = start.add(i * 5, 'minutes');
-                        const width = (start.add((i + 1) * 5, 'minutes').valueOf() - left.valueOf()) / time.timePerPixel;
-                        hours.push({
-                            width,
-                            formatted: left.format('HH:mm')
-                        });
-                    }
-                    htmlFormatted = html `
-            <div
-              class=${className + '-content ' + className + '-content--day _20000' + current}
-              style=${scrollStyleMap}
-            >
-              ${dateMod.format('DD dddd')}
-            </div>
-            <div class=${className + '-content ' + className + '-content--hours' + current}>
-              ${hours.map(hour => html `
-                    <div
-                      class=${className + '-content ' + className + '-content--hours-hour' + current}
-                      style="width: ${hour.width}px"
-                    >
-                      ${hour.formatted}
-                    </div>
-                  `)}
-            </div>
-          `;
-                }
-                break;
+        const formats = level.formats;
+        const formatting = formats.find(formatting => +time.zoom <= +formatting.zoomTo);
+        let format;
+        if (useCache && cache[cacheKey].format) {
+            format = cache[cacheKey].format;
         }
+        else {
+            format = formatting ? formatting.format({ timeStart, timeEnd, className, vido, props }) : null;
+            cache[cacheKey].format = format;
+        }
+        if (useCache && cache[cacheKey].current) {
+            current = cache[cacheKey].current;
+        }
+        else {
+            if (timeStart.format(props.currentDateFormat) === props.currentDate) {
+                current = ' current';
+            }
+            else if (timeStart.subtract(1, props.date.period).format(props.currentDateFormat) === props.currentDate) {
+                current = ' next';
+            }
+            else if (timeStart.add(1, props.date.period).format(props.currentDateFormat) === props.currentDate) {
+                current = ' previous';
+            }
+            else {
+                current = '';
+            }
+            cache[cacheKey].current = current;
+        }
+        let finalClassName = className + '-content ' + className + `-content--${props.date.period}` + current;
+        if (formatting.className) {
+            finalClassName += ' ' + formatting.className;
+            formatClassName = ' ' + formatting.className;
+        }
+        else {
+            formatClassName = '';
+        }
+        // updating cache state is not neccessary because it is object and nobody listen to cache
+        htmlFormatted = html `
+      <div class=${finalClassName}>
+        ${format}
+      </div>
+    `;
         update();
-    };
+    }
     let shouldDetach = false;
     const detach = new Detach(() => shouldDetach);
     let timeSub;
@@ -6086,7 +5932,7 @@ function ChartCalendarDate(vido, props) {
         if (timeSub) {
             timeSub();
         }
-        timeSub = state.subscribeAll(['_internal.chart.time', 'config.chart.calendar.vertical.smallFormat'], updateDate, {
+        timeSub = state.subscribeAll(['_internal.chart.time', 'config.chart.calendar.levels'], updateDate, {
             bulk: true
         });
     });
@@ -6099,7 +5945,7 @@ function ChartCalendarDate(vido, props) {
     return templateProps => wrapper(html `
         <div
           detach=${detach}
-          class=${className + ' ' + className + '--' + props.period + current}
+          class=${className + ' ' + className + `--${props.date.period}` + current + formatClassName}
           style=${styleMap}
           data-actions=${actions}
         >
@@ -6168,7 +6014,8 @@ function ChartTimeline(vido, props) {
         else {
             innerStyleMap.style.width = '0px';
         }
-        innerStyleMap.style.transform = `translate(-${xCompensation}px, ${yCompensation}px)`;
+        //innerStyleMap.style.transform = `translate(-${xCompensation}px, ${yCompensation}px)`;
+        innerStyleMap.style['margin-left'] = -xCompensation + 'px';
         update();
     }
     onDestroy(state.subscribeAll([
@@ -6248,7 +6095,8 @@ function ChartTimelineGrid(vido, props) {
     function generateBlocks() {
         const width = state.get('_internal.chart.dimensions.width');
         const height = state.get('_internal.height');
-        const periodDates = state.get(`_internal.chart.time.dates.${period}`);
+        const time = state.get('_internal.chart.time');
+        const periodDates = state.get(`_internal.chart.time.levels.${time.level}`);
         if (!periodDates || periodDates.length === 0) {
             state.update('_internal.chart.grid.rowsWithBlocks', []);
             return;
@@ -6285,7 +6133,7 @@ function ChartTimelineGrid(vido, props) {
     }
     onDestroy(state.subscribeAll([
         '_internal.list.visibleRows;',
-        `_internal.chart.time.dates.${period};`,
+        `_internal.chart.time.levels`,
         '_internal.height',
         '_internal.chart.dimensions.width'
     ], generateBlocks, {
@@ -6295,10 +6143,10 @@ function ChartTimelineGrid(vido, props) {
      * Generate rows components
      * @param {array} rowsWithBlocks
      */
-    const generateRowsComponents = rowsWithBlocks => {
+    function generateRowsComponents(rowsWithBlocks) {
         reuseComponents(rowsComponents, rowsWithBlocks || [], row => row, GridRowComponent);
         update();
-    };
+    }
     onDestroy(state.subscribe('_internal.chart.grid.rowsWithBlocks', generateRowsComponents));
     onDestroy(() => {
         rowsComponents.forEach(row => row.destroy());
@@ -6913,7 +6761,7 @@ function defaultConfig() {
         plugins: [],
         plugin: {},
         height: 822,
-        headerHeight: 86,
+        headerHeight: 72,
         components: {
             Main,
             List,
@@ -6926,7 +6774,7 @@ function defaultConfig() {
             ListToggle,
             Chart,
             ChartCalendar,
-            ChartCalendarDate,
+            ChartCalendarDate: ChartCalendarDay,
             ChartTimeline,
             ChartTimelineGrid,
             ChartTimelineGridRow,
@@ -7048,14 +6896,166 @@ function defaultConfig() {
                 from: 0,
                 to: 0,
                 zoom: 21,
-                period: 'day',
-                dates: {},
+                levels: [],
                 maxWidth: {}
             },
             calendar: {
-                vertical: {
-                    smallFormat: 'YYYY-MM-DD'
-                }
+                expand: true,
+                levels: [
+                    {
+                        formats: [
+                            {
+                                zoomTo: 17,
+                                period: 'day',
+                                className: 'gstc-date-medium gstc-date-left',
+                                format({ timeStart }) {
+                                    return timeStart.format('DD MMMM YYYY (dddd)');
+                                }
+                            },
+                            {
+                                zoomTo: 23,
+                                period: 'month',
+                                format({ timeStart }) {
+                                    return timeStart.format('MMMM YYYY');
+                                }
+                            },
+                            {
+                                zoomTo: 24,
+                                period: 'month',
+                                format({ timeStart }) {
+                                    return timeStart.format("MMMM 'YY");
+                                }
+                            },
+                            {
+                                zoomTo: 25,
+                                period: 'month',
+                                format({ timeStart }) {
+                                    return timeStart.format('MMM YYYY');
+                                }
+                            },
+                            {
+                                zoomTo: 27,
+                                period: 'year',
+                                format({ timeStart }) {
+                                    return timeStart.format('YYYY');
+                                }
+                            },
+                            {
+                                zoomTo: 29,
+                                period: 'year',
+                                className: 'gstc-date-big',
+                                format({ timeStart }) {
+                                    return timeStart.format('YYYY');
+                                }
+                            },
+                            {
+                                zoomTo: 100,
+                                period: 'year',
+                                format() {
+                                    return null;
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        main: true,
+                        formats: [
+                            {
+                                zoomTo: 16,
+                                period: 'hour',
+                                format({ timeStart }) {
+                                    return timeStart.format('HH:mm');
+                                }
+                            },
+                            {
+                                zoomTo: 17,
+                                period: 'hour',
+                                format({ timeStart }) {
+                                    return timeStart.format('HH');
+                                }
+                            },
+                            {
+                                zoomTo: 19,
+                                period: 'day',
+                                className: 'gstc-date-medium',
+                                format({ timeStart }) {
+                                    return timeStart.format('DD dddd');
+                                }
+                            },
+                            {
+                                zoomTo: 20,
+                                period: 'day',
+                                //className: 'gstc-date-medium',
+                                format({ timeStart, vido, className }) {
+                                    return vido.html `<div>${timeStart.format('DD')}</div><div class="${className}-content gstc-date-small">${timeStart.format('dddd')}</div>`;
+                                }
+                            },
+                            {
+                                zoomTo: 21,
+                                period: 'day',
+                                className: 'gstc-date-medium',
+                                format({ timeStart, vido, className }) {
+                                    return vido.html `<div>${timeStart.format('DD')}</div><div class="${className}-content gstc-date-small">${timeStart.format('ddd')}</div>`;
+                                }
+                            },
+                            {
+                                zoomTo: 22,
+                                period: 'day',
+                                className: 'gstc-date-vertical',
+                                format({ timeStart }) {
+                                    return timeStart.format('DD ddd');
+                                }
+                            },
+                            {
+                                zoomTo: 23,
+                                period: 'week',
+                                className: 'gstc-date-medium',
+                                format({ timeStart, timeEnd }) {
+                                    return timeStart.format('DD') + ' - ' + timeEnd.format('DD');
+                                }
+                            },
+                            {
+                                zoomTo: 24,
+                                period: 'week',
+                                className: 'gstc-date-week-small',
+                                format({ timeStart, timeEnd, vido }) {
+                                    return vido.html `<div>${timeStart.format('DD')}</div> | <div>${timeEnd.format('DD')}</div>`;
+                                }
+                            },
+                            {
+                                zoomTo: 25,
+                                period: 'week',
+                                className: 'gstc-date-vertical',
+                                format({ timeStart, timeEnd }) {
+                                    return timeStart.format('DD') + ' - ' + timeEnd.format('DD');
+                                }
+                            },
+                            {
+                                zoomTo: 26,
+                                period: 'month',
+                                className: 'gstc-date-month-level-1',
+                                format({ timeStart }) {
+                                    return timeStart.format('MMM');
+                                }
+                            },
+                            {
+                                zoomTo: 27,
+                                period: 'month',
+                                className: 'gstc-date-vertical',
+                                format({ timeStart }) {
+                                    return timeStart.format('MM MMM');
+                                }
+                            },
+                            {
+                                zoomTo: 28,
+                                period: 'year',
+                                format() {
+                                    return null;
+                                }
+                            }
+                        ]
+                    }
+                ]
             },
             grid: {
                 block: {
@@ -7124,6 +7124,14 @@ var utc = createCommonjsModule(function (module, exports) {
 !function(t,i){module.exports=i();}(commonjsGlobal,function(){return function(t,i,e){var s=(new Date).getTimezoneOffset(),n=i.prototype;e.utc=function(t,e){return new i({date:t,utc:!0,format:e})},n.utc=function(){return e(this.toDate(),{locale:this.$L,utc:!0})},n.local=function(){return e(this.toDate(),{locale:this.$L,utc:!1})};var u=n.parse;n.parse=function(t){t.utc&&(this.$u=!0),this.$utils().u(t.$offset)||(this.$offset=t.$offset),u.call(this,t);};var o=n.init;n.init=function(){if(this.$u){var t=this.$d;this.$y=t.getUTCFullYear(),this.$M=t.getUTCMonth(),this.$D=t.getUTCDate(),this.$W=t.getUTCDay(),this.$H=t.getUTCHours(),this.$m=t.getUTCMinutes(),this.$s=t.getUTCSeconds(),this.$ms=t.getUTCMilliseconds();}else o.call(this);};var f=n.utcOffset;n.utcOffset=function(t){var i=this.$utils().u;if(i(t))return this.$u?0:i(this.$offset)?f.call(this):this.$offset;var e,n=Math.abs(t)<=16?60*t:t;return 0!==t?(e=this.local().add(n+s,"minute")).$offset=n:e=this.utc(),e};var r=n.format;n.format=function(t){var i=t||(this.$u?"YYYY-MM-DDTHH:mm:ss[Z]":"");return r.call(this,i)},n.valueOf=function(){var t=this.$utils().u(this.$offset)?0:this.$offset+s;return this.$d.valueOf()-6e4*t},n.isUTC=function(){return !!this.$u},n.toISOString=function(){return this.toDate().toISOString()},n.toString=function(){return this.toDate().toUTCString()};}});
 });
 
+var advancedFormat = createCommonjsModule(function (module, exports) {
+!function(e,t){module.exports=t();}(commonjsGlobal,function(){return function(e,t,r){var n=t.prototype,o=n.format;r.en.ordinal=function(e){var t=["th","st","nd","rd"],r=e%100;return "["+e+(t[(r-20)%10]||t[r]||t[0])+"]"},n.format=function(e){var t=this,r=this.$locale(),n=this.$utils(),a=(e||"YYYY-MM-DDTHH:mm:ssZ").replace(/\[([^\]]+)]|Q|wo|ww|w|gggg|Do|X|x|k{1,2}|S/g,function(e){switch(e){case"Q":return Math.ceil((t.$M+1)/3);case"Do":return r.ordinal(t.$D);case"gggg":return t.weekYear();case"wo":return r.ordinal(t.week(),"W");case"w":case"ww":return n.s(t.week(),"w"===e?1:2,"0");case"k":case"kk":return n.s(String(0===t.$H?24:t.$H),"k"===e?1:2,"0");case"X":return Math.floor(t.$d.getTime()/1e3);case"x":return t.$d.getTime();default:return e}});return o.bind(this)(a)};}});
+});
+
+var weekOfYear = createCommonjsModule(function (module, exports) {
+!function(e,t){module.exports=t();}(commonjsGlobal,function(){var e="year";return function(t,i,n){var r=i.prototype;r.week=function(t){if(void 0===t&&(t=null),null!==t)return this.add(7*(t-this.week()),"day");var i=this.$locale().weekStart||0,r=n(this).endOf(e);if(0===i&&6!==r.day()&&11===this.month()&&31-this.date()<=r.day())return 1;var d=n(this).startOf(e),a=d.subtract(d.day()-i,"day").subtract(1,"millisecond"),o=this.diff(a,"week",!0);return Math.ceil(o)},r.weeks=function(e){return void 0===e&&(e=null),this.week(e)};}});
+});
+
 /**
  * Gantt-Schedule-Timeline-Calendar
  *
@@ -7132,6 +7140,8 @@ var utc = createCommonjsModule(function (module, exports) {
  * @package   gantt-schedule-timeline-calendar
  * @license   AGPL-3.0
  */
+dayjs_min.extend(advancedFormat);
+dayjs_min.extend(weekOfYear);
 class TimeApi {
     constructor(state) {
         this.utcMode = false;
@@ -8539,7 +8549,7 @@ function GSTC(options) {
             },
             visibleItems: [],
             time: {
-                dates: {},
+                levels: [],
                 timePerPixel: 0,
                 firstTaskTime: 0,
                 lastTaskTime: 0,
@@ -8554,7 +8564,10 @@ function GSTC(options) {
                 maxWidth: {}
             }
         },
-        elements: {}
+        elements: {},
+        cache: {
+            calendar: {}
+        }
     };
     if (typeof options.debug === 'boolean' && options.debug) {
         // @ts-ignore

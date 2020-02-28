@@ -19,6 +19,7 @@ export default function WeekendHiglight(options: Options = {}) {
   const weekdays = options.weekdays || [6, 0];
   let className;
   let api;
+  let enabled = true;
 
   class WeekendHighlightAction extends Action {
     constructor(element, data) {
@@ -31,8 +32,14 @@ export default function WeekendHiglight(options: Options = {}) {
     }
 
     highlight(element, time) {
-      const isWeekend = weekdays.includes(api.time.date(time).day());
       const hasClass = element.classList.contains(className);
+      if (!enabled) {
+        if (hasClass) {
+          element.classList.remove(className);
+        }
+        return;
+      }
+      const isWeekend = weekdays.includes(api.time.date(time).day());
       if (!hasClass && isWeekend) {
         element.classList.add(className);
       } else if (hasClass && !isWeekend) {
@@ -44,9 +51,13 @@ export default function WeekendHiglight(options: Options = {}) {
   return function initialize(vido) {
     api = vido.api;
     className = options.className || api.getClass('chart-timeline-grid-row-block') + '--weekend';
+    const destroy = vido.state.subscribe('_internal.chart.time.format.period', period => (enabled = period === 'day'));
     vido.state.update('config.actions.chart-timeline-grid-row-block', actions => {
       actions.push(WeekendHighlightAction);
       return actions;
     });
+    return function onDestroy() {
+      destroy();
+    };
   };
 }

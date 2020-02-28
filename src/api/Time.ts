@@ -10,6 +10,11 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { Locale } from '../types';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
+import weekOfYear from 'dayjs/plugin/weekOfYear';
+
+dayjs.extend(advancedFormat);
+dayjs.extend(weekOfYear);
 
 export default class TimeApi {
   private locale: Locale;

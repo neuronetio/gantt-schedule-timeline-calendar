@@ -27,7 +27,8 @@
     <h1>Gantt Schedule Timeline Calendar example #1</h1>
     <div>
       <input type="range" min="0" max="100" value="100" id="percent" />
-      <input type="range" min="10" max="22" value="20" id="zoom" />
+      <input type="range" min="12" max="28" value="20" id="zoom" />
+      <div style="display: inline-block;width: 100px; text-align: center;font-weight: bold;" id="period"></div>
       <button id="change-something">Change something</button>
       <button onclick="deleteRow()">Delete row</button>
       <button onclick="deleteItem()">Delete item</button>
@@ -75,7 +76,7 @@
 
       const startDate = GSTC.api
         .date()
-        .subtract(1, 'month')
+        .subtract(5, 'month')
         .valueOf();
 
       const items = {};
@@ -84,7 +85,7 @@
         let startDayjs = GSTC.api
           .date(startDate)
           .startOf('day')
-          .add(Math.floor(Math.random() * 100), 'days');
+          .add(Math.floor(Math.random() * 365 * 20), 'days');
         items[id] = {
           id,
           label: 'item id ' + i,
@@ -187,6 +188,10 @@
         state.update(`config.chart.items.${itemMovement.item.id}.isResizing`, itemMovement.item.resizing);
       });
 
+      GSTCState.subscribe('_internal.chart.time.format.period', period => {
+        document.getElementById('period').innerText = period;
+      });
+
       const gstc = GSTC({
         element: document.getElementById('app'),
         state: GSTCState
@@ -281,7 +286,7 @@
         gstc.state.update('config.list.columns.percent', ev.target.value);
       });
       document.getElementById('zoom').addEventListener('input', ev => {
-        gstc.state.update('config.chart.time.zoom', ev.target.value);
+        gstc.state.update('config.chart.time.zoom', +ev.target.value);
       });
       document.getElementById('change-something').addEventListener('click', () => {
         gstc.state.update('config.list.rows', rows => {

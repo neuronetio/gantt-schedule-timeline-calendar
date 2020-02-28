@@ -59,7 +59,8 @@ export default function ChartTimelineGrid(vido, props) {
   function generateBlocks() {
     const width = state.get('_internal.chart.dimensions.width');
     const height = state.get('_internal.height');
-    const periodDates = state.get(`_internal.chart.time.dates.${period}`);
+    const time = state.get('_internal.chart.time');
+    const periodDates = state.get(`_internal.chart.time.levels.${time.level}`);
     if (!periodDates || periodDates.length === 0) {
       state.update('_internal.chart.grid.rowsWithBlocks', []);
       return;
@@ -69,7 +70,6 @@ export default function ChartTimelineGrid(vido, props) {
     const yCompensation = api.getCompensationY();
     styleMap.style.height = height + Math.abs(yCompensation) + 'px';
     styleMap.style.width = width + xCompensation + 'px';
-
     let top = 0;
     rowsWithBlocks.length = 0;
     for (const row of visibleRows) {
@@ -98,7 +98,7 @@ export default function ChartTimelineGrid(vido, props) {
     state.subscribeAll(
       [
         '_internal.list.visibleRows;',
-        `_internal.chart.time.dates.${period};`,
+        `_internal.chart.time.levels`,
         '_internal.height',
         '_internal.chart.dimensions.width'
       ],
@@ -113,10 +113,10 @@ export default function ChartTimelineGrid(vido, props) {
    * Generate rows components
    * @param {array} rowsWithBlocks
    */
-  const generateRowsComponents = rowsWithBlocks => {
+  function generateRowsComponents(rowsWithBlocks) {
     reuseComponents(rowsComponents, rowsWithBlocks || [], row => row, GridRowComponent);
     update();
-  };
+  }
   onDestroy(state.subscribe('_internal.chart.grid.rowsWithBlocks', generateRowsComponents));
   onDestroy(() => {
     rowsComponents.forEach(row => row.destroy());

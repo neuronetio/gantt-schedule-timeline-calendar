@@ -218,12 +218,18 @@ export default function Main(vido, props = {}) {
    * @param {string} period
    * @param {object} internalTime
    */
-  const generateAndAddPeriodDates = (period: string, internalTime) => {
+  const generatePeriodDates = (period: string, internalTime) => {
     const dates = [];
     let leftGlobal = internalTime.leftGlobal;
     const rightGlobal = internalTime.rightGlobal;
     const timePerPixel = internalTime.timePerPixel;
-    let sub = leftGlobal - api.time.date(leftGlobal).startOf(period);
+    let startOfLeft = api.time
+      .date(leftGlobal)
+      .startOf(period)
+      .valueOf();
+    let start = startOfLeft;
+    if (startOfLeft < leftGlobal) startOfLeft = leftGlobal;
+    let sub = leftGlobal - startOfLeft.valueOf();
     let subPx = sub / timePerPixel;
     let leftPx = 0;
     let maxWidth = 0;
@@ -231,6 +237,7 @@ export default function Main(vido, props = {}) {
       const date = {
         sub,
         subPx,
+        start,
         leftGlobal,
         rightGlobal: api.time
           .date(leftGlobal)
@@ -238,7 +245,8 @@ export default function Main(vido, props = {}) {
           .valueOf(),
         width: 0,
         leftPx: 0,
-        rightPx: 0
+        rightPx: 0,
+        period
       };
       date.width = (date.rightGlobal - date.leftGlobal + sub) / timePerPixel;
       maxWidth = date.width > maxWidth ? date.width : maxWidth;
@@ -247,11 +255,11 @@ export default function Main(vido, props = {}) {
       date.rightPx = leftPx;
       dates.push(date);
       leftGlobal = date.rightGlobal + 1;
+      start = leftGlobal;
       sub = 0;
       subPx = 0;
     }
-    internalTime.maxWidth[period] = maxWidth;
-    internalTime.dates[period] = dates;
+    return dates;
   };
 
   /**
@@ -259,6 +267,7 @@ export default function Main(vido, props = {}) {
    */
   function recalculateTimes() {
     const chartWidth = state.get('_internal.chart.dimensions.width');
+    const calendar = state.get('config.chart.calendar');
     let time = api.mergeDeep({}, state.get('config.chart.time'));
     time = api.time.recalculateFromTo(time);
     let scrollLeft = state.get('config.scroll.left');
@@ -276,7 +285,7 @@ export default function Main(vido, props = {}) {
     time.rightPx = time.rightInner / time.timePerPixel;
     const rightPixelGlobal = Math.round(time.rightGlobal / time.timePerPixel);
     const pixelTo = Math.round(time.to / time.timePerPixel);
-    if (rightPixelGlobal > pixelTo && scrollLeft === 0) {
+    if (calendar.expand && rightPixelGlobal > pixelTo && scrollLeft === 0) {
       const diff = time.rightGlobal - time.to;
       const diffPercent = diff / (time.rightGlobal - time.from);
       time.timePerPixel = time.timePerPixel - time.timePerPixel * diffPercent;
@@ -290,20 +299,33 @@ export default function Main(vido, props = {}) {
       time.rightPx = time.rightInner / time.timePerPixel;
       time.leftPx = time.leftInner / time.timePerPixel;
     }
-    generateAndAddPeriodDates('day', time);
-    generateAndAddPeriodDates('month', time);
-    state.update(`_internal.chart.time`, time);
+    time.levels = [];
+    let index = 0;
+    for (const level of calendar.levels) {
+      const formatting = level.formats.find(format => +time.zoom <= +format.zoomTo);
+      if (level.main) {
+        time.format = formatting;
+        time.level = index;
+      }
+      if (formatting) {
+        time.levels.push(generatePeriodDates(formatting.period, time));
+      }
+      index++;
+    }
     let xCompensation = 0;
-    if (time.dates.day && time.dates.day.length !== 0) {
-      xCompensation = time.dates.day[0].subPx;
+    if (time.levels[time.level] && time.levels[time.level].length !== 0) {
+      xCompensation = time.levels[time.level][0].subPx;
     }
     state.update('config.scroll.compensation.x', xCompensation);
+    state.update(`_internal.chart.time`, time);
+    console.log(time.zoom);
     update();
   }
   onDestroy(
     state.subscribeAll(
       [
         'config.chart.time',
+        'config.chart.calendar.levels',
         '_internal.dimensions.width',
         'config.scroll.left',
         '_internal.scrollBarHeight',

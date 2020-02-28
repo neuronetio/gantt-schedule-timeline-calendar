@@ -1,5 +1,5 @@
 /**
- * ChartCalendarDate component
+ * ChartCalendarDay component
  *
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
@@ -30,7 +30,7 @@ class BindElementAction extends Action {
   }
 }
 
-export default function ChartCalendarDate(vido, props) {
+export default function ChartCalendarDay(vido, props) {
   const { api, state, onDestroy, Actions, update, onChange, html, StyleMap, Detach } = vido;
 
   const componentName = 'chart-calendar-date';
@@ -47,290 +47,75 @@ export default function ChartCalendarDate(vido, props) {
   );
 
   let current = '';
-  if (api.time.date(props.date.leftGlobal).format('YYYY-MM-DD') === props.currentDate) {
-    current = ' current';
-  } else {
-    current = '';
-  }
-
   let time, htmlFormatted;
-  const styleMap = new StyleMap({ width: '', 'margin-left': '', visibility: 'visible' }),
+  const styleMap = new StyleMap({ width: '', visibility: 'visible' }),
     scrollStyleMap = new StyleMap({
       overflow: 'hidden',
-      'text-align': 'left',
-      'margin-left': props.date.subPx + 8 + 'px'
+      'text-align': 'left'
     });
 
-  const updateDate = () => {
+  let formatClassName = '';
+  function updateDate() {
     if (!props) return;
-    time = state.get('_internal.chart.time');
+    const cache = state.get('_internal.cache.calendar');
+    const level = state.get(`config.chart.calendar.levels.${props.level}`);
+    const useCache = level.doNotUseCache ? false : true;
     styleMap.style.width = props.date.width + 'px';
-    styleMap.style['margin-left'] = -props.date.subPx + 'px';
     styleMap.style.visibility = 'visible';
     scrollStyleMap.style = { overflow: 'hidden', 'text-align': 'left', 'margin-left': props.date.subPx + 8 + 'px' };
-    const dateMod = api.time.date(props.date.leftGlobal);
-    if (dateMod.format('YYYY-MM-DD') === props.currentDate) {
-      current = ' current';
-    } else if (dateMod.subtract(1, 'days').format('YYYY-MM-DD') === props.currentDate) {
-      current = ' next';
-    } else if (dateMod.add(1, 'days').format('YYYY-MM-DD') === props.currentDate) {
-      current = ' previous';
+    time = state.get('_internal.chart.time');
+    const cacheKey = `${new Date(props.date.start).toISOString()}-${props.date.period}-${props.level}-${time.zoom}`;
+    if (!cache[cacheKey]) {
+      cache[cacheKey] = {};
+    }
+    let timeStart, timeEnd;
+    if (useCache && cache[cacheKey].timeStart) {
+      timeStart = cache[cacheKey].timeStart;
+      timeEnd = cache[cacheKey].timeEnd;
     } else {
-      current = '';
+      timeStart = api.time.date(props.date.start);
+      timeEnd = api.time.date(props.date.rightGlobal);
+      cache[cacheKey].timeStart = timeStart;
+      cache[cacheKey].timeEnd = timeEnd;
     }
-    const maxWidth = time.maxWidth[props.period];
-    switch (props.period) {
-      case 'month':
-        htmlFormatted = html`
-          <div class=${className + '-content ' + className + '-content--month' + current} style=${scrollStyleMap}>
-            ${dateMod.format('MMMM YYYY')}
-          </div>
-        `;
-        if (maxWidth <= 100) {
-          htmlFormatted = html`
-            <div class=${className + '-content ' + className + '-content--month' + current}>
-              ${dateMod.format("MMM'YY")}
-            </div>
-          `;
-        }
-        break;
-      case 'day':
-        htmlFormatted = html`
-          <div class=${className + '-content ' + className + '-content--day _0' + current}>
-            <div class=${className + '-content ' + className + '-content--day-small' + current}>
-              ${dateMod.format('DD')} ${dateMod.format('ddd')}
-            </div>
-          </div>
-        `;
-        if (maxWidth >= 40 && maxWidth < 50) {
-          htmlFormatted = html`
-            <div class=${className + '-content ' + className + '-content--day _40' + current}>
-              ${dateMod.format('DD')}
-            </div>
-            <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${dateMod.format('dd')}
-            </div>
-          `;
-        } else if (maxWidth >= 50 && maxWidth < 90) {
-          htmlFormatted = html`
-            <div class=${className + '-content ' + className + '-content--day _50' + current}>
-              ${dateMod.format('DD')}
-            </div>
-            <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${dateMod.format('ddd')}
-            </div>
-          `;
-        } else if (maxWidth >= 90 && maxWidth < 180) {
-          htmlFormatted = html`
-            <div class=${className + '-content ' + className + '-content--day _90' + current}>
-              ${dateMod.format('DD')}
-            </div>
-            <div class=${className + '-content ' + className + '-content--day-word' + current}>
-              ${dateMod.format('dddd')}
-            </div>
-          `;
-        } else if (maxWidth >= 180 && maxWidth < 400) {
-          const hours = [];
-          const start = dateMod.startOf('day');
-          for (let i = 0; i < 12; i++) {
-            const left = start.add(i * 2, 'hours');
-            const width =
-              (start
-                .add(i * 2 + 1, 'hours')
-                .endOf('hour')
-                .valueOf() -
-                left.valueOf()) /
-              time.timePerPixel;
-            hours.push({
-              width,
-              formatted: left.format('HH')
-            });
-          }
-          htmlFormatted = html`
-            <div class=${className + '-content ' + className + '-content--day _180' + current}>
-              ${dateMod.format('DD dddd')}
-            </div>
-            <div class=${className + '-content ' + className + '-content--hours' + current}>
-              ${hours.map(
-                hour =>
-                  html`
-                    <div
-                      class="${className + '-content ' + className + '-content--hours-hour' + current}"
-                      style="width: ${hour.width}px"
-                    >
-                      ${hour.formatted}
-                    </div>
-                  `
-              )}
-            </div>
-          `;
-        } else if (maxWidth >= 400 && maxWidth < 1000) {
-          const hours = [];
-          const start = dateMod.startOf('day');
-          for (let i = 0; i < 24; i++) {
-            const left = start.add(i, 'hours');
-            const width =
-              (start
-                .add(i, 'hours')
-                .endOf('hour')
-                .valueOf() -
-                left.valueOf()) /
-              time.timePerPixel;
-            hours.push({
-              width,
-              formatted: left.format('HH')
-            });
-          }
-          htmlFormatted = html`
-            <div class=${className + '-content ' + className + '-content--day _400' + current}>
-              ${dateMod.format('DD dddd')}
-            </div>
-            <div class=${className + '-content ' + className + '-content--hours' + current}>
-              ${hours.map(
-                hour =>
-                  html`
-                    <div
-                      class=${className + '-content ' + className + '-content--hours-hour' + current}
-                      style="width: ${hour.width}px"
-                    >
-                      ${hour.formatted}
-                    </div>
-                  `
-              )}
-            </div>
-          `;
-        }
-        // scroll day from now on
-        else if (maxWidth >= 1000 && maxWidth < 2000) {
-          const hours = [];
-          const start = dateMod.startOf('day');
-          for (let i = 0; i < 24; i++) {
-            const left = start.add(i, 'hours');
-            const width =
-              (start
-                .add(i, 'hours')
-                .endOf('hour')
-                .valueOf() -
-                left.valueOf()) /
-              time.timePerPixel;
-            hours.push({
-              width,
-              formatted: left.format('HH:mm')
-            });
-          }
-          htmlFormatted = html`
-            <div class=${className + '-content ' + className + '-content--day _1000' + current} style=${scrollStyleMap}>
-              ${dateMod.format('DD dddd')}
-            </div>
-            <div class=${className + '-content ' + className + '-content--hours' + current}>
-              ${hours.map(
-                hour =>
-                  html`
-                    <div
-                      class=${className + '-content ' + className + '-content--hours-hour' + current}
-                      style="width: ${hour.width}px"
-                    >
-                      ${hour.formatted}
-                    </div>
-                  `
-              )}
-            </div>
-          `;
-        } else if (maxWidth >= 2000 && maxWidth < 5000) {
-          const hours = [];
-          const start = dateMod.startOf('day');
-          for (let i = 0; i < 24 * 2; i++) {
-            const left = start.add(i * 30, 'minutes');
-            const width = (start.add((i + 1) * 30, 'minutes').valueOf() - left.valueOf()) / time.timePerPixel;
-            hours.push({
-              width,
-              formatted: left.format('HH:mm')
-            });
-          }
-          htmlFormatted = html`
-            <div class=${className + '-content ' + className + '-content--day _2000' + current} style=${scrollStyleMap}>
-              ${dateMod.format('DD dddd')}
-            </div>
-            <div class=${className + '-content ' + className + '-content--hours' + current}>
-              ${hours.map(
-                hour =>
-                  html`
-                    <div
-                      class=${className + '-content ' + className + '-content--hours-hour' + current}
-                      style="width: ${hour.width}px"
-                    >
-                      ${hour.formatted}
-                    </div>
-                  `
-              )}
-            </div>
-          `;
-        } else if (maxWidth >= 5000 && maxWidth < 20000) {
-          const hours = [];
-          const start = dateMod.startOf('day');
-          for (let i = 0; i < 24 * 4; i++) {
-            const left = start.add(i * 15, 'minutes');
-            const width = (start.add((i + 1) * 15, 'minutes').valueOf() - left.valueOf()) / time.timePerPixel;
-            hours.push({
-              width,
-              formatted: left.format('HH:mm')
-            });
-          }
-          htmlFormatted = html`
-            <div class=${className + '-content ' + className + '-content--day _5000' + current} style=${scrollStyleMap}>
-              ${dateMod.format('DD dddd')}
-            </div>
-            <div class=${className + '-content ' + className + '-content--hours' + current}>
-              ${hours.map(
-                hour =>
-                  html`
-                    <div
-                      class=${className + '-content ' + className + '-content--hours-hour' + current}
-                      style="width: ${hour.width}px"
-                    >
-                      ${hour.formatted}
-                    </div>
-                  `
-              )}
-            </div>
-          `;
-        } else if (maxWidth >= 20000) {
-          const hours = [];
-          const start = dateMod.startOf('day');
-          for (let i = 0; i < 24 * 12; i++) {
-            const left = start.add(i * 5, 'minutes');
-            const width = (start.add((i + 1) * 5, 'minutes').valueOf() - left.valueOf()) / time.timePerPixel;
-            hours.push({
-              width,
-              formatted: left.format('HH:mm')
-            });
-          }
-          htmlFormatted = html`
-            <div
-              class=${className + '-content ' + className + '-content--day _20000' + current}
-              style=${scrollStyleMap}
-            >
-              ${dateMod.format('DD dddd')}
-            </div>
-            <div class=${className + '-content ' + className + '-content--hours' + current}>
-              ${hours.map(
-                hour =>
-                  html`
-                    <div
-                      class=${className + '-content ' + className + '-content--hours-hour' + current}
-                      style="width: ${hour.width}px"
-                    >
-                      ${hour.formatted}
-                    </div>
-                  `
-              )}
-            </div>
-          `;
-        }
-        break;
+    const formats = level.formats;
+    const formatting = formats.find(formatting => +time.zoom <= +formatting.zoomTo);
+    let format;
+    if (useCache && cache[cacheKey].format) {
+      format = cache[cacheKey].format;
+    } else {
+      format = formatting ? formatting.format({ timeStart, timeEnd, className, vido, props }) : null;
+      cache[cacheKey].format = format;
     }
+    if (useCache && cache[cacheKey].current) {
+      current = cache[cacheKey].current;
+    } else {
+      if (timeStart.format(props.currentDateFormat) === props.currentDate) {
+        current = ' current';
+      } else if (timeStart.subtract(1, props.date.period).format(props.currentDateFormat) === props.currentDate) {
+        current = ' next';
+      } else if (timeStart.add(1, props.date.period).format(props.currentDateFormat) === props.currentDate) {
+        current = ' previous';
+      } else {
+        current = '';
+      }
+      cache[cacheKey].current = current;
+    }
+    let finalClassName = className + '-content ' + className + `-content--${props.date.period}` + current;
+    if (formatting.className) {
+      finalClassName += ' ' + formatting.className;
+      formatClassName = ' ' + formatting.className;
+    } else {
+      formatClassName = '';
+    }
+    // updating cache state is not neccessary because it is object and nobody listen to cache
+    htmlFormatted = html`
+      <div class=${finalClassName}>
+        ${format}
+      </div>
+    `;
     update();
-  };
+  }
 
   let shouldDetach = false;
   const detach = new Detach(() => shouldDetach);
@@ -349,7 +134,7 @@ export default function ChartCalendarDate(vido, props) {
     if (timeSub) {
       timeSub();
     }
-    timeSub = state.subscribeAll(['_internal.chart.time', 'config.chart.calendar.vertical.smallFormat'], updateDate, {
+    timeSub = state.subscribeAll(['_internal.chart.time', 'config.chart.calendar.levels'], updateDate, {
       bulk: true
     });
   });
@@ -366,7 +151,7 @@ export default function ChartCalendarDate(vido, props) {
       html`
         <div
           detach=${detach}
-          class=${className + ' ' + className + '--' + props.period + current}
+          class=${className + ' ' + className + `--${props.date.period}` + current + formatClassName}
           style=${styleMap}
           data-actions=${actions}
         >

@@ -28,7 +28,7 @@ export default function ChartCalendar(vido, props) {
   );
 
   let headerHeight;
-  const styleMap = new StyleMap({ height: '', '--headerHeight': '' });
+  const styleMap = new StyleMap({ height: '', '--headerHeight': '', 'margin-left': '' });
   onDestroy(
     state.subscribe('config.headerHeight', value => {
       headerHeight = value;
@@ -38,33 +38,48 @@ export default function ChartCalendar(vido, props) {
     })
   );
 
-  const dayComponents = [],
-    monthComponents = [];
   onDestroy(
-    state.subscribe(`_internal.chart.time.dates`, dates => {
+    state.subscribe('config.scroll.compensation.x', compensation => {
+      styleMap.style['margin-left'] = -compensation + 'px';
+      update();
+    })
+  );
+
+  const components = [[], []];
+  onDestroy(
+    state.subscribe(`_internal.chart.time.levels`, levels => {
       const currentDate = api.time.date().format('YYYY-MM-DD');
-      if (typeof dates.day === 'object' && Array.isArray(dates.day) && dates.day.length) {
+      let level = 0;
+      for (const dates of levels) {
+        if (!dates.length) continue;
+        let currentDateFormat = 'YYYY-MM-DD HH'; // hour
+        switch (dates[0].period) {
+          case 'day':
+            currentDateFormat = 'YYYY-MM-DD';
+            break;
+          case 'week':
+            currentDateFormat = 'YYYY-MM-ww';
+            break;
+          case 'month':
+            currentDateFormat = 'YYYY-MM';
+            break;
+          case 'year':
+            currentDateFormat = 'YYYY';
+            break;
+        }
         reuseComponents(
-          dayComponents,
-          dates.day,
-          date => date && { period: 'day', date, currentDate },
+          components[level],
+          dates,
+          date => date && { level, date, currentDate, currentDateFormat },
           ChartCalendarDateComponent
         );
-      }
-      if (typeof dates.month === 'object' && Array.isArray(dates.month) && dates.month.length) {
-        reuseComponents(
-          monthComponents,
-          dates.month,
-          date => date && { period: 'month', date, currentDate },
-          ChartCalendarDateComponent
-        );
+        level++;
       }
       update();
     })
   );
   onDestroy(() => {
-    dayComponents.forEach(day => day.destroy());
-    monthComponents.forEach(month => month.destroy());
+    components.forEach(level => level.forEach(component => component.destroy()));
   });
 
   componentActions.push(element => {
@@ -76,8 +91,13 @@ export default function ChartCalendar(vido, props) {
     wrapper(
       html`
         <div class=${className} data-actions=${actions} style=${styleMap}>
-          <div class=${className + '-dates ' + className + '-dates--months'}>${monthComponents.map(m => m.html())}</div>
-          <div class=${className + '-dates ' + className + '-dates--days'}>${dayComponents.map(d => d.html())}</div>
+          ${components.map(
+            (components, level) => html`
+              <div class=${className + '-dates ' + className + `-dates--level-${level}`}>
+                ${components.map(m => m.html())}
+              </div>
+            `
+          )}
         </div>
       `,
       { props, vido, templateProps }

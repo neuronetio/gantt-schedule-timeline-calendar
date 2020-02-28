@@ -41,7 +41,7 @@ function GSTC(options) {
       },
       visibleItems: [],
       time: {
-        dates: {},
+        levels: [],
         timePerPixel: 0,
         firstTaskTime: 0,
         lastTaskTime: 0,
@@ -56,7 +56,10 @@ function GSTC(options) {
         maxWidth: {}
       }
     },
-    elements: {}
+    elements: {},
+    cache: {
+      calendar: {}
+    }
   };
   if (typeof options.debug === 'boolean' && options.debug) {
     // @ts-ignore

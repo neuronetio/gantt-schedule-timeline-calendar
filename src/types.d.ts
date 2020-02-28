@@ -1,4 +1,5 @@
-import Vido, { lithtml } from '@neuronet.io/vido';
+import Vido, { lithtml, vido } from '@neuronet.io/vido';
+import { Dayjs } from 'dayjs/index.d';
 
 export interface Row {
   id: string;
@@ -126,9 +127,7 @@ export interface Scroll {
 }
 
 export interface ChartTimeDate {}
-export interface ChartTimeDates {
-  [period: string]: ChartTimeDate[];
-}
+export type ChartTimeDates = ChartTimeDate[];
 export interface ChartTimeMaxWidth {
   [period: string]: number;
 }
@@ -136,15 +135,32 @@ export interface ChartTime {
   from?: number;
   to?: number;
   zoom?: number;
-  period?: 'day';
-  dates?: ChartTimeDates;
+  format?: ChartCalendarFormat;
+  levels?: ChartTimeDates[];
   maxWidth?: ChartTimeMaxWidth;
 }
-export interface ChartCalendarVertical {
-  smallFormat?: string;
+export interface ChartCalendarFormatArguments {
+  timeStart: Dayjs;
+  timeEnd: Dayjs;
+  className: string;
+  props: any;
+  vido: vido;
+}
+export type Period = 'year' | 'month' | 'week' | 'day' | 'hour';
+export interface ChartCalendarFormat {
+  zoomTo: number;
+  period: Period;
+  className?: string;
+  format: (arguments: ChartCalendarFormatArguments) => string | htmlResult;
+}
+export interface ChartCalendarLevel {
+  formats?: ChartCalendarFormat[];
+  main?: boolean;
+  doNotUseCache?: boolean;
 }
 export interface ChartCalendar {
-  vertical?: ChartCalendarVertical;
+  levels?: ChartCalendarLevel[];
+  expand?: boolean;
 }
 export interface ChartGridBlock {
   onCreate: ((block) => unknown)[];

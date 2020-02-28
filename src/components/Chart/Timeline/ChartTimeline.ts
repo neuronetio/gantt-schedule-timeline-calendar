@@ -68,7 +68,8 @@ export default function ChartTimeline(vido, props) {
     } else {
       innerStyleMap.style.width = '0px';
     }
-    innerStyleMap.style.transform = `translate(-${xCompensation}px, ${yCompensation}px)`;
+    //innerStyleMap.style.transform = `translate(-${xCompensation}px, ${yCompensation}px)`;
+    innerStyleMap.style['margin-left'] = -xCompensation + 'px';
     update();
   }
 
