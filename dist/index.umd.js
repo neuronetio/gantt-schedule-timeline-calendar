@@ -8491,7 +8491,6 @@
                         scroll = 0;
                     }
                     else if (scroll > height) {
-                        console.log('limiting scroll', scroll, height);
                         scroll = height;
                     }
                     return scroll;

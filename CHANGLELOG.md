@@ -40,3 +40,7 @@ All notable changes to this project will be documented in this file.
 
 - [bugfix] recalculate time when items are reloaded
 - calendar appearance improvement
+
+## [2.1.3]
+
+- console.log removed :/

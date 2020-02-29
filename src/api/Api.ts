@@ -347,7 +347,6 @@ export function getInternalApi(state) {
         if (scroll < 0) {
           scroll = 0;
         } else if (scroll > height) {
-          console.log('limiting scroll', scroll, height);
           scroll = height;
         }
         return scroll;
