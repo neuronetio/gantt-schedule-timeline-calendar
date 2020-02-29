@@ -28,14 +28,6 @@
     <div>
       <input type="range" min="0" max="100" value="100" id="percent" />
       <input type="range" min="12" max="28" value="20" id="zoom" />
-      <div style="display: inline-block;width: 100px; text-align: center;font-weight: bold;" id="period"></div>
-      <button id="change-something">Change something</button>
-      <button onclick="deleteRow()">Delete row</button>
-      <button onclick="deleteItem()">Delete item</button>
-      <button onclick="clearAll()">clear all</button>
-      <button onclick="randomizeItems()">randomize items</button>
-      <button onclick="destroy()">destroy</button>
-      <button onclick="replaceData()">replace</button>
       <select id="setperiod" onchange="changePeriod()">
         <option value="hour">Hour</option>
         <option value="day">Day</option>
@@ -51,7 +43,7 @@
     <script src="../WeekendHighlight.plugin.js"></script>
     <script src="../index.umd.js?12345"></script>
     <script>
-      const iterations = 1000;
+      const iterations = 100;
 
       const pallete = [
         '#E74C3C',
@@ -276,95 +268,11 @@
         state.update(`config.chart.items.${itemMovement.item.id}.isResizing`, itemMovement.item.resizing);
       });
 
-      GSTCState.subscribe('_internal.chart.time.format.period', period => {
-        document.getElementById('period').innerText = period;
-      });
-
       const gstc = GSTC({
         element: document.getElementById('app'),
         state: GSTCState
       });
       window.gstc = gstc; // debug
-
-      function deleteRow() {
-        const random = r => r[Math.floor(Math.random() * r.length)];
-        GSTCState.update('config.list.rows', rows => {
-          const rando = random(Object.keys(rows));
-          const child = Object.values(rows).find(row => row.parentId === rando);
-          if (rows[rando] && !child) {
-            console.log('deleting', rando, Object.keys(rows), rows[rando]);
-            delete rows[rando];
-          }
-          return rows;
-        });
-      }
-      function deleteItem() {
-        const random = r => r[Math.floor(Math.random() * r.length)];
-        GSTCState.update('config.chart.items', items => {
-          const rando = random(Object.keys(items));
-          if (items[rando]) {
-            console.log('deleting', rando, Object.keys(items), items[rando]);
-            delete items[rando];
-          }
-          return items;
-        });
-      }
-
-      function clearAll() {
-        GSTCState.update('config.list.rows', {});
-      }
-
-      function randomizeItems() {
-        const rows = Object.keys(GSTCState.get('config.list.rows'));
-        GSTCState.update('config.chart.items', items => {
-          Object.values(items).forEach(item => {
-            item.rowId = rows[Math.floor(Math.random() * rows.length)];
-          });
-          return items;
-        });
-      }
-      function replaceData() {
-        const data = {
-          rows: {
-            row_1: {
-              id: 'row_1',
-              label: 'new row'
-            },
-            row_2: {
-              id: 'row_2',
-              label: 'new row 2',
-              parentId: 'row_1'
-            }
-          },
-          items: {
-            item_1: {
-              id: 'item_1',
-              label: 'new item 1',
-              rowId: 'row_1',
-              time: {
-                start: new Date('2020-01-01').getTime(),
-                end: new Date('2020-01-05').getTime()
-              }
-            },
-            item_2: {
-              id: 'item_2',
-              label: 'new item 2',
-              rowId: 'row_2',
-              time: {
-                start: new Date('2020-01-01').getTime(),
-                end: new Date('2020-01-05').getTime()
-              }
-            }
-          }
-        };
-        GSTCState.update('config', config => {
-          config.list.rows = data.rows;
-          config.chart.items = data.items;
-          config.chart.time.from = new Date('2020-01-01').getTime();
-          config.chart.time.to = new Date('2020-01-31').getTime();
-          return config;
-        });
-      }
 
       function changePeriod() {
         const period = document.getElementById('setperiod').value;
@@ -376,7 +284,6 @@
       }
 
       gstc.state.subscribe('config.chart.time.period', period => {
-        console.log('period', period);
         document.getElementById('setperiod').value = period;
       });
       gstc.state.subscribe('config.chart.time.zoom', zoom => {
@@ -389,23 +296,6 @@
       document.getElementById('zoom').addEventListener('input', ev => {
         gstc.state.update('config.chart.time.zoom', +ev.target.value);
         const period = gstc.state.get('config.chart.time');
-      });
-      document.getElementById('change-something').addEventListener('click', () => {
-        gstc.state.update('config.list.rows', rows => {
-          for (const rowId in rows) {
-            rows[rowId].label += ' !';
-          }
-          rows['3'].parentId = '1';
-          rows['5'].parentId = '3';
-          rows['9'].parentId = '3';
-          rows['7'].parentId = '5';
-          rows['11'].parentId = '10';
-          rows['13'].parentId = '12';
-          for (let i = 20; i < 50; i++) {
-            rows[i.toString()].parentId = '15';
-          }
-          return rows;
-        });
       });
     </script>
   </body>

@@ -7,7 +7,7 @@
  * @license   AGPL-3.0
  */
 
-import dayjs from 'dayjs';
+import dayjs, { OpUnitType } from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { Locale } from '../types';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
@@ -20,6 +20,7 @@ export default class TimeApi {
   private locale: Locale;
   private utcMode = false;
   private state: any;
+  private timeCache = {};
 
   constructor(state) {
     this.state = state;
@@ -37,17 +38,31 @@ export default class TimeApi {
     return time ? _dayjs(time).locale(this.locale.name) : _dayjs().locale(this.locale.name);
   }
 
-  public recalculateFromTo(time) {
+  public recalculateFromTo(time: { from: number; to: number }, period: OpUnitType = 'day') {
     time = { ...time };
+    time.from = +time.from;
+    time.to = +time.to;
     if (time.from !== 0) {
-      time.from = this.date(time.from)
-        .startOf('day')
-        .valueOf();
+      const cacheKey = 'from-' + period + '-' + time.from;
+      if (typeof this.timeCache[cacheKey] !== 'undefined') {
+        time.from = this.timeCache[cacheKey];
+      } else {
+        time.from = this.date(time.from)
+          .startOf(period)
+          .valueOf();
+        this.timeCache[cacheKey] = time.from;
+      }
     }
     if (time.to !== 0) {
-      time.to = this.date(time.to)
-        .endOf('day')
-        .valueOf();
+      const cacheKey = 'to-' + period + '-' + time.to;
+      if (typeof this.timeCache[cacheKey] !== 'undefined') {
+        time.to = this.timeCache[cacheKey];
+      } else {
+        time.to = this.date(time.to)
+          .endOf(period)
+          .valueOf();
+        this.timeCache[cacheKey] = time.to;
+      }
     }
 
     let from = Number.MAX_SAFE_INTEGER,
@@ -67,14 +82,26 @@ export default class TimeApi {
         }
       }
       if (time.from === 0) {
-        time.from = this.date(from)
-          .startOf('day')
-          .valueOf();
+        const cacheKey = 'from-' + period + '-0';
+        if (typeof this.timeCache[cacheKey] !== 'undefined') {
+          time.from = this.timeCache[cacheKey];
+        } else {
+          time.from = this.date(from)
+            .startOf(period)
+            .valueOf();
+          this.timeCache[cacheKey] = time.from;
+        }
       }
       if (time.to === 0) {
-        time.to = this.date(to)
-          .endOf('day')
-          .valueOf();
+        const cacheKey = 'to-' + period + '-0';
+        if (typeof this.timeCache[cacheKey] !== 'undefined') {
+          time.to = this.timeCache[cacheKey];
+        } else {
+          time.to = this.date(to)
+            .endOf(period)
+            .valueOf();
+          this.timeCache[cacheKey] = time.to;
+        }
       }
     }
     return time;

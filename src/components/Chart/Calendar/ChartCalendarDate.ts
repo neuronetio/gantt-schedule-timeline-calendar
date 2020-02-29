@@ -59,7 +59,7 @@ export default function ChartCalendarDay(vido, props) {
     if (!props) return;
     const cache = state.get('_internal.cache.calendar');
     const level = state.get(`config.chart.calendar.levels.${props.level}`);
-    const useCache = level.doNotUseCache ? false : true;
+    const useCache = false; //level.doNotUseCache ? false : true;
     styleMap.style.width = props.date.width + 'px';
     styleMap.style.visibility = 'visible';
     scrollStyleMap.style = { overflow: 'hidden', 'text-align': 'left', 'margin-left': props.date.subPx + 8 + 'px' };

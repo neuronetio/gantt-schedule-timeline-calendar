@@ -35,3 +35,8 @@ All notable changes to this project will be documented in this file.
 ## [2.1.1]
 
 - [bugfix] empty items breaks time calculation at first load -> second load with items
+
+## [2.1.2]
+
+- [bugfix] recalculate time when items are reloaded
+- calendar appearance improvement

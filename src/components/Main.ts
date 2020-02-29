@@ -122,6 +122,7 @@ export default function Main(vido, props = {}) {
     for (const itemId in configItems) {
       items.push(configItems[itemId]);
     }
+    api.prepareItems(items);
     const treeMap = api.makeTreeMap(rows, items);
     state.update('_internal.treeMap', treeMap);
     const flatTreeMapById = api.getFlatTreeMapById(treeMap);
@@ -136,9 +137,6 @@ export default function Main(vido, props = {}) {
     state.subscribeAll(['config.list.rows.*.parentId', 'config.chart.items.*.rowId'], generateTree, { bulk: true })
   );
 
-  /**
-   * Prepare expanded
-   */
   function prepareExpanded() {
     const configRows = state.get('config.list.rows');
     const rowsWithParentsExpanded = api.getRowsFromIds(
@@ -154,7 +152,13 @@ export default function Main(vido, props = {}) {
     state.update('_internal.list.rowsWithParentsExpanded', rowsWithParentsExpanded);
     update();
   }
-  onDestroy(state.subscribeAll(['config.list.rows.*.expanded', '_internal.treeMap;'], prepareExpanded, { bulk: true }));
+  onDestroy(
+    state.subscribeAll(
+      ['config.list.rows.*.expanded', '_internal.treeMap;', 'config.list.rows.*.height'],
+      prepareExpanded,
+      { bulk: true }
+    )
+  );
 
   /**
    * Generate visible rows
@@ -198,9 +202,6 @@ export default function Main(vido, props = {}) {
   );
 
   let elementScrollTop = 0;
-  /**
-   * On visible rows change
-   */
   function onVisibleRowsChange() {
     const top = state.get('config.scroll.top');
     verticalScrollAreaStyleMap.style.width = '1px';
@@ -274,13 +275,13 @@ export default function Main(vido, props = {}) {
       return;
     }
     if (time.period !== state.get('_internal.chart.time.format.period')) {
-      const level = state.get('config.chart.calendar.levels').find(level => level.main);
-      let periodFormat = level.formats.find(format => format.period === time.period && format.default);
+      const mainLevel = state.get('config.chart.calendar.levels').find(level => level.main);
+      let periodFormat = mainLevel.formats.find(format => format.period === time.period && format.default);
       if (periodFormat) {
         time.zoom = periodFormat.zoomTo;
       }
     }
-    time = api.time.recalculateFromTo(time);
+    time = api.time.recalculateFromTo(time, time.period);
     let scrollLeft = state.get('config.scroll.left');
     time.timePerPixel = Math.pow(2, time.zoom);
     time.totalViewDurationMs = api.time.date(time.to).diff(time.from, 'milliseconds');
@@ -323,6 +324,9 @@ export default function Main(vido, props = {}) {
       }
       index++;
     }
+    if (!time.format) {
+      throw new Error('Main calendar format not found.');
+    }
     let xCompensation = 0;
     if (time.levels[time.level] && time.levels[time.level].length !== 0) {
       xCompensation = time.levels[time.level][0].subPx;
@@ -356,6 +360,22 @@ export default function Main(vido, props = {}) {
       schedule(recalculateTimes),
       { bulk: true }
     )
+  );
+
+  // When time.from and time.to is not specified and items are reloaded;
+  // check if item is outside current time scope and extend it if needed
+  onDestroy(
+    state.subscribe('config.chart.items;', items => {
+      const configTime = state.get('config.chart.time');
+      if (configTime.from !== 0 && configTime.to !== 0) return;
+      const internalTime = state.get('_internal.chart.time');
+      for (const itemId in items) {
+        const item = items[itemId];
+        if (item.time.start < internalTime.from || item.time.end > internalTime.to) {
+          recalculateTimes();
+        }
+      }
+    })
   );
 
   if (

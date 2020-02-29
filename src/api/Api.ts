@@ -107,6 +107,15 @@ export function getInternalApi(state) {
       );
     },
 
+    prepareItems(items) {
+      for (const item of items) {
+        item.time.start = +item.time.start;
+        item.time.end = +item.time.end;
+        item.id = String(item.id);
+      }
+      return items;
+    },
+
     fillEmptyRowValues(rows) {
       let top = 0;
       for (const rowId in rows) {
@@ -338,6 +347,7 @@ export function getInternalApi(state) {
         if (scroll < 0) {
           scroll = 0;
         } else if (scroll > height) {
+          console.log('limiting scroll', scroll, height);
           scroll = height;
         }
         return scroll;

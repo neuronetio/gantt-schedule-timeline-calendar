@@ -4423,6 +4423,7 @@ function Main(vido, props = {}) {
         for (const itemId in configItems) {
             items.push(configItems[itemId]);
         }
+        api.prepareItems(items);
         const treeMap = api.makeTreeMap(rows, items);
         state.update('_internal.treeMap', treeMap);
         const flatTreeMapById = api.getFlatTreeMapById(treeMap);
@@ -4433,9 +4434,6 @@ function Main(vido, props = {}) {
     }
     onDestroy(state.subscribeAll(['config.list.rows;', 'config.chart.items;'], generateTree));
     onDestroy(state.subscribeAll(['config.list.rows.*.parentId', 'config.chart.items.*.rowId'], generateTree, { bulk: true }));
-    /**
-     * Prepare expanded
-     */
     function prepareExpanded() {
         const configRows = state.get('config.list.rows');
         const rowsWithParentsExpanded = api.getRowsFromIds(api.getRowsWithParentsExpanded(state.get('_internal.flatTreeMap'), state.get('_internal.flatTreeMapById'), configRows), configRows);
@@ -4444,7 +4442,7 @@ function Main(vido, props = {}) {
         state.update('_internal.list.rowsWithParentsExpanded', rowsWithParentsExpanded);
         update();
     }
-    onDestroy(state.subscribeAll(['config.list.rows.*.expanded', '_internal.treeMap;'], prepareExpanded, { bulk: true }));
+    onDestroy(state.subscribeAll(['config.list.rows.*.expanded', '_internal.treeMap;', 'config.list.rows.*.height'], prepareExpanded, { bulk: true }));
     /**
      * Generate visible rows
      */
@@ -4479,9 +4477,6 @@ function Main(vido, props = {}) {
     }
     onDestroy(state.subscribeAll(['_internal.list.rowsWithParentsExpanded;', 'config.scroll.top', 'config.chart.items'], generateVisibleRowsAndItems, { bulk: true }));
     let elementScrollTop = 0;
-    /**
-     * On visible rows change
-     */
     function onVisibleRowsChange() {
         const top = state.get('config.scroll.top');
         verticalScrollAreaStyleMap.style.width = '1px';
@@ -4552,13 +4547,13 @@ function Main(vido, props = {}) {
             return;
         }
         if (time.period !== state.get('_internal.chart.time.format.period')) {
-            const level = state.get('config.chart.calendar.levels').find(level => level.main);
-            let periodFormat = level.formats.find(format => format.period === time.period && format.default);
+            const mainLevel = state.get('config.chart.calendar.levels').find(level => level.main);
+            let periodFormat = mainLevel.formats.find(format => format.period === time.period && format.default);
             if (periodFormat) {
                 time.zoom = periodFormat.zoomTo;
             }
         }
-        time = api.time.recalculateFromTo(time);
+        time = api.time.recalculateFromTo(time, time.period);
         let scrollLeft = state.get('config.scroll.left');
         time.timePerPixel = Math.pow(2, time.zoom);
         time.totalViewDurationMs = api.time.date(time.to).diff(time.from, 'milliseconds');
@@ -4601,6 +4596,9 @@ function Main(vido, props = {}) {
             }
             index++;
         }
+        if (!time.format) {
+            throw new Error('Main calendar format not found.');
+        }
         let xCompensation = 0;
         if (time.levels[time.level] && time.levels[time.level].length !== 0) {
             xCompensation = time.levels[time.level][0].subPx;
@@ -4626,6 +4624,20 @@ function Main(vido, props = {}) {
         '_internal.list.width',
         '_internal.chart.dimensions'
     ], schedule(recalculateTimes), { bulk: true }));
+    // When time.from and time.to is not specified and items are reloaded;
+    // check if item is outside current time scope and extend it if needed
+    onDestroy(state.subscribe('config.chart.items;', items => {
+        const configTime = state.get('config.chart.time');
+        if (configTime.from !== 0 && configTime.to !== 0)
+            return;
+        const internalTime = state.get('_internal.chart.time');
+        for (const itemId in items) {
+            const item = items[itemId];
+            if (item.time.start < internalTime.from || item.time.end > internalTime.to) {
+                recalculateTimes();
+            }
+        }
+    }));
     if (state.get('config.usageStatistics') === true &&
         location.port === '' &&
         location.host !== '' &&
@@ -5870,7 +5882,6 @@ function ChartCalendarDay(vido, props) {
             return;
         const cache = state.get('_internal.cache.calendar');
         const level = state.get(`config.chart.calendar.levels.${props.level}`);
-        const useCache = level.doNotUseCache ? false : true;
         styleMap.style.width = props.date.width + 'px';
         styleMap.style.visibility = 'visible';
         scrollStyleMap.style = { overflow: 'hidden', 'text-align': 'left', 'margin-left': props.date.subPx + 8 + 'px' };
@@ -5880,11 +5891,7 @@ function ChartCalendarDay(vido, props) {
             cache[cacheKey] = {};
         }
         let timeStart, timeEnd;
-        if (useCache && cache[cacheKey].timeStart) {
-            timeStart = cache[cacheKey].timeStart;
-            timeEnd = cache[cacheKey].timeEnd;
-        }
-        else {
+        {
             timeStart = api.time.date(props.date.start);
             timeEnd = api.time.date(props.date.rightGlobal);
             cache[cacheKey].timeStart = timeStart;
@@ -5893,17 +5900,11 @@ function ChartCalendarDay(vido, props) {
         const formats = level.formats;
         const formatting = formats.find(formatting => +time.zoom <= +formatting.zoomTo);
         let format;
-        if (useCache && cache[cacheKey].format) {
-            format = cache[cacheKey].format;
-        }
-        else {
+        {
             format = formatting ? formatting.format({ timeStart, timeEnd, className, vido, props }) : null;
             cache[cacheKey].format = format;
         }
-        if (useCache && cache[cacheKey].current) {
-            current = cache[cacheKey].current;
-        }
-        else {
+        {
             if (timeStart.format(props.currentDateFormat) === props.currentDate) {
                 current = ' current';
             }
@@ -7035,14 +7036,6 @@ function defaultConfig() {
                                     return vido.html `<div>${timeStart.format('DD')} - ${timeEnd.format('DD')}</div><div class="${className}-content gstc-date-small">${timeStart.format('ddd')} - ${timeEnd.format('dd')}</div>`;
                                 }
                             },
-                            /*{
-                              zoomTo: 24,
-                              period: 'week',
-                              className: 'gstc-date-week-small',
-                              format({ timeStart, timeEnd, vido }) {
-                                return vido.html`<div>${timeStart.format('DD')}</div> | <div>${timeEnd.format('DD')}</div>`;
-                              }
-                            },*/
                             {
                                 zoomTo: 25,
                                 period: 'week',
@@ -7056,8 +7049,8 @@ function defaultConfig() {
                                 period: 'month',
                                 default: true,
                                 className: 'gstc-date-month-level-1',
-                                format({ timeStart }) {
-                                    return timeStart.format('MMM');
+                                format({ timeStart, vido, className }) {
+                                    return vido.html `<div>${timeStart.format('MMM')}</div><div class="${className}-content gstc-date-medium">${timeStart.format('MM')}</div>`;
                                 }
                             },
                             {
@@ -7168,6 +7161,7 @@ dayjs_min.extend(weekOfYear);
 class TimeApi {
     constructor(state) {
         this.utcMode = false;
+        this.timeCache = {};
         this.state = state;
         this.locale = state.get('config.locale');
         this.utcMode = state.get('config.utcMode');
@@ -7181,17 +7175,33 @@ class TimeApi {
         const _dayjs = this.utcMode ? dayjs_min.utc : dayjs_min;
         return time ? _dayjs(time).locale(this.locale.name) : _dayjs().locale(this.locale.name);
     }
-    recalculateFromTo(time) {
+    recalculateFromTo(time, period = 'day') {
         time = Object.assign({}, time);
+        time.from = +time.from;
+        time.to = +time.to;
         if (time.from !== 0) {
-            time.from = this.date(time.from)
-                .startOf('day')
-                .valueOf();
+            const cacheKey = 'from-' + period + '-' + time.from;
+            if (typeof this.timeCache[cacheKey] !== 'undefined') {
+                time.from = this.timeCache[cacheKey];
+            }
+            else {
+                time.from = this.date(time.from)
+                    .startOf(period)
+                    .valueOf();
+                this.timeCache[cacheKey] = time.from;
+            }
         }
         if (time.to !== 0) {
-            time.to = this.date(time.to)
-                .endOf('day')
-                .valueOf();
+            const cacheKey = 'to-' + period + '-' + time.to;
+            if (typeof this.timeCache[cacheKey] !== 'undefined') {
+                time.to = this.timeCache[cacheKey];
+            }
+            else {
+                time.to = this.date(time.to)
+                    .endOf(period)
+                    .valueOf();
+                this.timeCache[cacheKey] = time.to;
+            }
         }
         let from = Number.MAX_SAFE_INTEGER, to = 0;
         const items = this.state.get('config.chart.items');
@@ -7209,14 +7219,28 @@ class TimeApi {
                 }
             }
             if (time.from === 0) {
-                time.from = this.date(from)
-                    .startOf('day')
-                    .valueOf();
+                const cacheKey = 'from-' + period + '-0';
+                if (typeof this.timeCache[cacheKey] !== 'undefined') {
+                    time.from = this.timeCache[cacheKey];
+                }
+                else {
+                    time.from = this.date(from)
+                        .startOf(period)
+                        .valueOf();
+                    this.timeCache[cacheKey] = time.from;
+                }
             }
             if (time.to === 0) {
-                time.to = this.date(to)
-                    .endOf('day')
-                    .valueOf();
+                const cacheKey = 'to-' + period + '-0';
+                if (typeof this.timeCache[cacheKey] !== 'undefined') {
+                    time.to = this.timeCache[cacheKey];
+                }
+                else {
+                    time.to = this.date(to)
+                        .endOf(period)
+                        .valueOf();
+                    this.timeCache[cacheKey] = time.to;
+                }
             }
         }
         return time;
@@ -8234,6 +8258,14 @@ function getInternalApi(state) {
                 (item.time.end >= left && item.time.end < right) ||
                 (item.time.start <= left && item.time.end >= right));
         },
+        prepareItems(items) {
+            for (const item of items) {
+                item.time.start = +item.time.start;
+                item.time.end = +item.time.end;
+                item.id = String(item.id);
+            }
+            return items;
+        },
         fillEmptyRowValues(rows) {
             let top = 0;
             for (const rowId in rows) {
@@ -8453,6 +8485,7 @@ function getInternalApi(state) {
                     scroll = 0;
                 }
                 else if (scroll > height) {
+                    console.log('limiting scroll', scroll, height);
                     scroll = height;
                 }
                 return scroll;
