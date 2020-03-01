@@ -4504,17 +4504,16 @@
             let leftGlobal = internalTime.leftGlobal;
             const rightGlobal = internalTime.rightGlobal;
             const timePerPixel = internalTime.timePerPixel;
-            let startOfLeft = api.time
-                .date(leftGlobal)
-                .startOf(period)
-                .valueOf();
+            let startOfLeft = api.time.date(leftGlobal).startOf(period);
+            const endOfRight = api.time.date(rightGlobal).endOf(period);
             let start = startOfLeft;
             if (startOfLeft < leftGlobal)
                 startOfLeft = leftGlobal;
             let sub = leftGlobal - startOfLeft.valueOf();
             let subPx = sub / timePerPixel;
             let leftPx = 0;
-            while (leftGlobal < rightGlobal) {
+            const diff = api.time.date(endOfRight).diff(api.time.date(startOfLeft), period);
+            for (let i = 0; i < diff; i++) {
                 const date = {
                     sub,
                     subPx,
@@ -4534,13 +4533,52 @@
                 leftPx += date.width;
                 date.rightPx = leftPx;
                 dates.push(date);
-                leftGlobal = date.rightGlobal + 1;
+                leftGlobal = api.time
+                    .date(leftGlobal)
+                    .add(1, period)
+                    .startOf(period)
+                    .valueOf();
                 start = leftGlobal;
                 sub = 0;
                 subPx = 0;
             }
             return dates;
         };
+        function addAdditionalSpace(time, mainLevel) {
+            const currentFormatting = mainLevel.formats.find(format => +time.zoom <= +format.zoomTo);
+            if (!currentFormatting) {
+                throw new Error('Calendar formatting not found.');
+            }
+            const currentPeriod = currentFormatting.period;
+            if (mainLevel.additionalSpace && mainLevel.additionalSpace[currentPeriod]) {
+                const additionalSpace = mainLevel.additionalSpace[currentPeriod];
+                let added = 0;
+                if (additionalSpace.before) {
+                    const oldTime = time.leftGlobal;
+                    time.leftGlobal = api.time
+                        .date(time.leftGlobal)
+                        .subtract(additionalSpace.before, additionalSpace.period)
+                        .valueOf();
+                    const diff = oldTime - time.leftGlobal;
+                    time.from -= diff;
+                    added += diff;
+                }
+                if (additionalSpace.after) {
+                    const oldTime = time.rightGlobal;
+                    time.rightGlobal = api.time
+                        .date(time.rightGlobal)
+                        .add(additionalSpace.after, additionalSpace.period)
+                        .valueOf();
+                    const diff = time.rightGlobal - oldTime;
+                    time.to += diff;
+                    added += diff;
+                }
+                time.totalViewDurationMs += added;
+                time.totalViewDurationPx = Math.round(time.totalViewDurationMs / time.timePerPixel);
+                time.leftInner = time.leftGlobal - time.from;
+                time.rightInner = time.rightGlobal - time.from;
+            }
+        }
         /**
          * Recalculate times action
          */
@@ -4552,29 +4590,34 @@
             if ((!time.from || !time.to) && !Object.keys(state.get('config.chart.items')).length) {
                 return;
             }
+            let mainLevel = calendar.levels.find(level => level.main);
+            if (!mainLevel) {
+                throw new Error('Main calendar level not found.');
+            }
             if (time.period !== state.get('_internal.chart.time.format.period')) {
-                const mainLevel = state.get('config.chart.calendar.levels').find(level => level.main);
                 let periodFormat = mainLevel.formats.find(format => format.period === time.period && format.default);
                 if (periodFormat) {
                     time.zoom = periodFormat.zoomTo;
+                    time.additionalSpaceProcessed = false;
                 }
             }
             time = api.time.recalculateFromTo(time, time.period);
             let scrollLeft = state.get('config.scroll.left');
             time.timePerPixel = Math.pow(2, time.zoom);
             time.totalViewDurationMs = api.time.date(time.to).diff(time.from, 'milliseconds');
-            time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
+            time.totalViewDurationPx = Math.round(time.totalViewDurationMs / time.timePerPixel);
             if (scrollLeft > time.totalViewDurationPx) {
                 scrollLeft = time.totalViewDurationPx - chartWidth;
             }
             time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
             time.rightGlobal = time.leftGlobal + chartWidth * time.timePerPixel;
+            addAdditionalSpace(time, mainLevel);
             time.leftInner = time.leftGlobal - time.from;
             time.rightInner = time.rightGlobal - time.from;
             time.leftPx = time.leftInner / time.timePerPixel;
             time.rightPx = time.rightInner / time.timePerPixel;
-            const rightPixelGlobal = Math.round(time.rightGlobal / time.timePerPixel);
-            const pixelTo = Math.round(time.to / time.timePerPixel);
+            const rightPixelGlobal = time.rightGlobal / time.timePerPixel;
+            const pixelTo = time.to / time.timePerPixel;
             if (calendar.expand && rightPixelGlobal > pixelTo && scrollLeft === 0) {
                 const diff = time.rightGlobal - time.to;
                 const diffPercent = diff / (time.rightGlobal - time.from);
@@ -4585,6 +4628,7 @@
                 time.rightInner = time.rightGlobal - time.from;
                 time.totalViewDurationMs = time.to - time.from;
                 time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
+                addAdditionalSpace(time, mainLevel);
                 time.rightInner = time.rightGlobal - time.from;
                 time.rightPx = time.rightInner / time.timePerPixel;
                 time.leftPx = time.leftInner / time.timePerPixel;
@@ -4602,9 +4646,6 @@
                 }
                 index++;
             }
-            if (!time.format) {
-                throw new Error('Main calendar format not found.');
-            }
             let xCompensation = 0;
             if (time.levels[time.level] && time.levels[time.level].length !== 0) {
                 xCompensation = time.levels[time.level][0].subPx;
@@ -4615,9 +4656,10 @@
             state.update('config.chart.time', oldTime => {
                 delete newTime.from;
                 delete newTime.to;
+                delete newTime.levels;
                 newTime.period = time.format.period;
                 return Object.assign(Object.assign({}, oldTime), newTime);
-            }, { only: Object.keys(newTime) } // we don't want notify config.chart.time because it will trigger infinite loop
+            }, { only: ['zoom', 'format', 'period'] } // we don't want notify config.chart.time because it will trigger infinite loop
             );
             update();
         }
@@ -4647,7 +4689,10 @@
         if (state.get('config.usageStatistics') === true &&
             location.port === '' &&
             location.host !== '' &&
-            !location.host.startsWith('localhost')) {
+            !location.host.startsWith('localhost') &&
+            !location.host.startsWith('127.') &&
+            !location.host.endsWith('.test') &&
+            !location.host.endsWith('.local')) {
             try {
                 const oReq = new XMLHttpRequest();
                 oReq.open('POST', 'https://gstc-us.neuronet.io/');
@@ -6106,8 +6151,6 @@
             className = api.getClass(componentName);
             update();
         }));
-        let period;
-        onDestroy(state.subscribe('config.chart.time.period', value => (period = value)));
         let onBlockCreate;
         onDestroy(state.subscribe('config.chart.grid.block.onCreate', onCreate => (onBlockCreate = onCreate)));
         const rowsComponents = [];
@@ -6921,8 +6964,7 @@
                     from: 0,
                     to: 0,
                     zoom: 21,
-                    levels: [],
-                    maxWidth: {}
+                    levels: []
                 },
                 calendar: {
                     expand: true,
@@ -7167,7 +7209,6 @@
     class TimeApi {
         constructor(state) {
             this.utcMode = false;
-            this.timeCache = {};
             this.state = state;
             this.locale = state.get('config.locale');
             this.utcMode = state.get('config.utcMode');
@@ -7186,28 +7227,14 @@
             time.from = +time.from;
             time.to = +time.to;
             if (time.from !== 0) {
-                const cacheKey = 'from-' + period + '-' + time.from;
-                if (typeof this.timeCache[cacheKey] !== 'undefined') {
-                    time.from = this.timeCache[cacheKey];
-                }
-                else {
-                    time.from = this.date(time.from)
-                        .startOf(period)
-                        .valueOf();
-                    this.timeCache[cacheKey] = time.from;
-                }
+                time.from = this.date(time.from)
+                    .startOf(period)
+                    .valueOf();
             }
             if (time.to !== 0) {
-                const cacheKey = 'to-' + period + '-' + time.to;
-                if (typeof this.timeCache[cacheKey] !== 'undefined') {
-                    time.to = this.timeCache[cacheKey];
-                }
-                else {
-                    time.to = this.date(time.to)
-                        .endOf(period)
-                        .valueOf();
-                    this.timeCache[cacheKey] = time.to;
-                }
+                time.to = this.date(time.to)
+                    .endOf(period)
+                    .valueOf();
             }
             let from = Number.MAX_SAFE_INTEGER, to = 0;
             const items = this.state.get('config.chart.items');
@@ -7217,48 +7244,44 @@
             if (time.from === 0 || time.to === 0) {
                 for (const itemId in items) {
                     const item = items[itemId];
-                    if (from > item.time.start) {
+                    if (item.time.start < from && item.time.start) {
                         from = item.time.start;
                     }
-                    if (to < item.time.end) {
+                    if (item.time.end > to) {
                         to = item.time.end;
                     }
                 }
                 if (time.from === 0) {
-                    const cacheKey = 'from-' + period + '-0';
-                    if (typeof this.timeCache[cacheKey] !== 'undefined') {
-                        time.from = this.timeCache[cacheKey];
-                    }
-                    else {
-                        time.from = this.date(from)
-                            .startOf(period)
-                            .valueOf();
-                        this.timeCache[cacheKey] = time.from;
-                    }
+                    time.from = this.date(from)
+                        .startOf(period)
+                        .valueOf();
+                }
+                else {
+                    time.from = this.date(time.from)
+                        .startOf(period)
+                        .valueOf();
                 }
                 if (time.to === 0) {
-                    const cacheKey = 'to-' + period + '-0';
-                    if (typeof this.timeCache[cacheKey] !== 'undefined') {
-                        time.to = this.timeCache[cacheKey];
-                    }
-                    else {
-                        time.to = this.date(to)
-                            .endOf(period)
-                            .valueOf();
-                        this.timeCache[cacheKey] = time.to;
-                    }
+                    time.to = this.date(to)
+                        .endOf(period)
+                        .valueOf();
+                }
+                else {
+                    time.to = this.date(time.to)
+                        .endOf(period)
+                        .valueOf();
                 }
             }
             return time;
         }
-        timeToPixelOffset(miliseconds) {
+        timeToPixelOffset(milliseconds) {
             const timePerPixel = this.state.get('_internal.chart.time.timePerPixel') || 1;
-            return miliseconds / timePerPixel;
+            return milliseconds / timePerPixel;
         }
-        globalTimeToViewPixelOffset(miliseconds, withCompensation = false) {
+        globalTimeToViewPixelOffset(milliseconds, withCompensation = false) {
             const time = this.state.get('_internal.chart.time');
             let xCompensation = this.state.get('config.scroll.compensation.x') || 0;
-            const viewPixelOffset = (miliseconds - time.leftGlobal) / time.timePerPixel;
+            const viewPixelOffset = (milliseconds - time.leftGlobal) / time.timePerPixel;
             if (withCompensation)
                 return viewPixelOffset + xCompensation;
             return viewPixelOffset;
@@ -8229,7 +8252,7 @@
     };
     function getInternalApi(state) {
         let $state = state.get();
-        let unsubscribers = [];
+        let unsubscribes = [];
         const iconsCache = {};
         const api = {
             name: lib,
@@ -8558,10 +8581,10 @@
              */
             destroy() {
                 $state = undefined;
-                for (const unsubscribe of unsubscribers) {
+                for (const unsubscribe of unsubscribes) {
                     unsubscribe();
                 }
-                unsubscribers = [];
+                unsubscribes = [];
                 if (api.debug) {
                     // @ts-ignore
                     delete window.state;

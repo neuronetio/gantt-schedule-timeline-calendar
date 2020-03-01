@@ -9,6 +9,7 @@
  */
 
 import ResizeObserver from 'resize-observer-polyfill';
+import { ChartCalendarLevelAdditionalSpace } from '../types';
 
 export default function Main(vido, props = {}) {
   const { api, state, onDestroy, Actions, update, createComponent, html, StyleMap, schedule } = vido;
@@ -224,17 +225,16 @@ export default function Main(vido, props = {}) {
     let leftGlobal = internalTime.leftGlobal;
     const rightGlobal = internalTime.rightGlobal;
     const timePerPixel = internalTime.timePerPixel;
-    let startOfLeft = api.time
-      .date(leftGlobal)
-      .startOf(period)
-      .valueOf();
+    let startOfLeft = api.time.date(leftGlobal).startOf(period);
+    const endOfRight = api.time.date(rightGlobal).endOf(period);
     let start = startOfLeft;
     if (startOfLeft < leftGlobal) startOfLeft = leftGlobal;
     let sub = leftGlobal - startOfLeft.valueOf();
     let subPx = sub / timePerPixel;
     let leftPx = 0;
     let maxWidth = 0;
-    while (leftGlobal < rightGlobal) {
+    const diff = api.time.date(endOfRight).diff(api.time.date(startOfLeft), period);
+    for (let i = 0; i < diff; i++) {
       const date = {
         sub,
         subPx,
@@ -255,13 +255,53 @@ export default function Main(vido, props = {}) {
       leftPx += date.width;
       date.rightPx = leftPx;
       dates.push(date);
-      leftGlobal = date.rightGlobal + 1;
+      leftGlobal = api.time
+        .date(leftGlobal)
+        .add(1, period)
+        .startOf(period)
+        .valueOf();
       start = leftGlobal;
       sub = 0;
       subPx = 0;
     }
     return dates;
   };
+
+  function addAdditionalSpace(time, mainLevel) {
+    const currentFormatting = mainLevel.formats.find(format => +time.zoom <= +format.zoomTo);
+    if (!currentFormatting) {
+      throw new Error('Calendar formatting not found.');
+    }
+    const currentPeriod = currentFormatting.period;
+    if (mainLevel.additionalSpace && mainLevel.additionalSpace[currentPeriod]) {
+      const additionalSpace = mainLevel.additionalSpace[currentPeriod];
+      let added = 0;
+      if (additionalSpace.before) {
+        const oldTime = time.leftGlobal;
+        time.leftGlobal = api.time
+          .date(time.leftGlobal)
+          .subtract(additionalSpace.before, additionalSpace.period)
+          .valueOf();
+        const diff = oldTime - time.leftGlobal;
+        time.from -= diff;
+        added += diff;
+      }
+      if (additionalSpace.after) {
+        const oldTime = time.rightGlobal;
+        time.rightGlobal = api.time
+          .date(time.rightGlobal)
+          .add(additionalSpace.after, additionalSpace.period)
+          .valueOf();
+        const diff = time.rightGlobal - oldTime;
+        time.to += diff;
+        added += diff;
+      }
+      time.totalViewDurationMs += added;
+      time.totalViewDurationPx = Math.round(time.totalViewDurationMs / time.timePerPixel);
+      time.leftInner = time.leftGlobal - time.from;
+      time.rightInner = time.rightGlobal - time.from;
+    }
+  }
 
   /**
    * Recalculate times action
@@ -274,29 +314,34 @@ export default function Main(vido, props = {}) {
     if ((!time.from || !time.to) && !Object.keys(state.get('config.chart.items')).length) {
       return;
     }
+    let mainLevel = calendar.levels.find(level => level.main);
+    if (!mainLevel) {
+      throw new Error('Main calendar level not found.');
+    }
     if (time.period !== state.get('_internal.chart.time.format.period')) {
-      const mainLevel = state.get('config.chart.calendar.levels').find(level => level.main);
       let periodFormat = mainLevel.formats.find(format => format.period === time.period && format.default);
       if (periodFormat) {
         time.zoom = periodFormat.zoomTo;
+        time.additionalSpaceProcessed = false;
       }
     }
     time = api.time.recalculateFromTo(time, time.period);
     let scrollLeft = state.get('config.scroll.left');
     time.timePerPixel = Math.pow(2, time.zoom);
     time.totalViewDurationMs = api.time.date(time.to).diff(time.from, 'milliseconds');
-    time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
+    time.totalViewDurationPx = Math.round(time.totalViewDurationMs / time.timePerPixel);
     if (scrollLeft > time.totalViewDurationPx) {
       scrollLeft = time.totalViewDurationPx - chartWidth;
     }
     time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
     time.rightGlobal = time.leftGlobal + chartWidth * time.timePerPixel;
+    addAdditionalSpace(time, mainLevel);
     time.leftInner = time.leftGlobal - time.from;
     time.rightInner = time.rightGlobal - time.from;
     time.leftPx = time.leftInner / time.timePerPixel;
     time.rightPx = time.rightInner / time.timePerPixel;
-    const rightPixelGlobal = Math.round(time.rightGlobal / time.timePerPixel);
-    const pixelTo = Math.round(time.to / time.timePerPixel);
+    const rightPixelGlobal = time.rightGlobal / time.timePerPixel;
+    const pixelTo = time.to / time.timePerPixel;
     if (calendar.expand && rightPixelGlobal > pixelTo && scrollLeft === 0) {
       const diff = time.rightGlobal - time.to;
       const diffPercent = diff / (time.rightGlobal - time.from);
@@ -307,10 +352,12 @@ export default function Main(vido, props = {}) {
       time.rightInner = time.rightGlobal - time.from;
       time.totalViewDurationMs = time.to - time.from;
       time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
+      addAdditionalSpace(time, mainLevel);
       time.rightInner = time.rightGlobal - time.from;
       time.rightPx = time.rightInner / time.timePerPixel;
       time.leftPx = time.leftInner / time.timePerPixel;
     }
+
     time.levels = [];
     let index = 0;
     for (const level of calendar.levels) {
@@ -324,9 +371,6 @@ export default function Main(vido, props = {}) {
       }
       index++;
     }
-    if (!time.format) {
-      throw new Error('Main calendar format not found.');
-    }
     let xCompensation = 0;
     if (time.levels[time.level] && time.levels[time.level].length !== 0) {
       xCompensation = time.levels[time.level][0].subPx;
@@ -339,10 +383,11 @@ export default function Main(vido, props = {}) {
       oldTime => {
         delete newTime.from;
         delete newTime.to;
+        delete newTime.levels;
         newTime.period = time.format.period;
         return { ...oldTime, ...newTime };
       },
-      { only: Object.keys(newTime) } // we don't want notify config.chart.time because it will trigger infinite loop
+      { only: ['zoom', 'format', 'period'] } // we don't want notify config.chart.time because it will trigger infinite loop
     );
     update();
   }
@@ -382,7 +427,10 @@ export default function Main(vido, props = {}) {
     state.get('config.usageStatistics') === true &&
     location.port === '' &&
     location.host !== '' &&
-    !location.host.startsWith('localhost')
+    !location.host.startsWith('localhost') &&
+    !location.host.startsWith('127.') &&
+    !location.host.endsWith('.test') &&
+    !location.host.endsWith('.local')
   ) {
     try {
       const oReq = new XMLHttpRequest();

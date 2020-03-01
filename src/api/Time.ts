@@ -20,7 +20,6 @@ export default class TimeApi {
   private locale: Locale;
   private utcMode = false;
   private state: any;
-  private timeCache = {};
 
   constructor(state) {
     this.state = state;
@@ -43,26 +42,14 @@ export default class TimeApi {
     time.from = +time.from;
     time.to = +time.to;
     if (time.from !== 0) {
-      const cacheKey = 'from-' + period + '-' + time.from;
-      if (typeof this.timeCache[cacheKey] !== 'undefined') {
-        time.from = this.timeCache[cacheKey];
-      } else {
-        time.from = this.date(time.from)
-          .startOf(period)
-          .valueOf();
-        this.timeCache[cacheKey] = time.from;
-      }
+      time.from = this.date(time.from)
+        .startOf(period)
+        .valueOf();
     }
     if (time.to !== 0) {
-      const cacheKey = 'to-' + period + '-' + time.to;
-      if (typeof this.timeCache[cacheKey] !== 'undefined') {
-        time.to = this.timeCache[cacheKey];
-      } else {
-        time.to = this.date(time.to)
-          .endOf(period)
-          .valueOf();
-        this.timeCache[cacheKey] = time.to;
-      }
+      time.to = this.date(time.to)
+        .endOf(period)
+        .valueOf();
     }
 
     let from = Number.MAX_SAFE_INTEGER,
@@ -74,48 +61,44 @@ export default class TimeApi {
     if (time.from === 0 || time.to === 0) {
       for (const itemId in items) {
         const item = items[itemId];
-        if (from > item.time.start) {
+        if (item.time.start < from && item.time.start) {
           from = item.time.start;
         }
-        if (to < item.time.end) {
+        if (item.time.end > to) {
           to = item.time.end;
         }
       }
       if (time.from === 0) {
-        const cacheKey = 'from-' + period + '-0';
-        if (typeof this.timeCache[cacheKey] !== 'undefined') {
-          time.from = this.timeCache[cacheKey];
-        } else {
-          time.from = this.date(from)
-            .startOf(period)
-            .valueOf();
-          this.timeCache[cacheKey] = time.from;
-        }
+        time.from = this.date(from)
+          .startOf(period)
+          .valueOf();
+      } else {
+        time.from = this.date(time.from)
+          .startOf(period)
+          .valueOf();
       }
       if (time.to === 0) {
-        const cacheKey = 'to-' + period + '-0';
-        if (typeof this.timeCache[cacheKey] !== 'undefined') {
-          time.to = this.timeCache[cacheKey];
-        } else {
-          time.to = this.date(to)
-            .endOf(period)
-            .valueOf();
-          this.timeCache[cacheKey] = time.to;
-        }
+        time.to = this.date(to)
+          .endOf(period)
+          .valueOf();
+      } else {
+        time.to = this.date(time.to)
+          .endOf(period)
+          .valueOf();
       }
     }
     return time;
   }
 
-  public timeToPixelOffset(miliseconds: number): number {
+  public timeToPixelOffset(milliseconds: number): number {
     const timePerPixel = this.state.get('_internal.chart.time.timePerPixel') || 1;
-    return miliseconds / timePerPixel;
+    return milliseconds / timePerPixel;
   }
 
-  public globalTimeToViewPixelOffset(miliseconds: number, withCompensation = false): number {
+  public globalTimeToViewPixelOffset(milliseconds: number, withCompensation = false): number {
     const time = this.state.get('_internal.chart.time');
     let xCompensation = this.state.get('config.scroll.compensation.x') || 0;
-    const viewPixelOffset = (miliseconds - time.leftGlobal) / time.timePerPixel;
+    const viewPixelOffset = (milliseconds - time.leftGlobal) / time.timePerPixel;
     if (withCompensation) return viewPixelOffset + xCompensation;
     return viewPixelOffset;
   }

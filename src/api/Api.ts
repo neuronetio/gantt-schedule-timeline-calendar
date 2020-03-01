@@ -61,7 +61,7 @@ export default publicApi;
 
 export function getInternalApi(state) {
   let $state = state.get();
-  let unsubscribers = [];
+  let unsubscribes = [];
   let vido;
   const iconsCache = {};
   const api = {
@@ -418,10 +418,10 @@ export function getInternalApi(state) {
      */
     destroy() {
       $state = undefined;
-      for (const unsubscribe of unsubscribers) {
+      for (const unsubscribe of unsubscribes) {
         unsubscribe();
       }
-      unsubscribers = [];
+      unsubscribes = [];
       if (api.debug) {
         // @ts-ignore
         delete window.state;

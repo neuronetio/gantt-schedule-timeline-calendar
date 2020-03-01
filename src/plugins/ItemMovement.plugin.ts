@@ -10,7 +10,7 @@
 
 export interface Options {
   moveable?: boolean | string;
-  resizeable?: boolean;
+  resizable?: boolean;
   resizerContent?: string;
   collisionDetection?: boolean;
   outOfBorders?: boolean;
@@ -37,7 +37,7 @@ const pointerEventsExists = typeof PointerEvent !== 'undefined';
 export default function ItemMovement(options: Options = {}) {
   const defaultOptions = {
     moveable: true,
-    resizeable: true,
+    resizable: true,
     resizerContent: '',
     collisionDetection: true,
     outOfBorders: false,
@@ -61,7 +61,7 @@ export default function ItemMovement(options: Options = {}) {
    * @param {Object} data
    */
   function ItemAction(element: HTMLElement, data) {
-    if (!options.moveable && !options.resizeable) {
+    if (!options.moveable && !options.resizable) {
       return;
     }
     const state = data.state;
@@ -78,12 +78,12 @@ export default function ItemMovement(options: Options = {}) {
       return moveable;
     }
 
-    function isResizeable(data) {
-      let resizeable = options.resizeable && (!data.item.hasOwnProperty('resizeable') || data.item.resizeable === true);
-      if (data.row.hasOwnProperty('resizeable') && resizeable) {
-        resizeable = data.row.resizeable;
+    function isResizable(data) {
+      let resizable = options.resizable && (!data.item.hasOwnProperty('resizable') || data.item.resizable === true);
+      if (data.row.hasOwnProperty('resizable') && resizable) {
+        resizable = data.row.resizable;
       }
-      return resizeable;
+      return resizable;
     }
 
     function getMovement(data) {
@@ -183,7 +183,7 @@ export default function ItemMovement(options: Options = {}) {
     const resizerEl: HTMLElement = element.querySelector(
       '.gantt-schedule-timeline-calendar__chart-timeline-items-row-item-resizer'
     );
-    if (!isResizeable(data)) {
+    if (!isResizable(data)) {
       resizerEl.style.visibility = 'hidden';
     } else {
       resizerEl.style.visibility = 'visible';
@@ -287,7 +287,7 @@ export default function ItemMovement(options: Options = {}) {
     }
 
     function resizeX(normalized, row, item, zoom, timePerPixel) {
-      if (!isResizeable(data)) {
+      if (!isResizable(data)) {
         return;
       }
       const time = state.get('_internal.chart.time');
@@ -340,7 +340,7 @@ export default function ItemMovement(options: Options = {}) {
         item = state.get(`config.chart.items.${data.item.id}`);
         rowId = state.get(`config.chart.items.${data.item.id}.rowId`);
         row = state.get(`config.list.rows.${rowId}`);
-        zoom = state.get('config.chart.time.zoom');
+        zoom = state.get('_internal.chart.time.zoom');
         timePerPixel = state.get('_internal.chart.time.timePerPixel');
       }
       const moveable = isMoveable(data);
@@ -370,7 +370,7 @@ export default function ItemMovement(options: Options = {}) {
             }
           }
         }
-      } else if (movement.resizing && (typeof item.resizeable === 'undefined' || item.resizeable === true)) {
+      } else if (movement.resizing && (typeof item.resizable === 'undefined' || item.resizable === true)) {
         resizeX(normalized, row, item, zoom, timePerPixel);
       }
     }
@@ -414,9 +414,9 @@ export default function ItemMovement(options: Options = {}) {
 
     return {
       update(node, changedData) {
-        if (!isResizeable(changedData) && resizerEl.style.visibility === 'visible') {
+        if (!isResizable(changedData) && resizerEl.style.visibility === 'visible') {
           resizerEl.style.visibility = 'hidden';
-        } else if (isResizeable(changedData) && resizerEl.style.visibility === 'hidden') {
+        } else if (isResizable(changedData) && resizerEl.style.visibility === 'hidden') {
           resizerEl.style.visibility = 'visible';
         }
         data = changedData;

@@ -212,8 +212,7 @@ function defaultConfig(): Config {
         from: 0,
         to: 0,
         zoom: 21,
-        levels: [],
-        maxWidth: {}
+        levels: []
       },
       calendar: {
         expand: true,

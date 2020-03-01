@@ -128,16 +128,12 @@ export interface Scroll {
 
 export interface ChartTimeDate {}
 export type ChartTimeDates = ChartTimeDate[];
-export interface ChartTimeMaxWidth {
-  [period: string]: number;
-}
 export interface ChartTime {
   from?: number;
   to?: number;
   zoom?: number;
   format?: ChartCalendarFormat;
   levels?: ChartTimeDates[];
-  maxWidth?: ChartTimeMaxWidth;
 }
 export interface ChartCalendarFormatArguments {
   timeStart: Dayjs;
@@ -154,10 +150,23 @@ export interface ChartCalendarFormat {
   className?: string;
   format: (arguments: ChartCalendarFormatArguments) => string | htmlResult;
 }
+export interface ChartCalendarLevelAdditionalSpace {
+  before: number;
+  after: number;
+  period: Period;
+}
+export interface ChartCalendarLevelAdditionalSpaces {
+  hour?: ChartCalendarLevelAdditionalSpace;
+  day?: ChartCalendarLevelAdditionalSpace;
+  week?: ChartCalendarLevelAdditionalSpace;
+  month?: ChartCalendarLevelAdditionalSpace;
+  year?: ChartCalendarLevelAdditionalSpace;
+}
 export interface ChartCalendarLevel {
   formats?: ChartCalendarFormat[];
   main?: boolean;
   doNotUseCache?: boolean;
+  additionalSpace?: ChartCalendarLevelAdditionalSpaces;
 }
 export interface ChartCalendar {
   levels?: ChartCalendarLevel[];

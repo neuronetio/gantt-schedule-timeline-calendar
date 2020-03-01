@@ -43,8 +43,6 @@ export default function ChartTimelineGrid(vido, props) {
     })
   );
 
-  let period;
-  onDestroy(state.subscribe('config.chart.time.period', value => (period = value)));
   let onBlockCreate;
   onDestroy(state.subscribe('config.chart.grid.block.onCreate', onCreate => (onBlockCreate = onCreate)));
 

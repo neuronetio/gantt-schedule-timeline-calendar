@@ -44,3 +44,9 @@ All notable changes to this project will be documented in this file.
 ## [2.1.3]
 
 - console.log removed :/
+
+## [2.2.0]
+
+- [feature] before and after additional time configuration [chart.calendar.level.additionalTime]
+- [typo] ItemMovement plugin resizeable => resizable
+- [bugfix] hour view infinite loop in some conditions
