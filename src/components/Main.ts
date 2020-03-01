@@ -223,22 +223,25 @@ export default function Main(vido, props = {}) {
   const generatePeriodDates = (period: string, internalTime) => {
     const dates = [];
     let leftGlobal = internalTime.leftGlobal;
-    const rightGlobal = internalTime.rightGlobal;
     const timePerPixel = internalTime.timePerPixel;
-    let startOfLeft = api.time.date(leftGlobal).startOf(period);
-    const endOfRight = api.time.date(rightGlobal).endOf(period);
-    let start = startOfLeft;
+    let startOfLeft = api.time
+      .date(leftGlobal)
+      .startOf(period)
+      .valueOf();
     if (startOfLeft < leftGlobal) startOfLeft = leftGlobal;
-    let sub = leftGlobal - startOfLeft.valueOf();
+    let sub = leftGlobal - startOfLeft;
     let subPx = sub / timePerPixel;
     let leftPx = 0;
     let maxWidth = 0;
-    const diff = api.time.date(endOfRight).diff(api.time.date(startOfLeft), period);
+    const diff =
+      api.time
+        .date(internalTime.rightGlobal)
+        .endOf(period)
+        .diff(api.time.date(leftGlobal).startOf(period), period) + 1;
     for (let i = 0; i < diff; i++) {
       const date = {
         sub,
         subPx,
-        start,
         leftGlobal,
         rightGlobal: api.time
           .date(leftGlobal)
@@ -255,12 +258,7 @@ export default function Main(vido, props = {}) {
       leftPx += date.width;
       date.rightPx = leftPx;
       dates.push(date);
-      leftGlobal = api.time
-        .date(leftGlobal)
-        .add(1, period)
-        .startOf(period)
-        .valueOf();
-      start = leftGlobal;
+      leftGlobal = date.rightGlobal + 1;
       sub = 0;
       subPx = 0;
     }
@@ -325,6 +323,12 @@ export default function Main(vido, props = {}) {
         time.additionalSpaceProcessed = false;
       }
     }
+    for (const level of calendar.levels) {
+      const formatting = level.formats.find(format => +time.zoom <= +format.zoomTo);
+      if (level.main) {
+        time.period = formatting.period;
+      }
+    }
     time = api.time.recalculateFromTo(time, time.period);
     let scrollLeft = state.get('config.scroll.left');
     time.timePerPixel = Math.pow(2, time.zoom);
@@ -366,6 +370,7 @@ export default function Main(vido, props = {}) {
         time.format = formatting;
         time.level = index;
       }
+      //time.period = formatting.period;
       if (formatting) {
         time.levels.push(generatePeriodDates(formatting.period, time));
       }

@@ -64,7 +64,9 @@ export default function ChartCalendarDay(vido, props) {
     styleMap.style.visibility = 'visible';
     scrollStyleMap.style = { overflow: 'hidden', 'text-align': 'left', 'margin-left': props.date.subPx + 8 + 'px' };
     time = state.get('_internal.chart.time');
-    const cacheKey = `${new Date(props.date.start).toISOString()}-${props.date.period}-${props.level}-${time.zoom}`;
+    const cacheKey = `${new Date(props.date.leftGlobal).toISOString()}-${props.date.period}-${props.level}-${
+      time.zoom
+    }`;
     if (!cache[cacheKey]) {
       cache[cacheKey] = {};
     }
@@ -73,7 +75,7 @@ export default function ChartCalendarDay(vido, props) {
       timeStart = cache[cacheKey].timeStart;
       timeEnd = cache[cacheKey].timeEnd;
     } else {
-      timeStart = api.time.date(props.date.start);
+      timeStart = api.time.date(props.date.leftGlobal);
       timeEnd = api.time.date(props.date.rightGlobal);
       cache[cacheKey].timeStart = timeStart;
       cache[cacheKey].timeEnd = timeEnd;
@@ -108,7 +110,7 @@ export default function ChartCalendarDay(vido, props) {
     } else {
       formatClassName = '';
     }
-    // updating cache state is not neccessary because it is object and nobody listen to cache
+    // updating cache state is not necessary because it is object and nobody listen to cache
     htmlFormatted = html`
       <div class=${finalClassName}>
         ${format}

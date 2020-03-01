@@ -4502,22 +4502,24 @@
         const generatePeriodDates = (period, internalTime) => {
             const dates = [];
             let leftGlobal = internalTime.leftGlobal;
-            const rightGlobal = internalTime.rightGlobal;
             const timePerPixel = internalTime.timePerPixel;
-            let startOfLeft = api.time.date(leftGlobal).startOf(period);
-            const endOfRight = api.time.date(rightGlobal).endOf(period);
-            let start = startOfLeft;
+            let startOfLeft = api.time
+                .date(leftGlobal)
+                .startOf(period)
+                .valueOf();
             if (startOfLeft < leftGlobal)
                 startOfLeft = leftGlobal;
-            let sub = leftGlobal - startOfLeft.valueOf();
+            let sub = leftGlobal - startOfLeft;
             let subPx = sub / timePerPixel;
             let leftPx = 0;
-            const diff = api.time.date(endOfRight).diff(api.time.date(startOfLeft), period);
+            const diff = api.time
+                .date(internalTime.rightGlobal)
+                .endOf(period)
+                .diff(api.time.date(leftGlobal).startOf(period), period) + 1;
             for (let i = 0; i < diff; i++) {
                 const date = {
                     sub,
                     subPx,
-                    start,
                     leftGlobal,
                     rightGlobal: api.time
                         .date(leftGlobal)
@@ -4533,12 +4535,7 @@
                 leftPx += date.width;
                 date.rightPx = leftPx;
                 dates.push(date);
-                leftGlobal = api.time
-                    .date(leftGlobal)
-                    .add(1, period)
-                    .startOf(period)
-                    .valueOf();
-                start = leftGlobal;
+                leftGlobal = date.rightGlobal + 1;
                 sub = 0;
                 subPx = 0;
             }
@@ -4601,6 +4598,12 @@
                     time.additionalSpaceProcessed = false;
                 }
             }
+            for (const level of calendar.levels) {
+                const formatting = level.formats.find(format => +time.zoom <= +format.zoomTo);
+                if (level.main) {
+                    time.period = formatting.period;
+                }
+            }
             time = api.time.recalculateFromTo(time, time.period);
             let scrollLeft = state.get('config.scroll.left');
             time.timePerPixel = Math.pow(2, time.zoom);
@@ -4641,6 +4644,7 @@
                     time.format = formatting;
                     time.level = index;
                 }
+                //time.period = formatting.period;
                 if (formatting) {
                     time.levels.push(generatePeriodDates(formatting.period, time));
                 }
@@ -5937,13 +5941,13 @@
             styleMap.style.visibility = 'visible';
             scrollStyleMap.style = { overflow: 'hidden', 'text-align': 'left', 'margin-left': props.date.subPx + 8 + 'px' };
             time = state.get('_internal.chart.time');
-            const cacheKey = `${new Date(props.date.start).toISOString()}-${props.date.period}-${props.level}-${time.zoom}`;
+            const cacheKey = `${new Date(props.date.leftGlobal).toISOString()}-${props.date.period}-${props.level}-${time.zoom}`;
             if (!cache[cacheKey]) {
                 cache[cacheKey] = {};
             }
             let timeStart, timeEnd;
             {
-                timeStart = api.time.date(props.date.start);
+                timeStart = api.time.date(props.date.leftGlobal);
                 timeEnd = api.time.date(props.date.rightGlobal);
                 cache[cacheKey].timeStart = timeStart;
                 cache[cacheKey].timeEnd = timeEnd;
@@ -5978,7 +5982,7 @@
             else {
                 formatClassName = '';
             }
-            // updating cache state is not neccessary because it is object and nobody listen to cache
+            // updating cache state is not necessary because it is object and nobody listen to cache
             htmlFormatted = html `
       <div class=${finalClassName}>
         ${format}
