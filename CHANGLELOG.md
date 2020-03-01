@@ -50,3 +50,7 @@ All notable changes to this project will be documented in this file.
 - [feature] before and after additional time configuration [chart.calendar.level.additionalTime]
 - [typo] ItemMovement plugin resizeable => resizable
 - [bugfix] hour view infinite loop in some conditions
+
+## [2.2.1]
+
+- readme update
