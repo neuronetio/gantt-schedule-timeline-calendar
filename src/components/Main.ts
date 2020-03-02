@@ -9,7 +9,7 @@
  */
 
 import ResizeObserver from 'resize-observer-polyfill';
-import { ChartCalendarLevelAdditionalSpace, ChartTime, ChartInternalTime } from '../types';
+import { ChartCalendarAdditionalSpace, ChartTime, ChartInternalTime } from '../types';
 
 export default function Main(vido, props = {}) {
   const { api, state, onDestroy, Actions, update, createComponent, html, StyleMap, schedule } = vido;
@@ -265,7 +265,7 @@ export default function Main(vido, props = {}) {
     return dates;
   };
 
-  function addAdditionalSpace(time: ChartInternalTime, additionalSpace: ChartCalendarLevelAdditionalSpace) {
+  function addAdditionalSpace(time: ChartInternalTime, additionalSpace: ChartCalendarAdditionalSpace) {
     const currentPeriod = time.period;
     if (additionalSpace && additionalSpace[currentPeriod]) {
       const add = additionalSpace[currentPeriod];
