@@ -55,7 +55,7 @@ All notable changes to this project will be documented in this file.
 
 - readme update
 
-## [2.3.1]
+## [2.3.0]
 
 - config.chart.calendar.levels[].additionalSpace configuration moved to config.chart.calendar.additionalSpace
 - additional space performance optimisation
