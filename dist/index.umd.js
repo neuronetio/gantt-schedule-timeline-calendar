@@ -4541,37 +4541,28 @@
             }
             return dates;
         };
-        function addAdditionalSpace(time, mainLevel) {
-            const currentFormatting = mainLevel.formats.find(format => +time.zoom <= +format.zoomTo);
-            if (!currentFormatting) {
-                throw new Error('Calendar formatting not found.');
-            }
-            const currentPeriod = currentFormatting.period;
-            if (mainLevel.additionalSpace && mainLevel.additionalSpace[currentPeriod]) {
-                const additionalSpace = mainLevel.additionalSpace[currentPeriod];
-                let added = 0;
-                if (additionalSpace.before) {
-                    const oldTime = time.leftGlobal;
-                    time.leftGlobal = api.time
-                        .date(time.leftGlobal)
-                        .subtract(additionalSpace.before, additionalSpace.period)
+        function addAdditionalSpace(time, additionalSpace) {
+            const currentPeriod = time.period;
+            if (additionalSpace && additionalSpace[currentPeriod]) {
+                const add = additionalSpace[currentPeriod];
+                if (add.before) {
+                    time.from = api.time
+                        .date(time.from)
+                        .subtract(add.before, add.period)
                         .valueOf();
-                    const diff = oldTime - time.leftGlobal;
-                    time.from -= diff;
-                    added += diff;
                 }
-                if (additionalSpace.after) {
-                    const oldTime = time.rightGlobal;
-                    time.rightGlobal = api.time
-                        .date(time.rightGlobal)
-                        .add(additionalSpace.after, additionalSpace.period)
+                if (add.after) {
+                    time.to = api.time
+                        .date(time.to)
+                        .add(add.after, add.period)
                         .valueOf();
-                    const diff = time.rightGlobal - oldTime;
-                    time.to += diff;
-                    added += diff;
                 }
-                time.totalViewDurationMs += added;
-                time.totalViewDurationPx = Math.round(time.totalViewDurationMs / time.timePerPixel);
+                const scrollLeft = state.get('config.scroll.left');
+                const chartWidth = state.get('_internal.chart.dimensions.width');
+                time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
+                time.rightGlobal = time.leftGlobal + chartWidth * time.timePerPixel;
+                time.totalViewDurationMs = time.to - time.from;
+                time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
                 time.leftInner = time.leftGlobal - time.from;
                 time.rightInner = time.rightGlobal - time.from;
             }
@@ -4614,7 +4605,7 @@
             }
             time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
             time.rightGlobal = time.leftGlobal + chartWidth * time.timePerPixel;
-            addAdditionalSpace(time, mainLevel);
+            addAdditionalSpace(time, calendar.additionalSpace);
             time.leftInner = time.leftGlobal - time.from;
             time.rightInner = time.rightGlobal - time.from;
             time.leftPx = time.leftInner / time.timePerPixel;
@@ -4631,7 +4622,7 @@
                 time.rightInner = time.rightGlobal - time.from;
                 time.totalViewDurationMs = time.to - time.from;
                 time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
-                addAdditionalSpace(time, mainLevel);
+                addAdditionalSpace(time, calendar.addAdditionalSpace);
                 time.rightInner = time.rightGlobal - time.from;
                 time.rightPx = time.rightInner / time.timePerPixel;
                 time.leftPx = time.leftInner / time.timePerPixel;

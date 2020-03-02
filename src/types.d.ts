@@ -135,6 +135,23 @@ export interface ChartTime {
   format?: ChartCalendarFormat;
   levels?: ChartTimeDates[];
 }
+export interface ChartInternalTime {
+  period: Period;
+  leftGlobal: number;
+  rightGlobal: number;
+  timePerPixel: number;
+  from: number;
+  to: number;
+  totalViewDurationMs: number;
+  totalViewDurationPx: number;
+  leftInner: number;
+  rightInner: number;
+  leftPx: number;
+  rightPx: number;
+  zoom: number;
+  format: ChartCalendarFormat;
+  level: number;
+}
 export interface ChartCalendarFormatArguments {
   timeStart: Dayjs;
   timeEnd: Dayjs;
@@ -150,26 +167,26 @@ export interface ChartCalendarFormat {
   className?: string;
   format: (arguments: ChartCalendarFormatArguments) => string | htmlResult;
 }
-export interface ChartCalendarLevelAdditionalSpace {
+export interface ChartCalendarAdditionalSpace {
   before: number;
   after: number;
   period: Period;
 }
-export interface ChartCalendarLevelAdditionalSpaces {
-  hour?: ChartCalendarLevelAdditionalSpace;
-  day?: ChartCalendarLevelAdditionalSpace;
-  week?: ChartCalendarLevelAdditionalSpace;
-  month?: ChartCalendarLevelAdditionalSpace;
-  year?: ChartCalendarLevelAdditionalSpace;
+export interface ChartCalendarAdditionalSpaces {
+  hour?: ChartCalendarAdditionalSpace;
+  day?: ChartCalendarAdditionalSpace;
+  week?: ChartCalendarAdditionalSpace;
+  month?: ChartCalendarAdditionalSpace;
+  year?: ChartCalendarAdditionalSpace;
 }
 export interface ChartCalendarLevel {
   formats?: ChartCalendarFormat[];
   main?: boolean;
   doNotUseCache?: boolean;
-  additionalSpace?: ChartCalendarLevelAdditionalSpaces;
 }
 export interface ChartCalendar {
   levels?: ChartCalendarLevel[];
+  additionalSpace?: ChartCalendarAdditionalSpaces;
   expand?: boolean;
 }
 export interface ChartGridBlock {

@@ -254,6 +254,15 @@
           items,
           time: {
             period: 'day'
+          },
+          calendar: {
+            additionalSpace: {
+              hour: { before: 24, after: 24, period: 'hour' },
+              day: { before: 1, after: 1, period: 'month' },
+              week: { before: 1, after: 1, period: 'month' },
+              month: { before: 12, after: 12, period: 'month' },
+              year: { before: 1, after: 1, period: 'year' }
+            }
           }
         },
         classNames: {},
