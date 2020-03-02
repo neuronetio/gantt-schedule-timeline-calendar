@@ -77,7 +77,7 @@ export default function ChartTimelineGrid(vido, props) {
         if (formatCache.has(time.leftGlobal)) {
           format = formatCache.get(time.leftGlobal);
         } else {
-          format = api.time.date(time.leftGlobal).format('YYYY-MM-DD');
+          format = api.time.date(time.leftGlobal).format('YYYY-MM-DD HH:mm');
           formatCache.set(time.leftGlobal, format);
         }
         const id = row.id + ':' + format;
