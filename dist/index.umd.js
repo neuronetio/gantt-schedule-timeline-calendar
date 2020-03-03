@@ -7107,7 +7107,7 @@
                                 {
                                     zoomTo: 20,
                                     period: 'day',
-                                    //className: 'gstc-date-medium',
+                                    default: true,
                                     format({ timeStart, vido, className }) {
                                         return vido.html `<div class="${className}-content gstc-date-top">${timeStart.format('DD')}</div><div class="${className}-content gstc-date-small">${timeStart.format('dddd')}</div>`;
                                     }
@@ -7115,7 +7115,6 @@
                                 {
                                     zoomTo: 21,
                                     period: 'day',
-                                    default: true,
                                     format({ timeStart, vido, className }) {
                                         return vido.html `<div class="${className}-content gstc-date-top">${timeStart.format('DD')}</div><div class="${className}-content gstc-date-small">${timeStart.format('ddd')}</div>`;
                                     }
