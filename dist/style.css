@@ -244,12 +244,17 @@
 .gantt-schedule-timeline-calendar__chart-calendar-date--week {
   text-align: center;
 }
+.gantt-schedule-timeline-calendar__chart-calendar-date--level-0 .gantt-schedule-timeline-calendar__chart-calendar-date-content {
+  margin-left: 4px;
+}
 .gantt-schedule-timeline-calendar__chart-calendar-date--level-1.gstc-current {
   box-shadow: inset 0px 0px 4px rgba(177,184,189,0.45);
 }
+.gantt-schedule-timeline-calendar__chart-calendar-date--level-1 .gantt-schedule-timeline-calendar__chart-calendar-date-content {
+  margin: auto;
+}
 .gantt-schedule-timeline-calendar__chart-calendar-date-content {
   white-space: nowrap;
-  margin: auto;
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date-content .gstc-dash {
   line-height: 15px;

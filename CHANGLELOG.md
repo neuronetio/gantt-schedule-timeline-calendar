@@ -77,3 +77,7 @@ All notable changes to this project will be documented in this file.
 ## [2.4.3]
 
 - default day zoom changed
+
+## [2.4.4]
+
+- visual improvements
