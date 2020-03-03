@@ -86,7 +86,7 @@
         let startDayjs = GSTC.api
           .date(startDate)
           .startOf('day')
-          .add(Math.floor(Math.random() * 365 * 10), 'days');
+          .add(Math.floor(Math.random() * 365 * 1), 'days');
         items[id] = {
           id,
           label: 'item id ' + id,
@@ -94,87 +94,7 @@
             start: startDayjs.valueOf(),
             end: startDayjs
               .clone()
-              .add(Math.floor(Math.random() * 60) + 4, 'days')
-              .valueOf()
-          },
-          progress: 50,
-          rowId,
-          lines: i > 0 && i % 2 === 0 ? [(i + 1).toString()] : [],
-          style: { background: pallete[Math.floor(Math.random() * pallete.length)] }
-        };
-        id = i.toString() + '-2';
-        startDayjs = GSTC.api
-          .date(startDate)
-          .startOf('day')
-          .add(Math.floor(Math.random() * 365 * 10), 'days');
-        items[id] = {
-          id,
-          label: 'item id ' + id,
-          time: {
-            start: startDayjs.valueOf(),
-            end: startDayjs
-              .clone()
-              .add(Math.floor(Math.random() * 60) + 4, 'days')
-              .valueOf()
-          },
-          progress: 50,
-          rowId,
-          lines: i > 0 && i % 2 === 0 ? [(i + 1).toString()] : [],
-          style: { background: pallete[Math.floor(Math.random() * pallete.length)] }
-        };
-        id = i.toString() + '-3';
-        startDayjs = GSTC.api
-          .date(startDate)
-          .startOf('day')
-          .add(Math.floor(Math.random() * 365 * 10), 'days');
-        items[id] = {
-          id,
-          label: 'item id ' + id,
-          time: {
-            start: startDayjs.valueOf(),
-            end: startDayjs
-              .clone()
-              .add(Math.floor(Math.random() * 60) + 4, 'days')
-              .valueOf()
-          },
-          progress: 50,
-          rowId,
-          lines: i > 0 && i % 2 === 0 ? [(i + 1).toString()] : [],
-          style: { background: pallete[Math.floor(Math.random() * pallete.length)] }
-        };
-        id = i.toString() + '-4';
-        startDayjs = GSTC.api
-          .date(startDate)
-          .startOf('day')
-          .add(Math.floor(Math.random() * 365 * 10), 'days');
-        items[id] = {
-          id,
-          label: 'item id ' + id,
-          time: {
-            start: startDayjs.valueOf(),
-            end: startDayjs
-              .clone()
-              .add(Math.floor(Math.random() * 60) + 4, 'days')
-              .valueOf()
-          },
-          progress: 50,
-          rowId,
-          lines: i > 0 && i % 2 === 0 ? [(i + 1).toString()] : [],
-          style: { background: pallete[Math.floor(Math.random() * pallete.length)] }
-        };
-        id = i.toString() + '-5';
-        startDayjs = GSTC.api
-          .date(startDate)
-          .startOf('day')
-          .add(Math.floor(Math.random() * 365 * 10), 'days');
-        items[id] = {
-          id,
-          label: 'item id ' + id,
-          time: {
-            start: startDayjs.valueOf(),
-            end: startDayjs
-              .clone()
-              .add(Math.floor(Math.random() * 60) + 4, 'days')
+              .add(Math.floor(Math.random() * 10) + 4, 'days')
               .valueOf()
           },
           progress: 50,

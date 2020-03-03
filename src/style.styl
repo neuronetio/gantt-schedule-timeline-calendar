@@ -198,12 +198,15 @@ $item-content-padding = 5px
     &-calendar
       background: $bg-dark-1
       margin-right: -17px
-      display: block
+      display: flex
+      flex-direction: column
       &-dates
         overflow: hidden
         color: $font-color-3;
         user-select: none
         display: flex
+        &--level-1
+          flex-grow: 1
       &-date
         flex-grow: 0
         flex-shrink: 0
@@ -211,8 +214,8 @@ $item-content-padding = 5px
         white-space: nowrap
         border-right: 1px solid $bg-dark-4
         overflow: hidden
-        &.gstc-date-vertical
-          height: calc(var(--calendar-height) - 20px)
+        display: flex
+        flex-direction: column
         &--month
           font-size: 14px
           overflow: hidden
@@ -220,21 +223,27 @@ $item-content-padding = 5px
           white-space: nowrap
         &--day, &--week
           text-align: center
-        &--day.current
+        &--level-1.gstc-current
           box-shadow: inset 0px 0px 4px hsla(205, 8.3%, 71.8%, 0.45)
         &-content
           white-space: nowrap
+          margin: auto
+          .gstc-dash
+            line-height: 15px
+            margin-top: -6px
+          &.gstc-date-bottom
+            margin-top: 4px
           &.gstc-date-left
             text-align: left
           &.gstc-date-center
             text-align: center
           &.gstc-date-vertical
             font-size: 14px
-            transform: rotate(90deg) translate(50%, -50%);
-            transform-origin: 50% 0%;
           &.gstc-date-small
-            font-size: 14px
+            font-size: 13px
             line-height: 1em
+          &.gstc-date-extra-small
+            font-size: 9px
           &.gstc-date-medium
             font-size: 16px
           &.gstc-date-month-level-1
@@ -248,9 +257,6 @@ $item-content-padding = 5px
             line-height: var(--calendar-height)
           &--hour
             text-align: center
-          &--month
-            margin: 2px 0px
-            //will-change: transform, contents, opacity
           &--day, &--week
             font-size: 18px
             line-height: 1.7em

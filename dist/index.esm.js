@@ -4632,7 +4632,6 @@ function Main(vido, props = {}) {
         time.rightPx = time.rightInner / time.timePerPixel;
         const rightPixelGlobal = Math.round(time.rightGlobal / time.timePerPixel);
         const pixelTo = Math.round(time.to / time.timePerPixel);
-        //console.log({ scrollLeft, rightPixelGlobal, pixelTo, diff: rightPixelGlobal - pixelTo });
         if (calendar.expand && rightPixelGlobal > pixelTo && scrollLeft === 0) {
             const diff = time.rightGlobal - time.to;
             const diffPercent = diff / (time.rightGlobal - time.from);
@@ -5874,7 +5873,6 @@ function ChartCalendar(vido, props) {
     }));
     const components = [[], []];
     onDestroy(state.subscribe(`_internal.chart.time.levels`, levels => {
-        const currentDate = api.time.date().format('YYYY-MM-DD');
         let level = 0;
         for (const dates of levels) {
             if (!dates.length)
@@ -5894,6 +5892,7 @@ function ChartCalendar(vido, props) {
                     currentDateFormat = 'YYYY';
                     break;
             }
+            const currentDate = api.time.date().format(currentDateFormat);
             reuseComponents(components[level], dates, date => date && { level, date, currentDate, currentDateFormat }, ChartCalendarDateComponent);
             level++;
         }
@@ -5998,13 +5997,13 @@ function ChartCalendarDay(vido, props) {
         }
         {
             if (timeStart.format(props.currentDateFormat) === props.currentDate) {
-                current = ' current';
+                current = ' gstc-current';
             }
             else if (timeStart.subtract(1, props.date.period).format(props.currentDateFormat) === props.currentDate) {
-                current = ' next';
+                current = ' gstc-next';
             }
             else if (timeStart.add(1, props.date.period).format(props.currentDateFormat) === props.currentDate) {
-                current = ' previous';
+                current = ' gstc-previous';
             }
             else {
                 current = '';
@@ -6056,7 +6055,15 @@ function ChartCalendarDay(vido, props) {
     return templateProps => wrapper(html `
         <div
           detach=${detach}
-          class=${className + ' ' + className + `--${props.date.period}` + current + formatClassName}
+          class=${className +
+        ' ' +
+        className +
+        `--${props.date.period}` +
+        ' ' +
+        className +
+        `--level-${props.level}` +
+        current +
+        formatClassName}
           style=${styleMap}
           data-actions=${actions}
         >
@@ -7096,41 +7103,39 @@ function defaultConfig() {
                                 period: 'day',
                                 //className: 'gstc-date-medium',
                                 format({ timeStart, vido, className }) {
-                                    return vido.html `<div>${timeStart.format('DD')}</div><div class="${className}-content gstc-date-small">${timeStart.format('dddd')}</div>`;
+                                    return vido.html `<div class="${className}-content gstc-date-top">${timeStart.format('DD')}</div><div class="${className}-content gstc-date-small">${timeStart.format('dddd')}</div>`;
                                 }
                             },
                             {
                                 zoomTo: 21,
                                 period: 'day',
                                 default: true,
-                                className: 'gstc-date-medium',
                                 format({ timeStart, vido, className }) {
-                                    return vido.html `<div>${timeStart.format('DD')}</div><div class="${className}-content gstc-date-small">${timeStart.format('ddd')}</div>`;
+                                    return vido.html `<div class="${className}-content gstc-date-top">${timeStart.format('DD')}</div><div class="${className}-content gstc-date-small">${timeStart.format('ddd')}</div>`;
                                 }
                             },
                             {
                                 zoomTo: 22,
                                 period: 'day',
                                 className: 'gstc-date-vertical',
-                                format({ timeStart }) {
-                                    return timeStart.format('DD ddd');
+                                format({ timeStart, className, vido }) {
+                                    return vido.html `<div class="${className}-content gstc-date-top">${timeStart.format('DD')}</div><div class="${className}-content gstc-date-extra-small">${timeStart.format('ddd')}</div>`;
                                 }
                             },
                             {
                                 zoomTo: 23,
                                 period: 'week',
                                 default: true,
-                                className: 'gstc-date-medium',
                                 format({ timeStart, timeEnd, className, vido }) {
-                                    return vido.html `<div>${timeStart.format('DD')} - ${timeEnd.format('DD')}</div><div class="${className}-content gstc-date-small">${timeStart.format('ddd')} - ${timeEnd.format('dd')}</div>`;
+                                    return vido.html `<div class="${className}-content gstc-date-top">${timeStart.format('DD')} - ${timeEnd.format('DD')}</div><div class="${className}-content gstc-date-small">${timeStart.format('ddd')} - ${timeEnd.format('dd')}</div>`;
                                 }
                             },
                             {
                                 zoomTo: 25,
                                 period: 'week',
                                 className: 'gstc-date-vertical',
-                                format({ timeStart, timeEnd }) {
-                                    return timeStart.format('DD') + ' - ' + timeEnd.format('DD');
+                                format({ timeStart, timeEnd, className, vido }) {
+                                    return vido.html `<div class="${className}-content gstc-date-top">${timeStart.format('DD')}</div><div class="gstc-dash">-</div><div class="${className}-content gstc-date-top">${timeEnd.format('DD')}</div>`;
                                 }
                             },
                             {
@@ -7139,7 +7144,7 @@ function defaultConfig() {
                                 default: true,
                                 className: 'gstc-date-month-level-1',
                                 format({ timeStart, vido, className }) {
-                                    return vido.html `<div>${timeStart.format('MMM')}</div><div class="${className}-content gstc-date-medium">${timeStart.format('MM')}</div>`;
+                                    return vido.html `<div class="${className}-content gstc-date-top">${timeStart.format('MMM')}</div><div class="${className}-content gstc-date-small gstc-date-bottom">${timeStart.format('MM')}</div>`;
                                 }
                             },
                             {
@@ -7147,7 +7152,7 @@ function defaultConfig() {
                                 period: 'month',
                                 className: 'gstc-date-vertical',
                                 format({ timeStart }) {
-                                    return timeStart.format('MM MMM');
+                                    return timeStart.format('MM');
                                 }
                             },
                             {

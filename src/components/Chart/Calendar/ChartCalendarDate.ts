@@ -93,11 +93,11 @@ export default function ChartCalendarDay(vido, props) {
       current = cache[cacheKey].current;
     } else {
       if (timeStart.format(props.currentDateFormat) === props.currentDate) {
-        current = ' current';
+        current = ' gstc-current';
       } else if (timeStart.subtract(1, props.date.period).format(props.currentDateFormat) === props.currentDate) {
-        current = ' next';
+        current = ' gstc-next';
       } else if (timeStart.add(1, props.date.period).format(props.currentDateFormat) === props.currentDate) {
-        current = ' previous';
+        current = ' gstc-previous';
       } else {
         current = '';
       }
@@ -153,7 +153,15 @@ export default function ChartCalendarDay(vido, props) {
       html`
         <div
           detach=${detach}
-          class=${className + ' ' + className + `--${props.date.period}` + current + formatClassName}
+          class=${className +
+            ' ' +
+            className +
+            `--${props.date.period}` +
+            ' ' +
+            className +
+            `--level-${props.level}` +
+            current +
+            formatClassName}
           style=${styleMap}
           data-actions=${actions}
         >

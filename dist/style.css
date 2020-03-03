@@ -212,13 +212,17 @@
 .gantt-schedule-timeline-calendar__chart-calendar {
   background: #f9fafb;
   margin-right: -17px;
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 .gantt-schedule-timeline-calendar__chart-calendar-dates {
   overflow: hidden;
   color: #747a81;
   user-select: none;
   display: flex;
+}
+.gantt-schedule-timeline-calendar__chart-calendar-dates--level-1 {
+  flex-grow: 1;
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date {
   flex-grow: 0;
@@ -227,9 +231,8 @@
   white-space: nowrap;
   border-right: 1px solid rgba(177,184,189,0.5);
   overflow: hidden;
-}
-.gantt-schedule-timeline-calendar__chart-calendar-date.gstc-date-vertical {
-  height: calc(var(--calendar-height) - 20px);
+  display: flex;
+  flex-direction: column;
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date--month {
   font-size: 14px;
@@ -241,11 +244,19 @@
 .gantt-schedule-timeline-calendar__chart-calendar-date--week {
   text-align: center;
 }
-.gantt-schedule-timeline-calendar__chart-calendar-date--day.current {
+.gantt-schedule-timeline-calendar__chart-calendar-date--level-1.gstc-current {
   box-shadow: inset 0px 0px 4px rgba(177,184,189,0.45);
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date-content {
   white-space: nowrap;
+  margin: auto;
+}
+.gantt-schedule-timeline-calendar__chart-calendar-date-content .gstc-dash {
+  line-height: 15px;
+  margin-top: -6px;
+}
+.gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-bottom {
+  margin-top: 4px;
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-left {
   text-align: left;
@@ -255,12 +266,13 @@
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-vertical {
   font-size: 14px;
-  transform: rotate(90deg) translate(50%, -50%);
-  transform-origin: 50% 0%;
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-small {
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1em;
+}
+.gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-extra-small {
+  font-size: 9px;
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-medium {
   font-size: 16px;
@@ -278,9 +290,6 @@
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date-content--hour {
   text-align: center;
-}
-.gantt-schedule-timeline-calendar__chart-calendar-date-content--month {
-  margin: 2px 0px;
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date-content--day,
 .gantt-schedule-timeline-calendar__chart-calendar-date-content--week {

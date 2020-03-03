@@ -65,3 +65,7 @@ All notable changes to this project will be documented in this file.
 
 - api.scrollToTime(timeInMs) method added
 - fixed date position while zooming
+
+## [2.4.1]
+
+- visual improvements

@@ -48,7 +48,6 @@ export default function ChartCalendar(vido, props) {
   const components = [[], []];
   onDestroy(
     state.subscribe(`_internal.chart.time.levels`, levels => {
-      const currentDate = api.time.date().format('YYYY-MM-DD');
       let level = 0;
       for (const dates of levels) {
         if (!dates.length) continue;
@@ -67,6 +66,7 @@ export default function ChartCalendar(vido, props) {
             currentDateFormat = 'YYYY';
             break;
         }
+        const currentDate = api.time.date().format(currentDateFormat);
         reuseComponents(
           components[level],
           dates,

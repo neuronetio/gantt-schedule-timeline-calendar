@@ -303,7 +303,7 @@ function defaultConfig(): Config {
                 period: 'day',
                 //className: 'gstc-date-medium',
                 format({ timeStart, vido, className }) {
-                  return vido.html`<div>${timeStart.format(
+                  return vido.html`<div class="${className}-content gstc-date-top">${timeStart.format(
                     'DD'
                   )}</div><div class="${className}-content gstc-date-small">${timeStart.format('dddd')}</div>`;
                 }
@@ -312,9 +312,8 @@ function defaultConfig(): Config {
                 zoomTo: 21,
                 period: 'day',
                 default: true,
-                className: 'gstc-date-medium',
                 format({ timeStart, vido, className }) {
-                  return vido.html`<div>${timeStart.format(
+                  return vido.html`<div class="${className}-content gstc-date-top">${timeStart.format(
                     'DD'
                   )}</div><div class="${className}-content gstc-date-small">${timeStart.format('ddd')}</div>`;
                 }
@@ -323,17 +322,20 @@ function defaultConfig(): Config {
                 zoomTo: 22,
                 period: 'day',
                 className: 'gstc-date-vertical',
-                format({ timeStart }) {
-                  return timeStart.format('DD ddd');
+                format({ timeStart, className, vido }) {
+                  return vido.html`<div class="${className}-content gstc-date-top">${timeStart.format(
+                    'DD'
+                  )}</div><div class="${className}-content gstc-date-extra-small">${timeStart.format('ddd')}</div>`;
                 }
               },
               {
                 zoomTo: 23,
                 period: 'week',
                 default: true,
-                className: 'gstc-date-medium',
                 format({ timeStart, timeEnd, className, vido }) {
-                  return vido.html`<div>${timeStart.format('DD')} - ${timeEnd.format(
+                  return vido.html`<div class="${className}-content gstc-date-top">${timeStart.format(
+                    'DD'
+                  )} - ${timeEnd.format(
                     'DD'
                   )}</div><div class="${className}-content gstc-date-small">${timeStart.format(
                     'ddd'
@@ -344,8 +346,12 @@ function defaultConfig(): Config {
                 zoomTo: 25,
                 period: 'week',
                 className: 'gstc-date-vertical',
-                format({ timeStart, timeEnd }) {
-                  return timeStart.format('DD') + ' - ' + timeEnd.format('DD');
+                format({ timeStart, timeEnd, className, vido }) {
+                  return vido.html`<div class="${className}-content gstc-date-top">${timeStart.format(
+                    'DD'
+                  )}</div><div class="gstc-dash">-</div><div class="${className}-content gstc-date-top">${timeEnd.format(
+                    'DD'
+                  )}</div>`;
                 }
               },
               {
@@ -354,9 +360,11 @@ function defaultConfig(): Config {
                 default: true,
                 className: 'gstc-date-month-level-1',
                 format({ timeStart, vido, className }) {
-                  return vido.html`<div>${timeStart.format(
+                  return vido.html`<div class="${className}-content gstc-date-top">${timeStart.format(
                     'MMM'
-                  )}</div><div class="${className}-content gstc-date-medium">${timeStart.format('MM')}</div>`;
+                  )}</div><div class="${className}-content gstc-date-small gstc-date-bottom">${timeStart.format(
+                    'MM'
+                  )}</div>`;
                 }
               },
               {
@@ -364,7 +372,7 @@ function defaultConfig(): Config {
                 period: 'month',
                 className: 'gstc-date-vertical',
                 format({ timeStart }) {
-                  return timeStart.format('MM MMM');
+                  return timeStart.format('MM');
                 }
               },
               {
