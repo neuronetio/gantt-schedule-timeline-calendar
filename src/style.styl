@@ -230,7 +230,12 @@ $item-content-padding = 5px
           margin: auto
           .gstc-dash
             line-height: 15px
-            margin-top: -6px
+          &.gstc-date-bold
+            font-weight: 500
+          &.gstc-date-thin
+            font-weight: 300
+          &.gstc-date-normal
+            font-weight: 400 !important
           &.gstc-date-bottom
             margin-top: 4px
           &.gstc-date-left
@@ -239,8 +244,11 @@ $item-content-padding = 5px
             text-align: center
           &.gstc-date-vertical
             font-size: 14px
+            .gstc-date-top
+              margin-top: 2px
           &.gstc-date-small
             font-size: 13px
+            font-weight: 300
             line-height: 1em
           &.gstc-date-extra-small
             font-size: 9px

@@ -253,7 +253,15 @@
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date-content .gstc-dash {
   line-height: 15px;
-  margin-top: -6px;
+}
+.gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-bold {
+  font-weight: 500;
+}
+.gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-thin {
+  font-weight: 300;
+}
+.gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-normal {
+  font-weight: 400 !important;
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-bottom {
   margin-top: 4px;
@@ -267,8 +275,12 @@
 .gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-vertical {
   font-size: 14px;
 }
+.gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-vertical .gstc-date-top {
+  margin-top: 2px;
+}
 .gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-small {
   font-size: 13px;
+  font-weight: 300;
   line-height: 1em;
 }
 .gantt-schedule-timeline-calendar__chart-calendar-date-content.gstc-date-extra-small {

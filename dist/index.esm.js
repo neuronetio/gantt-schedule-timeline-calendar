@@ -7037,7 +7037,7 @@ function defaultConfig() {
                             {
                                 zoomTo: 24,
                                 period: 'month',
-                                format({ timeStart }) {
+                                format({ timeStart, className, vido }) {
                                     return timeStart.format("MMMM 'YY");
                                 }
                             },
@@ -7094,8 +7094,8 @@ function defaultConfig() {
                                 zoomTo: 19,
                                 period: 'day',
                                 className: 'gstc-date-medium',
-                                format({ timeStart }) {
-                                    return timeStart.format('DD dddd');
+                                format({ timeStart, className, vido }) {
+                                    return vido.html `<span class="${className}-content gstc-date-bold">${timeStart.format('DD')}</span> <span class="${className}-content gstc-date-thin">${timeStart.format('dddd')}</span>`;
                                 }
                             },
                             {
@@ -7127,7 +7127,7 @@ function defaultConfig() {
                                 period: 'week',
                                 default: true,
                                 format({ timeStart, timeEnd, className, vido }) {
-                                    return vido.html `<div class="${className}-content gstc-date-top">${timeStart.format('DD')} - ${timeEnd.format('DD')}</div><div class="${className}-content gstc-date-small">${timeStart.format('ddd')} - ${timeEnd.format('dd')}</div>`;
+                                    return vido.html `<div class="${className}-content gstc-date-top">${timeStart.format('DD')} - ${timeEnd.format('DD')}</div><div class="${className}-content gstc-date-small gstc-date-thin">${timeStart.format('ddd')} - ${timeEnd.format('dd')}</div>`;
                                 }
                             },
                             {
@@ -7135,7 +7135,7 @@ function defaultConfig() {
                                 period: 'week',
                                 className: 'gstc-date-vertical',
                                 format({ timeStart, timeEnd, className, vido }) {
-                                    return vido.html `<div class="${className}-content gstc-date-top">${timeStart.format('DD')}</div><div class="gstc-dash">-</div><div class="${className}-content gstc-date-top">${timeEnd.format('DD')}</div>`;
+                                    return vido.html `<div class="${className}-content gstc-date-top gstc-date-small gstc-date-normal">${timeStart.format('DD')}</div><div class="gstc-dash gstc-date-small">-</div><div class="${className}-content gstc-date-small gstc-date-normal">${timeEnd.format('DD')}</div>`;
                                 }
                             },
                             {
@@ -7151,8 +7151,8 @@ function defaultConfig() {
                                 zoomTo: 27,
                                 period: 'month',
                                 className: 'gstc-date-vertical',
-                                format({ timeStart }) {
-                                    return timeStart.format('MM');
+                                format({ timeStart, className, vido }) {
+                                    return vido.html `<div class="${className}-content gstc-date-top">${timeStart.format('MM')}</div><div class="${className}-content gstc-date-extra-small">${timeStart.format('MMM')}</div>`;
                                 }
                             },
                             {

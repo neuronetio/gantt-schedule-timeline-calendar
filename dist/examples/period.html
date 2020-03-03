@@ -86,7 +86,7 @@
         let startDayjs = GSTC.api
           .date(startDate)
           .startOf('day')
-          .add(Math.floor(Math.random() * 365 * 1), 'days');
+          .add(Math.floor(Math.random() * 365 * 10), 'days');
         items[id] = {
           id,
           label: 'item id ' + id,
@@ -94,7 +94,7 @@
             start: startDayjs.valueOf(),
             end: startDayjs
               .clone()
-              .add(Math.floor(Math.random() * 10) + 4, 'days')
+              .add(Math.floor(Math.random() * 20) + 4, 'days')
               .valueOf()
           },
           progress: 50,
