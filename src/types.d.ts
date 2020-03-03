@@ -117,6 +117,7 @@ export interface ScrollCompensation {
   y: number;
 }
 export interface Scroll {
+  propagate?: boolean;
   smooth?: boolean;
   top?: number;
   left?: number;

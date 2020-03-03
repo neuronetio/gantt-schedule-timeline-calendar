@@ -4717,6 +4717,7 @@
             location.host !== '' &&
             !location.host.startsWith('localhost') &&
             !location.host.startsWith('127.') &&
+            !location.host.startsWith('192.') &&
             !location.host.endsWith('.test') &&
             !location.host.endsWith('.local')) {
             try {
@@ -4727,13 +4728,17 @@
             catch (e) { }
         }
         let scrollTop = 0;
+        let propagate = true;
+        onDestroy(state.subscribe('config.scroll.propagate', prpgt => (propagate = prpgt)));
         /**
          * Handle scroll Event
          * @param {MouseEvent} event
          */
         function handleEvent(event) {
-            event.stopPropagation();
-            event.preventDefault();
+            if (!propagate) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
             if (event.type === 'scroll') {
                 // @ts-ignore
                 const top = event.target.scrollTop;
@@ -6999,6 +7004,7 @@
                 }
             },
             scroll: {
+                propagate: true,
                 smooth: false,
                 top: 0,
                 left: 0,

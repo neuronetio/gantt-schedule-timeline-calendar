@@ -193,6 +193,7 @@ function defaultConfig(): Config {
       }
     },
     scroll: {
+      propagate: true,
       smooth: false,
       top: 0,
       left: 0,
