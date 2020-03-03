@@ -303,7 +303,7 @@ function defaultConfig(): Config {
               {
                 zoomTo: 20,
                 period: 'day',
-                //className: 'gstc-date-medium',
+                default: true,
                 format({ timeStart, vido, className }) {
                   return vido.html`<div class="${className}-content gstc-date-top">${timeStart.format(
                     'DD'
@@ -313,7 +313,6 @@ function defaultConfig(): Config {
               {
                 zoomTo: 21,
                 period: 'day',
-                default: true,
                 format({ timeStart, vido, className }) {
                   return vido.html`<div class="${className}-content gstc-date-top">${timeStart.format(
                     'DD'
