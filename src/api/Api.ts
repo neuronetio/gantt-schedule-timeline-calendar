@@ -11,7 +11,7 @@ import defaultConfigFn from '../default-config';
 import TimeApi from './Time';
 import State from 'deep-state-observer';
 import dayjs from 'dayjs';
-import { Config, Period } from '../types';
+import { Config, Period, ChartInternalTime } from '../types';
 import { mergeDeep } from '@neuronet.io/vido/helpers';
 const lib = 'gantt-schedule-timeline-calendar';
 
@@ -384,6 +384,12 @@ export function getInternalApi(state) {
       outer.parentNode.removeChild(outer);
       return noScroll - withScroll + add;
     },
+
+    scrollToTime(toTime: number, time: ChartInternalTime = state.get('_internal.chart.time')) {
+      state.update('config.scroll.centerTime', toTime);
+    },
+
+    recenterScroll() {},
 
     /**
      * Get grid blocks that are under specified rectangle

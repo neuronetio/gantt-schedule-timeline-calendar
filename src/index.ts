@@ -11,6 +11,7 @@ import Vido from '@neuronet.io/vido/vido.esm';
 //import Vido from '../../vido/vido.esm';
 import publicApi, { getInternalApi } from './api/Api';
 import Main from './components/Main';
+import { actionNames } from './default-config';
 
 function GSTC(options) {
   const state = options.state;
@@ -59,7 +60,8 @@ function GSTC(options) {
     elements: {},
     cache: {
       calendar: {}
-    }
+    },
+    loaded: {}
   };
   if (typeof options.debug === 'boolean' && options.debug) {
     // @ts-ignore
@@ -76,7 +78,8 @@ function GSTC(options) {
   const vido = Vido(state, api);
   api.setVido(vido);
   const app = vido.createApp({ component: Main, props: {}, element: options.element });
-  return { state, app };
+  const internalApi = app.vidoInstance.api;
+  return { state, app, api: internalApi };
 }
 
 GSTC.api = publicApi;

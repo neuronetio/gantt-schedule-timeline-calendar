@@ -60,6 +60,7 @@ export default function Chart(vido, props = {}) {
   );
 
   function onScroll(event: MouseEvent | WheelEvent) {
+    const lastScrollLeft = state.get('config.scroll.left');
     if (event.type === 'scroll') {
       // @ts-ignore
       state.update('config.scroll.left', event.target.scrollLeft);
@@ -81,16 +82,13 @@ export default function Chart(vido, props = {}) {
         });
       }
     }
-    const chart = state.get('_internal.elements.chart');
-    const scrollInner = state.get('_internal.elements.horizontal-scroll-inner');
-    if (chart) {
-      const scrollLeft = state.get('config.scroll.left');
-      let percent = 0;
-      if (scrollLeft) {
-        percent = Math.round((scrollLeft / (scrollInner.clientWidth - chart.clientWidth)) * 100);
-        if (percent > 100) percent = 100;
-      }
-      state.update('config.scroll.percent.left', percent);
+    const width = state.get('_internal.chart.dimensions.width');
+    const diff = state.get('config.scroll.left') - lastScrollLeft;
+    if (width) {
+      const time = state.get('_internal.chart.time');
+      let centerTime = time.leftGlobal + (time.rightGlobal - time.leftGlobal) / 2;
+      centerTime += diff * time.timePerPixel;
+      state.update('config.scroll.centerTime', centerTime);
     }
   }
 
@@ -104,6 +102,8 @@ export default function Chart(vido, props = {}) {
   function bindInnerScroll(element) {
     const old = state.get('_internal.elements.horizontal-scroll-inner');
     if (old !== element) state.update('_internal.elements.horizontal-scroll-inner', element);
+    if (!state.get('_internal.loaded.horizontal-scroll-inner'))
+      state.update('_internal.loaded.horizontal-scroll-inner', true);
   }
 
   let chartWidth = 0;
@@ -121,6 +121,7 @@ export default function Chart(vido, props = {}) {
       });
       ro.observe(element);
       state.update('_internal.elements.chart', element);
+      state.update('_internal.loaded.chart', true);
     }
   });
 

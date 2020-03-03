@@ -27,7 +27,7 @@
     <h1>Gantt Schedule Timeline Calendar example #1</h1>
     <div>
       <input type="range" min="0" max="100" value="100" id="percent" />
-      <input type="range" min="12" max="28" value="20" id="zoom" />
+      <input type="range" min="14" max="28" value="20" id="zoom" />
       <select id="setperiod" onchange="changePeriod()">
         <option value="hour">Hour</option>
         <option value="day">Day</option>
@@ -35,6 +35,7 @@
         <option value="month">Month</option>
         <option value="year">Year</option>
       </select>
+      <button onclick="recenter()">recenter</button>
     </div>
     <div id="app"></div>
     <script src="../ItemMovement.plugin.js"></script>
@@ -245,7 +246,7 @@
           CalendarScroll({ speed: 2 }),
           WeekendHighlight()
         ],
-        height: 623,
+        height: 423,
         list: {
           rows,
           columns
@@ -256,6 +257,7 @@
             period: 'day'
           },
           calendar: {
+            expand: true,
             additionalSpace: {
               hour: { before: 24, after: 24, period: 'hour' },
               day: { before: 1, after: 1, period: 'month' },
@@ -277,8 +279,17 @@
         state.update(`config.chart.items.${itemMovement.item.id}.isResizing`, itemMovement.item.resizing);
       });
 
+      const element = document.getElementById('app');
+
+      function recenter() {
+        gstc.api.scrollToTime(gstc.api.time.date().valueOf());
+      }
+      element.addEventListener('gstc-loaded', event => {
+        recenter();
+      });
+
       const gstc = GSTC({
-        element: document.getElementById('app'),
+        element,
         state: GSTCState
       });
       window.gstc = gstc; // debug
@@ -291,7 +302,6 @@
       function destroy() {
         gstc.app.destroy();
       }
-
       gstc.state.subscribe('config.chart.time.period', period => {
         document.getElementById('setperiod').value = period;
       });

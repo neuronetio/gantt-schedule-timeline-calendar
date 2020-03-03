@@ -9,7 +9,7 @@
 
 import dayjs, { OpUnitType } from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import { Locale } from '../types';
+import { Locale, ChartInternalTime } from '../types';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 
@@ -88,6 +88,10 @@ export default class TimeApi {
       }
     }
     return time;
+  }
+
+  public getCenter(time: ChartInternalTime) {
+    return time.leftGlobal + (time.rightGlobal - time.leftGlobal) / 2;
   }
 
   public timeToPixelOffset(milliseconds: number): number {
