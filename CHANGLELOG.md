@@ -60,3 +60,8 @@ All notable changes to this project will be documented in this file.
 - config.chart.calendar.levels[].additionalSpace configuration moved to config.chart.calendar.additionalSpace
 - additional space performance optimisation
 - more precise grid block identification for lower resolution periods in YYYY-MM-DD HH:mm format
+
+## [2.4.0]
+
+- api.scrollToTime(timeInMs) method added
+- fixed date position while zooming
