@@ -359,7 +359,6 @@ export default function Main(vido, props = {}) {
     time.rightPx = time.rightInner / time.timePerPixel;
     const rightPixelGlobal = Math.round(time.rightGlobal / time.timePerPixel);
     const pixelTo = Math.round(time.to / time.timePerPixel);
-    //console.log({ scrollLeft, rightPixelGlobal, pixelTo, diff: rightPixelGlobal - pixelTo });
     if (calendar.expand && rightPixelGlobal > pixelTo && scrollLeft === 0) {
       const diff = time.rightGlobal - time.to;
       const diffPercent = diff / (time.rightGlobal - time.from);
