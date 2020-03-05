@@ -160,27 +160,25 @@
               this.lastX = normalized.x;
           }
           onPointerMove(ev) {
-              schedule(() => {
-                  if (!this.isMoving)
-                      return;
-                  const normalized = api.normalizePointerEvent(ev);
-                  const movedX = normalized.x - this.lastX;
-                  const time = state.get('_internal.chart.time');
+              if (!this.isMoving)
+                  return;
+              const normalized = api.normalizePointerEvent(ev);
+              const movedX = normalized.x - this.lastX;
+              const time = state.get('_internal.chart.time');
+              // @ts-ignore
+              const movedTime = -Math.round(movedX * time.timePerPixel * options.speed);
+              state.update('config.chart.time', configTime => {
+                  if (configTime.from === 0)
+                      configTime.from = time.from;
+                  if (configTime.to === 0)
+                      configTime.to = time.to;
+                  configTime.from += movedTime;
+                  configTime.to += movedTime;
                   // @ts-ignore
-                  const movedTime = -Math.round(movedX * time.timePerPixel * options.speed);
-                  state.update('config.chart.time', configTime => {
-                      if (configTime.from === 0)
-                          configTime.from = time.from;
-                      if (configTime.to === 0)
-                          configTime.to = time.to;
-                      configTime.from += movedTime;
-                      configTime.to += movedTime;
-                      // @ts-ignore
-                      options.onChange(configTime);
-                      return configTime;
-                  });
-                  this.lastX = normalized.x;
-              })();
+                  options.onChange(configTime);
+                  return configTime;
+              });
+              this.lastX = normalized.x;
           }
           onPointerEnd() {
               this.isMoving = false;

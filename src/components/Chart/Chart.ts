@@ -38,14 +38,6 @@ export default function Chart(vido, props = {}) {
       update();
     })
   );
-  onDestroy(
-    state.subscribe('config.scroll.left', left => {
-      if (scrollElement) {
-        scrollElement.scrollLeft = left;
-      }
-      update();
-    })
-  );
 
   onDestroy(
     state.subscribeAll(
@@ -59,38 +51,62 @@ export default function Chart(vido, props = {}) {
     )
   );
 
-  function onScroll(event: MouseEvent | WheelEvent) {
-    const lastScrollLeft = state.get('config.scroll.left');
+  onDestroy(
+    state.subscribe('config.scroll.left', left => {
+      if (scrollElement) {
+        scrollElement.scrollLeft = left;
+      }
+      update();
+    })
+  );
+
+  function onScrollHandler(event: MouseEvent) {
     if (event.type === 'scroll') {
       // @ts-ignore
-      state.update('config.scroll.left', event.target.scrollLeft);
-    } else {
+      const left = event.target.scrollLeft;
+      state.update('config.scroll.left', left);
+    }
+  }
+
+  const onScroll = {
+    handleEvent: onScrollHandler,
+    passive: true,
+    capture: false
+  };
+
+  function onWheelHandler(event: WheelEvent) {
+    if (event.type === 'wheel') {
       const wheel = api.normalizeMouseWheelEvent(event);
       const xMultiplier = state.get('config.scroll.xMultiplier');
       const yMultiplier = state.get('config.scroll.yMultiplier');
       if (event.shiftKey && wheel.y) {
-        state.update('config.scroll.left', left => {
-          return api.limitScroll('left', (left += wheel.y * xMultiplier));
+        const currentScrollLeft = state.get('config.scroll.left');
+        const newScrollLeft = api.limitScroll('left', currentScrollLeft + wheel.y * xMultiplier);
+        state.update('config.scroll.left', newScrollLeft); // will trigger scrollbar to move which will trigger scroll event
+      } else if (event.ctrlKey && wheel.y) {
+        event.preventDefault();
+        state.update('config.chart.time.zoom', currentZoom => {
+          if (wheel.y < 0) {
+            return currentZoom - 1;
+          }
+          return currentZoom + 1;
         });
       } else if (wheel.x) {
-        state.update('config.scroll.left', left => {
-          return api.limitScroll('left', (left += wheel.x * xMultiplier));
-        });
+        const currentScrollLeft = state.get('config.scroll.left');
+        state.update('config.scroll.left', currentScrollLeft + wheel.x * xMultiplier);
       } else {
         state.update('config.scroll.top', top => {
           return api.limitScroll('top', (top += wheel.y * yMultiplier));
         });
       }
     }
-    const width = state.get('_internal.chart.dimensions.width');
-    const diff = state.get('config.scroll.left') - lastScrollLeft;
-    if (width) {
-      const time = state.get('_internal.chart.time');
-      let centerTime = time.leftGlobal + (time.rightGlobal - time.leftGlobal) / 2;
-      centerTime += diff * time.timePerPixel;
-      state.update('config.scroll.centerTime', centerTime);
-    }
   }
+
+  const onWheel = {
+    handleEvent: onWheelHandler,
+    passive: false,
+    capture: false
+  };
 
   function bindElement(element) {
     if (!scrollElement) {
@@ -136,7 +152,7 @@ export default function Chart(vido, props = {}) {
   return templateProps =>
     wrapper(
       html`
-        <div class=${className} data-actions=${actions}>
+        <div class=${className} data-actions=${actions} @wheel=${onWheel} @scroll=${onScroll}>
           ${Calendar.html()}${Timeline.html()}
           <div class=${classNameScroll} style=${scrollStyleMap} data-actions=${scrollActions} @scroll=${onScroll}>
             <div class=${classNameScrollInner} style=${scrollInnerStyleMap} data-actions=${scrollAreaActions} />

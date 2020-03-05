@@ -9,7 +9,7 @@
 
 import dayjs, { OpUnitType } from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import { Locale, ChartInternalTime } from '../types';
+import { Locale, ChartInternalTime, Period, ChartCalendarAdditionalSpace } from '../types';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 
@@ -37,7 +37,30 @@ export default class TimeApi {
     return time ? _dayjs(time).locale(this.locale.name) : _dayjs().locale(this.locale.name);
   }
 
-  public recalculateFromTo(time: { from: number; to: number }, period: OpUnitType = 'day') {
+  private addAdditionalSpace(
+    time: { from: number; to: number; period: OpUnitType },
+    additionalSpace: ChartCalendarAdditionalSpace
+  ) {
+    if (additionalSpace && additionalSpace[time.period]) {
+      const add = additionalSpace[time.period];
+      if (add.before) {
+        time.from = this.date(time.from)
+          .subtract(add.before, add.period)
+          .startOf(time.period)
+          .valueOf();
+      }
+      if (add.after) {
+        time.to = this.date(time.to)
+          .add(add.after, add.period)
+          .endOf(time.period)
+          .valueOf();
+      }
+    }
+    return time;
+  }
+
+  public recalculateFromTo(time: { from: number; to: number; period: OpUnitType }, calendar) {
+    const period = time.period;
     time = { ...time };
     time.from = +time.from;
     time.to = +time.to;
@@ -87,6 +110,7 @@ export default class TimeApi {
           .valueOf();
       }
     }
+    time = this.addAdditionalSpace(time, calendar.additionalSpace);
     return time;
   }
 

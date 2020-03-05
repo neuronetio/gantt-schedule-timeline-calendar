@@ -86,7 +86,7 @@
         let startDayjs = GSTC.api
           .date(startDate)
           .startOf('day')
-          .add(Math.floor(Math.random() * 365 * 10), 'days');
+          .add(Math.floor(Math.random() * 365 * 2), 'days');
         items[id] = {
           id,
           label: 'item id ' + id,
@@ -181,9 +181,9 @@
             additionalSpace: {
               hour: { before: 24, after: 24, period: 'hour' },
               day: { before: 1, after: 1, period: 'month' },
-              week: { before: 1, after: 1, period: 'month' },
-              month: { before: 12, after: 12, period: 'month' },
-              year: { before: 1, after: 1, period: 'year' }
+              week: { before: 1, after: 1, period: 'year' },
+              month: { before: 6, after: 6, period: 'year' },
+              year: { before: 12, after: 12, period: 'year' }
             }
           }
         },
@@ -204,6 +204,7 @@
       function recenter() {
         gstc.api.scrollToTime(gstc.api.time.date().valueOf());
       }
+
       element.addEventListener('gstc-loaded', event => {
         recenter();
       });

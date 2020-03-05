@@ -349,7 +349,7 @@ export function getInternalApi(state) {
         } else if (scroll > height) {
           scroll = height;
         }
-        return scroll;
+        return Math.round(scroll);
       } else {
         const width =
           state.get('_internal.chart.time.totalViewDurationPx') - state.get('_internal.chart.dimensions.width');
@@ -358,7 +358,7 @@ export function getInternalApi(state) {
         } else if (scroll > width) {
           scroll = width;
         }
-        return scroll;
+        return Math.round(scroll);
       }
     },
 
@@ -386,7 +386,13 @@ export function getInternalApi(state) {
     },
 
     scrollToTime(toTime: number, time: ChartInternalTime = state.get('_internal.chart.time')) {
-      state.update('config.scroll.centerTime', toTime);
+      state.update('config.scroll', scroll => {
+        const chartWidth = state.get('_internal.chart.dimensions.width');
+        const halfTime = (chartWidth / 2) * time.timePerPixel;
+        const leftGlobal = toTime - halfTime - time.from;
+        scroll.left = this.limitScroll('left', Math.round(leftGlobal / time.timePerPixel));
+        return scroll;
+      });
     },
 
     recenterScroll() {},

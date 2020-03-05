@@ -83,7 +83,7 @@ export default function ListColumnHeaderResizer(vido, props) {
     state,
     pointerOptions: {
       axis: 'x',
-      onMove: schedule(function onMove({ movementX }) {
+      onMove: function onMove({ movementX }) {
         let minWidth = state.get('config.list.columns.minWidth');
         if (typeof column.minWidth === 'number') {
           minWidth = column.minWidth;
@@ -95,7 +95,7 @@ export default function ListColumnHeaderResizer(vido, props) {
         if (inRealTime) {
           state.update(columnWidthPath, left);
         }
-      })
+      }
     }
   };
 

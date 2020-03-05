@@ -266,46 +266,6 @@ export default function Main(vido, props = {}) {
     return dates;
   };
 
-  function getScrollLeft(time) {
-    const chartWidth = state.get('_internal.chart.dimensions.width');
-    const centerTime = state.get('config.scroll.centerTime');
-    let scrollLeft = 0;
-    if (centerTime) {
-      const subMs = (chartWidth / 2) * time.timePerPixel;
-      let leftTime = centerTime - subMs - time.from;
-      scrollLeft = Math.round(leftTime / time.timePerPixel);
-    }
-    if (scrollLeft < 0) scrollLeft = 0;
-    return scrollLeft;
-  }
-
-  function addAdditionalSpace(time: ChartInternalTime, additionalSpace: ChartCalendarAdditionalSpace) {
-    const currentPeriod = time.period;
-    if (additionalSpace && additionalSpace[currentPeriod]) {
-      const add = additionalSpace[currentPeriod];
-      if (add.before) {
-        time.from = api.time
-          .date(time.from)
-          .subtract(add.before, add.period)
-          .valueOf();
-      }
-      if (add.after) {
-        time.to = api.time
-          .date(time.to)
-          .add(add.after, add.period)
-          .valueOf();
-      }
-      time.totalViewDurationMs = time.to - time.from;
-      time.totalViewDurationPx = Math.round(time.totalViewDurationMs / time.timePerPixel);
-      const scrollLeft = getScrollLeft(time);
-      const chartWidth = state.get('_internal.chart.dimensions.width');
-      time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
-      time.rightGlobal = time.leftGlobal + chartWidth * time.timePerPixel;
-      time.leftInner = time.leftGlobal - time.from;
-      time.rightInner = time.rightGlobal - time.from;
-    }
-  }
-
   function triggerLoadedEvent() {
     if (state.get('_internal.loadedEventTriggered')) return;
     Promise.resolve().then(() => {
@@ -318,8 +278,42 @@ export default function Main(vido, props = {}) {
     state.update('_internal.loadedEventTriggered', true);
   }
 
-  let currentConfigTimeId = 0;
-  function recalculateTimes() {
+  function expand(time, scrollLeft) {
+    const diff = time.rightGlobal - time.to;
+    const diffPercent = diff / (time.rightGlobal - time.from);
+    time.timePerPixel = time.timePerPixel - time.timePerPixel * diffPercent;
+    time.zoom = Math.log(time.timePerPixel) / Math.log(2);
+    time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
+    time.rightGlobal = time.to;
+    time.rightInner = time.rightGlobal - time.from;
+    time.totalViewDurationMs = time.to - time.from;
+    time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
+    //addAdditionalSpace(time, calendar.addAdditionalSpace);
+    time.rightInner = time.rightGlobal - time.from;
+    time.rightPx = time.rightInner / time.timePerPixel;
+    time.leftPx = time.leftInner / time.timePerPixel;
+  }
+
+  function getLevels(time, calendar) {
+    time.levels = [];
+    let index = 0;
+    for (const level of calendar.levels) {
+      const formatting = level.formats.find(format => +time.zoom <= +format.zoomTo);
+      if (level.main) {
+        time.format = formatting;
+        time.level = index;
+      }
+      if (formatting) {
+        time.levels.push(generatePeriodDates(formatting.period, time));
+      }
+      index++;
+    }
+  }
+
+  let working = false;
+  function recalculateTimes(reason) {
+    if (working) return;
+    working = true;
     const configTime = state.get('config.chart.time');
     const chartWidth = state.get('_internal.chart.dimensions.width');
     const calendar = state.get('config.chart.calendar');
@@ -345,87 +339,102 @@ export default function Main(vido, props = {}) {
         time.period = formatting.period;
       }
     }
-    time = api.time.recalculateFromTo(time, time.period);
+
+    time = api.time.recalculateFromTo(time, calendar);
     time.timePerPixel = Math.pow(2, time.zoom);
     time.totalViewDurationMs = api.time.date(time.to).diff(time.from, 'milliseconds');
-    time.totalViewDurationPx = Math.round(time.totalViewDurationMs / time.timePerPixel);
-    let scrollLeft = getScrollLeft(time);
-    time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
-    time.rightGlobal = time.leftGlobal + chartWidth * time.timePerPixel;
-    addAdditionalSpace(time, calendar.additionalSpace);
+    time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
+    let scrollLeft = state.get('config.scroll.left');
+
+    // If time.zoom (or time.period) has been changed
+    // then we need to recalculate basing on time.centerGlobal
+    // and update scroll left
+    // if not then we need to calculate from scroll left
+
+    if (time.zoom !== oldTime.zoom && oldTime.centerGlobal) {
+      const chartWidthInMs = chartWidth * time.timePerPixel;
+      const halfChartInMs = Math.round(chartWidthInMs / 2);
+      time.leftGlobal = oldTime.centerGlobal - halfChartInMs;
+      time.rightGlobal = time.leftGlobal + chartWidthInMs;
+      time.centerGlobal = time.leftGlobal + Math.round((time.rightGlobal - time.leftGlobal) / 2);
+      scrollLeft = Math.round((time.leftGlobal - time.from) / time.timePerPixel);
+      scrollLeft = api.limitScroll('left', scrollLeft);
+    } else {
+      time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
+      time.rightGlobal = time.leftGlobal + chartWidth * time.timePerPixel;
+      time.centerGlobal = time.leftGlobal + Math.round((time.rightGlobal - time.leftGlobal) / 2);
+    }
+
     time.leftInner = time.leftGlobal - time.from;
     time.rightInner = time.rightGlobal - time.from;
     time.leftPx = time.leftInner / time.timePerPixel;
     time.rightPx = time.rightInner / time.timePerPixel;
+
     const rightPixelGlobal = Math.round(time.rightGlobal / time.timePerPixel);
     const pixelTo = Math.round(time.to / time.timePerPixel);
     if (calendar.expand && rightPixelGlobal > pixelTo && scrollLeft === 0) {
-      const diff = time.rightGlobal - time.to;
-      const diffPercent = diff / (time.rightGlobal - time.from);
-      time.timePerPixel = time.timePerPixel - time.timePerPixel * diffPercent;
-      time.zoom = Math.log(time.timePerPixel) / Math.log(2);
-      scrollLeft = getScrollLeft(time);
-      time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
-      time.rightGlobal = time.to;
-      time.rightInner = time.rightGlobal - time.from;
-      time.totalViewDurationMs = time.to - time.from;
-      time.totalViewDurationPx = Math.round(time.totalViewDurationMs / time.timePerPixel);
-      addAdditionalSpace(time, calendar.addAdditionalSpace); // NOT WORKING WHEN PERIOD IS CHANGED
-      time.rightInner = time.rightGlobal - time.from;
-      time.rightPx = time.rightInner / time.timePerPixel;
-      time.leftPx = time.leftInner / time.timePerPixel;
+      //expand(time, scrollLeft);
     }
-    time.levels = [];
-    let index = 0;
-    for (const level of calendar.levels) {
-      const formatting = level.formats.find(format => +time.zoom <= +format.zoomTo);
-      if (level.main) {
-        time.format = formatting;
-        time.level = index;
-      }
-      if (formatting) {
-        time.levels.push(generatePeriodDates(formatting.period, time));
-      }
-      index++;
-    }
+    getLevels(time, calendar);
     let xCompensation = 0;
     if (time.levels[time.level] && time.levels[time.level].length !== 0) {
       xCompensation = time.levels[time.level][0].subPx;
     }
-    scrollLeft = getScrollLeft(time);
-    state.update('config.scroll.left', scrollLeft);
+    state.update(`_internal.chart.time`, { ...time });
     state.update('config.scroll.compensation.x', xCompensation);
-    state.update(`_internal.chart.time`, time);
-    const newTime = { ...time };
-    state.update(
-      'config.chart.time',
-      oldTime => {
-        delete newTime.from;
-        delete newTime.to;
-        delete newTime.levels;
-        newTime.period = time.format.period;
-        newTime.id = ++currentConfigTimeId;
-        return { ...oldTime, ...newTime };
-      },
-      { only: ['period', 'zoom', 'format'] }
-    );
-    update();
-    if (!state.get('_internal.loaded.time')) {
-      state.update('_internal.loaded.time', true);
-    }
+    state.update('config.chart.time.zoom', time.zoom);
+    state.update('config.chart.time.period', time.format.period);
+    state.update('config.scroll.left', scrollLeft);
+    update().then(() => {
+      if (!state.get('_internal.loaded.time')) {
+        state.update('_internal.loaded.time', true);
+      }
+    });
+    working = false;
   }
+
+  const recalculationTriggerCache = {
+    initialized: false,
+    zoom: 0,
+    period: '',
+    scrollLeft: 0,
+    chartWidth: 0
+  };
+  function recalculationIsNeeded() {
+    const configTime = state.get('config.chart.time');
+    const scrollLeft = state.get('config.scroll.left');
+    const chartWidth = state.get('_internal.chart.dimensions.width');
+    const cache = { ...recalculationTriggerCache };
+    recalculationTriggerCache.zoom = configTime.zoom;
+    recalculationTriggerCache.period = configTime.period;
+    recalculationTriggerCache.scrollLeft = scrollLeft;
+    recalculationTriggerCache.chartWidth = chartWidth;
+    if (!recalculationTriggerCache.initialized) {
+      recalculationTriggerCache.initialized = true;
+      return 'all';
+    }
+    if (configTime.zoom !== cache.zoom) return { name: 'zoom', oldValue: cache.zoom, newValue: configTime.zoom };
+    if (configTime.period !== cache.period)
+      return { name: 'period', oldValue: cache.period, newValue: configTime.period };
+    if (scrollLeft !== cache.scrollLeft) return { name: 'scroll', oldValue: cache.scrollLeft, newValue: scrollLeft };
+    if (chartWidth !== cache.chartWidth)
+      return { name: 'chartWidth', oldValue: cache.chartWidth, newValue: chartWidth };
+    return false;
+  }
+
   onDestroy(
     state.subscribeAll(
       [
         'config.chart.time',
         'config.chart.calendar.levels',
-        '_internal.dimensions.width',
-        'config.scroll.centerTime',
-        '_internal.scrollBarHeight',
+        'config.scroll.left',
         '_internal.list.width',
-        '_internal.chart.dimensions'
+        '_internal.chart.dimensions.width'
       ],
-      schedule(recalculateTimes),
+      () => {
+        let reason = recalculationIsNeeded();
+        if (reason) recalculateTimes(reason);
+      },
       { bulk: true }
     )
   );
@@ -440,7 +449,7 @@ export default function Main(vido, props = {}) {
       for (const itemId in items) {
         const item = items[itemId];
         if (item.time.start < internalTime.from || item.time.end > internalTime.to) {
-          recalculateTimes();
+          recalculateTimes('items');
         }
       }
     })
@@ -498,23 +507,6 @@ export default function Main(vido, props = {}) {
         state.update('config.scroll', handleOnScroll, {
           only: ['top', 'percent.top']
         });
-    } else {
-      const wheel = api.normalizeMouseWheelEvent(event);
-      const xMultiplier = state.get('config.scroll.xMultiplier');
-      const yMultiplier = state.get('config.scroll.yMultiplier');
-      if (event.shiftKey && wheel.y) {
-        state.update('config.scroll.left', left => {
-          return api.limitScroll('left', (left += wheel.y * xMultiplier));
-        });
-      } else if (wheel.x) {
-        state.update('config.scroll.left', left => {
-          return api.limitScroll('left', (left += wheel.x * xMultiplier));
-        });
-      } else {
-        state.update('config.scroll.top', top => {
-          return (scrollTop = api.limitScroll('top', (top += wheel.y * yMultiplier)));
-        });
-      }
     }
   }
 
@@ -578,16 +570,16 @@ export default function Main(vido, props = {}) {
         const scroll = state.get('_internal.elements.horizontal-scroll-inner');
         const width = state.get('_internal.chart.time.totalViewDurationPx');
         if (scroll && scroll.clientWidth === Math.round(width)) {
-          triggerLoadedEvent();
+          setTimeout(triggerLoadedEvent, 0);
         }
       }
     })
   );
 
-  function LoadedEvent() {
+  function LoadedEventAction() {
     state.update('_internal.loaded.main', true);
   }
-  if (!componentActions.includes(LoadedEvent)) componentActions.push(LoadedEvent);
+  if (!componentActions.includes(LoadedEventAction)) componentActions.push(LoadedEventAction);
 
   /**
    * Bind scroll inner element
