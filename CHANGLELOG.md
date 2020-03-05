@@ -85,3 +85,8 @@ All notable changes to this project will be documented in this file.
 ## [2.4.5]
 
 - config.scroll.propagate option
+
+## [2.5.0]
+
+- refactored time calculations
+- minor visual improvements
