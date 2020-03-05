@@ -192,7 +192,7 @@
 .gantt-schedule-timeline-calendar__list-column-header-resizer-dots {
   cursor: ew-resize;
   background: transparent;
-  padding-top: 20px;
+  padding-top: 12px;
   padding-left: 6px;
   padding-right: 2px;
 }
