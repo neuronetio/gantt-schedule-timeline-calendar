@@ -426,7 +426,7 @@
   padding: 4px 4px;
   user-select: none;
   background: #e74c3c;
-  border-radius: 3px;
+  border-radius: 18px;
   color: #fff;
   display: flex;
   height: calc(var(--row-height) - 8px);
@@ -448,6 +448,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  margin-left: 4px;
 }
 .gantt-schedule-timeline-calendar__chart-timeline-items-row-item-resizer {
   touch-action: none;

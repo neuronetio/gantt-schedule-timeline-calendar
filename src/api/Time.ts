@@ -94,6 +94,8 @@ export default class TimeApi {
           .valueOf();
       }
     }
+    time.finalFrom = time.from;
+    time.finalTo = time.to;
     time = this.addAdditionalSpace(time);
     return time;
   }

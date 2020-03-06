@@ -102,3 +102,7 @@ All notable changes to this project will be documented in this file.
 - moved chart.calendar.additionalSpace to chart.time.additionalSpaces
 - time calculations refactoring
 - chart.time.finalFrom and chart.time.finalTo added to satisfy additionalSpaces after refactoring
+
+## [2.6.1]
+
+- CalendarScroll bugfix

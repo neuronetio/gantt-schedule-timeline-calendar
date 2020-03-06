@@ -27,7 +27,7 @@
     <h1>Gantt Schedule Timeline Calendar example #1</h1>
     <div>
       <input type="range" min="0" max="100" value="100" id="percent" />
-      <input type="range" min="12" max="22" value="20" id="zoom" />
+      <input type="range" min="12" max="23" value="20" id="zoom" />
       <div style="display: inline-block;width: 100px; text-align: center;font-weight: bold;" id="period"></div>
       <button id="change-something">Change something</button>
       <button onclick="deleteRow()">Delete row</button>
@@ -76,7 +76,7 @@
 
       const startDate = GSTC.api
         .date()
-        .subtract(5, 'month')
+        .subtract(1, 'month')
         .valueOf();
 
       const items = {};
@@ -163,7 +163,7 @@
               console.log(data, type);
             }
           }),
-          CalendarScroll({ speed: 2 }),
+          CalendarScroll(),
           WeekendHighlight()
         ],
         height: 623,
@@ -193,8 +193,12 @@
         document.getElementById('period').innerText = period;
       });
 
+      const element = document.getElementById('app');
+      element.addEventListener('gstc-loaded', () => {
+        gstc.api.scrollToTime(new Date().getTime());
+      });
       const gstc = GSTC({
-        element: document.getElementById('app'),
+        element,
         state: GSTCState
       });
       window.gstc = gstc; // debug

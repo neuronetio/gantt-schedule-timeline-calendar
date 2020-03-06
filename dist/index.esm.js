@@ -4610,7 +4610,6 @@ function Main(vido, props = {}) {
         const justApply = ['leftGlobal', 'centerGlobal', 'rightGlobal', 'from', 'to'].includes(reason.name);
         if (justApply) {
             time = Object.assign(Object.assign({}, time), { leftGlobal: configTime.leftGlobal, centerGlobal: configTime.centerGlobal, rightGlobal: configTime.rightGlobal, from: configTime.from, to: configTime.to });
-            limitGlobalAndSetCenter(time);
         }
         // source of everything
         time.timePerPixel = Math.pow(2, time.zoom);
@@ -4629,16 +4628,15 @@ function Main(vido, props = {}) {
                 const halfChartInMs = Math.round(chartWidthInMs / 2);
                 time.leftGlobal = oldTime.centerGlobal - halfChartInMs;
                 time.rightGlobal = time.leftGlobal + chartWidthInMs;
-                limitGlobalAndSetCenter(time);
                 scrollLeft = Math.round((time.leftGlobal - time.finalFrom) / time.timePerPixel);
                 scrollLeft = api.limitScroll('left', scrollLeft);
             }
             else {
                 time.leftGlobal = scrollLeft * time.timePerPixel + time.finalFrom;
                 time.rightGlobal = time.leftGlobal + chartWidth * time.timePerPixel;
-                limitGlobalAndSetCenter(time);
             }
         }
+        limitGlobalAndSetCenter(time);
         time.leftInner = time.leftGlobal - time.finalFrom;
         time.rightInner = time.rightGlobal - time.finalFrom;
         time.leftPx = time.leftInner / time.timePerPixel;
@@ -7367,6 +7365,8 @@ class TimeApi {
                     .valueOf();
             }
         }
+        time.finalFrom = time.from;
+        time.finalTo = time.to;
         time = this.addAdditionalSpace(time);
         return time;
     }

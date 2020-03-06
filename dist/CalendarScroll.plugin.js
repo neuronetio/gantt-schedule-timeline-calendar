@@ -165,22 +165,14 @@
                   return;
               const normalized = api.normalizePointerEvent(ev);
               const movedX = normalized.x - this.lastX;
-              let finalMovement = Math.abs(movedX) * options.speed;
-              if (finalMovement >= 1) {
+              let finalMovement = movedX * options.speed;
+              if (Math.abs(finalMovement) >= 1) {
+                  finalMovement = Math.round(finalMovement);
                   state.update('config.chart.time', time => {
-                      let centerTime;
-                      if (movedX >= 0) {
-                          centerTime = api.time
-                              .date(time.centerGlobal)
-                              .subtract(finalMovement, time.period)
-                              .valueOf();
-                      }
-                      else {
-                          centerTime = api.time
-                              .date(time.centerGlobal)
-                              .add(finalMovement, time.period)
-                              .valueOf();
-                      }
+                      let centerTime = api.time
+                          .date(time.centerGlobal)
+                          .add(finalMovement * -1, time.period)
+                          .valueOf();
                       const movedTime = centerTime - time.centerGlobal;
                       time.leftGlobal += movedTime;
                       time.centerGlobal = centerTime;

@@ -344,14 +344,14 @@
             }
           }),
           CalendarScroll({
-            speed: 2,
+            speed: 0.2,
             hideScroll: true,
             onChange(time) {
               console.log(GSTC.api.date(time.from).format('YYYY-MM-DD'), GSTC.api.date(time.to).format('YYYY-MM-DD'));
             }
           })
         ],
-        height: 623,
+        height: 646,
         list: {
           rows,
           columns
