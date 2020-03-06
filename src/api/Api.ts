@@ -140,8 +140,8 @@ export function getInternalApi(state) {
     generateParents(rows, parentName = 'parentId') {
       const parents = {};
       for (const row of rows) {
-        const parentId = typeof row[parentName] !== 'undefined' ? row[parentName] : '';
-        if (typeof parents[parentId] === 'undefined') {
+        const parentId = row[parentName] !== undefined && row[parentName] !== null ? row[parentName] : '';
+        if (parents[parentId] === undefined) {
           parents[parentId] = {};
         }
         parents[parentId][row.id] = row;
@@ -170,7 +170,7 @@ export function getInternalApi(state) {
     makeTreeMap(rows, items) {
       const itemParents = this.generateParents(items, 'rowId');
       for (const row of rows) {
-        row._internal.items = typeof itemParents[row.id] !== 'undefined' ? Object.values(itemParents[row.id]) : [];
+        row._internal.items = itemParents[row.id] !== undefined ? Object.values(itemParents[row.id]) : [];
       }
       const rowParents = this.generateParents(rows);
       const tree = { id: '', _internal: { children: [], parents: [], items: [] } };
@@ -385,7 +385,8 @@ export function getInternalApi(state) {
       return noScroll - withScroll + add;
     },
 
-    scrollToTime(toTime: number, time: ChartInternalTime = state.get('_internal.chart.time')) {
+    scrollToTime(toTime: number) {
+      const time = state.get('_internal.chart.time');
       state.update('config.scroll', scroll => {
         const chartWidth = state.get('_internal.chart.dimensions.width');
         const halfTime = (chartWidth / 2) * time.timePerPixel;

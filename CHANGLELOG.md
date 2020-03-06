@@ -90,3 +90,9 @@ All notable changes to this project will be documented in this file.
 
 - refactored time calculations
 - minor visual improvements
+
+## [2.5.1]
+
+- further refactoring of time calculations
+- CalendarScroll plugin follows the changes above
+- row.parentId can be null from now on

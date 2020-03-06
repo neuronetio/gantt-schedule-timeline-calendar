@@ -123,9 +123,9 @@
    * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
    */
   function CalendarScroll(options = {}) {
-      let state, api, schedule;
+      let state, api, update;
       const defaultOptions = {
-          speed: 1,
+          speed: 0.25,
           hideScroll: false,
           onChange(time) { }
       };
@@ -135,6 +135,7 @@
               super();
               this.isMoving = false;
               this.lastX = 0;
+              this.collectLowerThanZero = 0;
               this.onPointerStart = this.onPointerStart.bind(this);
               this.onPointerMove = this.onPointerMove.bind(this);
               this.onPointerEnd = this.onPointerEnd.bind(this);
@@ -164,21 +165,34 @@
                   return;
               const normalized = api.normalizePointerEvent(ev);
               const movedX = normalized.x - this.lastX;
-              const time = state.get('_internal.chart.time');
-              // @ts-ignore
-              const movedTime = -Math.round(movedX * time.timePerPixel * options.speed);
-              state.update('config.chart.time', configTime => {
-                  if (configTime.from === 0)
-                      configTime.from = time.from;
-                  if (configTime.to === 0)
-                      configTime.to = time.to;
-                  configTime.from += movedTime;
-                  configTime.to += movedTime;
-                  // @ts-ignore
-                  options.onChange(configTime);
-                  return configTime;
-              });
-              this.lastX = normalized.x;
+              let finalMovement = Math.abs(movedX) * options.speed;
+              if (finalMovement >= 1) {
+                  state.update('config.chart.time', time => {
+                      let centerTime;
+                      if (movedX >= 0) {
+                          centerTime = api.time
+                              .date(time.centerGlobal)
+                              .subtract(finalMovement, time.period)
+                              .valueOf();
+                      }
+                      else {
+                          centerTime = api.time
+                              .date(time.centerGlobal)
+                              .add(finalMovement, time.period)
+                              .valueOf();
+                      }
+                      const movedTime = centerTime - time.centerGlobal;
+                      time.leftGlobal += movedTime;
+                      time.centerGlobal = centerTime;
+                      time.rightGlobal += movedTime;
+                      time.from += movedTime;
+                      time.to += movedTime;
+                      console.log(movedTime, time.from, time.to);
+                      options.onChange(time);
+                      return time;
+                  });
+                  this.lastX = normalized.x;
+              }
           }
           onPointerEnd() {
               this.isMoving = false;
@@ -196,7 +210,7 @@
       return function initialize(vido) {
           api = vido.api;
           state = vido.state;
-          schedule = vido.schedule;
+          update = vido.update;
           state.update('config.actions.chart-calendar', actions => {
               actions.push(CalendarScrollAction);
               return actions;

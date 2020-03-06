@@ -288,13 +288,12 @@ export default function Main(vido, props = {}) {
     time.rightInner = time.rightGlobal - time.from;
     time.totalViewDurationMs = time.to - time.from;
     time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
-    //addAdditionalSpace(time, calendar.addAdditionalSpace);
     time.rightInner = time.rightGlobal - time.from;
     time.rightPx = time.rightInner / time.timePerPixel;
     time.leftPx = time.leftInner / time.timePerPixel;
   }
 
-  function getLevels(time, calendar) {
+  function updateLevels(time, calendar) {
     time.levels = [];
     let index = 0;
     for (const level of calendar.levels) {
@@ -318,14 +317,17 @@ export default function Main(vido, props = {}) {
     const chartWidth = state.get('_internal.chart.dimensions.width');
     const calendar = state.get('config.chart.calendar');
     const oldTime = { ...state.get('_internal.chart.time') };
+
     let time = api.mergeDeep({}, configTime);
     if ((!time.from || !time.to) && !Object.keys(state.get('config.chart.items')).length) {
       return;
     }
+
     let mainLevel = calendar.levels.find(level => level.main);
     if (!mainLevel) {
       throw new Error('Main calendar level not found (config.chart.calendar.levels).');
     }
+
     if (time.period !== oldTime.period) {
       let periodFormat = mainLevel.formats.find(format => format.period === time.period && format.default);
       if (periodFormat) {
@@ -333,6 +335,7 @@ export default function Main(vido, props = {}) {
         time.additionalSpaceProcessed = false;
       }
     }
+
     for (const level of calendar.levels) {
       const formatting = level.formats.find(format => +time.zoom <= +format.zoomTo);
       if (level.main) {
@@ -340,29 +343,48 @@ export default function Main(vido, props = {}) {
       }
     }
 
-    time = api.time.recalculateFromTo(time, calendar);
+    // If _internal.chart.time (leftGlobal, centerGlobal, rightGlobal, from , to) was changed
+    // then we need to apply those values - no recalculation is needed (values form plugins etc)
+
+    const justApply = ['leftGlobal', 'centerGlobal', 'rightGlobal', 'from', 'to'].includes(reason.name);
+    if (justApply) {
+      time = {
+        ...time,
+        leftGlobal: configTime.leftGlobal,
+        centerGlobal: configTime.centerGlobal,
+        rightGlobal: configTime.rightGlobal,
+        from: configTime.from,
+        to: configTime.to
+      };
+    }
+
+    // source of everything
     time.timePerPixel = Math.pow(2, time.zoom);
+    time = api.time.recalculateFromTo(time, calendar);
     time.totalViewDurationMs = api.time.date(time.to).diff(time.from, 'milliseconds');
     time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
     let scrollLeft = state.get('config.scroll.left');
 
-    // If time.zoom (or time.period) has been changed
-    // then we need to recalculate basing on time.centerGlobal
-    // and update scroll left
-    // if not then we need to calculate from scroll left
+    if (!justApply) {
+      // If time.zoom (or time.period) has been changed
+      // then we need to recalculate basing on time.centerGlobal
+      // and update scroll left
+      // if not then we need to calculate from scroll left
+      // because change was triggered by scroll
 
-    if (time.zoom !== oldTime.zoom && oldTime.centerGlobal) {
-      const chartWidthInMs = chartWidth * time.timePerPixel;
-      const halfChartInMs = Math.round(chartWidthInMs / 2);
-      time.leftGlobal = oldTime.centerGlobal - halfChartInMs;
-      time.rightGlobal = time.leftGlobal + chartWidthInMs;
-      time.centerGlobal = time.leftGlobal + Math.round((time.rightGlobal - time.leftGlobal) / 2);
-      scrollLeft = Math.round((time.leftGlobal - time.from) / time.timePerPixel);
-      scrollLeft = api.limitScroll('left', scrollLeft);
-    } else {
-      time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
-      time.rightGlobal = time.leftGlobal + chartWidth * time.timePerPixel;
-      time.centerGlobal = time.leftGlobal + Math.round((time.rightGlobal - time.leftGlobal) / 2);
+      if (time.zoom !== oldTime.zoom && oldTime.centerGlobal) {
+        const chartWidthInMs = chartWidth * time.timePerPixel;
+        const halfChartInMs = Math.round(chartWidthInMs / 2);
+        time.leftGlobal = oldTime.centerGlobal - halfChartInMs;
+        time.rightGlobal = time.leftGlobal + chartWidthInMs;
+        time.centerGlobal = time.leftGlobal + Math.round((time.rightGlobal - time.leftGlobal) / 2);
+        scrollLeft = Math.round((time.leftGlobal - time.from) / time.timePerPixel);
+        scrollLeft = api.limitScroll('left', scrollLeft);
+      } else {
+        time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
+        time.rightGlobal = time.leftGlobal + chartWidth * time.timePerPixel;
+        time.centerGlobal = time.leftGlobal + Math.round((time.rightGlobal - time.leftGlobal) / 2);
+      }
     }
 
     time.leftInner = time.leftGlobal - time.from;
@@ -375,15 +397,26 @@ export default function Main(vido, props = {}) {
     if (calendar.expand && rightPixelGlobal > pixelTo && scrollLeft === 0) {
       //expand(time, scrollLeft);
     }
-    getLevels(time, calendar);
+
+    updateLevels(time, calendar);
+
     let xCompensation = 0;
     if (time.levels[time.level] && time.levels[time.level].length !== 0) {
       xCompensation = time.levels[time.level][0].subPx;
     }
+
     state.update(`_internal.chart.time`, { ...time });
     state.update('config.scroll.compensation.x', xCompensation);
-    state.update('config.chart.time.zoom', time.zoom);
-    state.update('config.chart.time.period', time.format.period);
+    state.update('config.chart.time', configTime => {
+      configTime.zoom = time.zoom;
+      configTime.period = time.format.period;
+      configTime.leftGlobal = time.leftGlobal;
+      configTime.centerGlobal = time.centerGlobal;
+      configTime.rightGlobal = time.rightGlobal;
+      configTime.from = time.from;
+      configTime.to = time.to;
+      return configTime;
+    });
     state.update('config.scroll.left', scrollLeft);
     update().then(() => {
       if (!state.get('_internal.loaded.time')) {
@@ -398,7 +431,12 @@ export default function Main(vido, props = {}) {
     zoom: 0,
     period: '',
     scrollLeft: 0,
-    chartWidth: 0
+    chartWidth: 0,
+    leftGlobal: 0,
+    centerGlobal: 0,
+    rightGlobal: 0,
+    from: 0,
+    to: 0
   };
   function recalculationIsNeeded() {
     const configTime = state.get('config.chart.time');
@@ -407,6 +445,11 @@ export default function Main(vido, props = {}) {
     const cache = { ...recalculationTriggerCache };
     recalculationTriggerCache.zoom = configTime.zoom;
     recalculationTriggerCache.period = configTime.period;
+    recalculationTriggerCache.leftGlobal = configTime.leftGlobal;
+    recalculationTriggerCache.centerGlobal = configTime.centerGlobal;
+    recalculationTriggerCache.rightGlobal = configTime.rightGlobal;
+    recalculationTriggerCache.from = configTime.from;
+    recalculationTriggerCache.to = configTime.to;
     recalculationTriggerCache.scrollLeft = scrollLeft;
     recalculationTriggerCache.chartWidth = chartWidth;
     if (!recalculationTriggerCache.initialized) {
@@ -416,6 +459,14 @@ export default function Main(vido, props = {}) {
     if (configTime.zoom !== cache.zoom) return { name: 'zoom', oldValue: cache.zoom, newValue: configTime.zoom };
     if (configTime.period !== cache.period)
       return { name: 'period', oldValue: cache.period, newValue: configTime.period };
+    if (configTime.leftGlobal !== cache.leftGlobal)
+      return { name: 'leftGlobal', oldValue: cache.leftGlobal, newValue: configTime.leftGlobal };
+    if (configTime.centerGlobal !== cache.centerGlobal)
+      return { name: 'centerGlobal', oldValue: cache.centerGlobal, newValue: configTime.centerGlobal };
+    if (configTime.rightGlobal !== cache.rightGlobal)
+      return { name: 'rightGlobal', oldValue: cache.rightGlobal, newValue: configTime.rightGlobal };
+    if (configTime.from !== cache.from) return { name: 'from', oldValue: cache.from, newValue: configTime.from };
+    if (configTime.to !== cache.to) return { name: 'to', oldValue: cache.to, newValue: configTime.to };
     if (scrollLeft !== cache.scrollLeft) return { name: 'scroll', oldValue: cache.scrollLeft, newValue: scrollLeft };
     if (chartWidth !== cache.chartWidth)
       return { name: 'chartWidth', oldValue: cache.chartWidth, newValue: chartWidth };
@@ -424,13 +475,7 @@ export default function Main(vido, props = {}) {
 
   onDestroy(
     state.subscribeAll(
-      [
-        'config.chart.time',
-        'config.chart.calendar.levels',
-        'config.scroll.left',
-        '_internal.list.width',
-        '_internal.chart.dimensions.width'
-      ],
+      ['config.chart.time', 'config.chart.calendar.levels', 'config.scroll.left', '_internal.chart.dimensions.width'],
       () => {
         let reason = recalculationIsNeeded();
         if (reason) recalculateTimes(reason);

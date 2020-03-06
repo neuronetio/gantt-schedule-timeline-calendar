@@ -20,6 +20,7 @@ export default class TimeApi {
   private locale: Locale;
   private utcMode = false;
   private state: any;
+  private additionalSpaceAdded = false;
 
   constructor(state) {
     this.state = state;
@@ -64,16 +65,6 @@ export default class TimeApi {
     time = { ...time };
     time.from = +time.from;
     time.to = +time.to;
-    if (time.from !== 0) {
-      time.from = this.date(time.from)
-        .startOf(period)
-        .valueOf();
-    }
-    if (time.to !== 0) {
-      time.to = this.date(time.to)
-        .endOf(period)
-        .valueOf();
-    }
 
     let from = Number.MAX_SAFE_INTEGER,
       to = 0;
@@ -95,22 +86,17 @@ export default class TimeApi {
         time.from = this.date(from)
           .startOf(period)
           .valueOf();
-      } else {
-        time.from = this.date(time.from)
-          .startOf(period)
-          .valueOf();
       }
       if (time.to === 0) {
         time.to = this.date(to)
           .endOf(period)
           .valueOf();
-      } else {
-        time.to = this.date(time.to)
-          .endOf(period)
-          .valueOf();
       }
     }
-    time = this.addAdditionalSpace(time, calendar.additionalSpace);
+    if (!this.additionalSpaceAdded) {
+      time = this.addAdditionalSpace(time, calendar.additionalSpace);
+      this.additionalSpaceAdded = true;
+    }
     return time;
   }
 

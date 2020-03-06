@@ -213,6 +213,9 @@ function defaultConfig(): Config {
         from: 0,
         to: 0,
         zoom: 21,
+        leftGlobal: 0,
+        centerGlobal: 0,
+        rightGlobal: 0,
         levels: []
       },
       calendar: {

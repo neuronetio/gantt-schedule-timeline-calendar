@@ -133,6 +133,9 @@ export interface ChartTime {
   from?: number;
   to?: number;
   zoom?: number;
+  leftGlobal?: number;
+  centerGlobal?: number;
+  rightGlobal?: number;
   format?: ChartCalendarFormat;
   levels?: ChartTimeDates[];
 }
