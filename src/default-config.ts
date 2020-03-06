@@ -220,7 +220,7 @@ function defaultConfig(): Config {
         centerGlobal: 0,
         rightGlobal: 0,
         levels: [],
-        compressMode: false
+        calculatedZoomMode: false
       },
       calendar: {
         expand: true,
