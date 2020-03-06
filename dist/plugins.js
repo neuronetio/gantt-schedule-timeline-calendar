@@ -1464,7 +1464,6 @@ function CalendarScroll(options = {}) {
                     time.rightGlobal += movedTime;
                     time.from += movedTime;
                     time.to += movedTime;
-                    console.log(movedTime, time.from, time.to);
                     options.onChange(time);
                     return time;
                 });
