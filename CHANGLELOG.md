@@ -110,3 +110,7 @@ All notable changes to this project will be documented in this file.
 ## [2.6.2]
 
 - chart.time.compressMode
+
+## [2.6.3]
+
+- renamed config.chart.time.compressMode to calculatedZoomMode

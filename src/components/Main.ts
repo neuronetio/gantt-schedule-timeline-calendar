@@ -328,7 +328,7 @@ export default function Main(vido, props = {}) {
     const calendar = state.get('config.chart.calendar');
     const oldTime = { ...state.get('_internal.chart.time') };
 
-    let time = api.mergeDeep({}, configTime);
+    let time: ChartInternalTime = api.mergeDeep({}, configTime);
     if ((!time.from || !time.to) && !Object.keys(state.get('config.chart.items')).length) {
       return;
     }
@@ -338,7 +338,7 @@ export default function Main(vido, props = {}) {
       throw new Error('Main calendar level not found (config.chart.calendar.levels).');
     }
 
-    if (!time.compressMode) {
+    if (!time.calculatedZoomMode) {
       if (time.period !== oldTime.period) {
         let periodFormat = mainLevel.formats.find(format => format.period === time.period && format.default);
         if (periodFormat) {
@@ -366,7 +366,7 @@ export default function Main(vido, props = {}) {
     let scrollLeft = 0;
 
     // source of everything = time.timePerPixel
-    if (time.compressMode && chartWidth) {
+    if (time.calculatedZoomMode && chartWidth) {
       time.finalFrom = time.from;
       time.finalTo = time.to;
       time.totalViewDurationMs = api.time.date(time.finalTo).diff(time.finalFrom, 'milliseconds');
@@ -384,7 +384,7 @@ export default function Main(vido, props = {}) {
       scrollLeft = state.get('config.scroll.left');
     }
 
-    if (!justApply && !time.compressMode) {
+    if (!justApply && !time.calculatedZoomMode) {
       // If time.zoom (or time.period) has been changed
       // then we need to recalculate basing on time.centerGlobal
       // and update scroll left
@@ -409,10 +409,6 @@ export default function Main(vido, props = {}) {
     time.rightInner = time.rightGlobal - time.finalFrom;
     time.leftPx = time.leftInner / time.timePerPixel;
     time.rightPx = time.rightInner / time.timePerPixel;
-
-    if (calendar.stretch && scrollLeft === 0 && chartWidth > time.totalViewDurationPx) {
-      stretch(time, chartWidth);
-    }
 
     updateLevels(time, calendar);
 

@@ -143,7 +143,7 @@ export interface ChartTime {
   format?: ChartCalendarFormat;
   levels?: ChartTimeDates[];
   additionalSpaces?: ChartCalendarAdditionalSpaces;
-  compressMode?: boolean;
+  calculatedZoomMode?: boolean;
 }
 export interface ChartInternalTimeLevelDate {
   sub: number;
@@ -177,7 +177,7 @@ export interface ChartInternalTime {
   level: number;
   levels: ChartInternalTimeLevel[];
   additionalSpaces?: ChartCalendarAdditionalSpaces;
-  compressMode?: boolean;
+  calculatedZoomMode?: boolean;
 }
 export interface ChartCalendarFormatArguments {
   timeStart: Dayjs;

@@ -1,3 +1,5 @@
+
+(function(l, r) { if (l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (window.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.head.appendChild(r) })(window.document);
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
     typeof define === 'function' && define.amd ? define(factory) :
@@ -3398,6 +3400,7 @@
     Vido.prototype.repeat = repeat;
     Vido.prototype.unsafeHTML = unsafeHTML;
     Vido.prototype.unti = until;
+    //# sourceMappingURL=vido.esm.js.map
 
     /**
      * A collection of shims that provide minimal functionality of the ES6 collections.
@@ -4609,7 +4612,7 @@
             if (!mainLevel) {
                 throw new Error('Main calendar level not found (config.chart.calendar.levels).');
             }
-            if (!time.compressMode) {
+            if (!time.calculatedZoomMode) {
                 if (time.period !== oldTime.period) {
                     let periodFormat = mainLevel.formats.find(format => format.period === time.period && format.default);
                     if (periodFormat) {
@@ -4626,7 +4629,7 @@
             }
             let scrollLeft = 0;
             // source of everything = time.timePerPixel
-            if (time.compressMode && chartWidth) {
+            if (time.calculatedZoomMode && chartWidth) {
                 time.finalFrom = time.from;
                 time.finalTo = time.to;
                 time.totalViewDurationMs = api.time.date(time.finalTo).diff(time.finalFrom, 'milliseconds');
@@ -4644,7 +4647,7 @@
                 time.totalViewDurationPx = Math.round(time.totalViewDurationMs / time.timePerPixel);
                 scrollLeft = state.get('config.scroll.left');
             }
-            if (!justApply && !time.compressMode) {
+            if (!justApply && !time.calculatedZoomMode) {
                 // If time.zoom (or time.period) has been changed
                 // then we need to recalculate basing on time.centerGlobal
                 // and update scroll left
@@ -4668,9 +4671,6 @@
             time.rightInner = time.rightGlobal - time.finalFrom;
             time.leftPx = time.leftInner / time.timePerPixel;
             time.rightPx = time.rightInner / time.timePerPixel;
-            if (calendar.stretch && scrollLeft === 0 && chartWidth > time.totalViewDurationPx) {
-                stretch(time, chartWidth);
-            }
             updateLevels(time, calendar);
             let xCompensation = 0;
             if (time.levels[time.level] && time.levels[time.level].length !== 0) {
@@ -5037,6 +5037,7 @@
             `
             : ''), { vido, props: {}, templateProps });
     }
+    //# sourceMappingURL=List.js.map
 
     /**
      * ListColumn component
@@ -5181,6 +5182,7 @@
         </div>
       `, { vido, props, templateProps });
     }
+    //# sourceMappingURL=ListColumn.js.map
 
     /**
      * ListColumnHeader component
@@ -5266,6 +5268,7 @@
         </div>
       `, { vido, props, templateProps });
     }
+    //# sourceMappingURL=ListColumnHeader.js.map
 
     /**
      * ListColumnHeaderResizer component
@@ -5368,6 +5371,7 @@
         </div>
       `, { vido, props, templateProps });
     }
+    //# sourceMappingURL=ListColumnHeaderResizer.js.map
 
     /**
      * ListColumnRow component
@@ -5563,6 +5567,7 @@
         </div>
       `, { vido, props, templateProps });
     }
+    //# sourceMappingURL=ListColumnRow.js.map
 
     /**
      * ListColumnRowExpander component
@@ -5609,6 +5614,7 @@
         </div>
       `, { vido, props, templateProps });
     }
+    //# sourceMappingURL=ListColumnRowExpander.js.map
 
     /**
      * ListColumnRowExpanderToggle component
@@ -5718,6 +5724,7 @@
         </div>
       `, { vido, props, templateProps });
     }
+    //# sourceMappingURL=ListColumnRowExpanderToggle.js.map
 
     /**
      * ListToggle component
@@ -5758,6 +5765,7 @@
         <div class=${className} @click=${toggle}><img src=${open ? toggleIconsSrc.close : toggleIconsSrc.open} /></div>
       `, { props, vido, templateProps });
     }
+    //# sourceMappingURL=ListToggle.js.map
 
     /**
      * Chart component
@@ -5892,6 +5900,7 @@
         </div>
       `, { vido, props: {}, templateProps });
     }
+    //# sourceMappingURL=Chart.js.map
 
     /**
      * ChartCalendar component
@@ -5971,6 +5980,7 @@
         </div>
       `, { props, vido, templateProps });
     }
+    //# sourceMappingURL=ChartCalendar.js.map
 
     class Action$1 {
         constructor() {
@@ -5978,6 +5988,7 @@
         }
     }
     Action$1.prototype.isAction = true;
+    //# sourceMappingURL=Action.js.map
 
     /**
      * ChartCalendarDay component
@@ -6127,6 +6138,7 @@
         </div>
       `, { props, vido, templateProps });
     }
+    //# sourceMappingURL=ChartCalendarDate.js.map
 
     /**
      * ChartTimeline component
@@ -6216,6 +6228,7 @@
         </div>
       `, { props, vido, templateProps });
     }
+    //# sourceMappingURL=ChartTimeline.js.map
 
     /**
      * ChartTimelineGrid component
@@ -6331,6 +6344,7 @@
         </div>
       `, { props, vido, templateProps });
     }
+    //# sourceMappingURL=ChartTimelineGrid.js.map
 
     /**
      * ChartTimelineGridRow component
@@ -6437,6 +6451,7 @@
       `, { vido, props, templateProps });
         };
     }
+    //# sourceMappingURL=ChartTimelineGridRow.js.map
 
     /**
      * ChartTimelineGridRowBlock component
@@ -6540,6 +6555,7 @@
       `, { props, vido, templateProps });
         };
     };
+    //# sourceMappingURL=ChartTimelineGridRowBlock.js.map
 
     /**
      * ChartTimelineItems component
@@ -6595,6 +6611,7 @@
         </div>
       `, { props, vido, templateProps });
     }
+    //# sourceMappingURL=ChartTimelineItems.js.map
 
     /**
      * ChartTimelineItemsRow component
@@ -6719,6 +6736,7 @@
       `, { props, vido, templateProps });
         };
     };
+    //# sourceMappingURL=ChartTimelineItemsRow.js.map
 
     /**
      * ChartTimelineItemsRowItem component
@@ -6882,6 +6900,7 @@
       `, { vido, props, templateProps });
         };
     }
+    //# sourceMappingURL=ChartTimelineItemsRowItem.js.map
 
     /**
      * Gantt-Schedule-Timeline-Calendar
@@ -7300,6 +7319,7 @@
             usageStatistics: true
         };
     }
+    //# sourceMappingURL=default-config.js.map
 
     var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -7417,6 +7437,7 @@
             return viewPixelOffset;
         }
     }
+    //# sourceMappingURL=Time.js.map
 
     // forked from https://github.com/joonhocho/superwild
     function Matcher(pattern, wchar = '*') {
@@ -7493,6 +7514,7 @@
         }
         return true;
     };
+    //# sourceMappingURL=stringMatcher.js.map
 
     function WildcardObject(obj, delimeter, wildcard) {
         this.obj = obj;
@@ -7575,6 +7597,7 @@
     WildcardObject.prototype.get = function get(wildcard) {
         return this.goFurther(wildcard, this.obj, 0, '');
     };
+    //# sourceMappingURL=wildcard-object-scan.js.map
 
     class ObjectPath {
         static get(path, obj, copiedPath = null) {
@@ -7620,6 +7643,7 @@
             ObjectPath.set(path, newValue, obj[currentPath], copiedPath);
         }
     }
+    //# sourceMappingURL=ObjectPath.js.map
 
     function log(message, info) {
         console.debug(message, info);
@@ -8277,6 +8301,7 @@
                 : 0;
         }
     }
+    //# sourceMappingURL=index.js.map
 
     /**
      * Schedule - a throttle function that uses requestAnimationFrame to limit the rate at which a function is called.
@@ -8330,6 +8355,7 @@
         }
         return mergeDeep$1(target, ...sources);
     }
+    //# sourceMappingURL=helpers.js.map
 
     /**
      * Api functions
@@ -8740,6 +8766,7 @@
         }
         return api;
     }
+    //# sourceMappingURL=Api.js.map
 
     /**
      * Gantt-Schedule-Timeline-Calendar
@@ -8817,6 +8844,7 @@
         return { state, app, api: internalApi };
     }
     GSTC.api = publicApi;
+    //# sourceMappingURL=index.js.map
 
     return GSTC;
 
