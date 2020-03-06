@@ -360,7 +360,7 @@
           spacing: 1,
           items,
           time: {
-            period: 'day',
+            compressMode: true,
             from,
             to
           }
@@ -417,7 +417,7 @@
         },
         mounted() {
           window.state = state = GSTC.api.stateFromConfig(config);
-          GSTCInstance = GSTC({
+          window.GSTCInstance = GSTC({
             element: this.$el,
             state
           });
@@ -461,79 +461,44 @@
           };
         },
         template: `<div class="main">
-          <q-dialog v-model="dialog">
-            <q-card>
-              <q-card-section>
-                <div class="text-h6">Add event</div>
-              </q-card-section>
-
-              <q-separator />
-
-              <q-card-section style="max-height: 50vh" class="scroll">
-
-                <div class="q-pa-md" style="max-width: 300px">
-                  <q-input v-model="newDate">
-                    <template v-slot:prepend>
-                      <q-icon name="event" class="cursor-pointer">
-                        <q-popup-proxy transition-show="scale" transition-hide="scale">
-                          <q-date v-model="newDate" mask="YYYY-MM-DD HH:mm" />
-                        </q-popup-proxy>
-                      </q-icon>
-                    </template>
-
-                    <template v-slot:append>
-                      <q-icon name="access_time" class="cursor-pointer">
-                        <q-popup-proxy transition-show="scale" transition-hide="scale">
-                          <q-time v-model="newDate" mask="YYYY-MM-DD HH:mm" format24h />
-                        </q-popup-proxy>
-                      </q-icon>
-                    </template>
-                  </q-input>
-                </div>
-
-                <div class="q-pa-md">
-                  <q-input v-model="newLabel" label="Label" />
-                </div>
-
-              </q-card-section>
-
-              <q-separator />
-
-              <q-card-actions align="right">
-                <q-btn flat label="Cancel" color="primary" v-close-popup />
-                <q-btn flat label="Add" color="primary" v-close-popup @click="addEvent" />
-              </q-card-actions>
-            </q-card>
-          </q-dialog>
-
           <div class="q-pa-md">
-            <q-btn color="primary" icon="add_circle" label="Add event" @click="showAddEventDialog" />
-            <q-btn color="secondary" icon="image" label="Save as image" @click="saveAsImage" />
+            <q-btn color="primary" icon="arrow_left" @click="previousMonth" />
+            <span style="margin:0px 10px;">MONTH</span>
+            <q-btn color="primary" icon="arrow_right" @click="nextMonth" />
           </div>
           <shedule/>
-
         </div>`,
 
         methods: {
-          showAddEventDialog() {
-            this.dialog = true;
-          },
-          saveAsImage() {
-            const event = new Event('save-as-image');
-            this.$root.gstcElement.dispatchEvent(event);
-          },
-          addEvent() {
-            this.state.update(`config.list.rows.${this.lastId}`, {
-              id: this.lastId,
-              label: this.newLabel,
-              time: {
-                start: GSTC.api.date(this.newDate).valueOf(),
-                end: GSCT.API.date(this.newDate)
-                  .add(1, 'day')
-                  .valueOf()
-              }
+          previousMonth() {
+            state.update('config.chart.time', time => {
+              time.from = window.GSTCInstance.api.time
+                .date(time.from)
+                .subtract(1, 'month')
+                .startOf('month')
+                .valueOf();
+              time.to = window.GSTCInstance.api.time
+                .date(time.to)
+                .subtract(1, 'month')
+                .endOf('month')
+                .valueOf();
+              return time;
             });
-            this.lastId++;
+          },
+          nextMonth() {
+            state.update('config.chart.time', time => {
+              time.from = window.GSTCInstance.api.time
+                .date(time.from)
+                .add(1, 'month')
+                .startOf('month')
+                .valueOf();
+              time.to = window.GSTCInstance.api.time
+                .date(time.to)
+                .add(1, 'month')
+                .endOf('month')
+                .valueOf();
+              return time;
+            });
           }
         }
       });

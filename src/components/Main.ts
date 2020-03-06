@@ -292,7 +292,16 @@ export default function Main(vido, props = {}) {
     return time;
   }
 
-  function stretch(time: ChartInternalTime, chartWidth: number) {}
+  function guessPeriod(time: ChartInternalTime, calendar: ChartCalendar) {
+    if (!time.zoom) return time;
+    for (const level of calendar.levels) {
+      const formatting = level.formats.find(format => +time.zoom <= +format.zoomTo);
+      if (formatting && level.main) {
+        time.period = formatting.period;
+      }
+    }
+    return time;
+  }
 
   function updateLevels(time: ChartInternalTime, calendar: ChartCalendar) {
     time.levels = [];
@@ -329,19 +338,14 @@ export default function Main(vido, props = {}) {
       throw new Error('Main calendar level not found (config.chart.calendar.levels).');
     }
 
-    if (time.period !== oldTime.period) {
-      let periodFormat = mainLevel.formats.find(format => format.period === time.period && format.default);
-      if (periodFormat) {
-        time.zoom = periodFormat.zoomTo;
-        time.additionalSpaceProcessed = false;
+    if (!time.compressMode) {
+      if (time.period !== oldTime.period) {
+        let periodFormat = mainLevel.formats.find(format => format.period === time.period && format.default);
+        if (periodFormat) {
+          time.zoom = periodFormat.zoomTo;
+        }
       }
-    }
-
-    for (const level of calendar.levels) {
-      const formatting = level.formats.find(format => +time.zoom <= +format.zoomTo);
-      if (level.main) {
-        time.period = formatting.period;
-      }
+      guessPeriod(time, calendar);
     }
 
     // If _internal.chart.time (leftGlobal, centerGlobal, rightGlobal, from , to) was changed
@@ -359,14 +363,28 @@ export default function Main(vido, props = {}) {
       };
     }
 
-    // source of everything
-    time.timePerPixel = Math.pow(2, time.zoom);
-    time = api.time.recalculateFromTo(time);
-    time.totalViewDurationMs = api.time.date(time.finalTo).diff(time.finalFrom, 'milliseconds');
-    time.totalViewDurationPx = Math.round(time.totalViewDurationMs / time.timePerPixel);
-    let scrollLeft = state.get('config.scroll.left');
+    let scrollLeft = 0;
 
-    if (!justApply) {
+    // source of everything = time.timePerPixel
+    if (time.compressMode && chartWidth) {
+      time.finalFrom = time.from;
+      time.finalTo = time.to;
+      time.totalViewDurationMs = api.time.date(time.finalTo).diff(time.finalFrom, 'milliseconds');
+      time.timePerPixel = time.totalViewDurationMs / chartWidth;
+      time.zoom = Math.log(time.timePerPixel) / Math.log(2);
+      guessPeriod(time, calendar);
+      time.totalViewDurationPx = Math.round(time.totalViewDurationMs / time.timePerPixel);
+      time.leftGlobal = time.from;
+      time.rightGlobal = time.to;
+    } else {
+      time.timePerPixel = Math.pow(2, time.zoom);
+      time = api.time.recalculateFromTo(time);
+      time.totalViewDurationMs = api.time.date(time.finalTo).diff(time.finalFrom, 'milliseconds');
+      time.totalViewDurationPx = Math.round(time.totalViewDurationMs / time.timePerPixel);
+      scrollLeft = state.get('config.scroll.left');
+    }
+
+    if (!justApply && !time.compressMode) {
       // If time.zoom (or time.period) has been changed
       // then we need to recalculate basing on time.centerGlobal
       // and update scroll left

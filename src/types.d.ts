@@ -131,6 +131,7 @@ export interface Scroll {
 export interface ChartTimeDate {}
 export type ChartTimeDates = ChartTimeDate[];
 export interface ChartTime {
+  period?: Period;
   from?: number;
   to?: number;
   finalFrom?: number;
@@ -142,6 +143,7 @@ export interface ChartTime {
   format?: ChartCalendarFormat;
   levels?: ChartTimeDates[];
   additionalSpaces?: ChartCalendarAdditionalSpaces;
+  compressMode?: boolean;
 }
 export interface ChartInternalTimeLevelDate {
   sub: number;
@@ -175,6 +177,7 @@ export interface ChartInternalTime {
   level: number;
   levels: ChartInternalTimeLevel[];
   additionalSpaces?: ChartCalendarAdditionalSpaces;
+  compressMode?: boolean;
 }
 export interface ChartCalendarFormatArguments {
   timeStart: Dayjs;

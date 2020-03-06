@@ -106,3 +106,7 @@ All notable changes to this project will be documented in this file.
 ## [2.6.1]
 
 - CalendarScroll bugfix
+
+## [2.6.2]
+
+- chart.time.compressMode

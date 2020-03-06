@@ -210,6 +210,7 @@ function defaultConfig(): Config {
     },
     chart: {
       time: {
+        period: 'day',
         from: 0,
         to: 0,
         finalFrom: 0,
@@ -218,7 +219,8 @@ function defaultConfig(): Config {
         leftGlobal: 0,
         centerGlobal: 0,
         rightGlobal: 0,
-        levels: []
+        levels: [],
+        compressMode: false
       },
       calendar: {
         expand: true,
