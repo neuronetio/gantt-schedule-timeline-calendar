@@ -96,3 +96,9 @@ All notable changes to this project will be documented in this file.
 - further refactoring of time calculations
 - CalendarScroll plugin follows the changes above
 - row.parentId can be null from now on
+
+## [2.6.0]
+
+- moved chart.calendar.additionalSpace to chart.time.additionalSpaces
+- time calculations refactoring
+- chart.time.finalFrom and chart.time.finalTo added to satisfy additionalSpaces after refactoring

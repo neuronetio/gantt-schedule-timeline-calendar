@@ -212,6 +212,8 @@ function defaultConfig(): Config {
       time: {
         from: 0,
         to: 0,
+        finalFrom: 0,
+        finalTo: 0,
         zoom: 21,
         leftGlobal: 0,
         centerGlobal: 0,
@@ -260,16 +262,9 @@ function defaultConfig(): Config {
                 }
               },
               {
-                zoomTo: 29,
-                period: 'year',
-                className: 'gstc-date-big',
-                format({ timeStart }) {
-                  return timeStart.format('YYYY');
-                }
-              },
-              {
                 zoomTo: 100,
                 period: 'year',
+                default: true,
                 format() {
                   return null;
                 }
@@ -384,6 +379,31 @@ function defaultConfig(): Config {
               },
               {
                 zoomTo: 28,
+                period: 'year',
+                default: true,
+                className: 'gstc-date-big',
+                format({ timeStart }) {
+                  return timeStart.format('YYYY');
+                }
+              },
+              {
+                zoomTo: 29,
+                period: 'year',
+                className: 'gstc-date-medium',
+                format({ timeStart }) {
+                  return timeStart.format('YYYY');
+                }
+              },
+              {
+                zoomTo: 30,
+                period: 'year',
+                className: 'gstc-date-medium',
+                format({ timeStart }) {
+                  return timeStart.format('YY');
+                }
+              },
+              {
+                zoomTo: 100,
                 period: 'year',
                 default: true,
                 format() {

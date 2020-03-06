@@ -4552,6 +4552,14 @@ function Main(vido, props = {}) {
         });
         state.update('_internal.loadedEventTriggered', true);
     }
+    function limitGlobalAndSetCenter(time) {
+        if (time.leftGlobal < time.finalFrom)
+            time.leftGlobal = time.finalFrom;
+        if (time.rightGlobal > time.finalTo)
+            time.rightGlobal = time.finalTo;
+        time.centerGlobal = time.leftGlobal + Math.round((time.rightGlobal - time.leftGlobal) / 2);
+        return time;
+    }
     function updateLevels(time, calendar) {
         time.levels = [];
         let index = 0;
@@ -4602,12 +4610,13 @@ function Main(vido, props = {}) {
         const justApply = ['leftGlobal', 'centerGlobal', 'rightGlobal', 'from', 'to'].includes(reason.name);
         if (justApply) {
             time = Object.assign(Object.assign({}, time), { leftGlobal: configTime.leftGlobal, centerGlobal: configTime.centerGlobal, rightGlobal: configTime.rightGlobal, from: configTime.from, to: configTime.to });
+            limitGlobalAndSetCenter(time);
         }
         // source of everything
         time.timePerPixel = Math.pow(2, time.zoom);
-        time = api.time.recalculateFromTo(time, calendar);
-        time.totalViewDurationMs = api.time.date(time.to).diff(time.from, 'milliseconds');
-        time.totalViewDurationPx = time.totalViewDurationMs / time.timePerPixel;
+        time = api.time.recalculateFromTo(time);
+        time.totalViewDurationMs = api.time.date(time.finalTo).diff(time.finalFrom, 'milliseconds');
+        time.totalViewDurationPx = Math.round(time.totalViewDurationMs / time.timePerPixel);
         let scrollLeft = state.get('config.scroll.left');
         if (!justApply) {
             // If time.zoom (or time.period) has been changed
@@ -4620,29 +4629,27 @@ function Main(vido, props = {}) {
                 const halfChartInMs = Math.round(chartWidthInMs / 2);
                 time.leftGlobal = oldTime.centerGlobal - halfChartInMs;
                 time.rightGlobal = time.leftGlobal + chartWidthInMs;
-                time.centerGlobal = time.leftGlobal + Math.round((time.rightGlobal - time.leftGlobal) / 2);
-                scrollLeft = Math.round((time.leftGlobal - time.from) / time.timePerPixel);
+                limitGlobalAndSetCenter(time);
+                scrollLeft = Math.round((time.leftGlobal - time.finalFrom) / time.timePerPixel);
                 scrollLeft = api.limitScroll('left', scrollLeft);
             }
             else {
-                time.leftGlobal = scrollLeft * time.timePerPixel + time.from;
+                time.leftGlobal = scrollLeft * time.timePerPixel + time.finalFrom;
                 time.rightGlobal = time.leftGlobal + chartWidth * time.timePerPixel;
-                time.centerGlobal = time.leftGlobal + Math.round((time.rightGlobal - time.leftGlobal) / 2);
+                limitGlobalAndSetCenter(time);
             }
         }
-        time.leftInner = time.leftGlobal - time.from;
-        time.rightInner = time.rightGlobal - time.from;
+        time.leftInner = time.leftGlobal - time.finalFrom;
+        time.rightInner = time.rightGlobal - time.finalFrom;
         time.leftPx = time.leftInner / time.timePerPixel;
         time.rightPx = time.rightInner / time.timePerPixel;
-        const rightPixelGlobal = Math.round(time.rightGlobal / time.timePerPixel);
-        const pixelTo = Math.round(time.to / time.timePerPixel);
-        if (calendar.expand && rightPixelGlobal > pixelTo && scrollLeft === 0) ;
+        if (calendar.stretch && scrollLeft === 0 && chartWidth > time.totalViewDurationPx) ;
         updateLevels(time, calendar);
         let xCompensation = 0;
         if (time.levels[time.level] && time.levels[time.level].length !== 0) {
             xCompensation = time.levels[time.level][0].subPx;
         }
-        state.update(`_internal.chart.time`, Object.assign({}, time));
+        state.update(`_internal.chart.time`, time);
         state.update('config.scroll.compensation.x', xCompensation);
         state.update('config.chart.time', configTime => {
             configTime.zoom = time.zoom;
@@ -4652,6 +4659,8 @@ function Main(vido, props = {}) {
             configTime.rightGlobal = time.rightGlobal;
             configTime.from = time.from;
             configTime.to = time.to;
+            configTime.finalFrom = time.finalFrom;
+            configTime.finalTo = time.finalTo;
             return configTime;
         });
         state.update('config.scroll.left', scrollLeft);
@@ -7032,6 +7041,8 @@ function defaultConfig() {
             time: {
                 from: 0,
                 to: 0,
+                finalFrom: 0,
+                finalTo: 0,
                 zoom: 21,
                 leftGlobal: 0,
                 centerGlobal: 0,
@@ -7080,16 +7091,9 @@ function defaultConfig() {
                                 }
                             },
                             {
-                                zoomTo: 29,
-                                period: 'year',
-                                className: 'gstc-date-big',
-                                format({ timeStart }) {
-                                    return timeStart.format('YYYY');
-                                }
-                            },
-                            {
                                 zoomTo: 100,
                                 period: 'year',
+                                default: true,
                                 format() {
                                     return null;
                                 }
@@ -7180,6 +7184,31 @@ function defaultConfig() {
                             },
                             {
                                 zoomTo: 28,
+                                period: 'year',
+                                default: true,
+                                className: 'gstc-date-big',
+                                format({ timeStart }) {
+                                    return timeStart.format('YYYY');
+                                }
+                            },
+                            {
+                                zoomTo: 29,
+                                period: 'year',
+                                className: 'gstc-date-medium',
+                                format({ timeStart }) {
+                                    return timeStart.format('YYYY');
+                                }
+                            },
+                            {
+                                zoomTo: 30,
+                                period: 'year',
+                                className: 'gstc-date-medium',
+                                format({ timeStart }) {
+                                    return timeStart.format('YY');
+                                }
+                            },
+                            {
+                                zoomTo: 100,
                                 period: 'year',
                                 default: true,
                                 format() {
@@ -7278,7 +7307,6 @@ dayjs_min.extend(weekOfYear);
 class TimeApi {
     constructor(state) {
         this.utcMode = false;
-        this.additionalSpaceAdded = false;
         this.state = state;
         this.locale = state.get('config.locale');
         this.utcMode = state.get('config.utcMode');
@@ -7292,25 +7320,23 @@ class TimeApi {
         const _dayjs = this.utcMode ? dayjs_min.utc : dayjs_min;
         return time ? _dayjs(time).locale(this.locale.name) : _dayjs().locale(this.locale.name);
     }
-    addAdditionalSpace(time, additionalSpace) {
-        if (additionalSpace && additionalSpace[time.period]) {
-            const add = additionalSpace[time.period];
+    addAdditionalSpace(time) {
+        if (time.additionalSpaces && time.additionalSpaces[time.period]) {
+            const add = time.additionalSpaces[time.period];
             if (add.before) {
-                time.from = this.date(time.from)
+                time.finalFrom = this.date(time.from)
                     .subtract(add.before, add.period)
-                    .startOf(time.period)
                     .valueOf();
             }
             if (add.after) {
-                time.to = this.date(time.to)
+                time.finalTo = this.date(time.to)
                     .add(add.after, add.period)
-                    .endOf(time.period)
                     .valueOf();
             }
         }
         return time;
     }
-    recalculateFromTo(time, calendar) {
+    recalculateFromTo(time) {
         const period = time.period;
         time = Object.assign({}, time);
         time.from = +time.from;
@@ -7341,10 +7367,7 @@ class TimeApi {
                     .valueOf();
             }
         }
-        if (!this.additionalSpaceAdded) {
-            time = this.addAdditionalSpace(time, calendar.additionalSpace);
-            this.additionalSpaceAdded = true;
-        }
+        time = this.addAdditionalSpace(time);
         return time;
     }
     getCenter(time) {
@@ -8631,7 +8654,7 @@ function getInternalApi(state) {
             state.update('config.scroll', scroll => {
                 const chartWidth = state.get('_internal.chart.dimensions.width');
                 const halfTime = (chartWidth / 2) * time.timePerPixel;
-                const leftGlobal = toTime - halfTime - time.from;
+                const leftGlobal = toTime - halfTime - time.finalFrom;
                 scroll.left = this.limitScroll('left', Math.round(leftGlobal / time.timePerPixel));
                 return scroll;
             });

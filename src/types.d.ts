@@ -1,5 +1,6 @@
 import Vido, { lithtml, vido } from '@neuronet.io/vido';
 import { Dayjs } from 'dayjs/index.d';
+import dayjs = require('dayjs/index.d');
 
 export interface Row {
   id: string;
@@ -132,20 +133,37 @@ export type ChartTimeDates = ChartTimeDate[];
 export interface ChartTime {
   from?: number;
   to?: number;
+  finalFrom?: number;
+  finalTo?: number;
   zoom?: number;
   leftGlobal?: number;
   centerGlobal?: number;
   rightGlobal?: number;
   format?: ChartCalendarFormat;
   levels?: ChartTimeDates[];
+  additionalSpaces?: ChartCalendarAdditionalSpaces;
 }
-export interface ChartInternalTime {
-  period: Period;
+export interface ChartInternalTimeLevelDate {
+  sub: number;
+  subPx: number;
   leftGlobal: number;
+  rightGlobal: number;
+  width: number;
+  leftPx: number;
+  rightPx: number;
+  period: Period;
+}
+export type ChartInternalTimeLevel = ChartInternalTimeLevelDate[];
+export interface ChartInternalTime {
+  period: Period | dayjs.OpUnitType;
+  leftGlobal: number;
+  centerGlobal: number;
   rightGlobal: number;
   timePerPixel: number;
   from: number;
   to: number;
+  finalFrom: number;
+  finalTo: number;
   totalViewDurationMs: number;
   totalViewDurationPx: number;
   leftInner: number;
@@ -155,6 +173,8 @@ export interface ChartInternalTime {
   zoom: number;
   format: ChartCalendarFormat;
   level: number;
+  levels: ChartInternalTimeLevel[];
+  additionalSpaces?: ChartCalendarAdditionalSpaces;
 }
 export interface ChartCalendarFormatArguments {
   timeStart: Dayjs;
@@ -190,7 +210,6 @@ export interface ChartCalendarLevel {
 }
 export interface ChartCalendar {
   levels?: ChartCalendarLevel[];
-  additionalSpace?: ChartCalendarAdditionalSpaces;
   expand?: boolean;
 }
 export interface ChartGridBlock {
