@@ -25,10 +25,8 @@ export default function Chart(vido, props = {}) {
   const Timeline = createComponent(ChartTimelineComponent);
   onDestroy(Timeline.destroy);
 
-  let className, classNameScroll, classNameScrollInner, scrollElement;
-  const scrollStyleMap = new StyleMap({}),
-    scrollInnerStyleMap = new StyleMap({}),
-    componentActions = api.getActions(componentName);
+  let className, classNameScroll, classNameScrollInner, scrollElement, scrollInnerElement;
+  const componentActions = api.getActions(componentName);
 
   onDestroy(
     state.subscribe('config.classNames', value => {
@@ -42,11 +40,10 @@ export default function Chart(vido, props = {}) {
   onDestroy(
     state.subscribeAll(
       ['_internal.chart.dimensions.width', '_internal.chart.time.totalViewDurationPx'],
-      function horizontalScroll(value, eventInfo) {
-        scrollStyleMap.style.width = state.get('_internal.chart.dimensions.width') + 'px';
-        scrollInnerStyleMap.style.width = state.get('_internal.chart.time.totalViewDurationPx') + 'px';
-        scrollInnerStyleMap.style.height = '1px';
-        update();
+      function horizontalScroll() {
+        if (scrollElement) scrollElement.style.width = state.get('_internal.chart.dimensions.width') + 'px';
+        if (scrollInnerElement)
+          scrollInnerElement.style.width = state.get('_internal.chart.time.totalViewDurationPx') + 'px';
       }
     )
   );
@@ -56,7 +53,6 @@ export default function Chart(vido, props = {}) {
       if (scrollElement) {
         scrollElement.scrollLeft = left;
       }
-      update();
     })
   );
 
@@ -79,9 +75,14 @@ export default function Chart(vido, props = {}) {
       const wheel = api.normalizeMouseWheelEvent(event);
       const xMultiplier = state.get('config.scroll.xMultiplier');
       const yMultiplier = state.get('config.scroll.yMultiplier');
+      const currentScrollLeft = state.get('config.scroll.left');
+      const totalViewDurationPx = state.get('_internal.chart.time.totalViewDurationPx');
       if (event.shiftKey && wheel.y) {
-        const currentScrollLeft = state.get('config.scroll.left');
-        const newScrollLeft = api.limitScroll('left', currentScrollLeft + wheel.y * xMultiplier);
+        const newScrollLeft = api.limitScrollLeft(
+          totalViewDurationPx,
+          chartWidth,
+          currentScrollLeft + wheel.y * xMultiplier
+        );
         state.update('config.scroll.left', newScrollLeft); // will trigger scrollbar to move which will trigger scroll event
       } else if (event.ctrlKey && wheel.y) {
         event.preventDefault();
@@ -93,10 +94,15 @@ export default function Chart(vido, props = {}) {
         });
       } else if (wheel.x) {
         const currentScrollLeft = state.get('config.scroll.left');
-        state.update('config.scroll.left', currentScrollLeft + wheel.x * xMultiplier);
+        state.update(
+          'config.scroll.left',
+          api.limitScrollLeft(totalViewDurationPx, chartWidth, currentScrollLeft + wheel.x * xMultiplier)
+        );
       } else {
         state.update('config.scroll.top', top => {
-          return api.limitScroll('top', (top += wheel.y * yMultiplier));
+          const rowsHeight = state.get('_internal.list.rowsHeight');
+          const internalHeight = state.get('_internal.height');
+          return api.limitScrollTop(rowsHeight, internalHeight, (top += wheel.y * yMultiplier));
         });
       }
     }
@@ -116,6 +122,7 @@ export default function Chart(vido, props = {}) {
   }
 
   function bindInnerScroll(element) {
+    scrollInnerElement = element;
     const old = state.get('_internal.elements.horizontal-scroll-inner');
     if (old !== element) state.update('_internal.elements.horizontal-scroll-inner', element);
     if (!state.get('_internal.loaded.horizontal-scroll-inner'))
@@ -154,8 +161,8 @@ export default function Chart(vido, props = {}) {
       html`
         <div class=${className} data-actions=${actions} @wheel=${onWheel} @scroll=${onScroll}>
           ${Calendar.html()}${Timeline.html()}
-          <div class=${classNameScroll} style=${scrollStyleMap} data-actions=${scrollActions} @scroll=${onScroll}>
-            <div class=${classNameScrollInner} style=${scrollInnerStyleMap} data-actions=${scrollAreaActions} />
+          <div class=${classNameScroll} data-actions=${scrollActions} @scroll=${onScroll}>
+            <div class=${classNameScrollInner} style="height: 1px" data-actions=${scrollAreaActions} />
           </div>
         </div>
       `,

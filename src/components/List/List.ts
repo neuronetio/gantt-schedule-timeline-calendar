@@ -103,7 +103,13 @@ export default function List(vido, props = {}) {
     } else {
       const wheel = api.normalizeMouseWheelEvent(event);
       state.update('config.scroll.top', top => {
-        return api.limitScroll('top', (top += wheel.y * state.get('config.scroll.yMultiplier')));
+        const rowsHeight = state.get('_internal.list.rowsHeight');
+        const internalHeight = state.get('_internal.height');
+        return api.limitScrollTop(
+          rowsHeight,
+          internalHeight,
+          (top += wheel.y * state.get('config.scroll.yMultiplier'))
+        );
       });
     }
   }

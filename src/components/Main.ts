@@ -396,8 +396,8 @@ export default function Main(vido, props = {}) {
         const halfChartInMs = Math.round(chartWidthInMs / 2);
         time.leftGlobal = oldTime.centerGlobal - halfChartInMs;
         time.rightGlobal = time.leftGlobal + chartWidthInMs;
-        scrollLeft = Math.round((time.leftGlobal - time.finalFrom) / time.timePerPixel);
-        scrollLeft = api.limitScroll('left', scrollLeft);
+        scrollLeft = (time.leftGlobal - time.finalFrom) / time.timePerPixel;
+        scrollLeft = api.limitScrollLeft(time.totalViewDurationPx, chartWidth, scrollLeft);
       } else {
         time.leftGlobal = scrollLeft * time.timePerPixel + time.finalFrom;
         time.rightGlobal = time.leftGlobal + chartWidth * time.timePerPixel;

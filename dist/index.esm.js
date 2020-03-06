@@ -4649,8 +4649,8 @@ function Main(vido, props = {}) {
                 const halfChartInMs = Math.round(chartWidthInMs / 2);
                 time.leftGlobal = oldTime.centerGlobal - halfChartInMs;
                 time.rightGlobal = time.leftGlobal + chartWidthInMs;
-                scrollLeft = Math.round((time.leftGlobal - time.finalFrom) / time.timePerPixel);
-                scrollLeft = api.limitScroll('left', scrollLeft);
+                scrollLeft = (time.leftGlobal - time.finalFrom) / time.timePerPixel;
+                scrollLeft = api.limitScrollLeft(time.totalViewDurationPx, chartWidth, scrollLeft);
             }
             else {
                 time.leftGlobal = scrollLeft * time.timePerPixel + time.finalFrom;
@@ -4995,7 +4995,9 @@ function List(vido, props = {}) {
         else {
             const wheel = api.normalizeMouseWheelEvent(event);
             state.update('config.scroll.top', top => {
-                return api.limitScroll('top', (top += wheel.y * state.get('config.scroll.yMultiplier')));
+                const rowsHeight = state.get('_internal.list.rowsHeight');
+                const internalHeight = state.get('_internal.height');
+                return api.limitScrollTop(rowsHeight, internalHeight, (top += wheel.y * state.get('config.scroll.yMultiplier')));
             });
         }
     }
@@ -5537,7 +5539,9 @@ function ListColumnRow(vido, props) {
             else if (movementY) {
                 state.update('config.scroll.top', top => {
                     top -= movementY * state.get('config.scroll.yMultiplier');
-                    top = api.limitScroll('top', top);
+                    const rowsHeight = state.get('_internal.list.rowsHeight');
+                    const internalHeight = state.get('_internal.height');
+                    top = api.limitScrollTop(rowsHeight, internalHeight, top);
                     return top;
                 });
             }
@@ -5770,25 +5774,24 @@ function Chart(vido, props = {}) {
     onDestroy(Calendar.destroy);
     const Timeline = createComponent(ChartTimelineComponent);
     onDestroy(Timeline.destroy);
-    let className, classNameScroll, classNameScrollInner, scrollElement;
-    const scrollStyleMap = new StyleMap({}), scrollInnerStyleMap = new StyleMap({}), componentActions = api.getActions(componentName);
+    let className, classNameScroll, classNameScrollInner, scrollElement, scrollInnerElement;
+    const componentActions = api.getActions(componentName);
     onDestroy(state.subscribe('config.classNames', value => {
         className = api.getClass(componentName);
         classNameScroll = api.getClass('horizontal-scroll');
         classNameScrollInner = api.getClass('horizontal-scroll-inner');
         update();
     }));
-    onDestroy(state.subscribeAll(['_internal.chart.dimensions.width', '_internal.chart.time.totalViewDurationPx'], function horizontalScroll(value, eventInfo) {
-        scrollStyleMap.style.width = state.get('_internal.chart.dimensions.width') + 'px';
-        scrollInnerStyleMap.style.width = state.get('_internal.chart.time.totalViewDurationPx') + 'px';
-        scrollInnerStyleMap.style.height = '1px';
-        update();
+    onDestroy(state.subscribeAll(['_internal.chart.dimensions.width', '_internal.chart.time.totalViewDurationPx'], function horizontalScroll() {
+        if (scrollElement)
+            scrollElement.style.width = state.get('_internal.chart.dimensions.width') + 'px';
+        if (scrollInnerElement)
+            scrollInnerElement.style.width = state.get('_internal.chart.time.totalViewDurationPx') + 'px';
     }));
     onDestroy(state.subscribe('config.scroll.left', left => {
         if (scrollElement) {
             scrollElement.scrollLeft = left;
         }
-        update();
     }));
     function onScrollHandler(event) {
         if (event.type === 'scroll') {
@@ -5807,9 +5810,10 @@ function Chart(vido, props = {}) {
             const wheel = api.normalizeMouseWheelEvent(event);
             const xMultiplier = state.get('config.scroll.xMultiplier');
             const yMultiplier = state.get('config.scroll.yMultiplier');
+            const currentScrollLeft = state.get('config.scroll.left');
+            const totalViewDurationPx = state.get('_internal.chart.time.totalViewDurationPx');
             if (event.shiftKey && wheel.y) {
-                const currentScrollLeft = state.get('config.scroll.left');
-                const newScrollLeft = api.limitScroll('left', currentScrollLeft + wheel.y * xMultiplier);
+                const newScrollLeft = api.limitScrollLeft(totalViewDurationPx, chartWidth, currentScrollLeft + wheel.y * xMultiplier);
                 state.update('config.scroll.left', newScrollLeft); // will trigger scrollbar to move which will trigger scroll event
             }
             else if (event.ctrlKey && wheel.y) {
@@ -5823,11 +5827,13 @@ function Chart(vido, props = {}) {
             }
             else if (wheel.x) {
                 const currentScrollLeft = state.get('config.scroll.left');
-                state.update('config.scroll.left', currentScrollLeft + wheel.x * xMultiplier);
+                state.update('config.scroll.left', api.limitScrollLeft(totalViewDurationPx, chartWidth, currentScrollLeft + wheel.x * xMultiplier));
             }
             else {
                 state.update('config.scroll.top', top => {
-                    return api.limitScroll('top', (top += wheel.y * yMultiplier));
+                    const rowsHeight = state.get('_internal.list.rowsHeight');
+                    const internalHeight = state.get('_internal.height');
+                    return api.limitScrollTop(rowsHeight, internalHeight, (top += wheel.y * yMultiplier));
                 });
             }
         }
@@ -5844,6 +5850,7 @@ function Chart(vido, props = {}) {
         }
     }
     function bindInnerScroll(element) {
+        scrollInnerElement = element;
         const old = state.get('_internal.elements.horizontal-scroll-inner');
         if (old !== element)
             state.update('_internal.elements.horizontal-scroll-inner', element);
@@ -5877,8 +5884,8 @@ function Chart(vido, props = {}) {
     return templateProps => wrapper(html `
         <div class=${className} data-actions=${actions} @wheel=${onWheel} @scroll=${onScroll}>
           ${Calendar.html()}${Timeline.html()}
-          <div class=${classNameScroll} style=${scrollStyleMap} data-actions=${scrollActions} @scroll=${onScroll}>
-            <div class=${classNameScrollInner} style=${scrollInnerStyleMap} data-actions=${scrollAreaActions} />
+          <div class=${classNameScroll} data-actions=${scrollActions} @scroll=${onScroll}>
+            <div class=${classNameScrollInner} style="height: 1px" data-actions=${scrollAreaActions} />
           </div>
         </div>
       `, { vido, props: {}, templateProps });
@@ -7632,7 +7639,8 @@ const defaultUpdateOptions = {
     only: [],
     source: "",
     debug: false,
-    data: undefined
+    data: undefined,
+    updateAfter: false
 };
 class DeepState {
     constructor(data = {}, options = defaultOptions$1) {
@@ -7707,9 +7715,7 @@ class DeepState {
         return path.endsWith(this.options.notRecursive);
     }
     cleanNotRecursivePath(path) {
-        return this.isNotRecursive(path)
-            ? path.substring(0, path.length - 1)
-            : path;
+        return this.isNotRecursive(path) ? path.substring(0, path.length - 1) : path;
     }
     hasParams(path) {
         return path.includes(this.options.param);
@@ -7933,8 +7939,7 @@ class DeepState {
         };
     }
     same(newValue, oldValue) {
-        return ((["number", "string", "undefined", "boolean"].includes(typeof newValue) ||
-            newValue === null) &&
+        return ((["number", "string", "undefined", "boolean"].includes(typeof newValue) || newValue === null) &&
             oldValue === newValue);
     }
     notifyListeners(listeners, exclude = [], returnNotified = true) {
@@ -8154,16 +8159,15 @@ class DeepState {
         return listeners;
     }
     notifyOnly(updatePath, newValue, options, type = "update", originalPath = "") {
-        return (typeof this.notifyListeners(this.getNotifyOnlyListeners(updatePath, newValue, options, type, originalPath))[0] !== "undefined");
+        return (typeof this.notifyListeners(this.getNotifyOnlyListeners(updatePath, newValue, options, type, originalPath))[0] !==
+            "undefined");
     }
     canBeNested(newValue) {
         return typeof newValue === "object" && newValue !== null;
     }
     getUpdateValues(oldValue, split, fn) {
         if (typeof oldValue === "object" && oldValue !== null) {
-            Array.isArray(oldValue)
-                ? (oldValue = oldValue.slice())
-                : (oldValue = Object.assign({}, oldValue));
+            Array.isArray(oldValue) ? (oldValue = oldValue.slice()) : (oldValue = Object.assign({}, oldValue));
         }
         let newValue = fn;
         if (typeof fn === "function") {
@@ -8199,10 +8203,7 @@ class DeepState {
         }
         let alreadyNotified = [];
         for (const groupedListeners of groupedListenersPack) {
-            alreadyNotified = [
-                ...alreadyNotified,
-                ...this.notifyListeners(groupedListeners, alreadyNotified)
-            ];
+            alreadyNotified = [...alreadyNotified, ...this.notifyListeners(groupedListeners, alreadyNotified)];
         }
         for (const path of waitingPaths) {
             this.executeWaitingListeners(path);
@@ -8215,12 +8216,17 @@ class DeepState {
         const split = this.split(updatePath);
         const { oldValue, newValue } = this.getUpdateValues(this.pathGet(split, this.data), split, fn);
         if (options.debug) {
-            this.options.log(`Updating ${updatePath} ${options.source ? `from ${options.source}` : ""}`, { oldValue, newValue });
+            this.options.log(`Updating ${updatePath} ${options.source ? `from ${options.source}` : ""}`, {
+                oldValue,
+                newValue
+            });
         }
         if (this.same(newValue, oldValue)) {
             return newValue;
         }
-        this.pathSet(split, newValue, this.data);
+        if (!options.updateAfter) {
+            this.pathSet(split, newValue, this.data);
+        }
         options = Object.assign(Object.assign({}, defaultUpdateOptions), options);
         if (options.only === null) {
             return newValue;
@@ -8235,6 +8241,9 @@ class DeepState {
             this.notifyNestedListeners(updatePath, newValue, options, "update", alreadyNotified);
         }
         this.executeWaitingListeners(updatePath);
+        if (options.updateAfter) {
+            this.pathSet(split, newValue, this.data);
+        }
         return newValue;
     }
     get(userPath = undefined) {
@@ -8253,8 +8262,7 @@ class DeepState {
         }
     }
     debugListener(time, groupedListener) {
-        if (groupedListener.eventInfo.options.debug ||
-            groupedListener.listener.options.debug) {
+        if (groupedListener.eventInfo.options.debug || groupedListener.listener.options.debug) {
             this.options.log("Listener fired", {
                 time: Date.now() - time,
                 info: groupedListener
@@ -8262,10 +8270,7 @@ class DeepState {
         }
     }
     debugTime(groupedListener) {
-        return groupedListener.listener.options.debug ||
-            groupedListener.eventInfo.options.debug
-            ? Date.now()
-            : 0;
+        return groupedListener.listener.options.debug || groupedListener.eventInfo.options.debug ? Date.now() : 0;
     }
 }
 
@@ -8628,27 +8633,25 @@ function getInternalApi(state) {
             }
             return result;
         },
-        limitScroll(which, scroll) {
-            if (which === 'top') {
-                const height = state.get('_internal.list.rowsHeight') - state.get('_internal.height');
-                if (scroll < 0) {
-                    scroll = 0;
-                }
-                else if (scroll > height) {
-                    scroll = height;
-                }
-                return Math.round(scroll);
+        limitScrollLeft(totalViewDurationPx, chartWidth, scrollLeft) {
+            const width = totalViewDurationPx - chartWidth;
+            if (scrollLeft < 0) {
+                scrollLeft = 0;
             }
-            else {
-                const width = state.get('_internal.chart.time.totalViewDurationPx') - state.get('_internal.chart.dimensions.width');
-                if (scroll < 0) {
-                    scroll = 0;
-                }
-                else if (scroll > width) {
-                    scroll = width;
-                }
-                return Math.round(scroll);
+            else if (scrollLeft > width) {
+                scrollLeft = width;
             }
+            return Math.round(scrollLeft);
+        },
+        limitScrollTop(rowsHeight, internalHeight, scrollTop) {
+            const height = rowsHeight - internalHeight;
+            if (scrollTop < 0) {
+                scrollTop = 0;
+            }
+            else if (scrollTop > height) {
+                scrollTop = height;
+            }
+            return Math.round(scrollTop);
         },
         time: new TimeApi(state),
         /**
@@ -8677,11 +8680,10 @@ function getInternalApi(state) {
                 const chartWidth = state.get('_internal.chart.dimensions.width');
                 const halfTime = (chartWidth / 2) * time.timePerPixel;
                 const leftGlobal = toTime - halfTime - time.finalFrom;
-                scroll.left = this.limitScroll('left', Math.round(leftGlobal / time.timePerPixel));
+                scroll.left = this.limitScrollLeft(time.totalViewDurationPx, chartWidth, leftGlobal / time.timePerPixel);
                 return scroll;
             });
         },
-        recenterScroll() { },
         /**
          * Get grid blocks that are under specified rectangle
          *

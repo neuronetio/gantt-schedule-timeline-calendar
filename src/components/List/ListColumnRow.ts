@@ -202,7 +202,9 @@ export default function ListColumnRow(vido, props) {
       } else if (movementY) {
         state.update('config.scroll.top', top => {
           top -= movementY * state.get('config.scroll.yMultiplier');
-          top = api.limitScroll('top', top);
+          const rowsHeight = state.get('_internal.list.rowsHeight');
+          const internalHeight = state.get('_internal.height');
+          top = api.limitScrollTop(rowsHeight, internalHeight, top);
           return top;
         });
       }

@@ -341,25 +341,24 @@ export function getInternalApi(state) {
       return result;
     },
 
-    limitScroll(which, scroll) {
-      if (which === 'top') {
-        const height = state.get('_internal.list.rowsHeight') - state.get('_internal.height');
-        if (scroll < 0) {
-          scroll = 0;
-        } else if (scroll > height) {
-          scroll = height;
-        }
-        return Math.round(scroll);
-      } else {
-        const width =
-          state.get('_internal.chart.time.totalViewDurationPx') - state.get('_internal.chart.dimensions.width');
-        if (scroll < 0) {
-          scroll = 0;
-        } else if (scroll > width) {
-          scroll = width;
-        }
-        return Math.round(scroll);
+    limitScrollLeft(totalViewDurationPx: number, chartWidth: number, scrollLeft: number) {
+      const width = totalViewDurationPx - chartWidth;
+      if (scrollLeft < 0) {
+        scrollLeft = 0;
+      } else if (scrollLeft > width) {
+        scrollLeft = width;
       }
+      return Math.round(scrollLeft);
+    },
+
+    limitScrollTop(rowsHeight: number, internalHeight: number, scrollTop: number) {
+      const height = rowsHeight - internalHeight;
+      if (scrollTop < 0) {
+        scrollTop = 0;
+      } else if (scrollTop > height) {
+        scrollTop = height;
+      }
+      return Math.round(scrollTop);
     },
 
     time: new TimeApi(state),
@@ -391,12 +390,10 @@ export function getInternalApi(state) {
         const chartWidth = state.get('_internal.chart.dimensions.width');
         const halfTime = (chartWidth / 2) * time.timePerPixel;
         const leftGlobal = toTime - halfTime - time.finalFrom;
-        scroll.left = this.limitScroll('left', Math.round(leftGlobal / time.timePerPixel));
+        scroll.left = this.limitScrollLeft(time.totalViewDurationPx, chartWidth, leftGlobal / time.timePerPixel);
         return scroll;
       });
     },
-
-    recenterScroll() {},
 
     /**
      * Get grid blocks that are under specified rectangle
