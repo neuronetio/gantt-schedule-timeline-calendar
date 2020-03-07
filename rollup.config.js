@@ -224,9 +224,84 @@ const prodFiles = Array.prototype.concat(devFiles, [
     input: 'src/plugins/ItemMovement.plugin.ts',
     output: {
       sourcemap: false,
+      file: 'dist/ItemMovement.plugin.esm.js',
+      format: 'esm',
+      name: 'ItemMovement'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] })
+    ]
+  },
+  {
+    input: 'src/plugins/ItemMovement.plugin.ts',
+    output: {
+      sourcemap: false,
+      file: 'dist/ItemMovement.plugin.esm.min.js',
+      format: 'esm',
+      name: 'ItemMovement'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] }),
+      terser({
+        //keep_classnames: true,
+        //keep_fnames: true,
+        output: { comments: false }
+      })
+    ]
+  },
+  {
+    input: 'src/plugins/ItemMovement.plugin.ts',
+    output: {
+      sourcemap: false,
       file: 'dist/ItemMovement.plugin.min.js',
       format: 'umd',
       name: 'ItemMovement'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] }),
+      terser({
+        //keep_classnames: true,
+        //keep_fnames: true,
+        output: { comments: false }
+      })
+    ]
+  },
+
+  {
+    input: 'src/plugins/ItemHold.plugin.ts',
+    output: {
+      sourcemap: false,
+      file: 'dist/ItemHold.plugin.esm.js',
+      format: 'esm',
+      name: 'ItemHold'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] })
+    ]
+  },
+  {
+    input: 'src/plugins/ItemHold.plugin.ts',
+    output: {
+      sourcemap: false,
+      file: 'dist/ItemHold.plugin.esm.min.js',
+      format: 'esm',
+      name: 'ItemHold'
     },
     plugins: [
       typescript({ target: 'es6' }),
@@ -262,6 +337,44 @@ const prodFiles = Array.prototype.concat(devFiles, [
       })
     ]
   },
+
+  {
+    input: 'src/plugins/Selection.plugin.ts',
+    output: {
+      sourcemap: false,
+      file: 'dist/Selection.plugin.esm.js',
+      format: 'esm',
+      name: 'Selection'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] })
+    ]
+  },
+  {
+    input: 'src/plugins/Selection.plugin.ts',
+    output: {
+      sourcemap: false,
+      file: 'dist/Selection.plugin.esm.min.js',
+      format: 'esm',
+      name: 'Selection'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] }),
+      terser({
+        //keep_classnames: true,
+        //keep_fnames: true,
+        output: { comments: false }
+      })
+    ]
+  },
   {
     input: 'src/plugins/Selection.plugin.ts',
     output: {
@@ -269,6 +382,44 @@ const prodFiles = Array.prototype.concat(devFiles, [
       file: 'dist/Selection.plugin.min.js',
       format: 'umd',
       name: 'Selection'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] }),
+      terser({
+        //keep_classnames: true,
+        //keep_fnames: true,
+        output: { comments: false }
+      })
+    ]
+  },
+
+  {
+    input: 'src/plugins/CalendarScroll.plugin.ts',
+    output: {
+      sourcemap: false,
+      file: 'dist/CalendarScroll.plugin.esm.js',
+      format: 'esm',
+      name: 'CalendarScroll'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] })
+    ]
+  },
+  {
+    input: 'src/plugins/CalendarScroll.plugin.ts',
+    output: {
+      sourcemap: false,
+      file: 'dist/CalendarScroll.plugin.esm.min.js',
+      format: 'esm',
+      name: 'CalendarScroll'
     },
     plugins: [
       typescript({ target: 'es6' }),
@@ -304,6 +455,44 @@ const prodFiles = Array.prototype.concat(devFiles, [
       })
     ]
   },
+
+  {
+    input: 'src/plugins/WeekendHighlight.plugin.ts',
+    output: {
+      sourcemap: false,
+      file: 'dist/WeekendHighlight.plugin.esm.js',
+      format: 'esm',
+      name: 'WeekendHighlight'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] })
+    ]
+  },
+  {
+    input: 'src/plugins/WeekendHighlight.plugin.ts',
+    output: {
+      sourcemap: false,
+      file: 'dist/WeekendHighlight.plugin.esm.min.js',
+      format: 'esm',
+      name: 'WeekendHighlight'
+    },
+    plugins: [
+      typescript({ target: 'es6' }),
+      resolve({
+        browser: true
+      }),
+      commonjs({ extensions: ['.js', '.ts'] }),
+      terser({
+        //keep_classnames: true,
+        //keep_fnames: true,
+        output: { comments: false }
+      })
+    ]
+  },
   {
     input: 'src/plugins/WeekendHighlight.plugin.ts',
     output: {
@@ -325,6 +514,7 @@ const prodFiles = Array.prototype.concat(devFiles, [
       })
     ]
   },
+
   {
     input: 'src/plugins/plugins.ts',
     output: {
