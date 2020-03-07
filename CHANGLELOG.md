@@ -122,3 +122,7 @@ All notable changes to this project will be documented in this file.
 ## [2.6.5]
 
 - [bugfix] automatic scroll on zoom change not worked properly
+
+## [2.6.6]
+
+- recalculate times on items.time change
