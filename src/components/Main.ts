@@ -468,7 +468,7 @@ export default function Main(vido, props = {}) {
     recalculationTriggerCache.chartWidth = chartWidth;
     if (!recalculationTriggerCache.initialized) {
       recalculationTriggerCache.initialized = true;
-      return 'all';
+      return { name: 'all' };
     }
     if (configTime.zoom !== cache.zoom) return { name: 'zoom', oldValue: cache.zoom, newValue: configTime.zoom };
     if (configTime.period !== cache.period)
@@ -501,17 +501,13 @@ export default function Main(vido, props = {}) {
   // When time.from and time.to is not specified and items are reloaded;
   // check if item is outside current time scope and extend it if needed
   onDestroy(
-    state.subscribe('config.chart.items;', items => {
-      const configTime = state.get('config.chart.time');
-      if (configTime.from !== 0 && configTime.to !== 0) return;
-      const internalTime = state.get('_internal.chart.time');
-      for (const itemId in items) {
-        const item = items[itemId];
-        if (item.time.start < internalTime.from || item.time.end > internalTime.to) {
-          recalculateTimes('items');
-        }
-      }
-    })
+    state.subscribe(
+      'config.chart.items.*.time',
+      items => {
+        recalculateTimes({ name: 'items' });
+      },
+      { bulk: true }
+    )
   );
 
   if (
