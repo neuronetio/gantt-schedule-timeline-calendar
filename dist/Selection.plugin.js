@@ -94,7 +94,7 @@
     const isBrowser = typeof window !== 'undefined';
     if (isBrowser) {
         // If we run in the browser set version
-        (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.1.5');
+        (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.1.7');
     }
     /**
      * Used to clone existing node instead of each time creating new one which is

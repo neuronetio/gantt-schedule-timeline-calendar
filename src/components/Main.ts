@@ -510,20 +510,17 @@ export default function Main(vido, props = {}) {
     )
   );
 
-  if (
-    state.get('config.usageStatistics') === true &&
-    location.port === '' &&
-    location.host !== '' &&
-    !location.host.startsWith('localhost') &&
-    !location.host.startsWith('127.') &&
-    !location.host.startsWith('192.') &&
-    !location.host.endsWith('.test') &&
-    !location.host.endsWith('.local')
-  ) {
+  if (state.get('config.usageStatistics') === true && !localStorage.getItem('gstcus')) {
     try {
-      const oReq = new XMLHttpRequest();
-      oReq.open('POST', 'https://gstc-us.neuronet.io/');
-      oReq.send(JSON.stringify({ location: { href: location.href, host: location.host } }));
+      fetch('https://gstc-us.neuronet.io/', {
+        method: 'POST',
+        cache: 'force-cache',
+        mode: 'cors',
+        credentials: 'omit',
+        redirect: 'follow',
+        body: JSON.stringify({ location: { href: location.href, host: location.host } })
+      }).catch(e => {});
+      localStorage.setItem('gstcus', 'true');
     } catch (e) {}
   }
 
