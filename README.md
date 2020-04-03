@@ -665,7 +665,7 @@ function ExampleComponent(vido, props) {
 
   return () =>
     html`
-      <div class="example-component" @click=${onClickHanlder}>Hello ${name}</div>
+      <div class="example-component" @click=${onClickHandler}>Hello ${name}</div>
     `;
 }
 ```
