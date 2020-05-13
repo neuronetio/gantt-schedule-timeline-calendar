@@ -19,7 +19,7 @@
   "author": "Rafal Pospiech <neuronet.io@gmail.com>",
   "license": "AGPL-3.0",
   "dependencies": {
-    "@neuronet.io/vido": "^2.5.11",
+    "@neuronet.io/vido": "^3.0.0",
     "dayjs": "^1.8.17",
     "deep-state-observer": "^3.3.0",
     "resize-observer-polyfill": "^1.5.1"
