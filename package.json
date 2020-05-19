@@ -39,7 +39,7 @@
     "sirv-cli": "0.4.5",
     "stylus": "0.54.7",
     "tslib": "1.10.0",
-    "typescript": "3.7.5"
+    "typescript": "3.9.3"
   },
   "types": "./src/types.d.ts",
   "keywords": [
