@@ -37,7 +37,7 @@
     "rollup-plugin-terser": "5.2.0",
     "rollup-plugin-typescript": "1.0.1",
     "sirv-cli": "0.4.5",
-    "stylus": "0.54.7",
+    "stylus": "0.54.8",
     "tslib": "1.10.0",
     "typescript": "3.7.5"
   },
