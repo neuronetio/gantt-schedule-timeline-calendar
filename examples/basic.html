@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf8" />
+    <base href="./" />
+    <title>GSTC Basic Example</title>
+    <meta name="viewport" content="width=device-width" />
+    <link type="text/css" rel="stylesheet" href="style.css" />
+    <style>
+      body {
+        font-family: Roboto, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import GSTC from './gstc.esm.min.js';
+
+      const element = document.getElementById('app');
+      element.addEventListener('gstc-loaded', () => {
+        gstc.api.scrollToTime(gstc.api.time.date().valueOf()); // eslint-disable-line
+      });
+
+      const GSTCID = GSTC.api.GSTCID;
+
+      const columns = {
+        data: {
+          [GSTCID('id')]: {
+            id: GSTCID('id'),
+            data: ({ row }) => GSTC.api.sourceID(row.id),
+            width: 80,
+            sortable: ({ row }) => Number(GSTC.api.sourceID(row.id)),
+            header: {
+              content: 'ID'
+            }
+          },
+          [GSTCID('label')]: {
+            id: GSTCID('label'),
+            data: 'label',
+            sortable: 'label',
+            isHTML: false,
+            width: 230,
+            header: {
+              content: 'Label'
+            }
+          }
+        }
+      };
+
+      const rows = {
+        [GSTCID('1')]: {
+          id: GSTCID('1'),
+          label: 'Row #1'
+        },
+        [GSTCID('2')]: {
+          id: GSTCID('2'),
+          label: 'Row #2'
+        }
+      };
+
+      const items = {
+        [GSTCID('1')]: {
+          id: GSTCID('1'),
+          label: 'Item #1',
+          rowId: GSTCID('1'), // row id
+          time: {
+            start: GSTC.api.date('2020-01-01').valueOf(),
+            end: GSTC.api.date('2020-01-02').valueOf()
+          }
+        },
+        [GSTCID('2')]: {
+          id: GSTCID('2'),
+          label: 'Item #2',
+          rowId: GSTCID('2'),
+          time: {
+            start: GSTC.api.date('2020-02-01').valueOf(),
+            end: GSTC.api.date('2020-02-02').valueOf()
+          }
+        },
+        [GSTCID('3')]: {
+          id: GSTCID('3'),
+          label: 'Item #3',
+          rowId: GSTCID('2'),
+          time: {
+            start: GSTC.api.date('2020-01-10').valueOf(),
+            end: GSTC.api.date('2020-01-12').valueOf()
+          }
+        }
+      };
+
+      const config = {
+        innerHeight: 100,
+        list: {
+          columns,
+          rows
+        },
+        chart: {
+          items
+        }
+      };
+
+      const state = GSTC.api.stateFromConfig(config);
+      const gstc = GSTC({
+        element,
+        state
+      });
+    </script>
+  </body>
+</html>
