@@ -1,0 +1,81 @@
+NEURONET Free License Terms
+© Copyright 2020 NEURONET - Rafał Pośpiech, all rights reserved.
+
+1. BASIC PERMISSIONS
+
+NEURONET - Rafał Pośpiech (“NEURONET” or “VENDOR”) grants to you ("Licensee") a
+non-exclusive, non-transferable, worldwide, royalty-free license to use current
+version of the gantt-schedule-timeline-calendar component (the "Software") only
+in non-commercial projects.
+This license is valid for one year. After this time, in order to continue using
+the software, the license must be renewed.
+
+2. GENERAL RESTRICTIONS
+
+  a. Modifications to the software by the Licensee is not allowed.
+  b. Distribution by the Licensee of the software or part(s) of it is
+     forbidden.
+  c. Software may not be transferred, leased, assigned, or sublicensed, in
+     whole or in part.
+  d. The software should be registered in the vendor's system using a specially
+     prepared tool provided by the vendor, to which the link is located in the
+     official project repository or in another place indicated by the vendor.
+  e. The source code of the application using the software (as a whole,
+     including backend and frontend) must be licensed under an MIT or ISC
+     license, publicly available on the Internet, and registered in the
+     provider's system as described above.
+  f. The company in which the software will be used (if any) cannot employ more
+     than five employees.
+
+3. DISCLAIMER OF WARRANTIES
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+4. LIMITATION OF LIABILITY
+
+Under no circumstances and under no legal theory, whether tort (including
+negligence), contract, or otherwise, shall any Contributor, or anyone who
+distributes Covered Software as permitted above, be liable to You for any
+direct, indirect, special, incidental, or consequential damages of any
+character including, without limitation, damages for lost profits, loss of
+goodwill, work stoppage, computer failure or malfunction, or any and all other
+commercial damages or losses, even if such party shall have been informed of
+the possibility of such damages. This limitation of liability shall not apply
+to liability for death or personal injury resulting from such party’s
+negligence to the extent applicable law prohibits such limitation. Some
+jurisdictions do not allow the exclusion or limitation of incidental or
+consequential damages, so this exclusion and limitation may not apply to You.
+
+5. LITIGATION
+
+Any litigation relating to this License may be brought only in the courts of a
+jurisdiction where the defendant maintains its principal place of business and
+such litigation shall be governed by laws of that jurisdiction, without
+reference to its conflict-of-law provisions. Nothing in this Section shall
+prevent a party’s ability to bring cross-claims or counter-claims.
+
+6. MISCELLANEOUS
+
+This License represents the complete agreement concerning the subject matter
+hereof. If any provision of this License is held to be unenforceable, such
+provision shall be reformed only to the extent necessary to make it
+enforceable. Any law or regulation which provides that the language of a
+contract shall be construed against the drafter shall not be used to construe
+this License against a Contributor.
+NEURONET reserves the right to change or extend the terms of this license by
+sending an e-mail to the licensee without the need to modify this document.
+
+7. TERMINATION
+
+The rights granted under this License will automatically terminate if you fail
+to comply with any of its terms.
+NEURONET reserves the right to terminate or suspend the provisions of this
+license, even if the violation of its regulations is not proven in court. For
+this, the presumption of infringement is sufficient. The licensee has the right
+to send explanations about the situation by email.
