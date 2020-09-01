@@ -1,0 +1,1 @@
+{"version":3,"file":"highlight-weekends.plugin.d.ts","sourceRoot":"","sources":["../../src/plugins/highlight-weekends.plugin.ts"],"names":[],"mappings":"AAYA,OAAO,EAAE,IAAI,EAAE,MAAM,SAAS,CAAC;AAG/B,MAAM,WAAW,OAAO;IACtB,QAAQ,CAAC,EAAE,MAAM,EAAE,CAAC;IACpB,SAAS,CAAC,EAAE,MAAM,CAAC;CACpB;AAED,wBAAgB,MAAM,CAAC,OAAO,GAAE,OAAY,sCAsD3C"}
