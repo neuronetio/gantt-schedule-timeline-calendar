@@ -7,9 +7,8 @@
 <h2 align="center">Gantt, schedule, timeline and calendar components all in one!</h2>
 
 <p align="center">
-  <img src="https://api.codacy.com/project/badge/Grade/732e0ef156344594b48584af97ba1e4a">
   <img src="https://snyk.io/test/github/neuronetio/gantt-schedule-timeline-calendar/badge.svg">
-  <img src="https://img.badgesize.io/neuronetio/gantt-schedule-timeline-calendar/master/dist/gstc.esm.js.png?compression=gzip&label=gzipped">
+  <img src="https://img.badgesize.io/neuronetio/gantt-schedule-timeline-calendar/master/dist/gstc.esm.min.js.png?compression=gzip&label=gzipped">
   <img src="https://img.shields.io/npm/dm/gantt-schedule-timeline-calendar.svg">
   <img src="https://img.shields.io/npm/l/gantt-schedule-timeline-calendar.svg">
   <img src="https://badge.fury.io/js/gantt-schedule-timeline-calendar.svg">
