@@ -20,12 +20,15 @@ the software, the license must be renewed.
   d. The software should be registered in the vendor's system using a specially
      prepared tool provided by the vendor, to which the link is located in the
      official project repository or in another place indicated by the vendor.
-  e. The source code of the application using the software (as a whole,
-     including backend and frontend) must be licensed under an MIT or ISC
-     license, publicly available on the Internet, and registered in the
-     provider's system as described above.
-  f. The company in which the software will be used (if any) cannot employ more
-     than five employees.
+  e. To use it free of charge for one year, the source code of the application
+     using the software (as a whole, including the backend and frontend) must
+     be licensed under a MIT or ISC license, publicly available on the Internet
+     and registered in the vendor's system as described above. After this time,
+     the license may be renewed. If your application is proprietary and / or
+     not licensed under the MIT or ISC license with the code publicly available
+     on the Internet, you may use this license free of charge in commercial or
+     non-commercial application for a period of two months with no renewal
+     option. After or during this time, you can purchase a commercial license.
 
 3. DISCLAIMER OF WARRANTIES
 
