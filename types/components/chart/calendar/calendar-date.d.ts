@@ -4,5 +4,5 @@ export interface Props {
     date: ChartTimeDate;
     period: Period;
 }
-export default function ChartCalendarDay(vido: Vido, props: Props): (templateProps: any) => any;
+export default function ChartCalendarDay(vido: Vido, props: Props): () => any;
 //# sourceMappingURL=calendar-date.d.ts.map

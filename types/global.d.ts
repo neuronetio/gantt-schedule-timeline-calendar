@@ -32,7 +32,7 @@ declare module "api/time" {
         getTimeFromViewOffsetPx(offsetPx: number, time?: DataChartTime, snapToStartOf?: boolean): number;
         calculateScrollPosPxFromTime(milliseconds: number, time: DataChartTime | undefined, scroll: ScrollTypeHorizontal | undefined): number;
         getCurrentFormatForLevel(level: ChartCalendarLevel, time: DataChartTime): ChartCalendarFormat;
-        generatePeriodDates({ leftDate, rightDate, period, level, levelIndex, time, callOnDate, callOnLevelDates, }: {
+        generatePeriodDates({ leftDate, rightDate, period, level, levelIndex, time, callOnDate, callOnLevelDates }: {
             leftDate: Dayjs;
             rightDate: Dayjs;
             period: Period;
@@ -314,15 +314,11 @@ declare module "gstc" {
     export type VoidFunction = () => void;
     export type PluginInitialization = (vido: unknown) => void | VoidFunction;
     export type Plugin = <T>(options: T) => PluginInitialization;
-    export type htmlResult = lithtml.TemplateResult | lithtml.SVGTemplateResult | undefined | null;
+    export type htmlResult = lithtml.TemplateResult | lithtml.TemplateResult[] | lithtml.SVGTemplateResult | lithtml.SVGTemplateResult[] | undefined | null;
     export type RenderFunction = (templateProps: unknown) => htmlResult;
     export type Component = (vido: unknown, props: unknown) => RenderFunction;
     export interface Components {
         [name: string]: Component;
-    }
-    export type Wrapper = (input: htmlResult, props?: any) => htmlResult;
-    export interface Wrappers {
-        [name: string]: Wrapper;
     }
     export type SlotName = 'main' | 'scroll-bar' | 'list' | 'list-column' | 'list-column-header' | 'list-column-header-resizer' | 'list-column-header-resizer-dots' | 'list-column-row' | 'list-column-row-expander' | 'list-column-row-expander-toggle' | 'list-toggle' | 'chart' | 'chart-calendar' | 'chart-calendar-date' | 'chart-timeline' | 'chart-timeline-grid' | 'chart-timeline-grid-row' | 'chart-timeline-grid-row-cell' | 'chart-timeline-items' | 'chart-timeline-items-row' | 'chart-timeline-items-row-item';
     export type SlotPlacement = 'before' | 'after' | 'inside';
@@ -480,6 +476,7 @@ declare module "gstc" {
         to?: number;
         readonly toDate?: Dayjs;
         zoom?: number;
+        level?: number;
         leftGlobal: number;
         readonly leftGlobalDate?: Dayjs;
         centerGlobal?: number;
@@ -565,6 +562,8 @@ declare module "gstc" {
     export interface ChartCalendarFormat {
         zoomTo: number;
         period: Period;
+        periodIncrement: number;
+        main?: boolean;
         default?: boolean;
         className?: string;
         format: (args: ChartCalendarFormatArguments) => string | htmlResult;
@@ -583,7 +582,6 @@ declare module "gstc" {
     }
     export interface ChartCalendarLevel {
         formats?: ChartCalendarFormat[];
-        main?: boolean;
         doNotUseCache?: boolean;
     }
     export interface ChartCalendar {
@@ -600,11 +598,16 @@ declare module "gstc" {
         top?: number;
         bottom?: number;
     }
+    export interface CutIcons {
+        left?: string;
+        right?: string;
+    }
     export interface DefaultItem {
         gap?: ItemGap;
         height?: number;
         top?: number;
         minWidth?: number;
+        cutIcons?: CutIcons;
     }
     export interface Chart {
         time?: ChartTime;
@@ -666,7 +669,6 @@ declare module "gstc" {
         innerHeight?: number;
         headerHeight?: number;
         components?: Components;
-        wrappers?: Wrappers;
         slots?: Slots;
         list?: List;
         scroll?: Scroll;
@@ -765,39 +767,39 @@ declare module "gstc" {
 }
 declare module "components/main" {
     import { Vido } from "gstc";
-    export default function Main(vido: Vido, props?: {}): (templateProps: any) => any;
+    export default function Main(vido: Vido, props?: {}): () => any;
 }
 declare module "components/scroll-bar" {
     import { Vido } from "gstc";
     export interface Props {
         type: 'horizontal' | 'vertical';
     }
-    export default function ScrollBar(vido: Vido, props: Props): () => import("lit-html-optimised").TemplateResult;
+    export default function ScrollBar(vido: Vido, props: Props): () => any;
 }
 declare module "components/list/list" {
     import { Vido } from "gstc";
-    export default function List(vido: Vido, props?: {}): (templateProps: any) => any;
+    export default function List(vido: Vido, props?: {}): () => any;
 }
 declare module "components/list/column/column" {
     import { Vido, ColumnData } from "gstc";
     export interface Props {
         column: ColumnData;
     }
-    export default function ListColumn(vido: Vido, props: Props): (templateProps: any) => any;
+    export default function ListColumn(vido: Vido, props: Props): () => any;
 }
 declare module "components/list/column/column-header" {
     import { Vido, ColumnData } from "gstc";
     export interface Props {
         column: ColumnData;
     }
-    export default function ListColumnHeader(vido: Vido, props: Props): (templateProps: any) => any;
+    export default function ListColumnHeader(vido: Vido, props: Props): () => any;
 }
 declare module "components/list/column/column-header-resizer" {
     import { Vido, ColumnData } from "gstc";
     export interface Props {
         column: ColumnData;
     }
-    export default function ListColumnHeaderResizer(vido: Vido, props: Props): (templateProps: any) => any;
+    export default function ListColumnHeaderResizer(vido: Vido, props: Props): () => any;
 }
 declare module "components/list/column/column-row" {
     import { ColumnData, Row, Vido } from "gstc";
@@ -805,33 +807,33 @@ declare module "components/list/column/column-row" {
         row: Row;
         column: ColumnData;
     }
-    export default function ListColumnRow(vido: Vido, props: Props): (templateProps: any) => any;
+    export default function ListColumnRow(vido: Vido, props: Props): () => any;
 }
 declare module "components/list/column/column-row-expander" {
     import { Row, Vido } from "gstc";
     export interface Props {
         row: Row;
     }
-    export default function ListColumnRowExpander(vido: Vido, props: Props): (templateProps: any) => any;
+    export default function ListColumnRowExpander(vido: Vido, props: Props): () => any;
 }
 declare module "components/list/column/column-row-expander-toggle" {
     import { Row, Vido } from "gstc";
     export interface Props {
         row: Row;
     }
-    export default function ListColumnRowExpanderToggle(vido: Vido, props: Props): (templateProps: any) => any;
+    export default function ListColumnRowExpanderToggle(vido: Vido, props: Props): () => any;
 }
 declare module "components/list/list-toggle" {
     import { Vido } from "gstc";
-    export default function ListToggle(vido: Vido, props?: {}): (templateProps: any) => any;
+    export default function ListToggle(vido: Vido, props?: {}): () => any;
 }
 declare module "components/chart/chart" {
     import { Vido } from "gstc";
-    export default function Chart(vido: Vido, props?: {}): (templateProps: any) => any;
+    export default function Chart(vido: Vido, props?: {}): () => any;
 }
 declare module "components/chart/calendar/calendar" {
     import { Vido } from "gstc";
-    export default function ChartCalendar(vido: Vido, props: any): (templateProps: any) => any;
+    export default function ChartCalendar(vido: Vido, props: any): () => any;
 }
 declare module "components/chart/calendar/calendar-date" {
     import { ChartTimeDate, Period, Vido } from "gstc";
@@ -840,19 +842,19 @@ declare module "components/chart/calendar/calendar-date" {
         date: ChartTimeDate;
         period: Period;
     }
-    export default function ChartCalendarDay(vido: Vido, props: Props): (templateProps: any) => any;
+    export default function ChartCalendarDay(vido: Vido, props: Props): () => any;
 }
 declare module "components/chart/timeline/timeline" {
     import { Vido } from "gstc";
-    export default function ChartTimeline(vido: Vido, props: any): (templateProps: any) => any;
+    export default function ChartTimeline(vido: Vido, props: any): () => any;
 }
 declare module "components/chart/timeline/grid/grid" {
     import { Vido } from "gstc";
-    export default function ChartTimelineGrid(vido: Vido, props: any): (templateProps: any) => any;
+    export default function ChartTimelineGrid(vido: Vido, props: any): () => any;
 }
 declare module "components/chart/timeline/grid/grid-row" {
     import { GridRow, Vido } from "gstc";
-    export default function ChartTimelineGridRow(vido: Vido, props: GridRow): (templateProps: any) => any;
+    export default function ChartTimelineGridRow(vido: Vido, props: GridRow): () => any;
 }
 declare module "components/chart/timeline/grid/grid-row-cell" {
     import { Row, ChartTimeDate, Vido } from "gstc";
@@ -861,19 +863,19 @@ declare module "components/chart/timeline/grid/grid-row-cell" {
         row: Row;
         time: ChartTimeDate;
     }
-    function ChartTimelineGridRowCell(vido: Vido, props: Props): (templateProps: any) => any;
+    function ChartTimelineGridRowCell(vido: Vido, props: Props): () => any;
     export default ChartTimelineGridRowCell;
 }
 declare module "components/chart/timeline/items/items" {
     import { Vido } from "gstc";
-    export default function ChartTimelineItems(vido: Vido, props?: {}): (templateProps: any) => any;
+    export default function ChartTimelineItems(vido: Vido, props?: {}): () => any;
 }
 declare module "components/chart/timeline/items/items-row" {
     import { Row, Vido } from "gstc";
     export interface Props {
         row: Row;
     }
-    export default function ChartTimelineItemsRow(vido: Vido, props: Props): (templateProps: any) => any;
+    export default function ChartTimelineItemsRow(vido: Vido, props: Props): () => any;
 }
 declare module "components/chart/timeline/items/items-row-item" {
     import { Row, Item, Vido } from "gstc";
@@ -881,7 +883,7 @@ declare module "components/chart/timeline/items/items-row-item" {
         row: Row;
         item: Item;
     }
-    export default function ChartTimelineItemsRowItem(vido: Vido, props: Props): (templateProps: any) => any;
+    export default function ChartTimelineItemsRowItem(vido: Vido, props: Props): () => any;
 }
 declare module "default-config" {
     import { Config, SlotName } from "gstc";

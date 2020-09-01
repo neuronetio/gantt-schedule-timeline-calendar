@@ -4,6 +4,6 @@ interface Props {
     row: Row;
     time: ChartTimeDate;
 }
-declare function ChartTimelineGridRowCell(vido: Vido, props: Props): (templateProps: any) => any;
+declare function ChartTimelineGridRowCell(vido: Vido, props: Props): () => any;
 export default ChartTimelineGridRowCell;
 //# sourceMappingURL=grid-row-cell.d.ts.map

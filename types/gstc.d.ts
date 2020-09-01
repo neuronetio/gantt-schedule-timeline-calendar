@@ -134,15 +134,11 @@ export interface GridRows {
 export declare type VoidFunction = () => void;
 export declare type PluginInitialization = (vido: unknown) => void | VoidFunction;
 export declare type Plugin = <T>(options: T) => PluginInitialization;
-export declare type htmlResult = lithtml.TemplateResult | lithtml.SVGTemplateResult | undefined | null;
+export declare type htmlResult = lithtml.TemplateResult | lithtml.TemplateResult[] | lithtml.SVGTemplateResult | lithtml.SVGTemplateResult[] | undefined | null;
 export declare type RenderFunction = (templateProps: unknown) => htmlResult;
 export declare type Component = (vido: unknown, props: unknown) => RenderFunction;
 export interface Components {
     [name: string]: Component;
-}
-export declare type Wrapper = (input: htmlResult, props?: any) => htmlResult;
-export interface Wrappers {
-    [name: string]: Wrapper;
 }
 export declare type SlotName = 'main' | 'scroll-bar' | 'list' | 'list-column' | 'list-column-header' | 'list-column-header-resizer' | 'list-column-header-resizer-dots' | 'list-column-row' | 'list-column-row-expander' | 'list-column-row-expander-toggle' | 'list-toggle' | 'chart' | 'chart-calendar' | 'chart-calendar-date' | 'chart-timeline' | 'chart-timeline-grid' | 'chart-timeline-grid-row' | 'chart-timeline-grid-row-cell' | 'chart-timeline-items' | 'chart-timeline-items-row' | 'chart-timeline-items-row-item';
 export declare type SlotPlacement = 'before' | 'after' | 'inside';
@@ -300,6 +296,7 @@ export interface ChartTime {
     to?: number;
     readonly toDate?: Dayjs;
     zoom?: number;
+    level?: number;
     leftGlobal: number;
     readonly leftGlobalDate?: Dayjs;
     centerGlobal?: number;
@@ -385,6 +382,8 @@ export declare type Period = PeriodString | OpUnitType;
 export interface ChartCalendarFormat {
     zoomTo: number;
     period: Period;
+    periodIncrement: number;
+    main?: boolean;
     default?: boolean;
     className?: string;
     format: (args: ChartCalendarFormatArguments) => string | htmlResult;
@@ -403,7 +402,6 @@ export interface ChartCalendarAdditionalSpaces {
 }
 export interface ChartCalendarLevel {
     formats?: ChartCalendarFormat[];
-    main?: boolean;
     doNotUseCache?: boolean;
 }
 export interface ChartCalendar {
@@ -420,11 +418,16 @@ export interface ItemGap {
     top?: number;
     bottom?: number;
 }
+export interface CutIcons {
+    left?: string;
+    right?: string;
+}
 export interface DefaultItem {
     gap?: ItemGap;
     height?: number;
     top?: number;
     minWidth?: number;
+    cutIcons?: CutIcons;
 }
 export interface Chart {
     time?: ChartTime;
@@ -486,7 +489,6 @@ export interface Config {
     innerHeight?: number;
     headerHeight?: number;
     components?: Components;
-    wrappers?: Wrappers;
     slots?: Slots;
     list?: List;
     scroll?: Scroll;
