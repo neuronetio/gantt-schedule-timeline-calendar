@@ -10,7 +10,6 @@
   <img src="https://snyk.io/test/github/neuronetio/gantt-schedule-timeline-calendar/badge.svg">
   <img src="https://img.badgesize.io/neuronetio/gantt-schedule-timeline-calendar/master/dist/gstc.esm.min.js?compression=gzip">
   <img src="https://img.shields.io/npm/dm/gantt-schedule-timeline-calendar.svg">
-  <img src="https://img.shields.io/npm/l/gantt-schedule-timeline-calendar.svg">
   <img src="https://badge.fury.io/js/gantt-schedule-timeline-calendar.svg">
   <a href="https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fneuronetio%2Fgantt-schedule-timeline-calendar"><img alt="Twitter" src="https://img.shields.io/twitter/url/https/github.com/neuronetio/gantt-schedule-timeline-calendar?style=social"></a>
 </p>
