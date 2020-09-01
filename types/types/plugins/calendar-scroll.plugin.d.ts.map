@@ -1,1 +1,0 @@
-{"version":3,"file":"calendar-scroll.plugin.d.ts","sourceRoot":"","sources":["../../src/plugins/calendar-scroll.plugin.ts"],"names":[],"mappings":"AAeA,MAAM,WAAW,KAAK;IACpB,CAAC,EAAE,MAAM,CAAC;IACV,CAAC,EAAE,MAAM,CAAC;CACX;AAED,MAAM,WAAW,OAAO;IACtB,OAAO,EAAE,OAAO,CAAC;IACjB,aAAa,EAAE,MAAM,CAAC;CACvB;AAOD,wBAAgB,MAAM,CAAC,OAAO,GAAE,OAAwB,qCAiHvD"}
