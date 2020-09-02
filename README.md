@@ -54,7 +54,7 @@ You can control almost everything. You can change html structure, stylize every 
 
 ## EXAMPLES
 
-[live demos](https://neuronet.io/gantt-schedule-timeline-calendar/examples) (soon)
+[live demos](https://gantt-schedule-timeline-calendar.neuronet.io/examples) (soon)
 
 ## REACT, ANGULAR AND VUE VERSIONS
 
@@ -85,7 +85,7 @@ or
 
 ## DOCUMENTATION
 
-[Documentation can be found here](https://neuronet.io/gantt-schedule-timeline-calendar) [work in progress]
+[Documentation can be found here](https://gantt-schedule-timeline-calendar.neuronet.io) [work in progress]
 
 ## LICENSE
 
