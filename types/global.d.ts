@@ -51,7 +51,7 @@ declare module "api/time" {
 }
 declare module "api/slots" {
     import { Vido } from "gstc";
-    import { Slots as VidoSlots } from "../node_modules/@neuronet.io/vido/src/Slots";
+    import { Slots as VidoSlots } from "@neuronet.io/vido/src/Slots";
     import { ComponentInstance, Component } from '@neuronet.io/vido/types/vido.d';
     export type SlotInstances = {
         [key: string]: ComponentInstance[];
@@ -75,7 +75,7 @@ declare module "api/api" {
     import dayjs from 'dayjs';
     import { Config, Period, DataChartTime, ScrollTypeHorizontal, Row, Item, Vido, Items, ScrollTypeVertical, Rows, GridCell, GridRow, DataItems, ItemData, ItemDataUpdate, ColumnData } from "gstc";
     import { generateSlots } from "api/slots";
-    import { lithtml } from "../node_modules/@neuronet.io/vido/src/vido";
+    import { lithtml } from "@neuronet.io/vido/src/vido";
     export function getClass(name: string, appendix?: string): string;
     export function getId(name: string, id: string): string;
     export function prepareState(userConfig: Config): {
@@ -179,7 +179,7 @@ declare module "api/api" {
 }
 declare module "gstc" {
     import 'pepjs';
-    import { vido, lithtml, ComponentInstance } from "../node_modules/@neuronet.io/vido/src/vido";
+    import { vido, lithtml, ComponentInstance } from "@neuronet.io/vido/src/vido";
     import { Api } from "api/api";
     import { Dayjs, OpUnitType } from 'dayjs';
     import { Properties as CSSProps } from 'csstype';
