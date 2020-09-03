@@ -185,7 +185,6 @@ declare module "gstc" {
     import { Properties as CSSProps } from 'csstype';
     import DeepState from 'deep-state-observer';
     export type Vido = vido<DeepState, Api>;
-    export { Api, DeepState };
     export interface RowDataPosition {
         top: number;
         topPercent: number;

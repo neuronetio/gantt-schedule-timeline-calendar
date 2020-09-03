@@ -5,7 +5,6 @@ import { Dayjs, OpUnitType } from 'dayjs';
 import { Properties as CSSProps } from 'csstype';
 import DeepState from 'deep-state-observer';
 export declare type Vido = vido<DeepState, Api>;
-export { Api, DeepState };
 export interface RowDataPosition {
     top: number;
     topPercent: number;
