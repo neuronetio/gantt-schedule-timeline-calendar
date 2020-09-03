@@ -28,6 +28,7 @@
 - tree like structures - collapsible / expandable groups
 - moveable / resizable items with ability to configure which items can move at the moment and how
 - snap to specified time when resizing / moving
+- slots support to easily change html content of each component
 - background grid on which you can place your html content
 - selectable cells and items with a choice of what can be selected at the moment
 - gradual time zoom up to minutes
@@ -35,7 +36,6 @@
 - sortable and searchable list columns
 - BEM based CSS rules (easy to change appearance)
 - you can easily add third party libraries
-- slots support to easily change html content of each component
 - highly configurable
 - plugins support
 - attractive visually
