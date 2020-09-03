@@ -164,9 +164,11 @@ export declare type ColumnDataFunctionTemplate = ({ row: Row, vido: Vido }: {
     row: any;
     vido: any;
 }) => htmlResult;
+export declare type TemplateFunction = (vido: Vido) => htmlResult;
+export declare type ColumnDataHeaderContent = string | TemplateFunction;
 export interface ColumnDataHeader {
     html?: htmlResult;
-    content?: string;
+    content?: ColumnDataHeaderContent;
 }
 export declare type Sortable = string | ColumnDataFunction;
 export interface ColumnData {
