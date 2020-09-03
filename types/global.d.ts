@@ -410,7 +410,9 @@ declare module "gstc" {
     }
     export interface Sort {
         icons?: SortIcons;
-        compare?: (column: ColumnData) => (a: Row, b: Row) => number;
+        compare?: null | ((column: ColumnData) => (a: Row, b: Row) => number);
+        activeColumnId?: string;
+        asc?: boolean;
     }
     export interface List {
         rows?: Rows;
