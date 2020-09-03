@@ -344,8 +344,10 @@ declare module "gstc" {
         row: any;
         vido: any;
     }) => htmlResult;
-    export type TemplateFunction = (vido: Vido) => htmlResult;
-    export type ColumnDataHeaderContent = string | TemplateFunction;
+    export type ColumnDataHeaderContent = string | (({ column: ColumnData, vido: Vido }: {
+        column: any;
+        vido: any;
+    }) => htmlResult);
     export interface ColumnDataHeader {
         html?: htmlResult;
         content?: ColumnDataHeaderContent;

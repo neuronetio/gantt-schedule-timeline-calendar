@@ -164,8 +164,10 @@ export declare type ColumnDataFunctionTemplate = ({ row: Row, vido: Vido }: {
     row: any;
     vido: any;
 }) => htmlResult;
-export declare type TemplateFunction = (vido: Vido) => htmlResult;
-export declare type ColumnDataHeaderContent = string | TemplateFunction;
+export declare type ColumnDataHeaderContent = string | (({ column: ColumnData, vido: Vido }: {
+    column: any;
+    vido: any;
+}) => htmlResult);
 export interface ColumnDataHeader {
     html?: htmlResult;
     content?: ColumnDataHeaderContent;
