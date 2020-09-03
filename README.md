@@ -58,6 +58,9 @@ You can control almost everything. You can change html structure, stylize every 
 
 [live demos](https://gantt-schedule-timeline-calendar.neuronet.io/examples) (soon)
 
+You can checkout [examples folder](https://github.com/neuronetio/gantt-schedule-timeline-calendar/tree/master/examples) too.
+To run examples on your machine just clone this repository and type `npm run examples`.
+
 ## REACT, ANGULAR AND VUE VERSIONS
 
 - [react-gantt-schedule-timeline-calendar](https://github.com/neuronetio/react-gantt-schedule-timeline-calendar)
