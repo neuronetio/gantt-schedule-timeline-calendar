@@ -223,7 +223,10 @@ declare module "gstc" {
         $data?: RowData;
         gap?: RowGap;
         style?: RowStyle;
-        classNames?: string[];
+        classNames?: string[] | (({ row: Row, vido: Vido }: {
+            row: any;
+            vido: any;
+        }) => string[]);
         [key: string]: any;
     }
     export interface Rows {
@@ -282,7 +285,10 @@ declare module "gstc" {
         gap?: ItemGap;
         minWidth?: number;
         style?: CSSProps;
-        classNames?: string[];
+        classNames?: string[] | (({ item: Item, vido: Vido }: {
+            item: any;
+            vido: any;
+        }) => string[]);
         isHTML?: boolean;
         linkedWith?: string[];
         selected?: boolean;
@@ -411,7 +417,7 @@ declare module "gstc" {
     export interface Sort {
         icons?: SortIcons;
         compare?: null | ((column: ColumnData) => (a: Row, b: Row) => number);
-        activeColumnId?: string;
+        activeColumnId?: string | null;
         asc?: boolean;
     }
     export interface List {
