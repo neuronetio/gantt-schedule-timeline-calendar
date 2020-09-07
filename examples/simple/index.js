@@ -115,3 +115,7 @@ const app = GSTC({
   element: document.getElementById('gstc'),
   state,
 });
+
+//for testing
+// @ts-ignore
+window.gstc = app;
