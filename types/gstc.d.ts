@@ -565,6 +565,7 @@ declare namespace GSTC {
         GSTCID(originalId: string): string;
         isGSTCID(id: string): boolean;
         sourceID(id: string): string;
+        fromArray(array: any): {};
         stateFromConfig: typeof import("./api/api").stateFromConfig;
         wasmStateFromConfig: typeof import("./api/api").wasmStateFromConfig;
         merge: typeof import("@neuronet.io/vido/src/helpers").mergeDeep;
