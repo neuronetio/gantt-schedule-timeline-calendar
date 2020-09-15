@@ -302,6 +302,7 @@ declare module "gstc" {
         time: ChartTimeDate;
         top: number;
         row: Row;
+        content: null | string | htmlResult;
         [key: string]: any;
     }
     export interface GridCells {
@@ -592,7 +593,7 @@ declare module "gstc" {
     }
     export type ChartCalendarLevel = ChartCalendarLevelFormat[];
     export interface ChartGridCell {
-        onCreate: ((cell: any) => unknown)[];
+        onCreate: ((cell: GridCell) => GridCell)[];
     }
     export interface ChartGrid {
         cell?: ChartGridCell;
@@ -860,11 +861,12 @@ declare module "components/chart/timeline/grid/grid-row" {
     export default function ChartTimelineGridRow(vido: Vido, props: GridRow): () => any;
 }
 declare module "components/chart/timeline/grid/grid-row-cell" {
-    import { Row, ChartTimeDate, Vido } from "gstc";
+    import { Row, ChartTimeDate, Vido, htmlResult } from "gstc";
     interface Props {
         id: string;
         row: Row;
         time: ChartTimeDate;
+        content: null | string | htmlResult;
     }
     function ChartTimelineGridRowCell(vido: Vido, props: Props): () => any;
     export default ChartTimelineGridRowCell;

@@ -122,6 +122,7 @@ export interface GridCell {
     time: ChartTimeDate;
     top: number;
     row: Row;
+    content: null | string | htmlResult;
     [key: string]: any;
 }
 export interface GridCells {
@@ -412,7 +413,7 @@ export interface ChartCalendarAdditionalSpaces {
 }
 export declare type ChartCalendarLevel = ChartCalendarLevelFormat[];
 export interface ChartGridCell {
-    onCreate: ((cell: any) => unknown)[];
+    onCreate: ((cell: GridCell) => GridCell)[];
 }
 export interface ChartGrid {
     cell?: ChartGridCell;
