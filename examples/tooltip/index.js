@@ -1,7 +1,7 @@
 // @ts-ignore
 import GSTC from '../gstc.esm.min.js';
 
-const rowsFromDB = [
+const rows = [
   {
     id: '1',
     label: 'Row 1',
@@ -28,7 +28,7 @@ const rowsFromDB = [
   },
 ];
 
-const itemsFromDB = [
+const items = [
   {
     id: '1',
     label: 'Item 1',
@@ -58,7 +58,7 @@ const itemsFromDB = [
   },
 ];
 
-const columnsFromDB = [
+const columns = [
   {
     id: 'id',
     label: 'ID',
@@ -80,25 +80,6 @@ const columnsFromDB = [
     },
   },
 ];
-
-/**
- * Convert data from array into GSTC object
- */
-function fromArray(array) {
-  const GSTCID = GSTC.api.GSTCID; // [IMPORTANT] every id must be wrapped by this function
-  const resultObj = {};
-  for (const item of array) {
-    item.id = GSTCID(item.id);
-    if ('rowId' in item) {
-      item.rowId = GSTCID(item.rowId);
-    }
-    if ('parentId' in item) {
-      item.parentId = GSTCID(item.parentId);
-    }
-    resultObj[item.id] = item;
-  }
-  return resultObj;
-}
 
 // Item slot
 function itemSlot(vido, props) {
@@ -149,12 +130,12 @@ const config = {
   innerHeight: 100,
   list: {
     columns: {
-      data: fromArray(columnsFromDB),
+      data: GSTC.api.fromArray(columns),
     },
-    rows: fromArray(rowsFromDB),
+    rows: GSTC.api.fromArray(rows),
   },
   chart: {
-    items: fromArray(itemsFromDB),
+    items: GSTC.api.fromArray(items),
   },
   slots: {
     'chart-timeline-items-row-item': { inner: [itemSlot] },

@@ -65,25 +65,6 @@ const columnsFromDB = [
   },
 ];
 
-/**
- * Convert data from array into GSTC object
- */
-function fromArray(array) {
-  const GSTCID = GSTC.api.GSTCID; // [IMPORTANT] every id must be wrapped by this function
-  const resultObj = {};
-  for (const item of array) {
-    item.id = GSTCID(item.id);
-    if ('rowId' in item) {
-      item.rowId = GSTCID(item.rowId);
-    }
-    if ('parentId' in item) {
-      item.parentId = GSTCID(item.parentId);
-    }
-    resultObj[item.id] = item;
-  }
-  return resultObj;
-}
-
 function onCellClick(row, time) {
   alert(
     'Cell for row ' +
@@ -116,12 +97,12 @@ const config = {
 
   list: {
     columns: {
-      data: fromArray(columnsFromDB),
+      data: GSTC.api.fromArray(columnsFromDB),
     },
-    rows: fromArray(rowsFromDB),
+    rows: GSTC.api.fromArray(rowsFromDB),
   },
   chart: {
-    items: fromArray(itemsFromDB),
+    items: GSTC.api.fromArray(itemsFromDB),
     grid: {
       cell: {
         onCreate: [onCellCreate1, onCellCreate2],
