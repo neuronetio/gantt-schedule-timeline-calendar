@@ -9,5 +9,6 @@ describe('Basic', () => {
 
   fit('should display content inside grid cells', async () => {
     await expect(page).toMatchElement('.my-grid-cell', { text: '!' });
+    await expect(page).toMatchElement('.my-grid-cell-wrapper');
   });
 });

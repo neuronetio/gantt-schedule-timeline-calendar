@@ -94,12 +94,16 @@ function onCellClick(row, time) {
   );
 }
 
-function onCellCreate({ time, row, vido }) {
+function onCellCreate1({ time, row, vido }) {
   return vido.html`<div class="my-grid-cell" @click=${() =>
     onCellClick(
       row,
       time
     )} style="background:red;color:white;border-radius:100%;cursor:pointer;width:20px;height:20px;">!</div>`;
+}
+
+function onCellCreate2({ content, vido }) {
+  return vido.html`<div class="my-grid-cell-wrapper">${content}</div>`;
 }
 
 // Configuration object
@@ -120,7 +124,7 @@ const config = {
     items: fromArray(itemsFromDB),
     grid: {
       cell: {
-        onCreate: [onCellCreate],
+        onCreate: [onCellCreate1, onCellCreate2],
       },
     },
   },
