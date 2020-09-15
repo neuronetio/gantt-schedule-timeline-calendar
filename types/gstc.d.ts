@@ -130,8 +130,8 @@ export declare type Component = (vido: unknown, props: unknown) => RenderFunctio
 export interface Components {
     [name: string]: Component;
 }
-export declare type SlotName = 'main' | 'scroll-bar' | 'list' | 'list-column' | 'list-column-header' | 'list-column-header-resizer' | 'list-column-header-resizer-dots' | 'list-column-row' | 'list-column-row-expander' | 'list-column-row-expander-toggle' | 'list-toggle' | 'chart' | 'chart-calendar' | 'chart-calendar-date' | 'chart-timeline' | 'chart-timeline-grid' | 'chart-timeline-grid-row' | 'chart-timeline-grid-row-cell' | 'chart-timeline-items' | 'chart-timeline-items-row' | 'chart-timeline-items-row-item';
-export declare type SlotPlacement = 'before' | 'after' | 'inside';
+export declare type SlotName = 'main' | 'scroll-bar' | 'list' | 'list-column' | 'list-column-header' | 'list-column-header-resizer' | 'list-column-row' | 'list-column-row-expander' | 'list-column-row-expander-toggle' | 'list-toggle' | 'chart' | 'chart-calendar' | 'chart-calendar-date' | 'chart-timeline' | 'chart-timeline-grid' | 'chart-timeline-grid-row' | 'chart-timeline-grid-row-cell' | 'chart-timeline-items' | 'chart-timeline-items-row' | 'chart-timeline-items-row-item';
+export declare type SlotPlacement = 'outer' | 'inner' | 'container-outer' | 'container-inner' | 'content';
 export declare type Slot = {
     [placement in SlotPlacement]?: Component[];
 };
