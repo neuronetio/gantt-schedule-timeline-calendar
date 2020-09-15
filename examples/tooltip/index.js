@@ -92,7 +92,8 @@ function itemSlot(vido, props) {
   let element, tippyInstance;
   function initialize(el) {
     element = el;
-    if (!tippyInstance) tippy(element);
+    // @ts-ignore
+    if (!tippyInstance) tippyInstance = tippy(element);
   }
 
   let itemData, startDate, endDate, tooltipContent;
