@@ -575,8 +575,7 @@ declare module "gstc" {
         period: Period;
         periodIncrement: number;
         main?: boolean;
-        default?: boolean;
-        className?: string;
+        classNames?: string[];
         format: (args: ChartCalendarFormatArguments) => string | htmlResult;
     }
     export interface ChartCalendarAdditionalSpace {
