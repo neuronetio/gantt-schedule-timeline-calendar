@@ -7,7 +7,7 @@ describe('Basic', () => {
     await page.goto(`http://localhost:${port}/rows-content/index.html`);
   });
 
-  fit('should display content inside grid cells', async () => {
+  fit('should display content inside rows', async () => {
     await expect(page).toMatchElement('.my-row-content', {
       text: 'ROW HTML HERE - CLICK ME',
     });
