@@ -86,15 +86,14 @@ function fromArray(array) {
 
 // Item slot
 function itemSlot(vido, props) {
-  const { onChange, update, html, api, directive } = vido;
+  const { onChange, update, html, api, getElement } = vido;
 
   // Get element and initialize tippy instance
   let element, tippyInstance;
-  const getElement = directive(() => (part) => {
-    element = part.committer.element;
-    // @ts-ignore
-    if (!tippyInstance) tippyInstance = tippy(element);
-  });
+  function initialize(el) {
+    element = el;
+    if (!tippyInstance) tippy(element);
+  }
 
   let itemData, startDate, endDate, tooltipContent;
   onChange((newProps) => {
@@ -115,7 +114,7 @@ function itemSlot(vido, props) {
 
   return (content) =>
     html`<div
-      directive=${getElement()}
+      directive=${getElement(initialize)}
       class="my-item"
       style="width:100%;display:flex;"
     >
