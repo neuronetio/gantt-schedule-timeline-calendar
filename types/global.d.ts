@@ -199,22 +199,6 @@ declare module "gstc" {
         children: string[];
         items: string[];
     }
-    export interface RowStyleObject {
-        current?: CSSProps;
-        children?: CSSProps;
-    }
-    export interface RowGridStyle {
-        cell?: RowStyleObject;
-        row?: RowStyleObject;
-    }
-    export interface RowItemsStyle {
-        item?: RowStyleObject;
-        row?: RowStyleObject;
-    }
-    export interface RowStyle extends RowStyleObject {
-        grid?: RowGridStyle;
-        items?: RowItemsStyle;
-    }
     export interface Row {
         id: string;
         parentId?: string;
@@ -222,7 +206,7 @@ declare module "gstc" {
         height?: number;
         $data?: RowData;
         gap?: RowGap;
-        style?: RowStyle;
+        style?: CSSProps;
         classNames?: string[] | (({ row: Row, vido: Vido }: {
             row: any;
             vido: any;
@@ -592,8 +576,11 @@ declare module "gstc" {
         year?: ChartCalendarAdditionalSpace;
     }
     export type ChartCalendarLevel = ChartCalendarLevelFormat[];
+    export interface GridCellOnCreateArgument extends GridCell {
+        vido: Vido;
+    }
     export interface ChartGridCell {
-        onCreate: ((cell: GridCell) => GridCell)[];
+        onCreate: ((cell: GridCellOnCreateArgument) => string | htmlResult)[];
     }
     export interface ChartGrid {
         cell?: ChartGridCell;
@@ -866,7 +853,7 @@ declare module "components/chart/timeline/grid/grid-row-cell" {
         id: string;
         row: Row;
         time: ChartTimeDate;
-        content: null | string | htmlResult;
+        content: string | htmlResult;
     }
     function ChartTimelineGridRowCell(vido: Vido, props: Props): () => any;
     export default ChartTimelineGridRowCell;

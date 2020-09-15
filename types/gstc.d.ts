@@ -19,22 +19,6 @@ export interface RowData {
     children: string[];
     items: string[];
 }
-export interface RowStyleObject {
-    current?: CSSProps;
-    children?: CSSProps;
-}
-export interface RowGridStyle {
-    cell?: RowStyleObject;
-    row?: RowStyleObject;
-}
-export interface RowItemsStyle {
-    item?: RowStyleObject;
-    row?: RowStyleObject;
-}
-export interface RowStyle extends RowStyleObject {
-    grid?: RowGridStyle;
-    items?: RowItemsStyle;
-}
 export interface Row {
     id: string;
     parentId?: string;
@@ -42,7 +26,7 @@ export interface Row {
     height?: number;
     $data?: RowData;
     gap?: RowGap;
-    style?: RowStyle;
+    style?: CSSProps;
     classNames?: string[] | (({ row: Row, vido: Vido }: {
         row: any;
         vido: any;
@@ -412,8 +396,11 @@ export interface ChartCalendarAdditionalSpaces {
     year?: ChartCalendarAdditionalSpace;
 }
 export declare type ChartCalendarLevel = ChartCalendarLevelFormat[];
+export interface GridCellOnCreateArgument extends GridCell {
+    vido: Vido;
+}
 export interface ChartGridCell {
-    onCreate: ((cell: GridCell) => GridCell)[];
+    onCreate: ((cell: GridCellOnCreateArgument) => string | htmlResult)[];
 }
 export interface ChartGrid {
     cell?: ChartGridCell;

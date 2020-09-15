@@ -3,7 +3,7 @@ interface Props {
     id: string;
     row: Row;
     time: ChartTimeDate;
-    content: null | string | htmlResult;
+    content: string | htmlResult;
 }
 declare function ChartTimelineGridRowCell(vido: Vido, props: Props): () => any;
 export default ChartTimelineGridRowCell;
