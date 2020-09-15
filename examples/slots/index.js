@@ -1,24 +1,10 @@
 // @ts-ignore
 import GSTC from '../gstc.esm.min.js';
 
-// @ts-ignore
-window.row = '';
-
-function onRowClick(row) {
-  //@ts-ignore
-  window.row = GSTC.api.sourceID(row.id);
-  alert('Row ' + GSTC.api.sourceID(row.id) + ' clicked!');
-}
-
 const rowsFromDB = [
   {
     id: '1',
-    label({ row, vido }) {
-      return vido.html`<div class="my-row-content" @click=${() =>
-        onRowClick(
-          row
-        )} style="color:red;cursor:pointer;"><span style="background:red;border-radius:100%;width:20px;height:20px;display:inline-block;margin-right:8px;"></span>ROW HTML HERE - CLICK ME</div>`;
-    },
+    label: 'Row 1',
   },
   {
     id: '2',
@@ -33,7 +19,7 @@ const itemsFromDB = [
     rowId: '1',
     time: {
       start: GSTC.api.date('2020-01-01').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-01-02').endOf('day').valueOf(),
+      end: GSTC.api.date('2020-01-06').endOf('day').valueOf(),
     },
   },
   {
@@ -42,7 +28,7 @@ const itemsFromDB = [
     rowId: '1',
     time: {
       start: GSTC.api.date('2020-02-01').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-02-02').endOf('day').valueOf(),
+      end: GSTC.api.date('2020-02-15').endOf('day').valueOf(),
     },
   },
   {
@@ -60,9 +46,7 @@ const columnsFromDB = [
   {
     id: 'id',
     label: 'ID',
-    data: ({ row, vido }) =>
-      vido.html`<div class="my-row-content-column" style="font-weight:bold;text-align:center;cursor:pointer;background:red;color:white;" @click=${() =>
-        onRowClick(row)}>${GSTC.api.sourceID(row.id)}</div>`, // show original id (not internal GSTCID)
+    data: ({ row }) => Number(GSTC.api.sourceID(row.id)), // show original id
     sortable: ({ row }) => Number(GSTC.api.sourceID(row.id)), // sort by id converted to number
     width: 80,
     header: {
@@ -100,6 +84,44 @@ function fromArray(array) {
   return resultObj;
 }
 
+function itemsSlot(vido) {
+  return (content) =>
+    vido.html`<div
+        class="my-items-slot"
+        style="position:absolute;left:0;top:0;width:100%;height:100%;background:linear-gradient(#00000050,#00000000);text-align:center;font-weight:bold;font-size:2rem;"
+      >
+        My items slot!
+      </div>
+      ${content}`;
+}
+
+function dateSlot(vido, props) {
+  const { onChange, update, html } = vido;
+
+  let style = 'cursor: pointer;';
+
+  onChange((newProps) => {
+    props = newProps;
+    if (!props) return;
+    const day = props.date.leftGlobalDate.format('DD');
+    if (Number(day) % 2 === 0) {
+      style = 'background: red;color:white;cursor:pointer;';
+    } else {
+      style = 'cursor:pointer;';
+    }
+    update();
+  });
+
+  function onDateClick() {
+    alert(props.date.leftGlobalDate.format('YYYY-MM-DD') + ' date clicked!');
+  }
+
+  return (content) =>
+    html`<div class="my-date-slot" style=${style} @click=${onDateClick}>
+      ${content}
+    </div>`;
+}
+
 // Configuration object
 const config = {
   // for free key for your domain please visit https://gstc.neuronet.io/free-key
@@ -116,6 +138,10 @@ const config = {
   },
   chart: {
     items: fromArray(itemsFromDB),
+  },
+  slots: {
+    'chart-timeline-items': { outer: [itemsSlot] },
+    'chart-calendar-date': { outer: [dateSlot] },
   },
 };
 

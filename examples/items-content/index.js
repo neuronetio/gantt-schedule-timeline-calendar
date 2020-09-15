@@ -1,15 +1,6 @@
 // @ts-ignore
 import GSTC from '../gstc.esm.min.js';
 
-// @ts-ignore
-window.row = '';
-
-function onRowClick(row) {
-  //@ts-ignore
-  window.row = GSTC.api.sourceID(row.id);
-  alert('Row ' + GSTC.api.sourceID(row.id) + ' clicked!');
-}
-
 const rowsFromDB = [
   {
     id: '1',
@@ -120,9 +111,6 @@ const config = {
   },
   chart: {
     items: fromArray(itemsFromDB),
-    grid: {
-      onCreate: [(cell, vido) => vido.html`<div class="my-grid-cell">!</div>`],
-    },
   },
 };
 
