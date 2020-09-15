@@ -7,4 +7,4 @@ export interface Options {
     bodyClassName: string;
 }
 export declare function Plugin(options?: Options): (vidoInstance: any) => () => void;
-//# sourceMappingURL=calendar-scroll.plugin.d.ts.map
+//# sourceMappingURL=calendar-scroll.d.ts.map

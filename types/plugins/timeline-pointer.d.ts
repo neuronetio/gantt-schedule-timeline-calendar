@@ -40,4 +40,4 @@ export interface PluginData extends Options {
     currentPosition: Point;
 }
 export declare function Plugin(options: Options): (vidoInstance: Vido) => () => void;
-//# sourceMappingURL=timeline-pointer.plugin.d.ts.map
+//# sourceMappingURL=timeline-pointer.d.ts.map

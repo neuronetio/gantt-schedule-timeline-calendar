@@ -287,7 +287,7 @@ export declare type ChartTimeDates = ChartTimeDate[];
 export declare type ChartTimeOnLevelDatesArg = {
     dates: DataChartTimeLevel;
     time: DataChartTime;
-    format: ChartCalendarFormat;
+    format: ChartCalendarLevelFormat;
     level: ChartCalendarLevel;
     levelIndex: number;
 };
@@ -295,7 +295,7 @@ export declare type ChartTimeOnLevelDates = (arg: ChartTimeOnLevelDatesArg) => D
 export declare type ChartTimeOnDateArg = {
     date: ChartTimeDate;
     time: DataChartTime;
-    format: ChartCalendarFormat;
+    format: ChartCalendarLevelFormat;
     level: ChartCalendarLevel;
     levelIndex: number;
 };
@@ -314,7 +314,7 @@ export interface ChartTime {
     readonly centerGlobalDate?: Dayjs;
     rightGlobal?: number;
     readonly rightGlobalDate?: Dayjs;
-    format?: ChartCalendarFormat;
+    format?: ChartCalendarLevelFormat;
     levels?: ChartTimeDates[];
     additionalSpaces?: ChartCalendarAdditionalSpaces;
     calculatedZoomMode?: boolean;
@@ -370,7 +370,7 @@ export interface DataChartTime extends ChartTime {
     width?: number;
     scrollWidth?: number;
     zoom: number;
-    format: ChartCalendarFormat;
+    format: ChartCalendarLevelFormat;
     level: number;
     levels: DataChartTimeLevel[];
     additionalSpaces?: ChartCalendarAdditionalSpaces;
@@ -390,7 +390,7 @@ export interface ChartCalendarFormatArguments {
 }
 export declare type PeriodString = 'year' | 'month' | 'week' | 'day' | 'hour' | 'minute' | 'second' | 'millisecond';
 export declare type Period = PeriodString | OpUnitType;
-export interface ChartCalendarFormat {
+export interface ChartCalendarLevelFormat {
     zoomTo: number;
     period: Period;
     periodIncrement: number;
@@ -411,14 +411,7 @@ export interface ChartCalendarAdditionalSpaces {
     month?: ChartCalendarAdditionalSpace;
     year?: ChartCalendarAdditionalSpace;
 }
-export interface ChartCalendarLevel {
-    formats?: ChartCalendarFormat[];
-    doNotUseCache?: boolean;
-}
-export interface ChartCalendar {
-    levels?: ChartCalendarLevel[];
-    expand?: boolean;
-}
+export declare type ChartCalendarLevel = ChartCalendarLevelFormat[];
 export interface ChartGridCell {
     onCreate: ((cell: any) => unknown)[];
 }
@@ -442,7 +435,7 @@ export interface DefaultItem {
 }
 export interface Chart {
     time?: ChartTime;
-    calendar?: ChartCalendar;
+    calendarLevels?: ChartCalendarLevel[];
     grid?: ChartGrid;
     items?: Items;
     item?: DefaultItem;

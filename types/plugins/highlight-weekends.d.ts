@@ -4,4 +4,4 @@ export interface Options {
     className?: string;
 }
 export declare function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
-//# sourceMappingURL=highlight-weekends.plugin.d.ts.map
+//# sourceMappingURL=highlight-weekends.d.ts.map

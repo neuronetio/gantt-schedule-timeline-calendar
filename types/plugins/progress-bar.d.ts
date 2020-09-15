@@ -5,4 +5,4 @@ export interface Options {
     className?: string;
 }
 export declare function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
-//# sourceMappingURL=progress-bar.plugin.d.ts.map
+//# sourceMappingURL=progress-bar.d.ts.map

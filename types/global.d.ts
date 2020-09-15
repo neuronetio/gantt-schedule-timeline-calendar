@@ -1,6 +1,6 @@
 declare module "api/time" {
     import dayjs, { Dayjs } from 'dayjs';
-    import { DataChartTime, DataChartTimeLevelDate, ChartTimeDate, ScrollTypeHorizontal, Period, ChartCalendarLevel, ChartCalendarFormat } from "gstc";
+    import { DataChartTime, DataChartTimeLevelDate, ChartTimeDate, ScrollTypeHorizontal, Period, ChartCalendarLevel, ChartCalendarLevelFormat } from "gstc";
     import DeepState from 'deep-state-observer';
     import { Api } from "api/api";
     export interface CurrentDate {
@@ -31,8 +31,8 @@ declare module "api/time" {
         findDateAtTime(milliseconds: number, allPeriodDates: ChartTimeDate[]): ChartTimeDate | undefined;
         getTimeFromViewOffsetPx(offsetPx: number, time?: DataChartTime, snapToStartOf?: boolean): number;
         calculateScrollPosPxFromTime(milliseconds: number, time: DataChartTime | undefined, scroll: ScrollTypeHorizontal | undefined): number;
-        getCurrentFormatForLevel(level: ChartCalendarLevel, time: DataChartTime): ChartCalendarFormat;
-        generatePeriodDates({ leftDate, rightDate, period, level, levelIndex, time, callOnDate, callOnLevelDates }: {
+        getCurrentFormatForLevel(level: ChartCalendarLevel, time: DataChartTime): ChartCalendarLevelFormat;
+        generatePeriodDates({ leftDate, rightDate, period, level, levelIndex, time, callOnDate, callOnLevelDates, }: {
             leftDate: Dayjs;
             rightDate: Dayjs;
             period: Period;
@@ -100,7 +100,7 @@ declare module "api/api" {
         x: number;
         y: number;
         z: number;
-        event: MouseWheelEvent;
+        event: WheelEvent;
     }
     export interface IconsCache {
         [key: string]: string;
@@ -160,7 +160,7 @@ declare module "api/api" {
         getVisibleRows(rowsWithParentsExpanded: string[]): string[];
         private getSortableValue;
         sortRowsByColumn(column: ColumnData, asc?: boolean): void;
-        normalizeMouseWheelEvent(event: MouseWheelEvent): WheelResult;
+        normalizeMouseWheelEvent(event: WheelEvent): WheelResult;
         scrollToTime(toTime: number, centered?: boolean, time?: DataChartTime): number;
         setScrollLeft(dataIndex: number | undefined, time?: DataChartTime, multi?: any, recalculateTimesLastReason?: string): any;
         getScrollLeft(): ScrollTypeHorizontal;
@@ -467,7 +467,7 @@ declare module "gstc" {
     export type ChartTimeOnLevelDatesArg = {
         dates: DataChartTimeLevel;
         time: DataChartTime;
-        format: ChartCalendarFormat;
+        format: ChartCalendarLevelFormat;
         level: ChartCalendarLevel;
         levelIndex: number;
     };
@@ -475,7 +475,7 @@ declare module "gstc" {
     export type ChartTimeOnDateArg = {
         date: ChartTimeDate;
         time: DataChartTime;
-        format: ChartCalendarFormat;
+        format: ChartCalendarLevelFormat;
         level: ChartCalendarLevel;
         levelIndex: number;
     };
@@ -494,7 +494,7 @@ declare module "gstc" {
         readonly centerGlobalDate?: Dayjs;
         rightGlobal?: number;
         readonly rightGlobalDate?: Dayjs;
-        format?: ChartCalendarFormat;
+        format?: ChartCalendarLevelFormat;
         levels?: ChartTimeDates[];
         additionalSpaces?: ChartCalendarAdditionalSpaces;
         calculatedZoomMode?: boolean;
@@ -550,7 +550,7 @@ declare module "gstc" {
         width?: number;
         scrollWidth?: number;
         zoom: number;
-        format: ChartCalendarFormat;
+        format: ChartCalendarLevelFormat;
         level: number;
         levels: DataChartTimeLevel[];
         additionalSpaces?: ChartCalendarAdditionalSpaces;
@@ -570,7 +570,7 @@ declare module "gstc" {
     }
     export type PeriodString = 'year' | 'month' | 'week' | 'day' | 'hour' | 'minute' | 'second' | 'millisecond';
     export type Period = PeriodString | OpUnitType;
-    export interface ChartCalendarFormat {
+    export interface ChartCalendarLevelFormat {
         zoomTo: number;
         period: Period;
         periodIncrement: number;
@@ -591,14 +591,7 @@ declare module "gstc" {
         month?: ChartCalendarAdditionalSpace;
         year?: ChartCalendarAdditionalSpace;
     }
-    export interface ChartCalendarLevel {
-        formats?: ChartCalendarFormat[];
-        doNotUseCache?: boolean;
-    }
-    export interface ChartCalendar {
-        levels?: ChartCalendarLevel[];
-        expand?: boolean;
-    }
+    export type ChartCalendarLevel = ChartCalendarLevelFormat[];
     export interface ChartGridCell {
         onCreate: ((cell: any) => unknown)[];
     }
@@ -622,7 +615,7 @@ declare module "gstc" {
     }
     export interface Chart {
         time?: ChartTime;
-        calendar?: ChartCalendar;
+        calendarLevels?: ChartCalendarLevel[];
         grid?: ChartGrid;
         items?: Items;
         item?: DefaultItem;
@@ -902,7 +895,7 @@ declare module "default-config" {
     function defaultConfig(): Config;
     export default defaultConfig;
 }
-declare module "plugins/calendar-scroll.plugin" {
+declare module "plugins/calendar-scroll" {
     export interface Point {
         x: number;
         y: number;
@@ -913,7 +906,7 @@ declare module "plugins/calendar-scroll.plugin" {
     }
     export function Plugin(options?: Options): (vidoInstance: any) => () => void;
 }
-declare module "plugins/highlight-weekends.plugin" {
+declare module "plugins/highlight-weekends" {
     import { Vido } from "gstc";
     export interface Options {
         weekdays?: number[];
@@ -921,7 +914,7 @@ declare module "plugins/highlight-weekends.plugin" {
     }
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
-declare module "plugins/timeline-pointer.plugin" {
+declare module "plugins/timeline-pointer" {
     import { Vido } from "gstc";
     export const CELL = "chart-timeline-grid-row-cell";
     export type CELL_TYPE = 'chart-timeline-grid-row-cell';
@@ -965,10 +958,10 @@ declare module "plugins/timeline-pointer.plugin" {
     }
     export function Plugin(options: Options): (vidoInstance: Vido) => () => void;
 }
-declare module "plugins/item-movement.plugin" {
+declare module "plugins/item-movement" {
     import { Vido, Item, DataChartTime, DataItems } from "gstc";
     import DeepState from 'deep-state-observer';
-    import { Point } from "plugins/timeline-pointer.plugin";
+    import { Point } from "plugins/timeline-pointer";
     import { Dayjs } from 'dayjs';
     export interface SnapArg {
         item: Item;
@@ -1037,10 +1030,10 @@ declare module "plugins/item-movement.plugin" {
     }
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
-declare module "plugins/item-resizing.plugin" {
+declare module "plugins/item-resizing" {
     import { Vido, htmlResult, Item, DataChartTime, DataItems } from "gstc";
     import DeepState from 'deep-state-observer';
-    import { Point } from "plugins/timeline-pointer.plugin";
+    import { Point } from "plugins/timeline-pointer";
     import { Dayjs } from 'dayjs';
     export interface Handle {
         width?: number;
@@ -1117,8 +1110,17 @@ declare module "plugins/item-resizing.plugin" {
     }
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
-declare module "plugins/selection.plugin" {
-    import { ITEM, ITEM_TYPE, CELL, CELL_TYPE, Point, PointerState } from "plugins/timeline-pointer.plugin";
+declare module "plugins/progress-bar" {
+    import { Vido } from "gstc";
+    export const pluginPath = "config.plugin.ProgressBar";
+    export interface Options {
+        enabled?: boolean;
+        className?: string;
+    }
+    export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
+}
+declare module "plugins/selection" {
+    import { ITEM, ITEM_TYPE, CELL, CELL_TYPE, Point, PointerState } from "plugins/timeline-pointer";
     import { Item, GridCell, Vido } from "gstc";
     export type ModKey = 'shift' | 'ctrl' | 'alt' | '';
     export interface SelectionItems {
@@ -1187,33 +1189,5 @@ declare module "plugins/selection.plugin" {
         targetData: any;
     }
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
-}
-declare module "plugins/progress-bar.plugin" {
-    import { Vido } from "gstc";
-    export const pluginPath = "config.plugin.ProgressBar";
-    export interface Options {
-        enabled?: boolean;
-        className?: string;
-    }
-    export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
-}
-declare module "plugins/plugins" {
-    import * as TimelinePointer from "plugins/timeline-pointer.plugin";
-    import * as ItemMovement from "plugins/item-movement.plugin";
-    import * as ItemResizing from "plugins/item-resizing.plugin";
-    import * as Selection from "plugins/selection.plugin";
-    import * as CalendarScroll from "plugins/calendar-scroll.plugin";
-    import * as HighlightWeekends from "plugins/highlight-weekends.plugin";
-    import * as ProgressBar from "plugins/progress-bar.plugin";
-    const _default: {
-        TimelinePointer: typeof TimelinePointer;
-        ItemMovement: typeof ItemMovement;
-        ItemResizing: typeof ItemResizing;
-        Selection: typeof Selection;
-        CalendarScroll: typeof CalendarScroll;
-        HighlightWeekends: typeof HighlightWeekends;
-        ProgressBar: typeof ProgressBar;
-    };
-    export default _default;
 }
 //# sourceMappingURL=global.d.ts.map

@@ -29,7 +29,7 @@ export interface WheelResult {
     x: number;
     y: number;
     z: number;
-    event: MouseWheelEvent;
+    event: WheelEvent;
 }
 export interface IconsCache {
     [key: string]: string;
@@ -89,7 +89,7 @@ export declare class Api {
     getVisibleRows(rowsWithParentsExpanded: string[]): string[];
     private getSortableValue;
     sortRowsByColumn(column: ColumnData, asc?: boolean): void;
-    normalizeMouseWheelEvent(event: MouseWheelEvent): WheelResult;
+    normalizeMouseWheelEvent(event: WheelEvent): WheelResult;
     scrollToTime(toTime: number, centered?: boolean, time?: DataChartTime): number;
     setScrollLeft(dataIndex: number | undefined, time?: DataChartTime, multi?: any, recalculateTimesLastReason?: string): any;
     getScrollLeft(): ScrollTypeHorizontal;

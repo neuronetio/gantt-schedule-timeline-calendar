@@ -1,16 +1,7 @@
-import { Vido, htmlResult, Item, DataChartTime, DataItems } from '../gstc';
+import { Vido, Item, DataChartTime, DataItems } from '../gstc';
 import DeepState from 'deep-state-observer';
-import { Point } from './timeline-pointer.plugin';
+import { Point } from './timeline-pointer';
 import { Dayjs } from 'dayjs';
-export interface Handle {
-    width?: number;
-    outsideWidth?: number;
-    horizontalMargin?: number;
-    outsideHorizontalMargin?: number;
-    verticalMargin?: number;
-    outside?: boolean;
-    onlyWhenSelected?: boolean;
-}
 export interface SnapArg {
     item: Item;
     time: DataChartTime;
@@ -24,12 +15,12 @@ export interface SnapEndArg extends SnapArg {
     endTime: Dayjs;
 }
 export interface Movement {
-    px: number;
+    x: number;
+    y: number;
     time: number;
 }
 export interface SnapToTime {
     start?: (snapStartArgs: SnapStartArg) => Dayjs;
-    end?: (snapEndArgs: SnapEndArg) => Dayjs;
 }
 export interface BeforeAfterInitialItems {
     initial: Item[];
@@ -45,26 +36,26 @@ export interface OnArg {
 }
 export interface Events {
     onStart?: (onArg: OnArg) => Item[];
-    onResize?: (onArg: OnArg) => Item[];
+    onMove?: (onArg: OnArg) => Item[];
     onEnd?: (onArg: OnArg) => Item[];
+}
+export interface Threshold {
+    horizontal?: number;
+    vertical?: number;
 }
 export interface Options {
     enabled?: boolean;
     dependant?: boolean;
     debug?: boolean;
-    handle?: Handle;
-    content?: htmlResult;
     bodyClass?: string;
-    bodyClassLeft?: string;
-    bodyClassRight?: string;
+    itemClass?: string;
     events?: Events;
     snapToTime?: SnapToTime;
-    outsideWidthThreshold?: number;
+    threshold?: Threshold;
 }
-export declare type State = 'start' | 'resize' | 'end' | '';
+export declare type State = 'start' | 'move' | 'end' | '';
 export interface PluginData extends Options {
-    leftIsMoving: boolean;
-    rightIsMoving: boolean;
+    isMoving: boolean;
     initialItems: Item[];
     initialDependant: Item[];
     initialItemsData: DataItems;
@@ -74,6 +65,7 @@ export interface PluginData extends Options {
     targetData: Item | null;
     state: State;
     movement: Movement;
+    triggerDown: boolean | PointerEvent;
 }
 export declare function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
-//# sourceMappingURL=item-resizing.plugin.d.ts.map
+//# sourceMappingURL=item-movement.d.ts.map
