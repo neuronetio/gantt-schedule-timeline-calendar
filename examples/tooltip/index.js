@@ -84,10 +84,19 @@ function fromArray(array) {
   return resultObj;
 }
 
+// Item slot
 function itemSlot(vido, props) {
-  const { onChange, update, html, api } = vido;
+  const { onChange, update, html, api, directive } = vido;
 
-  let itemData, startDate, endDate, tooltipContent, tippyInstance;
+  // Get element and initialize tippy instance
+  let element, tippyInstance;
+  const getElement = directive(() => (part) => {
+    element = part.committer.element;
+    // @ts-ignore
+    if (!tippyInstance) tippyInstance = tippy(element);
+  });
+
+  let itemData, startDate, endDate, tooltipContent;
   onChange((newProps) => {
     props = newProps;
     if (!props) return;
@@ -97,14 +106,17 @@ function itemSlot(vido, props) {
     tooltipContent = `${props.item.label} from ${startDate.format(
       'YYYY-MM-DD'
     )} to ${endDate.format('YYYY-MM-DD')}`;
-    update((args) => {
-      console.log('args?', args);
+
+    // render the view and after that set tippy content
+    update(() => {
+      tippyInstance.setContent(tooltipContent);
     });
   });
 
   return (content) =>
     html`<div
-      data-tippy-content="${tooltipContent}"
+      directive=${getElement()}
+      class="my-item"
       style="width:100%;display:flex;"
     >
       ${content}

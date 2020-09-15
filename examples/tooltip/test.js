@@ -8,9 +8,6 @@ describe('Basic', () => {
   });
 
   fit('should display slots', async () => {
-    await expect(page).toMatchElement('.my-items-slot', {
-      text: 'My items slot!',
-    });
-    await expect(page).toMatchElement('.my-date-slot');
+    await expect(page).toMatchElement('.my-item');
   });
 });
