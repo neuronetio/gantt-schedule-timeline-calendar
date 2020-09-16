@@ -50,7 +50,7 @@ class ItemImage {
   }
 
   /**
-   * This is a slot that will add image to item conent
+   * This is a slot that will add image to item content
    */
   itemSlot(vido, props) {
     const { html, onChange, update } = vido;
