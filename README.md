@@ -19,7 +19,7 @@
 <br>
 
 <br />
-<h3 align="center">Remember to leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a></h3>
+<h3 align="center">And always remember, to leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a></h3>
 <br />
 
 <h2 align="center">FEATURES</h2>
