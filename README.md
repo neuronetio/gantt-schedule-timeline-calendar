@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://neuronet.io/screenshots/gstc9-flat-bgw-300.png" alt="logo">
+  <img src="https://neuronet.io/screenshots/mainapp.jpg" alt="gstc-logo">
 </p>
 <hr />
 <h1 align="center">gantt-schedule-timeline-calendar</h1>
@@ -15,10 +15,6 @@
 </p>
 
 <h3>gantt-schedule-timeline-calendar is all-in-one component that you can use in different scenarios.</h3>
-
-<p align="center">
-  <img src="https://neuronet.io/screenshots/appscrn.png?uniq=1" alt="gstc-logo">
-</p>
 
 ## FEATURES
 
@@ -70,9 +66,13 @@ To run examples on your machine just clone this repository and type `npm run exa
 ## SCREENSHOTS
 
 <p align="center">
-  <img src="https://neuronet.io/screenshots/scheduler.gif" alt="screencast-1">
+  <img src="https://neuronet.io/screenshots/select-cells.gif" alt="screencast-1">
   <br />
-  <img src="https://neuronet.io/screenshots/gantt.gif" alt="screencast-2">
+  <img src="https://neuronet.io/screenshots/linked-items-2.gif" alt="screencast-2">
+  <br />
+  <img src="https://neuronet.io/screenshots/select-items.gif" alt="screencast-2">
+  <br />
+  <img src="https://neuronet.io/screenshots/linked-items.gif" alt="screencast-2">
 </p>
 <hr />
 
