@@ -1,11 +1,15 @@
-<p align="center">
-  <img src="https://neuronet.io/screenshots/mainapp.jpg" alt="gstc-logo">
-</p>
-<hr />
 <h1 align="center">gantt-schedule-timeline-calendar</h1>
 
 <h2 align="center">Gantt, schedule, timeline and calendar components all in one!</h2>
+<hr/>
 
+<p align="center">
+  <img src="https://neuronet.io/screenshots/mainapp.jpg" alt="gstc-logo">
+</p>
+
+<h3>gantt-schedule-timeline-calendar is all-in-one component that you can use in different scenarios.</h3>
+
+<br>
 <p align="center">
   <img src="https://snyk.io/test/github/neuronetio/gantt-schedule-timeline-calendar/badge.svg">
   <img src="https://img.badgesize.io/neuronetio/gantt-schedule-timeline-calendar/master/dist/gstc.esm.min.js?compression=gzip">
@@ -13,8 +17,7 @@
   <img src="https://badge.fury.io/js/gantt-schedule-timeline-calendar.svg">
   <a href="https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fneuronetio%2Fgantt-schedule-timeline-calendar"><img alt="Twitter" src="https://img.shields.io/twitter/url/https/github.com/neuronetio/gantt-schedule-timeline-calendar?style=social"></a>
 </p>
-
-<h3>gantt-schedule-timeline-calendar is all-in-one component that you can use in different scenarios.</h3>
+<br>
 
 ## FEATURES
 
