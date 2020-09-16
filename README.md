@@ -1,7 +1,6 @@
 <h1 align="center">gantt-schedule-timeline-calendar</h1>
 
 <h2 align="center">Gantt, schedule, timeline and calendar components all in one!</h2>
-<hr/>
 
 <p align="center">
   <img src="https://neuronet.io/screenshots/mainapp.jpg" alt="gstc-logo">
