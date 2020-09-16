@@ -3,7 +3,7 @@
 <h2 align="center">Gantt, schedule, timeline and calendar components all in one!</h2>
 
 <p align="center">
-  <img src="https://neuronet.io/screenshots/mainapp.jpg" alt="gstc-logo">
+  <img src="https://neuronet.io/screenshots/mainapp.jpg" alt="gantt-schedule-timeline-calendar">
 </p>
 
 <h3>gantt-schedule-timeline-calendar is all-in-one component that you can use in different scenarios.</h3>
@@ -72,13 +72,13 @@ To run examples on your machine just clone this repository and type `npm run exa
 <h2 align="center">SCREENSHOTS</h2>
 
 <p align="center">
-  <img src="https://neuronet.io/screenshots/select-cells.gif" alt="screencast-1">
+  <img src="https://neuronet.io/screenshots/select-cells.gif" alt="gantt-schedule-timeline-calendar select cells">
   <br />
-  <img src="https://neuronet.io/screenshots/linked-items-2.gif" alt="screencast-2">
+  <img src="https://neuronet.io/screenshots/linked-items-2.gif" alt="gantt-schedule-timeline-calendar linked items">
   <br />
-  <img src="https://neuronet.io/screenshots/select-items.gif" alt="screencast-2">
+  <img src="https://neuronet.io/screenshots/select-items.gif" alt="gantt-schedule-timeline-calendar select items">
   <br />
-  <img src="https://neuronet.io/screenshots/linked-items.gif" alt="screencast-2">
+  <img src="https://neuronet.io/screenshots/linked-items.gif" alt="gantt-schedule-timeline-calendar linked-items 2">
 </p>
 <hr />
 
