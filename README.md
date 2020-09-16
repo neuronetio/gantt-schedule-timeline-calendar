@@ -19,6 +19,10 @@
 </p>
 <br>
 
+<br />
+<h3 align="center">Remember to leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a></h3>
+<br />
+
 ## FEATURES
 
 - elastic - you can change almost everything from DOM tree to logic (without any compilation, without modifying original code - with config, state or plugin)
@@ -78,10 +82,6 @@ To run examples on your machine just clone this repository and type `npm run exa
   <img src="https://neuronet.io/screenshots/linked-items.gif" alt="screencast-2">
 </p>
 <hr />
-
-<br />
-<h3 align="center">Remember to leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a></h3>
-<br />
 
 ## INSTALL
 
