@@ -22,6 +22,7 @@ export declare const publicApi: {
     wasmStateFromConfig: typeof wasmStateFromConfig;
     merge: typeof import("@neuronet.io/vido/src/helpers").mergeDeep;
     lithtml: typeof lithtml;
+    html: typeof lithtml;
     date(time: any): dayjs.Dayjs;
     setPeriod(period: Period): number;
     dayjs: typeof dayjs;

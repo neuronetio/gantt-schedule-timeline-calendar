@@ -93,6 +93,7 @@ declare module "api/api" {
         wasmStateFromConfig: typeof wasmStateFromConfig;
         merge: typeof import("@neuronet.io/vido/src/helpers").mergeDeep;
         lithtml: typeof lithtml;
+        html: typeof lithtml;
         date(time: any): dayjs.Dayjs;
         setPeriod(period: Period): number;
         dayjs: typeof dayjs;
@@ -182,7 +183,7 @@ declare module "gstc" {
     import 'pepjs';
     import { vido, lithtml, ComponentInstance } from "@neuronet.io/vido/src/vido";
     import { Api } from "api/api";
-    import dayjs, { Dayjs, OpUnitType } from 'dayjs';
+    import { Dayjs, OpUnitType } from 'dayjs';
     import { Properties as CSSProps } from 'csstype';
     import DeepState from 'deep-state-observer';
     export type Vido = vido<DeepState, Api>;
@@ -751,9 +752,10 @@ declare module "gstc" {
             wasmStateFromConfig: typeof import("api/api").wasmStateFromConfig;
             merge: typeof import("@neuronet.io/vido/src/helpers").mergeDeep;
             lithtml: typeof lithtml;
-            date(time: any): dayjs.Dayjs;
-            setPeriod(period: dayjs.OpUnitType): number;
-            dayjs: typeof dayjs;
+            html: typeof lithtml;
+            date(time: any): Dayjs;
+            setPeriod(period: OpUnitType): number;
+            dayjs: typeof import("dayjs");
         };
     }
     export default GSTC;
@@ -1177,6 +1179,31 @@ declare module "plugins/selection" {
         events: PointerEvents;
         targetType: ITEM_TYPE | CELL_TYPE | '';
         targetData: any;
+    }
+    export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
+}
+declare module "plugins/time-bookmarks" {
+    import { Vido } from "gstc";
+    import { Color } from 'csstype';
+    export const pluginPath = "config.plugin.TimeBookmarks";
+    export const slotPath = "config.slots.chart.content";
+    export interface Bookmark {
+        time: string | number;
+        label: string;
+        className?: string;
+        color?: Color;
+    }
+    export interface InternalBookmark extends Bookmark {
+        id: string;
+        leftViewPx: number;
+    }
+    export interface Bookmarks {
+        [key: string]: Bookmark;
+    }
+    export interface Options {
+        enabled?: boolean;
+        className?: string;
+        bookmarks?: Bookmarks;
     }
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
