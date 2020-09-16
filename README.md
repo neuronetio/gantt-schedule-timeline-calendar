@@ -22,7 +22,7 @@
 <h3 align="center">Remember to leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a></h3>
 <br />
 
-## FEATURES
+<h2 align="center">FEATURES</h2>
 
 - elastic - you can change almost everything from DOM tree to logic (without any compilation, without modifying original code - with config, state or plugin)
 - super fast! even with large dataset
@@ -56,20 +56,20 @@ You can use it as <strong>schedule</strong> for reservation system. You can use 
 You can control almost everything. You can change html structure, stylize every html element and even override original components without any compilation stage!
 </p>
 
-## EXAMPLES
+<h2 align="center">EXAMPLES</h2>
 
 [live demos](https://gantt-schedule-timeline-calendar.neuronet.io/examples) (soon)
 
 You can checkout [examples folder](https://github.com/neuronetio/gantt-schedule-timeline-calendar/tree/master/examples) too.
 To run examples on your machine just clone this repository and type `npm run examples`.
 
-## REACT, ANGULAR AND VUE VERSIONS
+<h2 align="center">REACT, ANGULAR AND VUE VERSIONS</h2>
 
 - [react-gantt-schedule-timeline-calendar](https://github.com/neuronetio/react-gantt-schedule-timeline-calendar)
 - [angular-gantt-schedule-timeline-calendar](https://github.com/neuronetio/angular-gantt-schedule-timeline-calendar)
 - [vue-gantt-schedule-timeline-calendar](https://github.com/neuronetio/vue-gantt-schedule-timeline-calendar)
 
-## SCREENSHOTS
+<h2 align="center">SCREENSHOTS</h2>
 
 <p align="center">
   <img src="https://neuronet.io/screenshots/select-cells.gif" alt="screencast-1">
@@ -82,7 +82,7 @@ To run examples on your machine just clone this repository and type `npm run exa
 </p>
 <hr />
 
-## INSTALL
+<h2 align="center">INSTALL</h2>
 
 `npm i gantt-schedule-timeline-calendar`
 
@@ -90,11 +90,11 @@ or
 
 `<script src="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar"></script>`
 
-## DOCUMENTATION
+<h2 align="center">DOCUMENTATION</h2>
 
 [Documentation can be found here](https://gantt-schedule-timeline-calendar.neuronet.io) [work in progress]
 
-## LICENSE
+<h2 align="center">LICENSE</h2>
 
 [NEURONET Free License](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
 
