@@ -5,19 +5,71 @@ import { Plugin as Selection } from '../plugins/selection.esm.min.js';
 import { Plugin as ItemMovement } from '../plugins/item-movement.esm.min.js';
 import { Plugin as ItemResizing } from '../plugins/item-resizing.esm.min.js';
 
-let canChangeRow = false;
+let canChangeRow = true;
+let canCollide = true;
 document
   .getElementById('can-change-row')
   .addEventListener('change', function (el) {
-    console.log('value', el.target.checked);
     canChangeRow = el.target.checked;
   });
+document
+  .getElementById('can-collide')
+  .addEventListener('change', function (el) {
+    canCollide = el.target.checked;
+  });
+
+function isCollision(item) {
+  const allItems = gstc.api.getAllItems();
+  for (const itemId in allItems) {
+    if (itemId === item.id) continue;
+    const currentItem = allItems[itemId];
+    if (currentItem.rowId === item.rowId) {
+      if (
+        item.time.start >= currentItem.time.start &&
+        item.time.start <= currentItem.time.end
+      )
+        return true;
+      if (
+        item.time.end >= currentItem.time.start &&
+        item.time.end <= currentItem.time.end
+      )
+        return true;
+      if (
+        item.time.start <= currentItem.time.start &&
+        item.time.end >= currentItem.time.end
+      )
+        return true;
+      if (
+        item.time.start >= currentItem.time.start &&
+        item.time.end <= currentItem.time.end
+      )
+        return true;
+    }
+  }
+  return false;
+}
 
 const movementPluginConfig = {
   events: {
     onMove({ items }) {
-      console.log(items);
-      return items.after;
+      // prevent items to change row
+      return items.before.map((beforeMovementItem, index) => {
+        const afterMovementItem = items.after[index];
+        const myItem = GSTC.api.merge({}, afterMovementItem);
+        if (!canChangeRow) {
+          myItem.rowId = beforeMovementItem.rowId;
+        }
+        if (!canCollide && isCollision(myItem)) {
+          myItem.time = { ...beforeMovementItem.time };
+          myItem.rowId = beforeMovementItem.rowId;
+        }
+        return myItem;
+      });
+    },
+  },
+  snapToTime: {
+    start({ startTime, time }) {
+      return startTime.startOf('day').add(12, 'hour');
     },
   },
 };
@@ -39,8 +91,12 @@ const itemsFromDB = [
     label: 'Item 1',
     rowId: '1',
     time: {
-      start: GSTC.api.date('2020-01-01').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-01-02').endOf('day').valueOf(),
+      start: GSTC.api
+        .date('2020-01-01')
+        .startOf('day')
+        .add(12, 'hour')
+        .valueOf(),
+      end: GSTC.api.date('2020-01-02').endOf('day').add(12, 'hour').valueOf(),
     },
   },
   {
@@ -48,8 +104,12 @@ const itemsFromDB = [
     label: 'Item 2',
     rowId: '1',
     time: {
-      start: GSTC.api.date('2020-02-01').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-02-02').endOf('day').valueOf(),
+      start: GSTC.api
+        .date('2020-02-01')
+        .startOf('day')
+        .add(12, 'hour')
+        .valueOf(),
+      end: GSTC.api.date('2020-02-02').endOf('day').add(12, 'hour').valueOf(),
     },
   },
   {
@@ -57,8 +117,12 @@ const itemsFromDB = [
     label: 'Item 3',
     rowId: '2',
     time: {
-      start: GSTC.api.date('2020-01-15').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-01-20').endOf('day').valueOf(),
+      start: GSTC.api
+        .date('2020-01-15')
+        .startOf('day')
+        .add(12, 'hour')
+        .valueOf(),
+      end: GSTC.api.date('2020-01-20').endOf('day').add(12, 'hour').valueOf(),
     },
   },
 ];
