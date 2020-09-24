@@ -2,7 +2,7 @@ const version = Number(process.version.split('.')[0].replace(/\D/gi, ''));
 
 if (version < 11) {
   console.error(
-    `You need at least nodejs version 11 or higher (your version: ${process.version}).`
+    `\n\nYou need at least nodejs version 11 or higher (your version: ${process.version}).\n\n`
   );
   process.exit();
 }
