@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf8" />
+    <title>GSTC Selection plugin example</title>
+    <link rel="stylesheet" href="../../dist/style.css" />
+    <!-- replace this path  -->
+    <link rel="stylesheet" href="../reset.css" />
+  </head>
+  <body>
+    <div class="toolbox">
+      <label><input type="checkbox" id="cells" checked /> Select cells</label>
+      <label><input type="checkbox" id="items" checked /> Select items</label>
+      <label
+        ><input type="checkbox" id="multiple" checked /> Multiple
+        selection</label
+      >
+      <label
+        ><input type="checkbox" id="overlay" checked /> Show selecting area
+        under the cursor</label
+      >
+    </div>
+    <div id="gstc"></div>
+    <script type="module" src="index.js"></script>
+    <style>
+      .toolbox {
+        padding: 10px;
+      }
+    </style>
+  </body>
+</html>
