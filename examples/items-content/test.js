@@ -7,7 +7,7 @@ describe('Basic', () => {
     await page.goto(`http://localhost:${port}/items-content/index.html`);
   });
 
-  fit('should display content inside items', async () => {
+  it('should display content inside items', async () => {
     await expect(page).toMatchElement('.my-item-content', {
       text: 'My HTML content here!',
     });

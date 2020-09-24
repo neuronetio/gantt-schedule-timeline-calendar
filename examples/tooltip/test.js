@@ -7,7 +7,7 @@ describe('Basic', () => {
     await page.goto(`http://localhost:${port}/tooltip/index.html`);
   });
 
-  fit('should display slots', async () => {
+  it('should display slots', async () => {
     await expect(page).toMatchElement('.my-item');
   });
 });

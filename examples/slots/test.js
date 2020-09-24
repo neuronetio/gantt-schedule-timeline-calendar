@@ -7,7 +7,7 @@ describe('Basic', () => {
     await page.goto(`http://localhost:${port}/slots/index.html`);
   });
 
-  fit('should display slots', async () => {
+  it('should display slots', async () => {
     await expect(page).toMatchElement('.my-items-slot', {
       text: 'My items slot!',
     });
