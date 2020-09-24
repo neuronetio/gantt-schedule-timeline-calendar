@@ -69,7 +69,7 @@
   "devDependencies": {
     "jest": "^26.4.2",
     "jest-puppeteer": "^4.4.0",
-    "polonez": "^1.1.0",
+    "polonez": "^1.1.1",
     "puppeteer": "^5.2.1",
     "serve-static": "^1.14.1",
     "tippy.js": "^6.2.6"
