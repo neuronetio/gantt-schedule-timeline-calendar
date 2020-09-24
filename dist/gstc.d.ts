@@ -122,7 +122,7 @@ export interface GridRows {
     [rowId: string]: GridRow;
 }
 export declare type VoidFunction = () => void;
-export declare type PluginInitialization = (vido: unknown) => void | VoidFunction;
+export declare type PluginInitialization = (vido: Vido) => void | VoidFunction;
 export declare type Plugin = <T>(options: T) => PluginInitialization;
 export declare type htmlResult = lithtml.TemplateResult | lithtml.TemplateResult[] | lithtml.SVGTemplateResult | lithtml.SVGTemplateResult[] | undefined | null;
 export declare type RenderFunction = (templateProps: unknown) => htmlResult;
@@ -475,7 +475,7 @@ export interface Locale {
 export interface Config {
     licenseKey: string;
     debug?: boolean;
-    plugins?: Plugin[];
+    plugins?: PluginInitialization[];
     plugin?: unknown;
     innerHeight?: number;
     headerHeight?: number;

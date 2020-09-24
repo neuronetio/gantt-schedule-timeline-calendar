@@ -304,7 +304,7 @@ declare module "gstc" {
         [rowId: string]: GridRow;
     }
     export type VoidFunction = () => void;
-    export type PluginInitialization = (vido: unknown) => void | VoidFunction;
+    export type PluginInitialization = (vido: Vido) => void | VoidFunction;
     export type Plugin = <T>(options: T) => PluginInitialization;
     export type htmlResult = lithtml.TemplateResult | lithtml.TemplateResult[] | lithtml.SVGTemplateResult | lithtml.SVGTemplateResult[] | undefined | null;
     export type RenderFunction = (templateProps: unknown) => htmlResult;
@@ -657,7 +657,7 @@ declare module "gstc" {
     export interface Config {
         licenseKey: string;
         debug?: boolean;
-        plugins?: Plugin[];
+        plugins?: PluginInitialization[];
         plugin?: unknown;
         innerHeight?: number;
         headerHeight?: number;
