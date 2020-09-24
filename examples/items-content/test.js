@@ -4,7 +4,9 @@ const port = process.env.PORT || 8080;
 
 describe('Basic', () => {
   beforeAll(async () => {
-    await page.goto(`http://localhost:${port}/items-content/index.html`);
+    await page.goto(
+      `http://localhost:${port}/examples/items-content/index.html`
+    );
   });
 
   it('should display content inside items', async () => {

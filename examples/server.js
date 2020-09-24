@@ -3,8 +3,7 @@ const Polonez = require('polonez');
 const ServeStatic = require('serve-static');
 
 const polonez = Polonez();
-polonez.use(ServeStatic(path.resolve('./examples')));
-polonez.use(ServeStatic(path.resolve('./dist')));
+polonez.use(ServeStatic(path.resolve('./')));
 
 let port = 8080;
 if (process.argv.length > 2) {
@@ -14,4 +13,4 @@ if (process.env.PORT) {
   port = Number(process.env.PORT);
 }
 polonez.listen(port);
-console.log(`Visit: http://localhost:${port}/index.html`); // eslint-disable-line no-console
+console.log(`Visit: http://localhost:${port}/examples/index.html`); // eslint-disable-line no-console

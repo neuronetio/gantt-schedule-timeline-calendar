@@ -4,7 +4,7 @@ const port = process.env.PORT || 8080;
 
 describe('Basic', () => {
   beforeAll(async () => {
-    await page.goto(`http://localhost:${port}/slots/index.html`);
+    await page.goto(`http://localhost:${port}/examples/slots/index.html`);
   });
 
   it('should display slots', async () => {

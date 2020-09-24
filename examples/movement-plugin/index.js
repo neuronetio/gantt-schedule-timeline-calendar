@@ -1,8 +1,8 @@
-import GSTC from '../gstc.esm.min.js';
-import { Plugin as TimelinePointer } from '../plugins/timeline-pointer.esm.min.js';
-import { Plugin as Selection } from '../plugins/selection.esm.min.js';
-import { Plugin as ItemMovement } from '../plugins/item-movement.esm.min.js';
-import { Plugin as ItemResizing } from '../plugins/item-resizing.esm.min.js';
+import GSTC from '../../dist/gstc.esm.min.js';
+import { Plugin as TimelinePointer } from '../../dist/plugins/timeline-pointer.esm.min.js';
+import { Plugin as Selection } from '../../dist/plugins/selection.esm.min.js';
+import { Plugin as ItemMovement } from '../../dist/plugins/item-movement.esm.min.js';
+import { Plugin as ItemResizing } from '../../dist/plugins/item-resizing.esm.min.js';
 
 let canChangeRow = true;
 let canCollide = true;

@@ -1,5 +1,4 @@
-// @ts-ignore
-import GSTC from '../gstc.esm.min.js';
+import GSTC from '../../dist/gstc.esm.min.js';
 import { Plugin as ItemImage } from './item-image.js';
 
 const rowsFromDB = [

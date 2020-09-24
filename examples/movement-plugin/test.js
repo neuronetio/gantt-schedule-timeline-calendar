@@ -4,7 +4,9 @@ const port = process.env.PORT || 8080;
 
 describe('Basic', () => {
   beforeAll(async () => {
-    await page.goto(`http://localhost:${port}/movement-plugin/index.html`);
+    await page.goto(
+      `http://localhost:${port}/examples/movement-plugin/index.html`
+    );
   });
 
   it('should display content inside grid cells', async () => {

@@ -1,12 +1,12 @@
-import GSTC from '../gstc.esm.min.js';
-import { Plugin as TimelinePointer } from '../plugins/timeline-pointer.esm.min.js';
-import { Plugin as Selection } from '../plugins/selection.esm.min.js';
-import { Plugin as ItemMovement } from '../plugins/item-movement.esm.min.js';
-import { Plugin as ItemResizing } from '../plugins/item-resizing.esm.min.js';
-import { Plugin as CalendarScroll } from '../plugins/calendar-scroll.esm.min.js';
-import { Plugin as HighlightWeekends } from '../plugins/highlight-weekends.esm.min.js';
-import { Plugin as ProgressBar } from '../plugins/progress-bar.esm.min.js';
-import { Plugin as TimeBookmarks } from '../plugins/time-bookmarks.esm.min.js';
+import GSTC from '../../dist/gstc.esm.min.js';
+import { Plugin as TimelinePointer } from '../../dist/plugins/timeline-pointer.esm.min.js';
+import { Plugin as Selection } from '../../dist/plugins/selection.esm.min.js';
+import { Plugin as ItemMovement } from '../../dist/plugins/item-movement.esm.min.js';
+import { Plugin as ItemResizing } from '../../dist/plugins/item-resizing.esm.min.js';
+import { Plugin as CalendarScroll } from '../../dist/plugins/calendar-scroll.esm.min.js';
+import { Plugin as HighlightWeekends } from '../../dist/plugins/highlight-weekends.esm.min.js';
+import { Plugin as ProgressBar } from '../../dist/plugins/progress-bar.esm.min.js';
+import { Plugin as TimeBookmarks } from '../../dist/plugins/time-bookmarks.esm.min.js';
 
 const iterations = 100;
 const GSTCID = GSTC.api.GSTCID;

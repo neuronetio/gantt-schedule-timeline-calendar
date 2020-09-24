@@ -4,7 +4,7 @@ const port = process.env.PORT || 8080;
 
 describe('Basic', () => {
   beforeAll(async () => {
-    await page.goto(`http://localhost:${port}/complex-1/index.html`);
+    await page.goto(`http://localhost:${port}/examples/complex-1/index.html`);
   });
 
   it('should display images inside items', async () => {
