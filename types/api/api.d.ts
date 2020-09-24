@@ -4,7 +4,7 @@ import DeepState from 'deep-state-observer';
 import dayjs from 'dayjs';
 import { Config, Period, DataChartTime, ScrollTypeHorizontal, Row, Item, Vido, Items, ScrollTypeVertical, Rows, GridCell, GridRow, DataItems, ItemData, ItemDataUpdate, ColumnData } from '../gstc';
 import { generateSlots } from './slots';
-import { lithtml } from '@neuronet.io/vido/src/vido';
+import { lithtml } from '@neuronet.io/vido';
 export declare function getClass(name: string, appendix?: string): string;
 export declare function getId(name: string, id: string): string;
 export declare function prepareState(userConfig: Config): {
@@ -20,7 +20,7 @@ export declare const publicApi: {
     fromArray(array: any): {};
     stateFromConfig: typeof stateFromConfig;
     wasmStateFromConfig: typeof wasmStateFromConfig;
-    merge: typeof import("@neuronet.io/vido/src/helpers").mergeDeep;
+    merge: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
     lithtml: typeof lithtml;
     html: typeof lithtml;
     date(time: any): dayjs.Dayjs;
@@ -50,7 +50,7 @@ export declare class Api {
     setVido(Vido: Vido): void;
     log(...args: any[]): void;
     generateSlots: typeof generateSlots;
-    mergeDeep: typeof import("@neuronet.io/vido/src/helpers").mergeDeep;
+    mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
     getClass: typeof getClass;
     getId: typeof getId;
     GSTCID: any;

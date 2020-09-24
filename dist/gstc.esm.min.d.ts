@@ -1,5 +1,5 @@
 import 'pepjs';
-import { vido, lithtml, ComponentInstance } from '@neuronet.io/vido/src/vido';
+import { vido, lithtml, ComponentInstance } from '@neuronet.io/vido';
 import { Api } from './api/api';
 import { Dayjs, OpUnitType } from 'dayjs';
 import { Properties as CSSProps } from 'csstype';
@@ -27,12 +27,13 @@ export interface Row {
     $data?: RowData;
     gap?: RowGap;
     style?: CSSProps;
-    classNames?: string[] | (({ row: Row, vido: Vido }: {
-        row: any;
-        vido: any;
-    }) => string[]);
+    classNames?: string[] | classNamesFn;
     [key: string]: any;
 }
+export declare type classNamesFn = ({ row, vido }: {
+    row: Row;
+    vido: Vido;
+}) => string[];
 export interface Rows {
     [id: string]: Row;
 }
@@ -75,9 +76,9 @@ export interface ItemDataUpdate {
     linkedWith?: string[];
     dependant?: string[];
 }
-export declare type ItemLabelFunction = ({ item: Item, vido: Vido }: {
-    item: any;
-    vido: any;
+export declare type ItemLabelFunction = ({ item, vido }: {
+    item: Item;
+    vido: Vido;
 }) => lithtml.TemplateResult | string;
 export interface Item {
     id: string;
@@ -89,9 +90,9 @@ export interface Item {
     gap?: ItemGap;
     minWidth?: number;
     style?: CSSProps;
-    classNames?: string[] | (({ item: Item, vido: Vido }: {
-        item: any;
-        vido: any;
+    classNames?: string[] | (({ item, vido }: {
+        item: Item;
+        vido: Vido;
     }) => string[]);
     isHTML?: boolean;
     linkedWith?: string[];
@@ -143,21 +144,21 @@ export interface ColumnResizer {
     inRealTime?: boolean;
     dots?: number;
 }
-export declare type ColumnDataFunction = ({ row: Row, vido: Vido }: {
-    row: any;
-    vido: any;
+export declare type ColumnDataFunction = ({ row, vido }: {
+    row: Row;
+    vido: Vido;
 }) => string | number;
-export declare type ColumnDataFunctionString = ({ row: Row, vido: Vido }: {
-    row: any;
-    vido: any;
+export declare type ColumnDataFunctionString = ({ row, vido }: {
+    row: Row;
+    vido: Vido;
 }) => string;
-export declare type ColumnDataFunctionTemplate = ({ row: Row, vido: Vido }: {
-    row: any;
-    vido: any;
+export declare type ColumnDataFunctionTemplate = ({ row, vido }: {
+    row: Row;
+    vido: Vido;
 }) => htmlResult;
-export declare type ColumnDataHeaderContent = string | (({ column: ColumnData, vido: Vido }: {
-    column: any;
-    vido: any;
+export declare type ColumnDataHeaderContent = string | (({ column, vido }: {
+    column: ColumnData;
+    vido: Vido;
 }) => htmlResult);
 export interface ColumnDataHeader {
     html?: htmlResult;
@@ -336,16 +337,16 @@ export declare type DataChartTimeLevel = DataChartTimeLevelDate[];
 export interface DataChartTime extends ChartTime {
     period: Period;
     leftGlobal: number;
-    leftGlobalDate: Dayjs;
+    leftGlobalDate: Dayjs | undefined;
     centerGlobal: number;
-    centerGlobalDate: Dayjs;
+    centerGlobalDate: Dayjs | undefined;
     rightGlobal: number;
-    rightGlobalDate: Dayjs;
+    rightGlobalDate: Dayjs | undefined;
     timePerPixel: number;
     from: number;
-    fromDate: Dayjs;
+    fromDate: Dayjs | undefined;
     to: number;
-    toDate: Dayjs;
+    toDate: Dayjs | undefined;
     totalViewDurationMs: number;
     totalViewDurationPx: number;
     leftInner: number;
@@ -399,8 +400,9 @@ export declare type ChartCalendarLevel = ChartCalendarLevelFormat[];
 export interface GridCellOnCreateArgument extends GridCell {
     vido: Vido;
 }
+export declare type GridCellOnCreate = (cell: GridCellOnCreateArgument) => string | htmlResult;
 export interface ChartGridCell {
-    onCreate: ((cell: GridCellOnCreateArgument) => string | htmlResult)[];
+    onCreate: GridCellOnCreate[];
 }
 export interface ChartGrid {
     cell?: ChartGridCell;
@@ -436,41 +438,38 @@ export declare type Action = (element: HTMLElement, data: unknown) => ActionFunc
 export declare type Actions = {
     [name in SlotName]?: Action[];
 };
-export interface LocaleRelativeTime {
-    future?: string;
-    past?: string;
-    s?: string;
-    m?: string;
-    mm?: string;
-    h?: string;
-    hh?: string;
-    d?: string;
-    dd?: string;
-    M?: string;
-    MM?: string;
-    y?: string;
-    yy?: string;
-}
-export interface LocaleFormats {
-    LT?: string;
-    LTS?: string;
-    L?: string;
-    LL?: string;
-    LLL?: string;
-    LLLL?: string;
-    [key: string]: string;
-}
 export interface Locale {
-    name?: string;
+    name: string;
     weekdays?: string[];
-    weekdaysShort?: string[];
-    weekdaysMin?: string[];
     months?: string[];
+    weekStart?: number;
+    weekdaysShort?: string[];
     monthsShort?: string[];
-    weekStart?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
-    relativeTime?: LocaleRelativeTime;
-    formats?: LocaleFormats;
-    ordinal?: (n: number) => string;
+    weekdaysMin?: string[];
+    ordinal?: (n: number) => number | string;
+    formats: Partial<{
+        LT: string;
+        LTS: string;
+        L: string;
+        LL: string;
+        LLL: string;
+        LLLL: string;
+    }>;
+    relativeTime: Partial<{
+        future: string;
+        past: string;
+        s: string;
+        m: string;
+        mm: string;
+        h: string;
+        hh: string;
+        d: string;
+        dd: string;
+        M: string;
+        MM: string;
+        y: string;
+        yy: string;
+    }>;
 }
 export interface Config {
     licenseKey: string;
@@ -568,7 +567,7 @@ declare namespace GSTC {
         fromArray(array: any): {};
         stateFromConfig: typeof import("./api/api").stateFromConfig;
         wasmStateFromConfig: typeof import("./api/api").wasmStateFromConfig;
-        merge: typeof import("@neuronet.io/vido/src/helpers").mergeDeep;
+        merge: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
         lithtml: typeof lithtml;
         html: typeof lithtml;
         date(time: any): Dayjs;

@@ -51,8 +51,7 @@ declare module "api/time" {
 }
 declare module "api/slots" {
     import { Vido } from "gstc";
-    import { Slots as VidoSlots } from "@neuronet.io/vido/src/Slots";
-    import { ComponentInstance, Component } from '@neuronet.io/vido/types/vido.d';
+    import { Slots as VidoSlots, ComponentInstance, Component } from '@neuronet.io/vido';
     export type SlotInstances = {
         [key: string]: ComponentInstance[];
     };
@@ -75,7 +74,7 @@ declare module "api/api" {
     import dayjs from 'dayjs';
     import { Config, Period, DataChartTime, ScrollTypeHorizontal, Row, Item, Vido, Items, ScrollTypeVertical, Rows, GridCell, GridRow, DataItems, ItemData, ItemDataUpdate, ColumnData } from "gstc";
     import { generateSlots } from "api/slots";
-    import { lithtml } from "@neuronet.io/vido/src/vido";
+    import { lithtml } from '@neuronet.io/vido';
     export function getClass(name: string, appendix?: string): string;
     export function getId(name: string, id: string): string;
     export function prepareState(userConfig: Config): {
@@ -91,7 +90,7 @@ declare module "api/api" {
         fromArray(array: any): {};
         stateFromConfig: typeof stateFromConfig;
         wasmStateFromConfig: typeof wasmStateFromConfig;
-        merge: typeof import("@neuronet.io/vido/src/helpers").mergeDeep;
+        merge: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
         lithtml: typeof lithtml;
         html: typeof lithtml;
         date(time: any): dayjs.Dayjs;
@@ -121,7 +120,7 @@ declare module "api/api" {
         setVido(Vido: Vido): void;
         log(...args: any[]): void;
         generateSlots: typeof generateSlots;
-        mergeDeep: typeof import("@neuronet.io/vido/src/helpers").mergeDeep;
+        mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
         getClass: typeof getClass;
         getId: typeof getId;
         GSTCID: any;
@@ -181,7 +180,7 @@ declare module "api/api" {
 }
 declare module "gstc" {
     import 'pepjs';
-    import { vido, lithtml, ComponentInstance } from "@neuronet.io/vido/src/vido";
+    import { vido, lithtml, ComponentInstance } from '@neuronet.io/vido';
     import { Api } from "api/api";
     import { Dayjs, OpUnitType } from 'dayjs';
     import { Properties as CSSProps } from 'csstype';
@@ -209,12 +208,13 @@ declare module "gstc" {
         $data?: RowData;
         gap?: RowGap;
         style?: CSSProps;
-        classNames?: string[] | (({ row: Row, vido: Vido }: {
-            row: any;
-            vido: any;
-        }) => string[]);
+        classNames?: string[] | classNamesFn;
         [key: string]: any;
     }
+    export type classNamesFn = ({ row, vido }: {
+        row: Row;
+        vido: Vido;
+    }) => string[];
     export interface Rows {
         [id: string]: Row;
     }
@@ -257,9 +257,9 @@ declare module "gstc" {
         linkedWith?: string[];
         dependant?: string[];
     }
-    export type ItemLabelFunction = ({ item: Item, vido: Vido }: {
-        item: any;
-        vido: any;
+    export type ItemLabelFunction = ({ item, vido }: {
+        item: Item;
+        vido: Vido;
     }) => lithtml.TemplateResult | string;
     export interface Item {
         id: string;
@@ -271,9 +271,9 @@ declare module "gstc" {
         gap?: ItemGap;
         minWidth?: number;
         style?: CSSProps;
-        classNames?: string[] | (({ item: Item, vido: Vido }: {
-            item: any;
-            vido: any;
+        classNames?: string[] | (({ item, vido }: {
+            item: Item;
+            vido: Vido;
         }) => string[]);
         isHTML?: boolean;
         linkedWith?: string[];
@@ -325,21 +325,21 @@ declare module "gstc" {
         inRealTime?: boolean;
         dots?: number;
     }
-    export type ColumnDataFunction = ({ row: Row, vido: Vido }: {
-        row: any;
-        vido: any;
+    export type ColumnDataFunction = ({ row, vido }: {
+        row: Row;
+        vido: Vido;
     }) => string | number;
-    export type ColumnDataFunctionString = ({ row: Row, vido: Vido }: {
-        row: any;
-        vido: any;
+    export type ColumnDataFunctionString = ({ row, vido }: {
+        row: Row;
+        vido: Vido;
     }) => string;
-    export type ColumnDataFunctionTemplate = ({ row: Row, vido: Vido }: {
-        row: any;
-        vido: any;
+    export type ColumnDataFunctionTemplate = ({ row, vido }: {
+        row: Row;
+        vido: Vido;
     }) => htmlResult;
-    export type ColumnDataHeaderContent = string | (({ column: ColumnData, vido: Vido }: {
-        column: any;
-        vido: any;
+    export type ColumnDataHeaderContent = string | (({ column, vido }: {
+        column: ColumnData;
+        vido: Vido;
     }) => htmlResult);
     export interface ColumnDataHeader {
         html?: htmlResult;
@@ -518,16 +518,16 @@ declare module "gstc" {
     export interface DataChartTime extends ChartTime {
         period: Period;
         leftGlobal: number;
-        leftGlobalDate: Dayjs;
+        leftGlobalDate: Dayjs | undefined;
         centerGlobal: number;
-        centerGlobalDate: Dayjs;
+        centerGlobalDate: Dayjs | undefined;
         rightGlobal: number;
-        rightGlobalDate: Dayjs;
+        rightGlobalDate: Dayjs | undefined;
         timePerPixel: number;
         from: number;
-        fromDate: Dayjs;
+        fromDate: Dayjs | undefined;
         to: number;
-        toDate: Dayjs;
+        toDate: Dayjs | undefined;
         totalViewDurationMs: number;
         totalViewDurationPx: number;
         leftInner: number;
@@ -581,8 +581,9 @@ declare module "gstc" {
     export interface GridCellOnCreateArgument extends GridCell {
         vido: Vido;
     }
+    export type GridCellOnCreate = (cell: GridCellOnCreateArgument) => string | htmlResult;
     export interface ChartGridCell {
-        onCreate: ((cell: GridCellOnCreateArgument) => string | htmlResult)[];
+        onCreate: GridCellOnCreate[];
     }
     export interface ChartGrid {
         cell?: ChartGridCell;
@@ -618,41 +619,38 @@ declare module "gstc" {
     export type Actions = {
         [name in SlotName]?: Action[];
     };
-    export interface LocaleRelativeTime {
-        future?: string;
-        past?: string;
-        s?: string;
-        m?: string;
-        mm?: string;
-        h?: string;
-        hh?: string;
-        d?: string;
-        dd?: string;
-        M?: string;
-        MM?: string;
-        y?: string;
-        yy?: string;
-    }
-    export interface LocaleFormats {
-        LT?: string;
-        LTS?: string;
-        L?: string;
-        LL?: string;
-        LLL?: string;
-        LLLL?: string;
-        [key: string]: string;
-    }
     export interface Locale {
-        name?: string;
+        name: string;
         weekdays?: string[];
-        weekdaysShort?: string[];
-        weekdaysMin?: string[];
         months?: string[];
+        weekStart?: number;
+        weekdaysShort?: string[];
         monthsShort?: string[];
-        weekStart?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
-        relativeTime?: LocaleRelativeTime;
-        formats?: LocaleFormats;
-        ordinal?: (n: number) => string;
+        weekdaysMin?: string[];
+        ordinal?: (n: number) => number | string;
+        formats: Partial<{
+            LT: string;
+            LTS: string;
+            L: string;
+            LL: string;
+            LLL: string;
+            LLLL: string;
+        }>;
+        relativeTime: Partial<{
+            future: string;
+            past: string;
+            s: string;
+            m: string;
+            mm: string;
+            h: string;
+            hh: string;
+            d: string;
+            dd: string;
+            M: string;
+            MM: string;
+            y: string;
+            yy: string;
+        }>;
     }
     export interface Config {
         licenseKey: string;
@@ -750,7 +748,7 @@ declare module "gstc" {
             fromArray(array: any): {};
             stateFromConfig: typeof import("api/api").stateFromConfig;
             wasmStateFromConfig: typeof import("api/api").wasmStateFromConfig;
-            merge: typeof import("@neuronet.io/vido/src/helpers").mergeDeep;
+            merge: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
             lithtml: typeof lithtml;
             html: typeof lithtml;
             date(time: any): Dayjs;
