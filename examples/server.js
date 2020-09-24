@@ -1,3 +1,10 @@
+const version = Number(process.version.split('.')[0].replace(/\D/gi, ''));
+
+if (version < 11) {
+  console.error('You need at least nodejs version 11 or higher.');
+  process.exit();
+}
+
 const path = require('path');
 const Polonez = require('polonez');
 const ServeStatic = require('serve-static');
