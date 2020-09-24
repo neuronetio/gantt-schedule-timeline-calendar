@@ -8,7 +8,7 @@ import { lithtml } from '@neuronet.io/vido/src/vido';
 export declare function getClass(name: string, appendix?: string): string;
 export declare function getId(name: string, id: string): string;
 export declare function prepareState(userConfig: Config): {
-    config: any;
+    config: unknown;
 };
 export declare function stateFromConfig(userConfig: Config): State;
 export declare function wasmStateFromConfig(userConfig: Config, wasmFile?: string): Promise<any>;

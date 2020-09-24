@@ -79,7 +79,7 @@ declare module "api/api" {
     export function getClass(name: string, appendix?: string): string;
     export function getId(name: string, id: string): string;
     export function prepareState(userConfig: Config): {
-        config: any;
+        config: unknown;
     };
     export function stateFromConfig(userConfig: Config): State;
     export function wasmStateFromConfig(userConfig: Config, wasmFile?: string): Promise<any>;
