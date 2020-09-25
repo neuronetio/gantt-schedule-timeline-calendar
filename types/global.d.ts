@@ -117,6 +117,7 @@ declare module "api/api" {
         iconsCache: IconsCache;
         unsubscribes: Unsubscribes;
         constructor(state: DeepState);
+        getListenerPosition(callback: any): string | number;
         setVido(Vido: Vido): void;
         log(...args: any[]): void;
         generateSlots: typeof generateSlots;
@@ -895,6 +896,14 @@ declare module "plugins/calendar-scroll" {
         bodyClassName: string;
     }
     export function Plugin(options?: Options): (vidoInstance: any) => () => void;
+}
+declare module "plugins/dependency-lines" {
+    import { Vido } from "gstc";
+    export interface Options {
+        type?: 'straight';
+        propertyName?: string;
+    }
+    export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
 declare module "plugins/highlight-weekends" {
     import { Vido } from "gstc";

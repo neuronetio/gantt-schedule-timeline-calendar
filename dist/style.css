@@ -451,29 +451,14 @@ body.gstc-scrolling * {
   animation-iteration-count: infinite;
   animation-timing-function: linear;
 }
-.gstc__chart-timeline-dependency-lines-lines,
-.gstc__chart-timeline-dependency-lines-handles {
+.gstc__chart-timeline-dependency-lines {
   position: absolute;
   left: 0;
   top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
   pointer-events: none;
-  width: var(--width);
-  height: var(--height);
-  user-select: none;
-}
-.gstc__chart-timeline-dependency-lines-handle {
-  position: absolute;
-  border-radius: 100%;
-  pointer-events: all;
-  user-select: none;
-  border: 2px dashed #e74c36;
-}
-.gstc__chart-timeline-dependency-lines-handle--connector {
-  position: absolute;
-  border-radius: 100%;
-  pointer-events: all;
-  user-select: none;
-  border: 2px dashed #e74c36;
 }
 .gstc__chart-timeline-items {
   position: absolute;

@@ -1,0 +1,1 @@
+{"version":3,"file":"dependency-lines.d.ts","sourceRoot":"","sources":["../../src/plugins/dependency-lines.ts"],"names":[],"mappings":"AASA,OAAO,EAAE,IAAI,EAAE,MAAM,SAAS,CAAC;AAQ/B,MAAM,WAAW,OAAO;IACtB,IAAI,CAAC,EAAE,UAAU,CAAC;IAClB,YAAY,CAAC,EAAE,MAAM,CAAC;CACvB;AA4CD,wBAAgB,MAAM,CAAC,OAAO,GAAE,OAAY,sCAS3C"}

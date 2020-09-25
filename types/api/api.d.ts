@@ -47,6 +47,7 @@ export declare class Api {
     iconsCache: IconsCache;
     unsubscribes: Unsubscribes;
     constructor(state: DeepState);
+    getListenerPosition(callback: any): string | number;
     setVido(Vido: Vido): void;
     log(...args: any[]): void;
     generateSlots: typeof generateSlots;
