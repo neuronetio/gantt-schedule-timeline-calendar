@@ -946,7 +946,7 @@ declare module "plugins/timeline-pointer" {
         initialPosition: Point;
         currentPosition: Point;
     }
-    export function Plugin(options: Options): (vidoInstance: Vido) => () => void;
+    export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
 declare module "plugins/item-movement" {
     import { Vido, Item, DataChartTime, DataItems } from "gstc";
@@ -1183,6 +1183,7 @@ declare module "plugins/selection" {
         selecting: Selection;
         automaticallySelected: Selection;
         pointerEvents: PointerEvents;
+        events: Events;
         targetType: ITEM_TYPE | CELL_TYPE | '';
         targetData: any;
     }
