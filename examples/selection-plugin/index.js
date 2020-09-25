@@ -130,28 +130,39 @@ const config = {
   plugins: [
     TimelinePointer({}),
     Selection({
-      // @ts-ignore
-      onSelected(selected, lastSelected) {
-        const filtered = preventSelection(selected);
-        console.log('Selected cells', filtered['chart-timeline-grid-row-cell']);
-        console.log(
-          'Selected items',
-          filtered['chart-timeline-items-row-item']
-        );
-        return filtered;
-      },
-      // @ts-ignore
-      onSelecting(selecting, lastSelected) {
-        const filtered = preventSelection(selecting);
-        console.log(
-          'Selecting cells',
-          filtered['chart-timeline-grid-row-cell']
-        );
-        console.log(
-          'Selecting items',
-          filtered['chart-timeline-items-row-item']
-        );
-        return filtered;
+      events: {
+        // @ts-ignore
+        onStart(lastSelected) {
+          // we can clear selection each time we start to prevent shift+select multiple cells
+          // gstc.api.plugins.selection.selectCells([]);
+          console.log('selecting start');
+        },
+        // @ts-ignore
+        onSelecting(selecting, lastSelected) {
+          const filtered = preventSelection(selecting);
+          console.log(
+            'Selecting cells',
+            filtered['chart-timeline-grid-row-cell']
+          );
+          console.log(
+            'Selecting items',
+            filtered['chart-timeline-items-row-item']
+          );
+          return filtered;
+        },
+        // @ts-ignore
+        onEnd(selected, lastSelected) {
+          const filtered = preventSelection(selected);
+          console.log(
+            'Selected cells',
+            filtered['chart-timeline-grid-row-cell']
+          );
+          console.log(
+            'Selected items',
+            filtered['chart-timeline-items-row-item']
+          );
+          return filtered;
+        },
       },
     }),
   ],

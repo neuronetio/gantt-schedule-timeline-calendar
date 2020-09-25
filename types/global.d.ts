@@ -1120,6 +1120,11 @@ declare module "plugins/selection" {
         selecting?: SelectionItems;
         selected?: SelectionItems;
     }
+    export interface Events {
+        onStart?: (lastSelected: EventSelection) => void;
+        onSelecting?: (selecting: EventSelection, last: EventSelection) => EventSelection;
+        onEnd?: (selected: EventSelection, last: EventSelection) => EventSelection;
+    }
     export interface Options {
         enabled?: boolean;
         cells?: boolean;
@@ -1133,6 +1138,9 @@ declare module "plugins/selection" {
         selectingClassName?: string;
         bodySelectedClassName?: string;
         bodySelectingClassName?: string;
+        events?: Events;
+        pointerEvents?: PointerEvents;
+        onStart?: (lastSelected: EventSelection) => void;
         onSelecting?: (selecting: EventSelection, last: EventSelection) => EventSelection;
         onSelected?: (selected: EventSelection, last: EventSelection) => EventSelection;
     }
@@ -1174,7 +1182,7 @@ declare module "plugins/selection" {
         lastSelected: Selection;
         selecting: Selection;
         automaticallySelected: Selection;
-        events: PointerEvents;
+        pointerEvents: PointerEvents;
         targetType: ITEM_TYPE | CELL_TYPE | '';
         targetData: any;
     }
