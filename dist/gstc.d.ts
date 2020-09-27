@@ -12,6 +12,8 @@ export interface RowDataPosition {
     viewTop: number;
 }
 export interface RowData {
+    id: string;
+    parentId: string | undefined;
     actualHeight: number;
     outerHeight: number;
     position: RowDataPosition;
@@ -19,12 +21,14 @@ export interface RowData {
     children: string[];
     items: string[];
 }
+export interface RowsData {
+    [key: string]: RowData;
+}
 export interface Row {
     id: string;
     parentId?: string;
     expanded?: boolean;
     height?: number;
-    $data?: RowData;
     gap?: RowGap;
     style?: CSSProps;
     classNames?: string[] | classNamesFn;
@@ -107,6 +111,7 @@ export interface GridCell {
     time: ChartTimeDate;
     top: number;
     row: Row;
+    rowData: RowData;
     content: null | string | htmlResult;
     [key: string]: any;
 }
@@ -115,6 +120,7 @@ export interface GridCells {
 }
 export interface GridRow {
     row: Row;
+    rowData: RowData;
     cells: string[];
     top: number;
     width: number;
@@ -491,14 +497,11 @@ export interface Config {
     Promise?: Promise<unknown> | any;
     mute?: string[];
 }
-export interface TreeMapData {
+export interface TreeMap {
+    id: string;
     parents: string[];
     children: Row[];
     items: Item[];
-}
-export interface TreeMap {
-    id: string;
-    $data: TreeMapData;
 }
 export interface DataList {
     width: number;
@@ -506,6 +509,8 @@ export interface DataList {
     visibleRowsHeight: number;
     rowsWithParentsExpanded: string[];
     rowsHeight: number;
+    rowsIds: string[];
+    rows: RowsData;
 }
 export interface Dimensions {
     width: number;

@@ -1,6 +1,7 @@
-import { ColumnData, Row, Vido } from '../../../gstc';
+import { ColumnData, Row, RowData, Vido } from '../../../gstc';
 export interface Props {
     row: Row;
+    rowData: RowData;
     column: ColumnData;
 }
 export default function ListColumnRow(vido: Vido, props: Props): () => any;

@@ -72,7 +72,7 @@ declare module "api/api" {
     import State from 'deep-state-observer';
     import DeepState from 'deep-state-observer';
     import dayjs from 'dayjs';
-    import { Config, Period, DataChartTime, ScrollTypeHorizontal, Row, Item, Vido, Items, ScrollTypeVertical, Rows, GridCell, GridRow, DataItems, ItemData, ItemDataUpdate, ColumnData } from "gstc";
+    import { Config, Period, DataChartTime, ScrollTypeHorizontal, Row, Item, Vido, Items, ScrollTypeVertical, Rows, GridCell, GridRow, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData } from "gstc";
     import { generateSlots } from "api/slots";
     import { lithtml } from '@neuronet.io/vido';
     export function getClass(name: string, appendix?: string): string;
@@ -137,6 +137,10 @@ declare module "api/api" {
         getRows(rowsId: string[]): Row[];
         getAllRows(): Rows;
         getVisibleRowsId(): string[];
+        getRowsData(): RowsData;
+        setRowsData(data: RowsData): void;
+        getRowData(rowId: string): RowData;
+        setRowData(rowId: string, data: RowData): void;
         getItem(itemId: string): Item;
         getItems(itemsId?: string[]): Item[];
         getAllItems(): Items;
@@ -152,12 +156,13 @@ declare module "api/api" {
         itemsOverlaps(item1: Item, item2: Item): boolean;
         itemOverlapsWithOthers(item: Item, items: Item[]): Item;
         fixOverlappedItems(rowItems: Item[]): void;
-        recalculateRowHeight(row: Row): number;
+        recalculateRowHeight(row: Row, rowData: RowData): number;
         recalculateRowsHeights(rowsId: string[]): number;
         recalculateRowsPercents(rowsId: string[], verticalAreaHeight: number): void;
-        generateParents(rows: Rows | Items, parentName?: string): {};
+        calculateVisibleRowsHeights(): void;
+        generateParents(rows: RowsData | Items, parentName?: string): {};
         fastTree(rowParents: any, node: any, parents?: any[]): any;
-        makeTreeMap(rows: Rows, items: Items): any;
+        makeTreeMap(rows: Rows, rowsData: RowsData, items: Items): any;
         getRowsWithParentsExpanded(rows: Rows): any[];
         getVisibleRows(rowsWithParentsExpanded: string[]): string[];
         private getSortableValue;
@@ -194,6 +199,8 @@ declare module "gstc" {
         viewTop: number;
     }
     export interface RowData {
+        id: string;
+        parentId: string | undefined;
         actualHeight: number;
         outerHeight: number;
         position: RowDataPosition;
@@ -201,12 +208,14 @@ declare module "gstc" {
         children: string[];
         items: string[];
     }
+    export interface RowsData {
+        [key: string]: RowData;
+    }
     export interface Row {
         id: string;
         parentId?: string;
         expanded?: boolean;
         height?: number;
-        $data?: RowData;
         gap?: RowGap;
         style?: CSSProps;
         classNames?: string[] | classNamesFn;
@@ -289,6 +298,7 @@ declare module "gstc" {
         time: ChartTimeDate;
         top: number;
         row: Row;
+        rowData: RowData;
         content: null | string | htmlResult;
         [key: string]: any;
     }
@@ -297,6 +307,7 @@ declare module "gstc" {
     }
     export interface GridRow {
         row: Row;
+        rowData: RowData;
         cells: string[];
         top: number;
         width: number;
@@ -673,14 +684,11 @@ declare module "gstc" {
         Promise?: Promise<unknown> | any;
         mute?: string[];
     }
-    export interface TreeMapData {
+    export interface TreeMap {
+        id: string;
         parents: string[];
         children: Row[];
         items: Item[];
-    }
-    export interface TreeMap {
-        id: string;
-        $data: TreeMapData;
     }
     export interface DataList {
         width: number;
@@ -688,6 +696,8 @@ declare module "gstc" {
         visibleRowsHeight: number;
         rowsWithParentsExpanded: string[];
         rowsHeight: number;
+        rowsIds: string[];
+        rows: RowsData;
     }
     export interface Dimensions {
         width: number;
@@ -796,24 +806,27 @@ declare module "components/list/column/column-header-resizer" {
     export default function ListColumnHeaderResizer(vido: Vido, props: Props): () => any;
 }
 declare module "components/list/column/column-row" {
-    import { ColumnData, Row, Vido } from "gstc";
+    import { ColumnData, Row, RowData, Vido } from "gstc";
     export interface Props {
         row: Row;
+        rowData: RowData;
         column: ColumnData;
     }
     export default function ListColumnRow(vido: Vido, props: Props): () => any;
 }
 declare module "components/list/column/column-row-expander" {
-    import { Row, Vido } from "gstc";
+    import { Row, RowData, Vido } from "gstc";
     export interface Props {
         row: Row;
+        rowData: RowData;
     }
     export default function ListColumnRowExpander(vido: Vido, props: Props): () => any;
 }
 declare module "components/list/column/column-row-expander-toggle" {
-    import { Row, Vido } from "gstc";
+    import { Row, RowData, Vido } from "gstc";
     export interface Props {
         row: Row;
+        rowData: RowData;
     }
     export default function ListColumnRowExpanderToggle(vido: Vido, props: Props): () => any;
 }
@@ -866,9 +879,10 @@ declare module "components/chart/timeline/items/items" {
     export default function ChartTimelineItems(vido: Vido, props?: {}): () => any;
 }
 declare module "components/chart/timeline/items/items-row" {
-    import { Row, Vido } from "gstc";
+    import { Row, Vido, RowData } from "gstc";
     export interface Props {
         row: Row;
+        rowData: RowData;
     }
     export default function ChartTimelineItemsRow(vido: Vido, props: Props): () => any;
 }
