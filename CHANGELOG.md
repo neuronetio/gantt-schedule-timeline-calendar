@@ -21,3 +21,7 @@
 [3.1.5]
 
 - c_c_c is not defined bugfix
+
+[3.1.6]
+
+- c_c_c is not defined bugfix
