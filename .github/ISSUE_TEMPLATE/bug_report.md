@@ -11,6 +11,7 @@ assignees: ''
 A clear and concise description of what the bug is.
 
 **gantt-schedule-timeline-calendar version**
+What version are you using?
 
 **Screenshots or movies**
 If applicable, add screenshots or movie to help explain your problem.
