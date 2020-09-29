@@ -17,3 +17,7 @@
 [3.1.4]
 
 - .npmignore added
+
+[3.1.5]
+
+- c_c_c is not defined bugfix
