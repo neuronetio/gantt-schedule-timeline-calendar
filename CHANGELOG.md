@@ -13,3 +13,7 @@
 [3.1.3]
 
 - readme update
+
+[3.1.4]
+
+- .npmignore added
