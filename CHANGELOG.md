@@ -9,3 +9,7 @@
 [3.1.2]
 
 - just version update
+
+[3.1.3]
+
+- readme update
