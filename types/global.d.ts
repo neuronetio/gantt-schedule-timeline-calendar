@@ -163,7 +163,7 @@ declare module "api/api" {
         calculateVisibleRowsHeights(): void;
         generateParents(rows: RowsData | Items, parentName?: string): {};
         fastTree(rowParents: any, node: any, parents?: any[]): any;
-        makeTreeMap(rows: Rows, rowsData: RowsData, items: Items): any;
+        makeTreeMap(rowsData: RowsData, items: Items): any;
         getRowsWithParentsExpanded(rows: Rows): any[];
         getVisibleRows(rowsWithParentsExpanded: string[]): string[];
         private getSortableValue;
