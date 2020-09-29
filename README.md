@@ -7,7 +7,7 @@
 </p>
 
 <h3>gantt-schedule-timeline-calendar is all-in-one component that you can use in different scenarios.</h3>
-
+Keywords: [ gantt, javascript gantt, typescript gantt, project manager, js gantt, js scheduler, js timeline, javascript timeline, javascript schedule, js scheduler, javascript calendar]
 <br>
 <p align="center">
   <img src="https://snyk.io/test/github/neuronetio/gantt-schedule-timeline-calendar/badge.svg">
@@ -17,7 +17,6 @@
   <a href="https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fneuronetio%2Fgantt-schedule-timeline-calendar"><img alt="Twitter" src="https://img.shields.io/twitter/url/https/github.com/neuronetio/gantt-schedule-timeline-calendar?style=social"></a>
 </p>
 <br>
-
 <br />
 <h3 align="center">And always remember, to leave a <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar">star :star:</a></h3>
 <br />
