@@ -46,6 +46,7 @@ export declare class Api {
     plugins: any;
     iconsCache: IconsCache;
     unsubscribes: Unsubscribes;
+    private mutedMethods;
     constructor(state: DeepState);
     getListenerPosition(callback: any): string | number;
     setVido(Vido: Vido): void;

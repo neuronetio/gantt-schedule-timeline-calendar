@@ -27,6 +27,10 @@ export interface Offset {
     top: number;
     left: number;
 }
+export interface Movement {
+    x: number;
+    y: number;
+}
 export interface PluginData extends Options {
     isMoving: boolean;
     pointerState: PointerState;
@@ -35,8 +39,8 @@ export interface PluginData extends Options {
     targetType: ITEM_TYPE | CELL_TYPE | '';
     targetData: any | null;
     events: PointerEvents;
-    offset: Offset;
     initialPosition: Point;
     currentPosition: Point;
+    movement: Movement;
 }
 export declare function Plugin(options?: Options): (vidoInstance: Vido) => () => void;

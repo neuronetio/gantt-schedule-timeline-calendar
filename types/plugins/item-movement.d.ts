@@ -1,6 +1,5 @@
 import { Vido, Item, DataChartTime, DataItems } from '../gstc';
 import DeepState from 'deep-state-observer';
-import { Point } from './timeline-pointer';
 import { Dayjs } from 'dayjs';
 export interface SnapArg {
     item: Item;
@@ -43,6 +42,14 @@ export interface Threshold {
     horizontal?: number;
     vertical?: number;
 }
+export interface ScrollSpeed {
+    horizontal?: number;
+    vertical?: number;
+}
+export interface AutoScroll {
+    speed?: ScrollSpeed;
+    edgeThreshold?: Threshold;
+}
 export interface Options {
     enabled?: boolean;
     dependant?: boolean;
@@ -52,6 +59,7 @@ export interface Options {
     events?: Events;
     snapToTime?: SnapToTime;
     threshold?: Threshold;
+    autoScroll?: AutoScroll;
 }
 export declare type State = 'start' | 'move' | 'end' | '';
 export interface PluginData extends Options {
@@ -60,12 +68,8 @@ export interface PluginData extends Options {
     initialDependant: Item[];
     initialItemsData: DataItems;
     initialDependantData: DataItems;
-    initialPosition: Point;
-    currentPosition: Point;
-    targetData: Item | null;
     state: State;
     movement: Movement;
-    triggerDown: boolean | PointerEvent;
 }
 export declare function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 //# sourceMappingURL=item-movement.d.ts.map

@@ -116,6 +116,7 @@ declare module "api/api" {
         plugins: any;
         iconsCache: IconsCache;
         unsubscribes: Unsubscribes;
+        private mutedMethods;
         constructor(state: DeepState);
         getListenerPosition(callback: any): string | number;
         setVido(Vido: Vido): void;
@@ -957,6 +958,10 @@ declare module "plugins/timeline-pointer" {
         top: number;
         left: number;
     }
+    export interface Movement {
+        x: number;
+        y: number;
+    }
     export interface PluginData extends Options {
         isMoving: boolean;
         pointerState: PointerState;
@@ -965,16 +970,15 @@ declare module "plugins/timeline-pointer" {
         targetType: ITEM_TYPE | CELL_TYPE | '';
         targetData: any | null;
         events: PointerEvents;
-        offset: Offset;
         initialPosition: Point;
         currentPosition: Point;
+        movement: Movement;
     }
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
 declare module "plugins/item-movement" {
     import { Vido, Item, DataChartTime, DataItems } from "gstc";
     import DeepState from 'deep-state-observer';
-    import { Point } from "plugins/timeline-pointer";
     import { Dayjs } from 'dayjs';
     export interface SnapArg {
         item: Item;
@@ -1017,6 +1021,14 @@ declare module "plugins/item-movement" {
         horizontal?: number;
         vertical?: number;
     }
+    export interface ScrollSpeed {
+        horizontal?: number;
+        vertical?: number;
+    }
+    export interface AutoScroll {
+        speed?: ScrollSpeed;
+        edgeThreshold?: Threshold;
+    }
     export interface Options {
         enabled?: boolean;
         dependant?: boolean;
@@ -1026,6 +1038,7 @@ declare module "plugins/item-movement" {
         events?: Events;
         snapToTime?: SnapToTime;
         threshold?: Threshold;
+        autoScroll?: AutoScroll;
     }
     export type State = 'start' | 'move' | 'end' | '';
     export interface PluginData extends Options {
@@ -1034,12 +1047,8 @@ declare module "plugins/item-movement" {
         initialDependant: Item[];
         initialItemsData: DataItems;
         initialDependantData: DataItems;
-        initialPosition: Point;
-        currentPosition: Point;
-        targetData: Item | null;
         state: State;
         movement: Movement;
-        triggerDown: boolean | PointerEvent;
     }
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
