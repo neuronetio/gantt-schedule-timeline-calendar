@@ -1,0 +1,16 @@
+{
+  "include": ["./*.ts"],
+  "exclude": ["node_modules/**", "dist/**"],
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": false,
+    "module": "ESNext",
+    "downlevelIteration": true,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
+    "target": "ES2015",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true
+  }
+}
