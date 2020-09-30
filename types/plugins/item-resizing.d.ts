@@ -1,6 +1,5 @@
 import { Vido, htmlResult, Item, DataChartTime, DataItems } from '../gstc';
 import DeepState from 'deep-state-observer';
-import { Point } from './timeline-pointer';
 import { Dayjs } from 'dayjs';
 export interface Handle {
     width?: number;
@@ -35,7 +34,6 @@ export interface BeforeAfterInitialItems {
     initial: Item[];
     before: Item[];
     after: Item[];
-    targetData: Item | null;
 }
 export interface OnArg {
     items: BeforeAfterInitialItems;
@@ -47,6 +45,10 @@ export interface Events {
     onStart?: (onArg: OnArg) => Item[];
     onResize?: (onArg: OnArg) => Item[];
     onEnd?: (onArg: OnArg) => Item[];
+}
+export interface AutoScroll {
+    speed?: number;
+    edgeThreshold?: number;
 }
 export interface Options {
     enabled?: boolean;
@@ -60,6 +62,7 @@ export interface Options {
     events?: Events;
     snapToTime?: SnapToTime;
     outsideWidthThreshold?: number;
+    autoScroll?: AutoScroll;
 }
 export declare type State = 'start' | 'resize' | 'end' | '';
 export interface PluginData extends Options {
@@ -69,9 +72,7 @@ export interface PluginData extends Options {
     initialDependant: Item[];
     initialItemsData: DataItems;
     initialDependantData: DataItems;
-    initialPosition: Point;
-    currentPosition: Point;
-    targetData: Item | null;
+    initialLeftPx: number;
     state: State;
     movement: Movement;
 }

@@ -950,6 +950,11 @@ declare module "plugins/timeline-pointer" {
         down?: boolean;
         move?: boolean;
     }
+    export interface Locked {
+        up: boolean | string;
+        down: boolean | string;
+        move: boolean | string;
+    }
     export interface Options {
         enabled?: boolean;
         captureEvents?: CaptureEvents;
@@ -1055,7 +1060,6 @@ declare module "plugins/item-movement" {
 declare module "plugins/item-resizing" {
     import { Vido, htmlResult, Item, DataChartTime, DataItems } from "gstc";
     import DeepState from 'deep-state-observer';
-    import { Point } from "plugins/timeline-pointer";
     import { Dayjs } from 'dayjs';
     export interface Handle {
         width?: number;
@@ -1090,7 +1094,6 @@ declare module "plugins/item-resizing" {
         initial: Item[];
         before: Item[];
         after: Item[];
-        targetData: Item | null;
     }
     export interface OnArg {
         items: BeforeAfterInitialItems;
@@ -1102,6 +1105,10 @@ declare module "plugins/item-resizing" {
         onStart?: (onArg: OnArg) => Item[];
         onResize?: (onArg: OnArg) => Item[];
         onEnd?: (onArg: OnArg) => Item[];
+    }
+    export interface AutoScroll {
+        speed?: number;
+        edgeThreshold?: number;
     }
     export interface Options {
         enabled?: boolean;
@@ -1115,6 +1122,7 @@ declare module "plugins/item-resizing" {
         events?: Events;
         snapToTime?: SnapToTime;
         outsideWidthThreshold?: number;
+        autoScroll?: AutoScroll;
     }
     export type State = 'start' | 'resize' | 'end' | '';
     export interface PluginData extends Options {
@@ -1124,9 +1132,7 @@ declare module "plugins/item-resizing" {
         initialDependant: Item[];
         initialItemsData: DataItems;
         initialDependantData: DataItems;
-        initialPosition: Point;
-        currentPosition: Point;
-        targetData: Item | null;
+        initialLeftPx: number;
         state: State;
         movement: Movement;
     }

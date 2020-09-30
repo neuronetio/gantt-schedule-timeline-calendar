@@ -19,6 +19,11 @@ export interface CaptureEvents {
     down?: boolean;
     move?: boolean;
 }
+export interface Locked {
+    up: boolean | string;
+    down: boolean | string;
+    move: boolean | string;
+}
 export interface Options {
     enabled?: boolean;
     captureEvents?: CaptureEvents;

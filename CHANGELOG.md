@@ -29,3 +29,7 @@
 [3.1.7]
 
 - list rows data children property was not calculated correctly
+
+[3.1.8]
+
+- auto scroll feature for item-resizing plugin
