@@ -17,6 +17,7 @@ function getDefaultOptions() {
  */
 class ItemImage {
   constructor(options, vidoInstance) {
+    this.vidoInstance = vidoInstance;
     // merge options with default
     this.options = { ...getDefaultOptions(), ...options };
     this.state = vidoInstance.state;
@@ -47,6 +48,7 @@ class ItemImage {
     });
     // stop listening to changes
     this.onDestroy.forEach((unsubscribe) => unsubscribe());
+    this.vidoInstance.api.pluginDestroyed('ItemImage');
   }
 
   /**
@@ -87,6 +89,7 @@ export function Plugin(options = {}) {
       options = vidoInstance.api.mergeDeep({}, options, currentOptions);
     }
     const itemImage = new ItemImage(options, vidoInstance);
+    vidoInstance.api.pluginInitialized('ItemImage');
     return itemImage.destroy;
   };
 }

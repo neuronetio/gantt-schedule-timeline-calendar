@@ -33,3 +33,7 @@
 [3.1.8]
 
 - auto scroll feature for item-resizing plugin - from now on item-resizing plugin must be initialized before item-movement plugin
+
+[3.2.0]
+
+- api plugin initialization - now all plugins must inform api about their initialization and destruction (api.pluginInitialized, api.pluginDestroyed, api.isPluginInitialized, api.getPluginsPositions, api.isPluginInitializedBefore)
