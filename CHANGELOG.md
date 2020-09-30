@@ -32,4 +32,4 @@
 
 [3.1.8]
 
-- auto scroll feature for item-resizing plugin
+- auto scroll feature for item-resizing plugin - from now on item-resizing plugin must be initialized before item-movement plugin
