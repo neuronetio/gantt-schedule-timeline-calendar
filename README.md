@@ -108,4 +108,4 @@ or
 You can generate [free license key here](https://gstc.neuronet.io/free-key).
 You can use this software for free in non-commercial projects that are under the MIT / ISC license and whose full source code is available on the Internet (backend and frontend).
 In commercial or closed source projects, you can use it for free for two months only.
-If you need a full commercial license with all plugins included, please contact us at neuronet.io@gmail.com
+If you need a full commercial license with all plugins included, please visit [pricing page](https://gantt-schedule-timeline-calendar.neuronet.io/pricing).
