@@ -190,8 +190,8 @@ const config = {
     HighlightWeekends(),
     TimelinePointer(),
     Selection(),
-    ItemMovement(),
     ItemResizing(),
+    ItemMovement(),
     CalendarScroll(),
     ProgressBar(),
     TimeBookmarks({

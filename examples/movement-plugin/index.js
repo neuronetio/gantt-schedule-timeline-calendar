@@ -160,8 +160,8 @@ const config = {
   plugins: [
     TimelinePointer({}),
     Selection(),
-    ItemMovement(movementPluginConfig),
     ItemResizing(),
+    ItemMovement(movementPluginConfig),
   ],
   list: {
     columns: {
