@@ -18,11 +18,11 @@ function getRandomFaceImage() {
 const rows = {};
 for (let i = 0; i < iterations; i++) {
   const withParent = i > 0 && i % 2 === 0;
-  const id = GSTCID(i);
+  const id = GSTCID(String(i));
   rows[id] = {
     id,
     label: `Lorem ipsum ${i}`,
-    parentId: withParent ? GSTCID(i - 1) : undefined,
+    parentId: withParent ? GSTCID(String(i - 1)) : undefined,
     expanded: false,
     img: getRandomFaceImage(),
     progress: Math.floor(Math.random() * 100),
@@ -38,7 +38,7 @@ for (let i = 0; i < iterations; i++) {
   let startDayjs = GSTC.api
     .date(startDate)
     .startOf('day')
-    .add(Math.floor((Math.random() * 365) / 2), 'days');
+    .add(Math.floor((Math.random() * 365) / 2), 'day');
   items[id] = {
     id,
     label: `John Doe ${i}`,
@@ -47,7 +47,7 @@ for (let i = 0; i < iterations; i++) {
       start: startDayjs.startOf('day').valueOf(),
       end: startDayjs
         .clone()
-        .add(Math.floor(Math.random() * 20) + 4, 'days')
+        .add(Math.floor(Math.random() * 20) + 4, 'day')
         .endOf('day')
         .valueOf(),
     },

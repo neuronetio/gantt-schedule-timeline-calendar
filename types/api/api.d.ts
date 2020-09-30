@@ -93,7 +93,7 @@ export declare class Api {
     calculateVisibleRowsHeights(): void;
     generateParents(rows: RowsData | Items, parentName?: string): {};
     fastTree(rowParents: any, node: any, parents?: any[]): any;
-    makeTreeMap(rowsData: RowsData, items: Items): any;
+    makeTreeMap(rowsData: RowsData, items: Items, onlyItems?: boolean): void;
     getRowsWithParentsExpanded(rows: Rows): any[];
     getVisibleRows(rowsWithParentsExpanded: string[]): string[];
     private getSortableValue;
