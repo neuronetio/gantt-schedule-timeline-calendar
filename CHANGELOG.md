@@ -49,3 +49,7 @@
 [3.2.3]
 
 - do not exclude examples from npm package
+
+[3.2.4]
+
+- types in package.json updated
