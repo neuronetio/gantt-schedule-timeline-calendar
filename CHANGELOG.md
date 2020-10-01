@@ -56,4 +56,8 @@
 
 [3.2.5]
 
-- html is not defined bugfix
+- html is not defined bugfix inside vue projects
+
+[3.2.6]
+
+- hhh is not defined bugfix inside vue projects
