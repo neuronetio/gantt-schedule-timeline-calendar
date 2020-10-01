@@ -41,3 +41,7 @@
 [3.2.1]
 
 - npmignore updated - do not delete ../gstc.d.ts (Cannot find module '../gstc' or its corresponding type declarations bugfix)
+
+[3.2.2]
+
+- plugins types bugfix
