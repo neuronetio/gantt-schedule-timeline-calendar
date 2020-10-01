@@ -53,3 +53,7 @@
 [3.2.4]
 
 - types in package.json updated
+
+[3.2.5]
+
+- html is not defined bugfix
