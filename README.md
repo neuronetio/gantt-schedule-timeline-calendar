@@ -70,10 +70,10 @@ You can control almost everything. You can change html structure, stylize every 
 You can checkout [examples folder](https://github.com/neuronetio/gantt-schedule-timeline-calendar/tree/master/examples) too.
 To run examples on your machine just clone this repository and type `npm run examples`.
 
-<h2 align="center">REACT, ANGULAR AND VUE VERSIONS</h2>
+<h2 align="center">REACT, ANGULAR AND VUE EXAMPLES</h2>
 
 - [react-gantt-schedule-timeline-calendar](https://github.com/neuronetio/react-gantt-schedule-timeline-calendar)
-- [angular-gantt-schedule-timeline-calendar](https://github.com/neuronetio/angular-gantt-schedule-timeline-calendar)
+- [ng-gantt-schedule-timeline-calendar](https://github.com/neuronetio/ng-gantt-schedule-timeline-calendar)
 - [vue-gantt-schedule-timeline-calendar](https://github.com/neuronetio/vue-gantt-schedule-timeline-calendar)
 
 <h2 align="center">SCREENSHOTS</h2>
