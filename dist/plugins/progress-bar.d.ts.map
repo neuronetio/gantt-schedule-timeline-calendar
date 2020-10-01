@@ -1,1 +1,0 @@
-{"version":3,"file":"progress-bar.d.ts","sourceRoot":"","sources":["../../src/plugins/progress-bar.ts"],"names":[],"mappings":"AASA,OAAO,EAAE,IAAI,EAAE,MAAM,SAAS,CAAC;AAI/B,eAAO,MAAM,UAAU,8BAA8B,CAAC;AAEtD,MAAM,WAAW,OAAO;IACtB,OAAO,CAAC,EAAE,OAAO,CAAC;IAClB,SAAS,CAAC,EAAE,MAAM,CAAC;CACpB;AA0DD,wBAAgB,MAAM,CAAC,OAAO,GAAE,OAAY,sCAU3C"}
