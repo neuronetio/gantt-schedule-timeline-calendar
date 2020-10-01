@@ -581,3 +581,4 @@ declare namespace GSTC {
     };
 }
 export default GSTC;
+//# sourceMappingURL=gstc.d.ts.map
