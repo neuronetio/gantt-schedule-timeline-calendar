@@ -45,3 +45,7 @@
 [3.2.2]
 
 - plugins types bugfix
+
+[3.2.3]
+
+- do not exclude examples from npm package
