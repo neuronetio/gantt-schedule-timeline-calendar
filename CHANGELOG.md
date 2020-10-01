@@ -61,3 +61,8 @@
 [3.2.8]
 
 - \*.map files removed
+
+[3.2.9]
+
+- dependencies updated
+- removed resize-observer-polyfill
