@@ -72,7 +72,7 @@ To run examples on your machine just clone this repository and type `npm run exa
 
 <h2 align="center">REACT, ANGULAR AND VUE EXAMPLES</h2>
 
-- [react](https://github.com/neuronetio/react-gantt-schedule-timeline-calendar)
+- [react](https://github.com/neuronetio/react-gantt-schedule-timeline-calendar-example)
 - [angular](https://github.com/neuronetio/ng-gantt-schedule-timeline-calendar)
 - [vue](https://github.com/neuronetio/vue-gantt-schedule-timeline-calendar-example)
 
