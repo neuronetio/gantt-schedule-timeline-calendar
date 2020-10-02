@@ -66,3 +66,7 @@
 
 - dependencies updated
 - removed resize-observer-polyfill
+
+[3.2.10]
+
+- readme update (react, vue, angular examples)
