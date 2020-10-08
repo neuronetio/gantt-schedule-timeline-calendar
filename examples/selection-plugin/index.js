@@ -95,24 +95,15 @@ function canSelectItem(item) {
 
 function preventSelection(selecting) {
   return {
-    'chart-timeline-grid-row-cell': selecting[
-      'chart-timeline-grid-row-cell'
-    ].filter(
-      (cell) =>
-        !doNotSelectThisCells.includes(
-          cell.time.leftGlobalDate.format('YYYY-MM-DD')
-        )
+    'chart-timeline-grid-row-cell': selecting['chart-timeline-grid-row-cell'].filter(
+      (cell) => !doNotSelectThisCells.includes(cell.time.leftGlobalDate.format('YYYY-MM-DD'))
     ),
-    'chart-timeline-items-row-item': selecting[
-      'chart-timeline-items-row-item'
-    ].filter((item) => canSelectItem(item)),
+    'chart-timeline-items-row-item': selecting['chart-timeline-items-row-item'].filter((item) => canSelectItem(item)),
   };
 }
 
 function addCellBackground({ time, row, vido }) {
-  const isSelectable = !doNotSelectThisCells.includes(
-    time.leftGlobalDate.format('YYYY-MM-DD')
-  );
+  const isSelectable = !doNotSelectThisCells.includes(time.leftGlobalDate.format('YYYY-MM-DD'));
   console.log('ceell', time.leftGlobalDate.format('YYYY-MM-DD'), isSelectable);
   return isSelectable
     ? vido.html`<div class="selectable-cell" style="width:100%;height:100%;"></div>`
@@ -140,27 +131,15 @@ const config = {
         // @ts-ignore
         onSelecting(selecting, lastSelected) {
           const filtered = preventSelection(selecting);
-          console.log(
-            'Selecting cells',
-            filtered['chart-timeline-grid-row-cell']
-          );
-          console.log(
-            'Selecting items',
-            filtered['chart-timeline-items-row-item']
-          );
+          console.log('Selecting cells', filtered['chart-timeline-grid-row-cell']);
+          console.log('Selecting items', filtered['chart-timeline-items-row-item']);
           return filtered;
         },
         // @ts-ignore
         onEnd(selected, lastSelected) {
           const filtered = preventSelection(selected);
-          console.log(
-            'Selected cells',
-            filtered['chart-timeline-grid-row-cell']
-          );
-          console.log(
-            'Selected items',
-            filtered['chart-timeline-items-row-item']
-          );
+          console.log('Selected cells', filtered['chart-timeline-grid-row-cell']);
+          console.log('Selected items', filtered['chart-timeline-items-row-item']);
           return filtered;
         },
       },
@@ -209,32 +188,32 @@ const app = GSTC({
   state,
 });
 
-document
-  .getElementById('select-items')
-  .addEventListener('click', function (el) {
-    app.api.plugins.selection.selectItems([GSTC.api.GSTCID('3')]);
-  });
-document
-  .getElementById('select-cells')
-  .addEventListener('click', function (el) {
-    const allCells = app.api.getGridCells();
-    const cellsForSelect = allCells
-      .filter(
-        (cell) => cell.time.leftGlobalDate.format('YYYY-MM-DD') === '2020-01-09'
-      )
-      .map((cell) => cell.id);
-    app.api.plugins.selection.selectCells(cellsForSelect);
-  });
-document
-  .getElementById('get-selected')
-  .addEventListener('click', function (el) {
-    const selected = app.api.plugins.selection.getSelected();
-    console.log('selected', selected);
-  });
+document.getElementById('select-items').addEventListener('click', function (el) {
+  app.api.plugins.selection.selectItems([GSTC.api.GSTCID('3')]);
+});
+document.getElementById('select-cells').addEventListener('click', function (el) {
+  const allCells = app.api.getGridCells();
+  const cellsForSelect = allCells
+    .filter((cell) => cell.time.leftGlobalDate.format('YYYY-MM-DD') === '2020-01-09')
+    .map((cell) => cell.id);
+  app.api.plugins.selection.selectCells(cellsForSelect);
+});
+document.getElementById('get-selected').addEventListener('click', function (el) {
+  const selected = app.api.plugins.selection.getSelected();
+  console.log('selected', selected);
+});
 document.getElementById('clear').addEventListener('click', function (el) {
   app.api.plugins.selection.selectCells([]);
   app.api.plugins.selection.selectItems([]);
 });
+
+function scrollToCell() {
+  app.api.scrollToTime(app.api.time.date('2020-01-10').valueOf(), false);
+}
+// @ts-ignore
+window.scrollToCell = scrollToCell;
+
+document.getElementById('scroll-to-cell').addEventListener('click', scrollToCell);
 
 //for testing
 // @ts-ignore

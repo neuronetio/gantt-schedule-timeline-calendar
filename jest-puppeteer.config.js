@@ -2,11 +2,11 @@ const headless = process.env.HEADLESS === '1' ? true : false;
 
 module.exports = {
   launch: {
-    dumpio: true,
+    dumpio: false,
     headless,
     defaultViewport: null,
     args: ['--start-maximized'],
-    //devtools: !headless
+    //devtools: !headless,
     //slowMo: headless ? 0 : 25,
   },
   server: {
