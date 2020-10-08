@@ -74,3 +74,7 @@
 [3.2.11]
 
 - default configuration changed (precise vertical scroll = true now)
+
+[3.2.12]
+
+- html is not defined bugfix
