@@ -82,3 +82,7 @@
 [3.2.13]
 
 - scroll position was not updated properly
+
+[3.2.14]
+
+- gstc disappeared after a few seconds bugfix
