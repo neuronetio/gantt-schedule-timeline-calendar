@@ -86,3 +86,7 @@
 [3.2.14]
 
 - gstc disappeared after a few seconds bugfix
+
+[3.2.15]
+
+- travis integration
