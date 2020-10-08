@@ -78,3 +78,7 @@
 [3.2.12]
 
 - html is not defined bugfix
+
+[3.2.13]
+
+- scroll position was not updated properly
