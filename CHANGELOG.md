@@ -70,3 +70,7 @@
 [3.2.10]
 
 - readme update (react, vue, angular examples)
+
+[3.2.11]
+
+- default configuration changed (precise vertical scroll = true now)

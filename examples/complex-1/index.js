@@ -212,7 +212,7 @@ const config = {
     items,
   },
   scroll: {
-    vertical: { precise: false },
+    vertical: { precise: true },
   },
   slots: {
     'chart-timeline-items-row-item': { content: [itemSlot] },
