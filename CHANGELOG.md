@@ -114,3 +114,7 @@
 [3.3.1]
 
 - console.log removed 😏
+
+[3.3.2]
+
+- current time with seconds and minutes bugfix

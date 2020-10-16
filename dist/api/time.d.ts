@@ -4,6 +4,8 @@ import DeepState from 'deep-state-observer';
 import { Api } from './api';
 export interface CurrentDate {
     timestamp: number;
+    second: Dayjs;
+    minute: Dayjs;
     hour: Dayjs;
     day: Dayjs;
     week: Dayjs;
