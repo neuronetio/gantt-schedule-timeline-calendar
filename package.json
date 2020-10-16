@@ -1,6 +1,6 @@
 {
   "name": "gantt-schedule-timeline-calendar",
-  "version": "3.3.2",
+  "version": "3.3.3",
   "description": "Gantt, Schedule, Timeline, Calendar components all in one. [gantt, timeline, schedule, scheduler, calendar, booking, gantt chart, javascript gantt, javascript timeline, javascript schedule, javascript scheduler, javascript calendar, javascript booking, javascript gantt chart, js gantt, js timeline, js schedule, js scheduler, js calendar, js booking, js gantt chart, typescript gantt, typescript timeline, typescript schedule, typescript scheduler, typescript calendar, typescript booking, typescript gantt chart, vue gantt, vue timeline, vue schedule, vue scheduler, vue calendar, vue booking, vue gantt chart, react gantt, react timeline, react schedule, react scheduler, react calendar, react booking, react gantt chart, angular gantt, angular timeline, angular schedule, angular scheduler, angular calendar, angular booking, angular gantt chart, svelte gantt, svelte timeline, svelte schedule, svelte scheduler, svelte calendar, svelte booking, svelte gantt chart, jQuery gantt, jQuery timeline, jQuery schedule, jQuery scheduler, jQuery calendar, jQuery booking, jQuery gantt chart, component gantt, component timeline, component schedule, component scheduler, component calendar, component booking, component gantt chart]",
   "main": "dist/gstc.umd.min.js",
   "module": "gstc.esm.js",
