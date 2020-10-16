@@ -102,3 +102,7 @@
 [3.2.18]
 
 - build version bugfix
+
+[3.2.19]
+
+- package.json update
