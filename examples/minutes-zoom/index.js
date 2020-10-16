@@ -21,8 +21,8 @@ const itemsFromDB = [
     label: 'Item 1',
     rowId: '1',
     time: {
-      start: GSTC.api.date('2020-02-01').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-02-06').endOf('day').valueOf(),
+      start: GSTC.api.date('2020-01-01 00:00:00').valueOf(),
+      end: GSTC.api.date('2020-01-01 00:00:00').endOf('hour').valueOf(),
     },
   },
   {
@@ -30,26 +30,8 @@ const itemsFromDB = [
     label: 'Item 2',
     rowId: '1',
     time: {
-      start: GSTC.api.date('2020-03-01').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-03-15').endOf('day').valueOf(),
-    },
-  },
-  {
-    id: '3',
-    label: 'Item 3',
-    rowId: '2',
-    time: {
-      start: GSTC.api.date('2020-02-15').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-02-20').endOf('day').valueOf(),
-    },
-  },
-  {
-    id: '4',
-    label: 'Item 4',
-    rowId: '2',
-    time: {
-      start: GSTC.api.date('2020-04-15').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-04-20').endOf('day').valueOf(),
+      start: GSTC.api.date('2020-01-01 08:00:00').startOf('hour').valueOf(),
+      end: GSTC.api.date('2020-01-01 10:00:00').endOf('hour').valueOf(),
     },
   },
 ];
@@ -77,27 +59,25 @@ const columnsFromDB = [
   },
 ];
 
-const months = [
+const hours = [
   {
     zoomTo: 100, // we want to display this format for all zoom levels until 100
     period: 'hour',
     periodIncrement: 1,
     format({ timeStart }) {
-      return timeStart.format('MMMM YYYY'); // full list of formats: https://day.js.org/docs/en/display/format
+      return timeStart.format('HH:mm DD MMMM YYYY'); // full list of formats: https://day.js.org/docs/en/display/format
     },
   },
 ];
 
-const customPeriod = [
+const minutes = [
   {
     zoomTo: 100, // we want to display this format for all zoom levels until 100
     period: 'minute',
     periodIncrement: 15,
     main: true,
-    format({ timeStart, timeEnd }) {
-      return `${timeStart.format('Do')} to ${timeEnd.format('Do')}, week ${timeStart.format('ww')} to ${timeEnd.format(
-        'ww'
-      )}`; // full list of formats: https://day.js.org/docs/en/display/format
+    format({ timeStart, vido }) {
+      return vido.html`<div style="text-align:center;">${timeStart.format('HH:mm')}</div>`; // full list of formats: https://day.js.org/docs/en/display/format
     },
   },
 ];
@@ -118,9 +98,11 @@ const config = {
   },
   chart: {
     items: GSTC.api.fromArray(itemsFromDB),
-    calendarLevels: [months, customPeriod],
+    calendarLevels: [hours, minutes],
     time: {
-      zoom: 18,
+      zoom: 13,
+      from: GSTC.api.date('2020-01-01').startOf('month').valueOf(),
+      to: GSTC.api.date('2020-01-01').endOf('month').valueOf(),
     },
   },
 };
