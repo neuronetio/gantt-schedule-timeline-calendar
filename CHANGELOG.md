@@ -90,3 +90,15 @@
 [3.2.15]
 
 - travis integration
+
+[3.2.16]
+
+- gstc version inside `config.version` (readonly)
+
+[3.2.17]
+
+- build fix
+
+[3.2.18]
+
+- build version bugfix

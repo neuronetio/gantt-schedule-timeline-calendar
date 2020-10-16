@@ -692,6 +692,7 @@ declare module "gstc" {
         useLast?: boolean;
         Promise?: Promise<unknown> | any;
         mute?: string[];
+        readonly version: string;
     }
     export interface TreeMap {
         id: string;
