@@ -122,3 +122,7 @@
 [3.3.3]
 
 - readme update
+
+[3.3.4]
+
+- package.json update
