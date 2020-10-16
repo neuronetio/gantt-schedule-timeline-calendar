@@ -578,10 +578,21 @@ declare module "gstc" {
     }
     export type PeriodString = 'year' | 'month' | 'week' | 'day' | 'hour' | 'minute' | 'second' | 'millisecond';
     export type Period = PeriodString | OpUnitType;
+    export type CharCalendarLevelFormatFunction = ({ currentDates, leftDate, rightDate, period, level, levelIndex, time, vido, api, }: {
+        currentDates: DataChartTimeLevelDate[];
+        leftDate: Dayjs;
+        rightDate: Dayjs;
+        period: Period;
+        level: ChartCalendarLevel;
+        levelIndex: number;
+        time: DataChartTime;
+        vido: Vido;
+        api: Api;
+    }) => number;
     export interface ChartCalendarLevelFormat {
         zoomTo: number;
         period: Period;
-        periodIncrement: number;
+        periodIncrement: number | CharCalendarLevelFormatFunction;
         main?: boolean;
         classNames?: string[];
         format: (args: ChartCalendarFormatArguments) => string | htmlResult;

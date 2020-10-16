@@ -106,3 +106,7 @@
 [3.2.19]
 
 - package.json update
+
+[3.3.0]
+
+- `config.chart.calendarLevels.periodIncrement` as a number or function
