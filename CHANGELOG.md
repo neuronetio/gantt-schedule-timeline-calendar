@@ -110,3 +110,7 @@
 [3.3.0]
 
 - `config.chart.calendarLevels.periodIncrement` as a number or function
+
+[3.3.1]
+
+- console.log removed 😏

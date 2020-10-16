@@ -127,7 +127,8 @@ const config = {
     calendarLevels: [months, days],
     time: {
       zoom: 24,
-      from: GSTC.api.date('2020-01-01'),
+      from: GSTC.api.date('2020-01-01').valueOf(),
+      to: GSTC.api.date('2020-01-01').endOf('year').valueOf(),
     },
   },
 };
