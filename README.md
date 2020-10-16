@@ -41,7 +41,7 @@ Keywords: [ gantt, javascript gantt, typescript gantt, project manager, js gantt
 - slots support to easily change html content of each component
 - background grid on which you can place your html content
 - selectable cells and items with a choice of what can be selected at the moment
-- gradual time zoom up to minutes
+- gradual time zoom up to seconds
 - resizable list columns (in realtime)
 - sortable and searchable list columns
 - BEM based CSS rules (easy to change appearance)
