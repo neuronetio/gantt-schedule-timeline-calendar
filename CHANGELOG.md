@@ -118,3 +118,7 @@
 [3.3.2]
 
 - current time with seconds and minutes bugfix
+
+[3.3.3]
+
+- readme update
