@@ -34,7 +34,7 @@ Keywords: [ gantt, javascript gantt, typescript gantt, project manager, js gantt
 
 - elastic - you can change almost everything from DOM tree to logic (without any compilation, without modifying original code - with config, state or plugin)
 - super fast! even with large dataset
-- multiple items in one row - suitable for various applications like booking, reservation, resource manager etc.
+- multiple items in one row - suitable for various applications like booking, reservation, resource manager, multimedia editor etc.
 - tree like structures - collapsible / expandable groups
 - moveable / resizable items with ability to configure which items can move at the moment and how
 - snap to specified time when resizing / moving
@@ -57,6 +57,7 @@ You can use it in <strong>react</strong>, <strong>vue</strong>, <strong>angular<
 
 <p>
 You can use it as <strong>schedule</strong> for reservation system. You can use it for organizing <strong>events</strong>. You can use it as <strong>gantt chart</strong>. Or you can use it as <strong>calendar</strong> for different purposes.
+You can even use it as a <strong>multimedia timeline editor</strong>!
 </p>
 
 <p>
