@@ -89,6 +89,8 @@ module.exports = {
 
   // A preset that is used as a base for Jest's configuration
   preset: 'jest-puppeteer',
+  testEnvironment: '@testim/root-cause-jest/lib/RootCauseJestEnv',
+  reporters: ['@testim/root-cause-jest/lib/reporter/default'],
 
   // Run tests from one or more projects
   // projects: undefined,

@@ -1,0 +1,5 @@
+{
+    "features": {
+        "jestAssertions": true
+    }
+}
