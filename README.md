@@ -68,9 +68,11 @@ You can control almost everything. You can change html structure, stylize every 
 <h2 align="center">EXAMPLES</h2>
 
 You can checkout [examples folder](https://github.com/neuronetio/gantt-schedule-timeline-calendar/tree/master/examples) too.
-To run examples on your machine just clone this repository and type
+To run examples type
 
 ```bash
+git clone https://github.com/neuronetio/gantt-schedule-timeline-calendar.git
+cd gantt-schedule-timeline-calendar
 npm i
 npm run examples
 ```
