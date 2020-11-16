@@ -92,6 +92,7 @@ export declare class Api {
     setItemData(itemId: string, data: ItemDataUpdate): void;
     setItemsData(data: DataItems): void;
     prepareDependantItems(item: Item, items: Items): string[];
+    prepareItem(item: Item, defaultItemHeight?: number, itemsData?: DataItems, items?: Items): void;
     prepareItems(items: Items): Items;
     sortRows(rowsArray: Row[]): Rows;
     fillEmptyRowValues(rows: Rows): Rows;

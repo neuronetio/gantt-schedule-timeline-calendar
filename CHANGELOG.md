@@ -130,3 +130,7 @@
 [3.3.5]
 
 - invalid token error for license improvement
+
+[3.3.6]
+
+- add item by id bugfix

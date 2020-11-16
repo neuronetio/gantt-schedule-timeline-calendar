@@ -1,13 +1,13 @@
 import GSTC from '../../dist/gstc.esm.min.js';
 
 const iterations = 100;
-const GSTCID = GSTC.api.GSTCID;
 
 const startDate = GSTC.api.date().subtract(5, 'month').valueOf();
 
 let gstc, state;
 
 let lastItemId = 0;
+let lastRowId = 0;
 
 function generateNewItems() {
   let rowsIds = [];
@@ -16,13 +16,13 @@ function generateNewItems() {
     rowsIds = Object.keys(rows);
   } else {
     for (let i = 0; i < iterations; i++) {
-      rowsIds.push(GSTCID(String(i)));
+      rowsIds.push(GSTC.api.GSTCID(String(i)));
     }
   }
   const items = {};
   for (let i = 0, len = rowsIds.length; i < len; i++) {
     let rowId = rowsIds[i];
-    let id = GSTCID(String(lastItemId++));
+    let id = GSTC.api.GSTCID(String(lastItemId++));
     let startDayjs = GSTC.api
       .date(startDate)
       .startOf('day')
@@ -46,8 +46,8 @@ function generateNewItems() {
 }
 
 function generateNewItem() {
-  let rowId = lastRowId;
-  let id = GSTCID(String(lastItemId++));
+  let rowId = GSTC.api.GSTCID(String(lastRowId - 1));
+  let id = GSTC.api.GSTCID(String(lastItemId++));
   let startDayjs = GSTC.api
     .date(startDate)
     .startOf('day')
@@ -68,12 +68,10 @@ function generateNewItem() {
   };
 }
 
-let lastRowId = 0;
-
 function generateNewRows() {
   const rows = {};
   for (let i = 0; i < iterations; i++) {
-    const id = GSTCID(String(lastRowId++));
+    const id = GSTC.api.GSTCID(String(lastRowId++));
     rows[id] = {
       id,
       label: `Row ${lastRowId - 1}`,
@@ -85,15 +83,15 @@ function generateNewRows() {
 
 function generateNewRow() {
   return {
-    id: GSTCID(String(lastRowId++)),
+    id: GSTC.api.GSTCID(String(lastRowId++)),
     label: `Row ${lastRowId}`,
   };
 }
 
 const columns = {
   data: {
-    [GSTCID('id')]: {
-      id: GSTCID('id'),
+    [GSTC.api.GSTCID('id')]: {
+      id: GSTC.api.GSTCID('id'),
       data: ({ row }) => GSTC.api.sourceID(row.id),
       width: 80,
       sortable: ({ row }) => Number(GSTC.api.sourceID(row.id)),
@@ -102,8 +100,8 @@ const columns = {
       },
       resizer: false,
     },
-    [GSTCID('label')]: {
-      id: GSTCID('label'),
+    [GSTC.api.GSTCID('label')]: {
+      id: GSTC.api.GSTCID('label'),
       data: 'label',
       sortable: 'label',
       expander: true,
