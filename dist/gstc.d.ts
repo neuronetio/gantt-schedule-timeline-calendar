@@ -54,8 +54,9 @@ export interface ItemDataPosition {
     actualLeft: number;
     right: number;
     actualRight: number;
+    rowTop: number;
     top: number;
-    actualTop: number;
+    actualRowTop: number;
     viewTop: number;
 }
 export interface ItemData {
@@ -435,7 +436,7 @@ export interface CutIcons {
 export interface DefaultItem {
     gap?: ItemGap;
     height?: number;
-    top?: number;
+    rowTop?: number;
     minWidth?: number;
     cutIcons?: CutIcons;
 }

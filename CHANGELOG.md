@@ -126,3 +126,7 @@
 [3.3.4]
 
 - package.json update
+
+[3.3.5]
+
+- invalid token error for license improvement

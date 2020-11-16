@@ -74,7 +74,7 @@ declare module "api/api" {
     import State from 'deep-state-observer';
     import DeepState from 'deep-state-observer';
     import dayjs from 'dayjs';
-    import { Config, Period, DataChartTime, ScrollTypeHorizontal, Row, Item, Vido, Items, ScrollTypeVertical, Rows, GridCell, GridRow, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData } from "gstc";
+    import { Config, Period, DataChartTime, ScrollTypeHorizontal, Row, Item, Vido, Items, ScrollTypeVertical, Rows, GridCell, GridRow, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition } from "gstc";
     import { generateSlots } from "api/slots";
     import { lithtml } from '@neuronet.io/vido';
     export function getClass(name: string, appendix?: string): string;
@@ -144,6 +144,10 @@ declare module "api/api" {
         private getChildrenLinkedItemsIds;
         collectAllLinkedItems(items: Items, itemsData: DataItems): void;
         getChildrenDependantItemsIds(item: Item, items: Items, allDependant?: string[]): string[];
+        calculateItemVerticalPosition(itemId: string, itemData?: ItemData, rowData?: RowData): ItemDataPosition;
+        calculateItemHorizontalPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, spacing?: any): ItemDataPosition;
+        calculateItemPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, spacing?: any): ItemDataPosition;
+        getItemPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, spacing?: any): ItemDataPosition;
         getRow(rowId: string): Row;
         getRows(rowsId: string[]): Row[];
         getAllRows(): Rows;
@@ -168,14 +172,14 @@ declare module "api/api" {
         itemOverlapsWithOthers(item: Item, items: Item[]): Item;
         fixOverlappedItems(rowItems: Item[]): void;
         recalculateRowHeight(row: Row, rowData: RowData): number;
-        recalculateRowsHeights(rowsId: string[]): number;
+        recalculateRowsHeights(rowsId?: string[]): number;
         recalculateRowsPercents(rowsId: string[], verticalAreaHeight: number): void;
         calculateVisibleRowsHeights(): void;
         generateParents(rows: RowsData | Items, parentName?: string): {};
         fastTree(rowParents: any, node: any, parents?: any[]): any;
         makeTreeMap(rowsData: RowsData, items: Items, onlyItems?: boolean): void;
         getRowsWithParentsExpanded(rows: Rows): any[];
-        getVisibleRows(rowsWithParentsExpanded: string[]): string[];
+        getVisibleRowsAndCalculateViewTop(rowsWithParentsExpanded: string[]): string[];
         private getSortableValue;
         sortRowsByColumn(column: ColumnData, asc?: boolean): void;
         normalizeMouseWheelEvent(event: WheelEvent): WheelResult;
@@ -252,8 +256,9 @@ declare module "gstc" {
         actualLeft: number;
         right: number;
         actualRight: number;
+        rowTop: number;
         top: number;
-        actualTop: number;
+        actualRowTop: number;
         viewTop: number;
     }
     export interface ItemData {
@@ -633,7 +638,7 @@ declare module "gstc" {
     export interface DefaultItem {
         gap?: ItemGap;
         height?: number;
-        top?: number;
+        rowTop?: number;
         minWidth?: number;
         cutIcons?: CutIcons;
     }
@@ -935,10 +940,29 @@ declare module "plugins/calendar-scroll" {
     export function Plugin(options?: Options): (vidoInstance: any) => () => void;
 }
 declare module "plugins/dependency-lines" {
-    import { Vido } from "gstc";
+    import { htmlResult, Vido } from "gstc";
+    export type LineType = 'straight' | 'square' | 'cubic' | 'quadratic';
     export interface Options {
-        type?: 'straight';
-        propertyName?: string;
+        type?: LineType;
+        onLines?: ((lines: Line[]) => Line[])[];
+    }
+    export interface PluginData extends Options {
+        lines: Line[];
+    }
+    export interface Point {
+        x: number;
+        y: number;
+        content?: htmlResult;
+    }
+    export interface Line {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        topAnchor: number;
+        bottomAnchor: number;
+        type: LineType;
+        points: Point[];
     }
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }

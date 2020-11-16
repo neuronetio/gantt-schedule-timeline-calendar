@@ -459,6 +459,13 @@ body.gstc-scrolling * {
   height: 100%;
   overflow: hidden;
   pointer-events: none;
+  user-select: none;
+}
+.gstc__chart-timeline-dependency-lines-line {
+  position: absolute;
+}
+.gstc__chart-timeline-dependency-lines * {
+  user-select: none;
 }
 .gstc__chart-timeline-items {
   position: absolute;
