@@ -134,3 +134,7 @@
 [3.3.6]
 
 - add item by id bugfix
+
+[3.3.7]
+
+- check browser version
