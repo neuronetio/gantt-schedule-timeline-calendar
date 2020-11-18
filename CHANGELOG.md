@@ -142,3 +142,7 @@
 [3.4.0]
 
 - dependency lines plugin
+
+[3.4.1]
+
+- build bugfix
