@@ -154,3 +154,7 @@
 [3.4.3]
 
 - moved tests to tests dir and linked examples
+
+[3.4.4]
+
+- moved tests to examples dir 😏
