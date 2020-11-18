@@ -13,17 +13,13 @@ Keywords: [ gantt, javascript gantt, typescript gantt, project manager, js gantt
   <img src="https://snyk.io/test/github/neuronetio/gantt-schedule-timeline-calendar/badge.svg">
   <img src="https://img.badgesize.io/neuronetio/gantt-schedule-timeline-calendar/master/dist/gstc.esm.min.js?compression=gzip">
   <img src="https://img.shields.io/npm/dm/gantt-schedule-timeline-calendar.svg">
-  <img src="https://travis-ci.com/neuronetio/gantt-schedule-timeline-calendar.svg?branch=master">
-  <img src="https://badge.fury.io/js/gantt-schedule-timeline-calendar.svg">
-  <img src="https://img.shields.io/david/dev/neuronetio/gantt-schedule-timeline-calendar">
-  <img src="https://img.shields.io/github/issues/neuronetio/gantt-schedule-timeline-calendar">
-  <img src="https://img.shields.io/github/last-commit/neuronetio/gantt-schedule-timeline-calendar">
-  <img src="https://img.shields.io/github/commit-activity/m/neuronetio/gantt-schedule-timeline-calendar">
-  <a href="https://github.com/neuronetio/gantt-schedule-timeline-calendar"><img src="https://neuronet.io/screenshots/github.svg"></a>
+  <img src="https://img.shields.io/npm/dt/gantt-schedule-timeline-calendar.svg">
+  <img src="https://api.travis-ci.com/neuronetio/gantt-schedule-timeline-calendar.svg?branch=master">
+  <img src="https://img.shields.io/npm/v/gantt-schedule-timeline-calendar.svg">
+  <img src="https://david-dm.org/neuronetio/gantt-schedule-timeline-calendar.svg">
   <img src="https://neuronet.io/screenshots/typescript.svg">
   <img src="https://neuronet.io/screenshots/eslint.svg">
   <img src="https://neuronet.io/screenshots/jest_1.svg">
-  <a href="https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fneuronetio%2Fgantt-schedule-timeline-calendar"><img alt="Twitter" src="https://img.shields.io/twitter/url/https/github.com/neuronetio/gantt-schedule-timeline-calendar?style=social"></a>
 </p>
 <br>
 <br />
@@ -67,7 +63,6 @@ You can control almost everything. You can change html structure, stylize every 
 
 <h2 align="center">EXAMPLES</h2>
 
-You can checkout [examples folder](https://github.com/neuronetio/gantt-schedule-timeline-calendar/tree/master/examples) too.
 To run examples type
 
 ```bash
@@ -77,7 +72,7 @@ npm i
 npm run examples
 ```
 
-.
+You can checkout [examples folder](https://github.com/neuronetio/gantt-schedule-timeline-calendar/tree/master/examples) too.
 
 <h2 align="center">REACT, ANGULAR AND VUE EXAMPLES</h2>
 

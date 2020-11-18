@@ -146,3 +146,7 @@
 [3.4.1]
 
 - build bugfix
+
+[3.4.2]
+
+- readme update
