@@ -144,7 +144,6 @@
     "puppeteer": "^5.2.1",
     "serve-static": "^1.14.1",
     "tippy.js": "^6.2.6",
-    "travis-github-status": "^1.6.3",
     "tslib": "^2.0.2",
     "typescript": "^4.0.3"
   },

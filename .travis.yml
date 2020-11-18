@@ -5,6 +5,5 @@ cache:
   directories:
     - node_modules
 script:
-  - node_modules/.bin/travis-github-status jest
-  #- npm test
-  #- npm run build
+  - npm test
+  - npm run build
