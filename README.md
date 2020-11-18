@@ -88,6 +88,8 @@ npm run examples
 <h2 align="center">SCREENSHOTS</h2>
 
 <p align="center">
+  <img src="https://neuronet.io/screenshots/dependency.png" alt="gantt-schedule-timeline-calendar dependency lines">
+  <br />
   <img src="https://neuronet.io/screenshots/select-cells.gif" alt="gantt-schedule-timeline-calendar select cells">
   <br />
   <img src="https://neuronet.io/screenshots/linked-items-2.gif" alt="gantt-schedule-timeline-calendar linked items">
