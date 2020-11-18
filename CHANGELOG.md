@@ -158,3 +158,8 @@
 [3.4.4]
 
 - moved tests to examples dir 😏
+
+[3.4.5]
+
+- file:/// protocol warning (gstc will not work with local files)
+- #204 bugfix
