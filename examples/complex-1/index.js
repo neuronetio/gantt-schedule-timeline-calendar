@@ -7,6 +7,7 @@ import { Plugin as CalendarScroll } from '../../dist/plugins/calendar-scroll.esm
 import { Plugin as HighlightWeekends } from '../../dist/plugins/highlight-weekends.esm.min.js';
 import { Plugin as ProgressBar } from '../../dist/plugins/progress-bar.esm.min.js';
 import { Plugin as TimeBookmarks } from '../../dist/plugins/time-bookmarks.esm.min.js';
+import { Plugin as DependencyLines } from '../../dist/plugins/dependency-lines.esm.min.js';
 
 const iterations = 100;
 const GSTCID = GSTC.api.GSTCID;
@@ -62,18 +63,10 @@ items[GSTCID('1')].time = { ...items[GSTCID('0')].time };
 
 items[GSTCID('3')].dependant = [GSTCID('5')];
 items[GSTCID('5')].time.start = items[GSTCID('3')].time.end + 1;
-items[GSTCID('5')].time.end = GSTC.api
-  .date(items[GSTCID('5')].time.start)
-  .endOf('day')
-  .add(2, 'day')
-  .valueOf();
+items[GSTCID('5')].time.end = GSTC.api.date(items[GSTCID('5')].time.start).endOf('day').add(2, 'day').valueOf();
 items[GSTCID('5')].dependant = [GSTCID('7')];
 items[GSTCID('7')].time.start = items[GSTCID('5')].time.end + 1;
-items[GSTCID('7')].time.end = GSTC.api
-  .date(items[GSTCID('7')].time.start)
-  .endOf('day')
-  .add(2, 'day')
-  .valueOf();
+items[GSTCID('7')].time.end = GSTC.api.date(items[GSTCID('7')].time.start).endOf('day').add(2, 'day').valueOf();
 
 const columns = {
   data: {
@@ -150,10 +143,7 @@ function itemSlot(vido, props) {
       ></div>
       <div class="item-text">
         <div class="item-label">${content}</div>
-        <div
-          class="item-description"
-          style="font-size:11px;margin-top:2px;color:#fffffff0;line-height:1em;"
-        >
+        <div class="item-description" style="font-size:11px;margin-top:2px;color:#fffffff0;line-height:1em;">
           ${description}
         </div>
       </div>`;
@@ -196,6 +186,14 @@ const config = {
     ProgressBar(),
     TimeBookmarks({
       bookmarks,
+    }),
+    DependencyLines({
+      onLine: [
+        (line) => {
+          line.type = GSTC.api.sourceID(line.fromItem.id) === '3' ? 'smooth' : 'square';
+          return line;
+        },
+      ],
     }),
   ],
   list: {
@@ -256,9 +254,7 @@ function scrollToFirstItem() {
   const firstItem = gstc.state.get(`config.chart.items.${api.GSTCID('1')}`);
   api.scrollToTime(firstItem.time.start, false);
 }
-document
-  .getElementById('scroll-to-item')
-  .addEventListener('click', scrollToFirstItem);
+document.getElementById('scroll-to-item').addEventListener('click', scrollToFirstItem);
 
 // @ts-ignore
 window.scrollToFirstItem = scrollToFirstItem;

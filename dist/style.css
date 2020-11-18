@@ -461,8 +461,42 @@ body.gstc-scrolling * {
   pointer-events: none;
   user-select: none;
 }
-.gstc__chart-timeline-dependency-lines-line {
+.gstc__chart-timeline-dependency-lines-lines-line {
   position: absolute;
+  pointer-events: none;
+  user-select: none;
+}
+.gstc__chart-timeline-dependency-lines-lines-line path {
+  stroke: rgba(189,195,199,0.62);
+  stroke-width: 2px;
+  fill: transparent;
+}
+.gstc__chart-timeline-dependency-lines-points {
+  pointer-events: none;
+  user-select: none;
+}
+.gstc__chart-timeline-dependency-lines-points-point {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+}
+.gstc__chart-timeline-dependency-lines-points-point--left {
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  border-radius: 100%;
+  background: rgba(189,195,199,0.631);
+  border: 1px solid rgba(0,0,0,0.278);
+  pointer-events: all;
+}
+.gstc__chart-timeline-dependency-lines-points-point--right {
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  pointer-events: all;
+  background: rgba(189,195,199,0.631);
+  border: 1px solid rgba(0,0,0,0.278);
+  transform: rotate(45deg);
 }
 .gstc__chart-timeline-dependency-lines * {
   user-select: none;
@@ -493,7 +527,7 @@ body.gstc-scrolling * {
   pointer-events: all;
   user-select: none;
   background: #e74c3c;
-  border-radius: 4px;
+  border-radius: 14px;
   color: #fff;
   line-height: 22px;
   display: flex;
@@ -544,25 +578,25 @@ body.gstc-scrolling * {
   margin-left: 1px;
 }
 .gstc__chart-timeline-items-row-item-resizing-handle--right {
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
   cursor: e-resize;
   padding-left: 5px;
 }
 .gstc__chart-timeline-items-row-item-resizing-handle--left {
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
   cursor: w-resize;
   padding-left: 7px;
 }
 .gstc__chart-timeline-items-row-item-resizing-handle--right-outside {
-  border-radius: 4px;
+  border-radius: 14px;
   cursor: e-resize;
   padding-left: 4px;
   background: rgba(0,0,0,0.122);
 }
 .gstc__chart-timeline-items-row-item-resizing-handle--left-outside {
-  border-radius: 4px;
+  border-radius: 14px;
   cursor: w-resize;
   padding-left: 4px;
   background: rgba(0,0,0,0.122);

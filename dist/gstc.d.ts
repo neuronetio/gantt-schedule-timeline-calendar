@@ -20,6 +20,8 @@ export interface RowData {
     parents: string[];
     children: string[];
     items: string[];
+    inView: boolean;
+    visible: boolean;
 }
 export interface RowsData {
     [key: string]: RowData;
@@ -69,6 +71,8 @@ export interface ItemData {
     detached: boolean;
     linkedWith?: string[];
     dependant?: string[];
+    visible?: boolean;
+    inView?: boolean;
 }
 export interface ItemDataUpdate {
     time?: ItemDataTime;

@@ -138,3 +138,7 @@
 [3.3.7]
 
 - check browser version
+
+[3.4.0]
+
+- dependency lines plugin

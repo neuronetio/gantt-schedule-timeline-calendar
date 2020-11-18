@@ -108,7 +108,7 @@ export declare class Api {
     fastTree(rowParents: any, node: any, parents?: any[]): any;
     makeTreeMap(rowsData: RowsData, items: Items, onlyItems?: boolean): void;
     getRowsWithParentsExpanded(rows: Rows): any[];
-    getVisibleRowsAndCalculateViewTop(rowsWithParentsExpanded: string[]): string[];
+    getVisibleRowsAndCalculateViewTop(): string[];
     private getSortableValue;
     sortRowsByColumn(column: ColumnData, asc?: boolean): void;
     normalizeMouseWheelEvent(event: WheelEvent): WheelResult;

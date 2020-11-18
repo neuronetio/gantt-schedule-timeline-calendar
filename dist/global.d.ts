@@ -180,7 +180,7 @@ declare module "api/api" {
         fastTree(rowParents: any, node: any, parents?: any[]): any;
         makeTreeMap(rowsData: RowsData, items: Items, onlyItems?: boolean): void;
         getRowsWithParentsExpanded(rows: Rows): any[];
-        getVisibleRowsAndCalculateViewTop(rowsWithParentsExpanded: string[]): string[];
+        getVisibleRowsAndCalculateViewTop(): string[];
         private getSortableValue;
         sortRowsByColumn(column: ColumnData, asc?: boolean): void;
         normalizeMouseWheelEvent(event: WheelEvent): WheelResult;
@@ -223,6 +223,8 @@ declare module "gstc" {
         parents: string[];
         children: string[];
         items: string[];
+        inView: boolean;
+        visible: boolean;
     }
     export interface RowsData {
         [key: string]: RowData;
@@ -272,6 +274,8 @@ declare module "gstc" {
         detached: boolean;
         linkedWith?: string[];
         dependant?: string[];
+        visible?: boolean;
+        inView?: boolean;
     }
     export interface ItemDataUpdate {
         time?: ItemDataTime;
@@ -941,11 +945,19 @@ declare module "plugins/calendar-scroll" {
     export function Plugin(options?: Options): (vidoInstance: any) => () => void;
 }
 declare module "plugins/dependency-lines" {
-    import { htmlResult, Vido } from "gstc";
-    export type LineType = 'straight' | 'square' | 'cubic' | 'quadratic';
+    import { htmlResult, Item, ItemData, RowData, Vido } from "gstc";
+    export type LineType = 'straight' | 'square' | 'square-alt' | 'smooth';
+    export interface DefaultPoint {
+        content: htmlResult;
+        width: number;
+        height: number;
+    }
     export interface Options {
         type?: LineType;
         onLines?: ((lines: Line[]) => Line[])[];
+        onLine?: ((line: Line) => Line)[];
+        leftPoint?: DefaultPoint;
+        rightPoint?: DefaultPoint;
     }
     export interface PluginData extends Options {
         lines: Line[];
@@ -953,6 +965,7 @@ declare module "plugins/dependency-lines" {
     export interface Point {
         x: number;
         y: number;
+        type: 'M' | 'L' | 'Q' | 'T' | 'C' | 'S' | '';
         content?: htmlResult;
     }
     export interface Line {
@@ -960,10 +973,17 @@ declare module "plugins/dependency-lines" {
         y: number;
         width: number;
         height: number;
-        topAnchor: number;
-        bottomAnchor: number;
+        topOffset: number;
+        leftOffset: number;
         type: LineType;
+        fromItemData: ItemData;
+        toItemData: ItemData;
+        fromItem: Item;
+        toItem: Item;
+        fromRowData: RowData;
+        toRowData: RowData;
         points: Point[];
+        className: string;
     }
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
