@@ -495,7 +495,7 @@ export interface Locale {
 }
 export interface Config {
     licenseKey: string;
-    debug?: boolean;
+    debug?: boolean | string;
     plugins?: PluginInitialization[];
     plugin?: unknown;
     innerHeight?: number;

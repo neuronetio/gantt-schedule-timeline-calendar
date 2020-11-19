@@ -461,6 +461,10 @@ body.gstc-scrolling * {
   pointer-events: none;
   user-select: none;
 }
+.gstc__chart-timeline-dependency-lines-lines {
+  pointer-events: none;
+  user-select: none;
+}
 .gstc__chart-timeline-dependency-lines-lines-line {
   position: absolute;
   pointer-events: none;

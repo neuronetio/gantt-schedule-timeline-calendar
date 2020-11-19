@@ -171,3 +171,8 @@
 - getAllGridCells and getAllGridRows added in gstc instance api
 - a full reload was fired when it shouldn't (bugfix)
 - deep-state-library updated with couple of bugfixes
+
+[3.4.7]
+
+- console.log removed...
+- invalid row height and disappearing overlapping items bugfix
