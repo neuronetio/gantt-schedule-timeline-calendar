@@ -7,9 +7,9 @@ describe('Basic', () => {
     await page.goto(`http://localhost:${port}/examples/item-types-plugin/index.html`);
   });
 
-  // it('should display weeks', async () => {
-  //   await expect(page).toMatchElement('.gstc__chart-calendar-date-content--minute', {
-  //     text: '00:15',
-  //   });
-  // });
+  it('should display weeks', async () => {
+    // await expect(page).toMatchElement('.gstc__chart-calendar-date-content--minute', {
+    //   text: '00:15',
+    // });
+  });
 });
