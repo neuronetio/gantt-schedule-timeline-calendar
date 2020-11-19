@@ -110,7 +110,7 @@ or
 
 <h2 align="center">NEED HELP?</h2>
 
-Let me know (I don't bite) neuronet.io@gmail.com
+Let us know (We don't bite) neuronet.io@gmail.com
 
 <h2 align="center">LICENSE</h2>
 
