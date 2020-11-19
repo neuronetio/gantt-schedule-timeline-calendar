@@ -176,3 +176,9 @@
 
 - console.log removed...
 - invalid row height and disappearing overlapping items bugfix
+
+[3.4.8]
+
+- remove handles from item when selected property was set to false (ItemResizing plugin bugfix)
+- more responsive item property watcher
+- invalid item position caused by DependencyLines plugin (bugfix)
