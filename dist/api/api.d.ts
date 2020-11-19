@@ -2,7 +2,7 @@ import { Time } from './time';
 import State from 'deep-state-observer';
 import DeepState from 'deep-state-observer';
 import dayjs from 'dayjs';
-import { Config, Period, DataChartTime, ScrollTypeHorizontal, Row, Item, Vido, Items, ScrollTypeVertical, Rows, GridCell, GridRow, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition } from '../gstc';
+import { Config, Period, DataChartTime, ScrollTypeHorizontal, Row, Item, Vido, Items, ScrollTypeVertical, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition } from '../gstc';
 import { generateSlots } from './slots';
 import { lithtml } from '@neuronet.io/vido';
 export declare function getClass(name: string, appendix?: string): string;
@@ -118,7 +118,9 @@ export declare class Api {
     setScrollTop(dataIndex: number | undefined, offset?: number): void;
     getScrollTop(): ScrollTypeVertical;
     getGridCells(cellIds?: string[]): GridCell[];
+    getAllGridCells(): GridCells;
     getGridRows(rowIds?: string[]): GridRow[];
+    getAllGridRows(): GridRows;
     getGridCell(cellId: string): GridCell;
     getGridRow(rowId: string): GridRow;
     muteMethod(methodName: string): void;

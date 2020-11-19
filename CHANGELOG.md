@@ -163,3 +163,11 @@
 
 - file:/// protocol warning (gstc will not work with local files)
 - #204 bugfix
+
+[3.4.6]
+
+- dependency lines plugin should not display lines if items are outside of the whole timeline (not current view)
+- throw more reasonable error when there is no item or cell with specified id when selecting
+- getAllGridCells and getAllGridRows added in gstc instance api
+- a full reload was fired when it shouldn't (bugfix)
+- deep-state-library updated with couple of bugfixes
