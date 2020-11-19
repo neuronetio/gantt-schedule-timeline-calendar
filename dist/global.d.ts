@@ -698,6 +698,13 @@ declare module "gstc" {
             yy: string;
         }>;
     }
+    export interface TemplateVariables {
+        [key: string]: any;
+    }
+    export type Template = (variables: TemplateVariables) => htmlResult;
+    export type Templates = {
+        [name in SlotName]?: Template;
+    };
     export interface Config {
         licenseKey: string;
         debug?: boolean | string;
@@ -711,6 +718,7 @@ declare module "gstc" {
         scroll?: Scroll;
         chart?: Chart;
         actions?: Actions;
+        templates?: Templates;
         locale?: Locale;
         utcMode?: boolean;
         merge?: (target: object, source: object) => object;
@@ -989,6 +997,14 @@ declare module "plugins/dependency-lines" {
     }
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
+declare module "plugins/grab-scroll" {
+    import { Vido } from "gstc";
+    export const pluginPath = "config.plugin.ItemTypes";
+    export const templatePath = "config.templates.chart-timeline-items-row-item";
+    export interface Options {
+    }
+    export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
+}
 declare module "plugins/highlight-weekends" {
     import { Vido } from "gstc";
     export interface Options {
@@ -1204,6 +1220,15 @@ declare module "plugins/item-resizing" {
         initialLeftPx: number;
         state: State;
         movement: Movement;
+    }
+    export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
+}
+declare module "plugins/item-types" {
+    import { Template, Vido } from "gstc";
+    export const pluginPath = "config.plugin.ItemTypes";
+    export const templatePath = "config.templates.chart-timeline-items-row-item";
+    export interface Options {
+        [key: string]: Template;
     }
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }

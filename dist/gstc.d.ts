@@ -493,6 +493,13 @@ export interface Locale {
         yy: string;
     }>;
 }
+export interface TemplateVariables {
+    [key: string]: any;
+}
+export declare type Template = (variables: TemplateVariables) => htmlResult;
+export declare type Templates = {
+    [name in SlotName]?: Template;
+};
 export interface Config {
     licenseKey: string;
     debug?: boolean | string;
@@ -506,6 +513,7 @@ export interface Config {
     scroll?: Scroll;
     chart?: Chart;
     actions?: Actions;
+    templates?: Templates;
     locale?: Locale;
     utcMode?: boolean;
     merge?: (target: object, source: object) => object;

@@ -182,3 +182,8 @@
 - remove handles from item when selected property was set to false (ItemResizing plugin bugfix)
 - more responsive item property watcher
 - invalid item position caused by DependencyLines plugin (bugfix)
+
+[3.5.0]
+
+- Component templates support (for item only just for now)
+- ItemTypes plugin

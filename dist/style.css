@@ -55,6 +55,30 @@ body.gstc-scrolling * {
 .gstc-scrolling .gstc__selected {
   animation-name: none !important;
 }
+.gstc__item-type.gstc__selected {
+  box-shadow: none !important;
+}
+.gstc__item-type.gstc__selected svg {
+  filter: drop-shadow(0px 0px 1px #0077c0) drop-shadow(0px 0px 2px #0077c0);
+}
+.gstc__item-type .gstc__chart-timeline-items-row-item-resizing-handle--left-outside {
+  border-radius: 5px;
+  background: rgba(0,0,0,0.2);
+}
+.gstc__item-type .gstc__chart-timeline-items-row-item-resizing-handle--right-outside {
+  border-radius: 5px;
+  background: rgba(0,0,0,0.2);
+}
+.gstc__item-type.gstc__chart-timeline-items-row-item-label {
+  margin: 4px 16px;
+}
+.gstc__item-type-progress-line {
+  stroke: rgba(255,255,255,0.145);
+  stroke-width: 20;
+}
+.gstc__item-type-content {
+  display: flex;
+}
 .gstc__list-column-header-resizer--active {
   cursor: ew-resize;
 }

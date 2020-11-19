@@ -34,7 +34,7 @@ Keywords: [ gantt, javascript gantt, typescript gantt, project manager, js gantt
 - tree like structures - collapsible / expandable groups
 - moveable / resizable items with ability to configure which items can move at the moment and how
 - snap to specified time when resizing / moving
-- slots support to easily change html content of each component
+- templates & slots support to easily change html content of each component
 - background grid on which you can place your html content
 - selectable cells and items with a choice of what can be selected at the moment
 - gradual time zoom up to seconds
@@ -83,8 +83,9 @@ You can checkout [examples folder](https://github.com/neuronetio/gantt-schedule-
 <h2 align="center">SCREENSHOTS</h2>
 
 <p align="center">
-  <img src="https://neuronet.io/screenshots/dependency.png" alt="gantt-schedule-timeline-calendar dependency lines">
+  <img src="https://neuronet.io/screenshots/item-types.png" alt="gantt-schedule-timeline-calendar item types">
   <br />
+
   <img src="https://neuronet.io/screenshots/select-cells.gif" alt="gantt-schedule-timeline-calendar select cells">
   <br />
   <img src="https://neuronet.io/screenshots/linked-items-2.gif" alt="gantt-schedule-timeline-calendar linked items">
@@ -106,6 +107,10 @@ or
 <h2 align="center">DOCUMENTATION</h2>
 
 [Documentation can be found here](https://gantt-schedule-timeline-calendar.neuronet.io) [work in progress]
+
+<h2 align="center">NEED HELP?</h2>
+
+Let me know (I don't bite) neuronet.io@gmail.com
 
 <h2 align="center">LICENSE</h2>
 
