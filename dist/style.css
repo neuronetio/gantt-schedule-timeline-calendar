@@ -446,10 +446,6 @@ body.gstc-scrolling * {
 }
 .gstc__chart-timeline-grid-row-cell.gstc__selected {
   background: #3498db !important;
-  animation-name: selected-animation;
-  animation-duration: 650ms;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
 }
 .gstc__chart-timeline-dependency-lines {
   position: absolute;
@@ -619,10 +615,6 @@ body.gstc-scrolling * {
 }
 .gstc__chart-timeline-items-row-item.gstc__selected {
   box-shadow: 0px 0px 1px 2px #0077c0;
-  animation-name: selected-item-animation;
-  animation-duration: 650ms;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
   cursor: grab;
 }
 .gstc__chart-timeline-items-row-item-dependency-line {
@@ -651,6 +643,12 @@ body.gstc-scrolling * {
 .gstc__item-type .gstc__chart-timeline-items-row-item-resizing-handle--right-outside {
   border-radius: 5px;
   background: rgba(0,0,0,0.2);
+}
+.gstc__item-type.gstc__chart-timeline-items-row-item-resizing-handle--left {
+  border-radius: 0;
+}
+.gstc__item-type.gstc__chart-timeline-items-row-item-resizing-handle--right {
+  border-radius: 0;
 }
 .gstc__item-type.gstc__chart-timeline-items-row-item-label {
   margin: 4px 16px;

@@ -144,15 +144,36 @@ const config = {
   },
   chart: {
     items,
-    // time: {
-    //   from: GSTC.api.date().startOf('month').valueOf(),
-    //   to: GSTC.api.date().endOf('month').valueOf(),
-    //   calculatedZoomMode: true,
-    // },
   },
   scroll: {
     vertical: {
       precise: false,
+    },
+  },
+  slots: {
+    // item content slot that will show circle with letter next to item label
+    'chart-timeline-items-row-item': {
+      content: [
+        (vido, props) => {
+          const { onChange, html } = vido;
+          let letter = props.item.label.charAt(0).toUpperCase();
+          onChange((newProps) => {
+            if (newProps.item) {
+              props = newProps;
+              letter = props.item.label.charAt(0).toUpperCase();
+            }
+          });
+          return (content) =>
+            html`<div
+                class="item-img"
+                style="width:24px;height:24px;background:${props.item
+                  .imgColor};border-radius:100%;text-align:center;line-height:24px;font-weight:bold;margin-right:10px;"
+              >
+                ${letter}
+              </div>
+              ${content}`;
+        },
+      ],
     },
   },
 };
