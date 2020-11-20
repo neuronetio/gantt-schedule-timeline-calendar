@@ -16,7 +16,7 @@ Keywords: [ gantt, javascript gantt, typescript gantt, project manager, js gantt
   <img src="https://img.shields.io/npm/dt/gantt-schedule-timeline-calendar.svg">
   <img src="https://api.travis-ci.com/neuronetio/gantt-schedule-timeline-calendar.svg?branch=master">
   <img src="https://img.shields.io/npm/v/gantt-schedule-timeline-calendar.svg">
-  <img src="https://david-dm.org/neuronetio/gantt-schedule-timeline-calendar.svg">
+  <img src="david-dm.org/neuronetio/gantt-schedule-timeline-calendar.svg">
   <img src="https://neuronet.io/screenshots/typescript.svg">
   <img src="https://neuronet.io/screenshots/eslint.svg">
   <img src="https://neuronet.io/screenshots/jest_1.svg">
@@ -85,7 +85,8 @@ You can checkout [examples folder](https://github.com/neuronetio/gantt-schedule-
 <p align="center">
   <img src="https://neuronet.io/screenshots/item-types.png" alt="gantt-schedule-timeline-calendar item types">
   <br />
-
+  <img src="https://neuronet.io/screenshots/item-types-selected.png" alt="gantt-schedule-timeline-calendar item types">
+  <br />
   <img src="https://neuronet.io/screenshots/select-cells.gif" alt="gantt-schedule-timeline-calendar select cells">
   <br />
   <img src="https://neuronet.io/screenshots/linked-items-2.gif" alt="gantt-schedule-timeline-calendar linked items">

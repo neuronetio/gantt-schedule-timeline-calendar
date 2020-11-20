@@ -187,3 +187,7 @@
 
 - Component templates support (for item only just for now)
 - ItemTypes plugin
+
+[3.5.1]
+
+- ItemTypes plugin is now compatible with item slots
