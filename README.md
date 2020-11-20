@@ -16,7 +16,7 @@ Keywords: [ gantt, javascript gantt, typescript gantt, project manager, js gantt
   <img src="https://img.shields.io/npm/dt/gantt-schedule-timeline-calendar.svg">
   <img src="https://api.travis-ci.com/neuronetio/gantt-schedule-timeline-calendar.svg?branch=master">
   <img src="https://img.shields.io/npm/v/gantt-schedule-timeline-calendar.svg">
-  <img src="david-dm.org/neuronetio/gantt-schedule-timeline-calendar.svg">
+  <img src="https://david-dm.org/neuronetio/gantt-schedule-timeline-calendar.svg">
   <img src="https://neuronet.io/screenshots/typescript.svg">
   <img src="https://neuronet.io/screenshots/eslint.svg">
   <img src="https://neuronet.io/screenshots/jest_1.svg">
