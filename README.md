@@ -109,7 +109,7 @@ or
 
 <h2 align="center">DOCUMENTATION</h2>
 
-[Documentation can be found here](https://gantt-schedule-timeline-calendar.neuronet.io) [work in progress]
+[Documentation can be found here](https://gantt-schedule-timeline-calendar.neuronet.io)
 
 <h2 align="center">NEED HELP?</h2>
 

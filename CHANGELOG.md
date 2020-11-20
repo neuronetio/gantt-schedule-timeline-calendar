@@ -199,3 +199,7 @@
 [3.5.3]
 
 - rows height calculation bugfix
+
+[3.5.4]
+
+- ProgressBar width bugfix
