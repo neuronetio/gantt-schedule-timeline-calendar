@@ -644,10 +644,10 @@ body.gstc-scrolling * {
   border-radius: 5px;
   background: rgba(0,0,0,0.2);
 }
-.gstc__item-type.gstc__chart-timeline-items-row-item-resizing-handle--left {
+.gstc__item-type .gstc__chart-timeline-items-row-item-resizing-handle--left {
   border-radius: 0;
 }
-.gstc__item-type.gstc__chart-timeline-items-row-item-resizing-handle--right {
+.gstc__item-type .gstc__chart-timeline-items-row-item-resizing-handle--right {
   border-radius: 0;
 }
 .gstc__item-type.gstc__chart-timeline-items-row-item-label {

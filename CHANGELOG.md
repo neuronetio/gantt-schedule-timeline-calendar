@@ -195,3 +195,7 @@
 [3.5.2]
 
 - changed slot a little bit so ItemTypes plugin can work with ItemResizer plugin (inside item)
+
+[3.5.3]
+
+- rows height calculation bugfix
