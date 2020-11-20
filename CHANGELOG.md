@@ -203,3 +203,7 @@
 [3.5.4]
 
 - ProgressBar width bugfix
+
+[3.5.5]
+
+- ProgressBar width bugfix
