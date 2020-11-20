@@ -87,6 +87,8 @@ You can checkout [examples folder](https://github.com/neuronetio/gantt-schedule-
   <br />
   <img src="https://neuronet.io/screenshots/item-types-selected.png" alt="gantt-schedule-timeline-calendar item types">
   <br />
+  <img src="https://neuronet.io/screenshots/item-types-selected-2.png" alt="gantt-schedule-timeline-calendar item types">
+  <br />
   <img src="https://neuronet.io/screenshots/select-cells.gif" alt="gantt-schedule-timeline-calendar select cells">
   <br />
   <img src="https://neuronet.io/screenshots/linked-items-2.gif" alt="gantt-schedule-timeline-calendar linked items">
