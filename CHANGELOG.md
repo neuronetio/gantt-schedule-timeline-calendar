@@ -219,3 +219,7 @@
 [3.6.1]
 
 - `This domain is not registered for your license ( undefined ).` bugfix
+
+[3.6.2]
+
+- #216 bugfix
