@@ -96,6 +96,7 @@ const columns = {
         return vido.html`<div style="text-align:center">${row.progress}</div>`;
       },
       width: 80,
+      sortable: 'progress',
       header: {
         content: 'Progress',
       },

@@ -51,6 +51,16 @@ declare module "api/time" {
         getHigherPeriod(period: Period): Period;
     }
 }
+declare module "api/id" {
+    class IDApi {
+        constructor();
+        GSTCID(originalId: string): string;
+        isGSTCID(id: string): boolean;
+        sourceID(id: string): string;
+    }
+    const _default: IDApi;
+    export default _default;
+}
 declare module "api/slots" {
     import { Vido } from "gstc";
     import { Slots as VidoSlots, ComponentInstance, Component } from '@neuronet.io/vido';
@@ -71,34 +81,12 @@ declare module "api/slots" {
 }
 declare module "api/api" {
     import { Time } from "api/time";
-    import State from 'deep-state-observer';
     import DeepState from 'deep-state-observer';
-    import dayjs from 'dayjs';
-    import { Config, Period, DataChartTime, ScrollTypeHorizontal, Row, Item, Vido, Items, ScrollTypeVertical, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition } from "gstc";
+    import { DataChartTime, ScrollTypeHorizontal, Row, Item, Vido, Items, ScrollTypeVertical, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, TreeMap } from "gstc";
     import { generateSlots } from "api/slots";
-    import { lithtml } from '@neuronet.io/vido';
+    export const mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
     export function getClass(name: string, appendix?: string): string;
     export function getId(name: string, id: string): string;
-    export function prepareState(userConfig: Config): {
-        config: unknown;
-    };
-    export function stateFromConfig(userConfig: Config): State;
-    export function wasmStateFromConfig(userConfig: Config, wasmFile?: string): Promise<any>;
-    export const publicApi: {
-        name: string;
-        GSTCID(originalId: string): string;
-        isGSTCID(id: string): boolean;
-        sourceID(id: string): string;
-        fromArray(array: any): {};
-        stateFromConfig: typeof stateFromConfig;
-        wasmStateFromConfig: typeof wasmStateFromConfig;
-        merge: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
-        lithtml: typeof lithtml;
-        html: typeof lithtml;
-        date(time: any): dayjs.Dayjs;
-        setPeriod(period: Period): number;
-        dayjs: typeof dayjs;
-    };
     export interface WheelResult {
         x: number;
         y: number;
@@ -124,10 +112,11 @@ declare module "api/api" {
         mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
         getClass: typeof getClass;
         getId: typeof getId;
-        GSTCID: any;
-        isGSTCID: any;
-        sourceID: any;
+        GSTCID: (originalId: string) => string;
+        isGSTCID: (id: string) => boolean;
+        sourceID: (id: string) => string;
         allActions: any[];
+        main: any;
         constructor(state: DeepState);
         getListenerPosition(callback: any): string | number;
         setVido(Vido: Vido): void;
@@ -166,7 +155,7 @@ declare module "api/api" {
         prepareDependantItems(item: Item, items: Items): string[];
         prepareItem(item: Item, defaultItemHeight?: number, itemsData?: DataItems, items?: Items): void;
         prepareItems(items: Items): Items;
-        sortRows(rowsArray: Row[]): Rows;
+        sortRows(sortedRowsArray: Row[], children: TreeMap[], rows?: Rows): Rows;
         fillEmptyRowValues(rows: Rows): Rows;
         itemsOnTheSameLevel(item1: Item, item2: Item): boolean;
         itemsOverlaps(item1: Item, item2: Item): boolean;
@@ -178,17 +167,19 @@ declare module "api/api" {
         calculateVisibleRowsHeights(): void;
         generateParents(rows: RowsData | Items, parentName?: string): {};
         fastTree(rowParents: any, node: any, parents?: any[]): any;
+        makeRowsTree(rowsData: RowsData, rowsTreeNode: any): any;
         makeTreeMap(rowsData: RowsData, items: Items, onlyItems?: boolean): void;
         getRowsWithParentsExpanded(rows: Rows): any[];
         getVisibleRowsAndCalculateViewTop(): string[];
         private getSortableValue;
-        sortRowsByColumn(column: ColumnData, asc?: boolean): void;
+        sortRowsByColumn(column: ColumnData, asc?: boolean): Rows;
         normalizeMouseWheelEvent(event: WheelEvent): WheelResult;
         scrollToTime(toTime: number, centered?: boolean, time?: DataChartTime): number;
         setScrollLeft(dataIndex: number | undefined, time?: DataChartTime, multi?: any, recalculateTimesLastReason?: string): any;
         getScrollLeft(): ScrollTypeHorizontal;
         setScrollTop(dataIndex: number | undefined, offset?: number): void;
         getScrollTop(): ScrollTypeVertical;
+        getCurrentCalendarLevels(): DataChartTimeLevels;
         getGridCells(cellIds?: string[]): GridCell[];
         getAllGridCells(): GridCells;
         getGridRows(rowIds?: string[]): GridRow[];
@@ -202,8 +193,84 @@ declare module "api/api" {
         destroy(): void;
     }
 }
+declare module "api/public" {
+    import State from 'deep-state-observer';
+    import dayjs from 'dayjs';
+    import { Config, Period } from "gstc";
+    import { lithtml } from '@neuronet.io/vido';
+    export const mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
+    export function prepareState(userConfig: Config): {
+        config: unknown;
+    };
+    export function stateFromConfig(userConfig: Config): State;
+    export function wasmStateFromConfig(userConfig: Config, wasmFile?: string): Promise<any>;
+    export const publicApi: {
+        fromArray(array: any): {};
+        stateFromConfig: typeof stateFromConfig;
+        wasmStateFromConfig: typeof wasmStateFromConfig;
+        merge: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
+        lithtml: typeof lithtml;
+        html: typeof lithtml;
+        date(time: any): dayjs.Dayjs;
+        setPeriod(period: Period): number;
+        dayjs: typeof dayjs;
+        name: string;
+    };
+}
+declare module "api/main" {
+    import { DataChartTime, DataChartTimeLevel, DataChartTimeLevelDate, ChartCalendarLevel, ChartTimeDate, ChartTimeDates, ChartCalendarLevelFormat, Vido, Reason } from "gstc";
+    import { ListenerFunctionEventInfo } from 'deep-state-observer';
+    export default function main(vido: Vido): {
+        className: string;
+        styleMap: import("@neuronet.io/vido").StyleMap;
+        initializePlugins(): void;
+        heightChange(): void;
+        resizerActiveChange(active: boolean): void;
+        generateTreeFromVisibleRows(): void;
+        generateTree(fullReload?: boolean): void;
+        prepareExpanded(): void;
+        calculateRowsHeight(): void;
+        recalculateRowPercents(): void;
+        getLastPageRowsHeight(innerHeight: number, rowsWithParentsExpanded: string[]): number;
+        calculateVerticalScrollArea(): void;
+        generateVisibleRowsAndItems(): void;
+        resetScroll(): void;
+        updateItemsVerticalPositions(): void;
+        getMutedListeners(): any[];
+        minimalReload(eventInfo: ListenerFunctionEventInfo): void;
+        partialReload(fullReload: boolean, eventInfo: ListenerFunctionEventInfo): void;
+        fullReload(eventInfo: ListenerFunctionEventInfo): void;
+        triggerLoadedEvent(): void;
+        getLastPageDatesWidth(chartWidth: number, allDates: DataChartTimeLevelDate[]): number;
+        generatePeriodDates(formatting: ChartCalendarLevelFormat, time: DataChartTime, level: ChartCalendarLevel, levelIndex: number): DataChartTimeLevel;
+        limitGlobal(time: DataChartTime, oldTime: DataChartTime): DataChartTime;
+        setCenter(time: DataChartTime): void;
+        guessPeriod(time: DataChartTime, levels: ChartCalendarLevel[]): DataChartTime;
+        calculateDatesPercents(allMainDates: DataChartTimeLevelDate[], chartWidth: number): number;
+        getFormatAndLevelIndexForZoom(zoom: number, levels?: ChartCalendarLevel[]): {
+            levelIndex: number;
+            format: ChartCalendarLevelFormat;
+        };
+        generateAllDates(time: DataChartTime, levels: ChartCalendarLevel[], chartWidth: number): number;
+        getPeriodDates(allLevelDates: ChartTimeDates, time: DataChartTime): ChartTimeDate[];
+        updateLevels(time: DataChartTime, levels: ChartCalendarLevel[]): void;
+        calculateTotalViewDuration(time: DataChartTime): void;
+        calculateRightGlobal(leftGlobal: number, chartWidth: number, allMainDates: DataChartTimeLevelDate[]): number;
+        updateVisibleItems(time?: DataChartTime, multi?: {
+            update(updatePath: string, fn: any, options?: import("deep-state-observer").UpdateOptions): any;
+            done(): void;
+        }): {
+            update(updatePath: string, fn: any, options?: import("deep-state-observer").UpdateOptions): any;
+            done(): void;
+        };
+        recalculateTimes(reason: Reason): void;
+    };
+}
+declare module "components/main" {
+    import { Vido } from "gstc";
+    export default function Main(vido: Vido, props?: {}): () => any;
+}
 declare module "gstc" {
-    import 'pepjs';
     import { vido, lithtml, ComponentInstance } from '@neuronet.io/vido';
     import { Api } from "api/api";
     import { Dayjs, OpUnitType } from 'dayjs';
@@ -341,7 +408,7 @@ declare module "gstc" {
     export type VoidFunction = () => void;
     export type PluginInitialization = (vido: Vido) => void | VoidFunction;
     export type Plugin = <T>(options: T) => PluginInitialization;
-    export type htmlResult = lithtml.TemplateResult | lithtml.TemplateResult[] | lithtml.SVGTemplateResult | lithtml.SVGTemplateResult[] | undefined | null;
+    export type htmlResult = lithtml.TemplateResult | lithtml.TemplateResult[] | lithtml.SVGTemplateResult | lithtml.SVGTemplateResult[] | string | Element | undefined | null;
     export type RenderFunction = (templateProps: unknown) => htmlResult;
     export type Component = (vido: unknown, props: unknown) => RenderFunction;
     export interface Components {
@@ -517,7 +584,6 @@ declare module "gstc" {
         rightGlobal?: number;
         readonly rightGlobalDate?: Dayjs;
         format?: ChartCalendarLevelFormat;
-        levels?: ChartTimeDates[];
         additionalSpaces?: ChartCalendarAdditionalSpaces;
         calculatedZoomMode?: boolean;
         onLevelDates?: ChartTimeOnLevelDates[];
@@ -550,6 +616,7 @@ declare module "gstc" {
         rightPercent?: number;
     }
     export type DataChartTimeLevel = DataChartTimeLevelDate[];
+    export type DataChartTimeLevels = DataChartTimeLevel[];
     export interface DataChartTime extends ChartTime {
         period: Period;
         leftGlobal: number;
@@ -574,7 +641,7 @@ declare module "gstc" {
         zoom: number;
         format: ChartCalendarLevelFormat;
         level: number;
-        levels: DataChartTimeLevel[];
+        levels: DataChartTimeLevels;
         additionalSpaces?: ChartCalendarAdditionalSpaces;
         calculatedZoomMode?: boolean;
         onLevelDates?: ChartTimeOnLevelDates[];
@@ -729,9 +796,7 @@ declare module "gstc" {
     }
     export interface TreeMap {
         id: string;
-        parents: string[];
-        children: Row[];
-        items: Item[];
+        children: TreeMap[];
     }
     export interface DataList {
         width: number;
@@ -795,26 +860,19 @@ declare module "gstc" {
     function GSTC(options: GSTCOptions): GSTCResult;
     namespace GSTC {
         var api: {
-            name: string;
-            GSTCID(originalId: string): string;
-            isGSTCID(id: string): boolean;
-            sourceID(id: string): string;
             fromArray(array: any): {};
-            stateFromConfig: typeof import("api/api").stateFromConfig;
-            wasmStateFromConfig: typeof import("api/api").wasmStateFromConfig;
+            stateFromConfig: typeof import("api/public").stateFromConfig;
+            wasmStateFromConfig: typeof import("api/public").wasmStateFromConfig;
             merge: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
             lithtml: typeof lithtml;
             html: typeof lithtml;
             date(time: any): Dayjs;
             setPeriod(period: OpUnitType): number;
             dayjs: typeof import("dayjs");
+            name: string;
         };
     }
     export default GSTC;
-}
-declare module "components/main" {
-    import { Vido } from "gstc";
-    export default function Main(vido: Vido, props?: {}): () => any;
 }
 declare module "components/scroll-bar" {
     import { Vido } from "gstc";
@@ -930,10 +988,11 @@ declare module "components/chart/timeline/items/items-row" {
     export default function ChartTimelineItemsRow(vido: Vido, props: Props): () => any;
 }
 declare module "components/chart/timeline/items/items-row-item" {
-    import { Row, Item, Vido } from "gstc";
+    import { Row, Item, Vido, ItemData } from "gstc";
     export interface Props {
         row: Row;
         item: Item;
+        itemData: ItemData;
     }
     export default function ChartTimelineItemsRowItem(vido: Vido, props: Props): () => any;
 }
@@ -1220,6 +1279,14 @@ declare module "plugins/item-resizing" {
         initialLeftPx: number;
         state: State;
         movement: Movement;
+    }
+    export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
+}
+declare module "plugins/item-tooltipbox" {
+    import { Vido } from "gstc";
+    export const pluginPath = "config.plugin.ItemTooltipBox";
+    export const templatePath = "config.templates.chart-timeline-items-row-item";
+    export interface Options {
     }
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }

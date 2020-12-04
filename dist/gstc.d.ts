@@ -1,4 +1,3 @@
-import 'pepjs';
 import { vido, lithtml, ComponentInstance } from '@neuronet.io/vido';
 import { Api } from './api/api';
 import { Dayjs, OpUnitType } from 'dayjs';
@@ -136,7 +135,7 @@ export interface GridRows {
 export declare type VoidFunction = () => void;
 export declare type PluginInitialization = (vido: Vido) => void | VoidFunction;
 export declare type Plugin = <T>(options: T) => PluginInitialization;
-export declare type htmlResult = lithtml.TemplateResult | lithtml.TemplateResult[] | lithtml.SVGTemplateResult | lithtml.SVGTemplateResult[] | undefined | null;
+export declare type htmlResult = lithtml.TemplateResult | lithtml.TemplateResult[] | lithtml.SVGTemplateResult | lithtml.SVGTemplateResult[] | string | Element | undefined | null;
 export declare type RenderFunction = (templateProps: unknown) => htmlResult;
 export declare type Component = (vido: unknown, props: unknown) => RenderFunction;
 export interface Components {
@@ -312,7 +311,6 @@ export interface ChartTime {
     rightGlobal?: number;
     readonly rightGlobalDate?: Dayjs;
     format?: ChartCalendarLevelFormat;
-    levels?: ChartTimeDates[];
     additionalSpaces?: ChartCalendarAdditionalSpaces;
     calculatedZoomMode?: boolean;
     onLevelDates?: ChartTimeOnLevelDates[];
@@ -345,6 +343,7 @@ export interface DataChartTimeLevelDate {
     rightPercent?: number;
 }
 export declare type DataChartTimeLevel = DataChartTimeLevelDate[];
+export declare type DataChartTimeLevels = DataChartTimeLevel[];
 export interface DataChartTime extends ChartTime {
     period: Period;
     leftGlobal: number;
@@ -369,7 +368,7 @@ export interface DataChartTime extends ChartTime {
     zoom: number;
     format: ChartCalendarLevelFormat;
     level: number;
-    levels: DataChartTimeLevel[];
+    levels: DataChartTimeLevels;
     additionalSpaces?: ChartCalendarAdditionalSpaces;
     calculatedZoomMode?: boolean;
     onLevelDates?: ChartTimeOnLevelDates[];
@@ -524,9 +523,7 @@ export interface Config {
 }
 export interface TreeMap {
     id: string;
-    parents: string[];
-    children: Row[];
-    items: Item[];
+    children: TreeMap[];
 }
 export interface DataList {
     width: number;
@@ -590,19 +587,16 @@ export interface GSTCResult {
 declare function GSTC(options: GSTCOptions): GSTCResult;
 declare namespace GSTC {
     var api: {
-        name: string;
-        GSTCID(originalId: string): string;
-        isGSTCID(id: string): boolean;
-        sourceID(id: string): string;
         fromArray(array: any): {};
-        stateFromConfig: typeof import("./api/api").stateFromConfig;
-        wasmStateFromConfig: typeof import("./api/api").wasmStateFromConfig;
+        stateFromConfig: typeof import("./api/public").stateFromConfig;
+        wasmStateFromConfig: typeof import("./api/public").wasmStateFromConfig;
         merge: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
         lithtml: typeof lithtml;
         html: typeof lithtml;
         date(time: any): Dayjs;
         setPeriod(period: OpUnitType): number;
         dayjs: typeof import("dayjs");
+        name: string;
     };
 }
 export default GSTC;

@@ -207,3 +207,11 @@
 [3.5.5]
 
 - ProgressBar width bugfix
+
+[3.6.0]
+
+- Code refactoring
+- gstc.api.getCurrentCalendarLevels method added
+- #213 sorting bugfix
+- load performance optimization (`state.update('config', ...)`, `state.update('config.list.rows',...)` and `state.update('config.chart.items',...)` also)
+- #202 fixed
