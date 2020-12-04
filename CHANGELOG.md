@@ -215,3 +215,7 @@
 - #213 sorting bugfix
 - load performance optimization (`state.update('config', ...)`, `state.update('config.list.rows',...)` and `state.update('config.chart.items',...)` also)
 - #202 fixed
+
+[3.6.1]
+
+- `This domain is not registered for your license ( undefined ).` bugfix
