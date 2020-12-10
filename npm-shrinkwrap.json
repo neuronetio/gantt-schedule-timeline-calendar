@@ -727,18 +727,18 @@
       }
     },
     "@neuronet.io/vido": {
-      "version": "3.2.0",
-      "resolved": "https://registry.npmjs.org/@neuronet.io/vido/-/vido-3.2.0.tgz",
-      "integrity": "sha512-0GoDyHX1RDwVGgv+pCs7HOF8NI1H8jrIxQC1aE2o/3neu2TWuz/osOR415roUD1TD9s0lw0woJOPAcaovMezyg==",
+      "version": "3.2.7",
+      "resolved": "https://registry.npmjs.org/@neuronet.io/vido/-/vido-3.2.7.tgz",
+      "integrity": "sha512-sNn6SjJf/i0E9yu0tR7pT9L+RQ7unp+e0gejpmbux8NsaoVREPPdSJlZFosii/xQ00EHx1W+XdMKKuiv1t1BJw==",
       "requires": {
         "csstype": "^2.6.10",
         "lit-html-optimised": "^1.3.0"
       },
       "dependencies": {
         "csstype": {
-          "version": "2.6.13",
-          "resolved": "https://registry.npmjs.org/csstype/-/csstype-2.6.13.tgz",
-          "integrity": "sha512-ul26pfSQTZW8dcOnD2iiJssfXw0gdNVX9IJDH/X3K5DGPfj+fUYe3kB+swUY6BF3oZDxaID3AJt+9/ojSAE05A=="
+          "version": "2.6.14",
+          "resolved": "https://registry.npmjs.org/csstype/-/csstype-2.6.14.tgz",
+          "integrity": "sha512-2mSc+VEpGPblzAxyeR+vZhJKgYg0Og0nnRi7pmRXFYYxSfnOnW8A5wwQb4n4cE2nIOzqKOAzLCaEX6aBmNEv8A=="
         }
       }
     },
@@ -1749,9 +1749,9 @@
       }
     },
     "csstype": {
-      "version": "3.0.3",
-      "resolved": "https://registry.npmjs.org/csstype/-/csstype-3.0.3.tgz",
-      "integrity": "sha512-jPl+wbWPOWJ7SXsWyqGRk3lGecbar0Cb0OvZF/r/ZU011R4YqiRehgkQ9p4eQfo9DSDLqLL3wHwfxeJiuIsNag=="
+      "version": "3.0.5",
+      "resolved": "https://registry.npmjs.org/csstype/-/csstype-3.0.5.tgz",
+      "integrity": "sha512-uVDi8LpBUKQj6sdxNaTetL6FpeCqTjOvAQuQUa/qAqq8oOd4ivkbhgnqayl0dnPal8Tb/yB1tF+gOvCBiicaiQ=="
     },
     "cwd": {
       "version": "0.10.0",
@@ -1784,9 +1784,9 @@
       }
     },
     "dayjs": {
-      "version": "1.8.35",
-      "resolved": "https://registry.npmjs.org/dayjs/-/dayjs-1.8.35.tgz",
-      "integrity": "sha512-isAbIEenO4ilm6f8cpqvgjZCsuerDAz2Kb7ri201AiNn58aqXuaLJEnCtfIMdCvERZHNGRY5lDMTr/jdAnKSWQ=="
+      "version": "1.9.7",
+      "resolved": "https://registry.npmjs.org/dayjs/-/dayjs-1.9.7.tgz",
+      "integrity": "sha512-IC877KBdMhBrCfBfJXHQlo0G8keZ0Opy7YIIq5QKtUbCuHMzim8S4PyiVK4YmihI3iOF9lhfUBW4AQWHTR5WHA=="
     },
     "debug": {
       "version": "2.6.9",
@@ -1830,9 +1830,9 @@
       "dev": true
     },
     "deep-state-observer": {
-      "version": "3.20.1",
-      "resolved": "https://registry.npmjs.org/deep-state-observer/-/deep-state-observer-3.20.1.tgz",
-      "integrity": "sha512-vF4zokc1XSDDhNsPU774n/J9aYk/8/453B6KRzvlKsozheiMn+nq9T1iyVKzSZRXz6WdvMDv9DR95BT3eKPgVA=="
+      "version": "3.22.8",
+      "resolved": "https://registry.npmjs.org/deep-state-observer/-/deep-state-observer-3.22.8.tgz",
+      "integrity": "sha512-FgAAsH+tFML/laC0dT2YWc9w0SYwZcUzm9Jy5cIpyDzNrGeetc2UUCMWLrhIZFEd/g0HZwhWo79t9eAKVWjE+w=="
     },
     "deepmerge": {
       "version": "4.2.2",
@@ -3186,9 +3186,9 @@
       "dev": true
     },
     "ini": {
-      "version": "1.3.5",
-      "resolved": "https://registry.npmjs.org/ini/-/ini-1.3.5.tgz",
-      "integrity": "sha512-RZY5huIKCMRWDUqZlEi72f/lmXKMvuszcMBduliQ3nnWbx9X/ZBQO7DijMEYS9EhHBb2qacRUMtC7svLwe0lcw==",
+      "version": "1.3.7",
+      "resolved": "https://registry.npmjs.org/ini/-/ini-1.3.7.tgz",
+      "integrity": "sha512-iKpRpXP+CrP2jyrxvg1kMUpXDyRUFDWurxbnVT1vQPx+Wz9uCYsMIqYuSBLV+PAaZG/d7kRLKRFc9oDMsH+mFQ==",
       "dev": true
     },
     "ip-regex": {
