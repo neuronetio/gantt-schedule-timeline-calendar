@@ -132,20 +132,20 @@
     "component timeline editor"
   ],
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.4.0",
-    "@typescript-eslint/parser": "^4.4.0",
-    "eslint": "^7.10.0",
-    "eslint-config-prettier": "^6.12.0",
-    "eslint-plugin-prettier": "^3.1.4",
-    "jest": "^26.4.2",
+    "@typescript-eslint/eslint-plugin": "^4.9.1",
+    "@typescript-eslint/parser": "^4.9.1",
+    "eslint": "^7.15.0",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-prettier": "^3.2.0",
+    "jest": "^26.6.3",
     "jest-puppeteer": "^4.4.0",
     "polonez": "^1.1.1",
-    "prettier": "^2.1.2",
-    "puppeteer": "^5.2.1",
+    "prettier": "^2.2.1",
+    "puppeteer": "^5.5.0",
     "serve-static": "^1.14.1",
-    "tippy.js": "^6.2.6",
-    "tslib": "^2.0.2",
-    "typescript": "^4.0.3"
+    "tippy.js": "^6.2.7",
+    "tslib": "^2.0.3",
+    "typescript": "^4.1.2"
   },
   "dependencies": {
     "@neuronet.io/vido": "^3.2.7",

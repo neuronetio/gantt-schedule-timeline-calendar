@@ -231,3 +231,8 @@
 [3.6.4]
 
 - types improvement
+
+[3.6.5]
+
+- npm update
+- minor types update
