@@ -9,15 +9,18 @@ export declare function prepareState(userConfig: Config): {
 export declare function stateFromConfig(userConfig: Config): State;
 export declare function wasmStateFromConfig(userConfig: Config, wasmFile?: string): Promise<any>;
 export declare const publicApi: {
+    name: string;
+    GSTCID: (originalId: string) => string;
+    isGSTCID: (id: string) => boolean;
+    sourceID: (id: string) => string;
     fromArray(array: any): {};
     stateFromConfig: typeof stateFromConfig;
     wasmStateFromConfig: typeof wasmStateFromConfig;
     merge: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
     lithtml: typeof lithtml;
     html: typeof lithtml;
-    date(time: any): dayjs.Dayjs;
+    date(time?: any): dayjs.Dayjs;
     setPeriod(period: Period): number;
     dayjs: typeof dayjs;
-    name: string;
 };
 //# sourceMappingURL=public.d.ts.map

@@ -227,3 +227,7 @@
 [3.6.3]
 
 - #217 bugfix
+
+[3.6.4]
+
+- types improvement

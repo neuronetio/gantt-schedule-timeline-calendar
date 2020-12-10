@@ -519,7 +519,7 @@ export interface Config {
     useLast?: boolean;
     Promise?: Promise<unknown> | any;
     mute?: string[];
-    readonly version: string;
+    readonly version?: string;
 }
 export interface TreeMap {
     id: string;
@@ -587,16 +587,19 @@ export interface GSTCResult {
 declare function GSTC(options: GSTCOptions): GSTCResult;
 declare namespace GSTC {
     var api: {
+        name: string;
+        GSTCID: (originalId: string) => string;
+        isGSTCID: (id: string) => boolean;
+        sourceID: (id: string) => string;
         fromArray(array: any): {};
         stateFromConfig: typeof import("./api/public").stateFromConfig;
         wasmStateFromConfig: typeof import("./api/public").wasmStateFromConfig;
         merge: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
         lithtml: typeof lithtml;
         html: typeof lithtml;
-        date(time: any): Dayjs;
+        date(time?: any): Dayjs;
         setPeriod(period: OpUnitType): number;
         dayjs: typeof import("dayjs");
-        name: string;
     };
 }
 export default GSTC;

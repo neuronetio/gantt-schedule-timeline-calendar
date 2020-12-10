@@ -205,16 +205,19 @@ declare module "api/public" {
     export function stateFromConfig(userConfig: Config): State;
     export function wasmStateFromConfig(userConfig: Config, wasmFile?: string): Promise<any>;
     export const publicApi: {
+        name: string;
+        GSTCID: (originalId: string) => string;
+        isGSTCID: (id: string) => boolean;
+        sourceID: (id: string) => string;
         fromArray(array: any): {};
         stateFromConfig: typeof stateFromConfig;
         wasmStateFromConfig: typeof wasmStateFromConfig;
         merge: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
         lithtml: typeof lithtml;
         html: typeof lithtml;
-        date(time: any): dayjs.Dayjs;
+        date(time?: any): dayjs.Dayjs;
         setPeriod(period: Period): number;
         dayjs: typeof dayjs;
-        name: string;
     };
 }
 declare module "api/main" {
@@ -792,7 +795,7 @@ declare module "gstc" {
         useLast?: boolean;
         Promise?: Promise<unknown> | any;
         mute?: string[];
-        readonly version: string;
+        readonly version?: string;
     }
     export interface TreeMap {
         id: string;
@@ -860,16 +863,19 @@ declare module "gstc" {
     function GSTC(options: GSTCOptions): GSTCResult;
     namespace GSTC {
         var api: {
+            name: string;
+            GSTCID: (originalId: string) => string;
+            isGSTCID: (id: string) => boolean;
+            sourceID: (id: string) => string;
             fromArray(array: any): {};
             stateFromConfig: typeof import("api/public").stateFromConfig;
             wasmStateFromConfig: typeof import("api/public").wasmStateFromConfig;
             merge: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
             lithtml: typeof lithtml;
             html: typeof lithtml;
-            date(time: any): Dayjs;
+            date(time?: any): Dayjs;
             setPeriod(period: OpUnitType): number;
             dayjs: typeof import("dayjs");
-            name: string;
         };
     }
     export default GSTC;
