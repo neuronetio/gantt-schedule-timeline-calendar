@@ -236,3 +236,8 @@
 
 - npm update
 - minor types update
+
+[3.6.6]
+
+- performance
+- plugins destroy bugfix

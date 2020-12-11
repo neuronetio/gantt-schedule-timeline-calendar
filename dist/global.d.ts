@@ -240,9 +240,6 @@ declare module "api/main" {
         resetScroll(): void;
         updateItemsVerticalPositions(): void;
         getMutedListeners(): any[];
-        minimalReload(eventInfo: ListenerFunctionEventInfo): void;
-        partialReload(fullReload: boolean, eventInfo: ListenerFunctionEventInfo): void;
-        fullReload(eventInfo: ListenerFunctionEventInfo): void;
         triggerLoadedEvent(): void;
         getLastPageDatesWidth(chartWidth: number, allDates: DataChartTimeLevelDate[]): number;
         generatePeriodDates(formatting: ChartCalendarLevelFormat, time: DataChartTime, level: ChartCalendarLevel, levelIndex: number): DataChartTimeLevel;
@@ -267,6 +264,9 @@ declare module "api/main" {
             done(): void;
         };
         recalculateTimes(reason: Reason): void;
+        minimalReload(eventInfo: ListenerFunctionEventInfo): void;
+        partialReload(fullReload: boolean, eventInfo: ListenerFunctionEventInfo): void;
+        fullReload(eventInfo: ListenerFunctionEventInfo): void;
     };
 }
 declare module "components/main" {

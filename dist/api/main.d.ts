@@ -17,9 +17,6 @@ export default function main(vido: Vido): {
     resetScroll(): void;
     updateItemsVerticalPositions(): void;
     getMutedListeners(): any[];
-    minimalReload(eventInfo: ListenerFunctionEventInfo): void;
-    partialReload(fullReload: boolean, eventInfo: ListenerFunctionEventInfo): void;
-    fullReload(eventInfo: ListenerFunctionEventInfo): void;
     triggerLoadedEvent(): void;
     getLastPageDatesWidth(chartWidth: number, allDates: DataChartTimeLevelDate[]): number;
     generatePeriodDates(formatting: ChartCalendarLevelFormat, time: DataChartTime, level: ChartCalendarLevel, levelIndex: number): DataChartTimeLevel;
@@ -44,5 +41,8 @@ export default function main(vido: Vido): {
         done(): void;
     };
     recalculateTimes(reason: Reason): void;
+    minimalReload(eventInfo: ListenerFunctionEventInfo): void;
+    partialReload(fullReload: boolean, eventInfo: ListenerFunctionEventInfo): void;
+    fullReload(eventInfo: ListenerFunctionEventInfo): void;
 };
 //# sourceMappingURL=main.d.ts.map

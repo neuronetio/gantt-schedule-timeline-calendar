@@ -1889,9 +1889,9 @@
       "dev": true
     },
     "deep-state-observer": {
-      "version": "3.22.8",
-      "resolved": "https://registry.npmjs.org/deep-state-observer/-/deep-state-observer-3.22.8.tgz",
-      "integrity": "sha512-FgAAsH+tFML/laC0dT2YWc9w0SYwZcUzm9Jy5cIpyDzNrGeetc2UUCMWLrhIZFEd/g0HZwhWo79t9eAKVWjE+w=="
+      "version": "3.22.9",
+      "resolved": "https://registry.npmjs.org/deep-state-observer/-/deep-state-observer-3.22.9.tgz",
+      "integrity": "sha512-NxXr7T6oqI1VHCP1V//aWaDH6m3mO1JsMvAgoc6r5bheuLAkd8VlrNqKHDWRUx6oiwLZL68/e5kiNOqIvfpVow=="
     },
     "deepmerge": {
       "version": "4.2.2",
