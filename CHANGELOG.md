@@ -241,3 +241,7 @@
 
 - performance
 - plugins destroy bugfix
+
+[3.6.7]
+
+- offline license mechanism
