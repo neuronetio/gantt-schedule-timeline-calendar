@@ -242,6 +242,7 @@
 - performance
 - plugins destroy bugfix
 
-[3.6.7]
+[3.7.0]
 
-- offline license mechanism
+- offline licenses
+- minified code undefined variables bugfix

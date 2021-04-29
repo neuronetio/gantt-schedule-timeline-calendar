@@ -33,6 +33,7 @@ Keywords: [ gantt, javascript gantt, typescript gantt, project manager, js gantt
 - multiple items in one row - suitable for various applications like booking, reservation, resource manager, multimedia editor etc.
 - tree like structures - collapsible / expandable groups
 - moveable / resizable items with ability to configure which items can move at the moment and how
+- secure html templates
 - snap to specified time when resizing / moving
 - templates & slots support to easily change html content of each component
 - background grid on which you can place your html content

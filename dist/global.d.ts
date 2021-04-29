@@ -874,7 +874,7 @@ declare module "gstc" {
             lithtml: typeof lithtml;
             html: typeof lithtml;
             date(time?: any): Dayjs;
-            setPeriod(period: OpUnitType): number;
+            setPeriod(period: Period): number;
             dayjs: typeof import("dayjs");
         };
     }
