@@ -246,3 +246,8 @@
 
 - offline licenses
 - minified code undefined variables bugfix
+
+[3.7.1]
+
+- license info stored in state (`state.get('license')`)
+- grid cells bugfix
