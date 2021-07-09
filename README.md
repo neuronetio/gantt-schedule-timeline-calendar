@@ -124,3 +124,10 @@ You can generate [free license key here](https://gstc.neuronet.io/free-key).
 You can use this software for free in non-commercial projects that are under the MIT / ISC license and whose full source code is available on the Internet (backend and frontend).
 In commercial or closed source projects, you can use it for free for two months only.
 If you need a full commercial license with all plugins included, please visit [pricing page](https://gantt-schedule-timeline-calendar.neuronet.io/pricing).
+
+## Sponsor
+![Scheduling API](https://user-images.githubusercontent.com/9488406/125080407-0dd25780-e0c5-11eb-9f70-ef958968674a.png)
+
+This repo is sponsored by [**Spurwing**](https://www.spurwing.io/), where their API Makes Adding Scheduling Quick, Reliable and Scalable.
+Use Spurwing to build and integrate Scheduling, Booking & Calendar features in your project. Read more about Spurwing [**Scheduling API on GitHub**](https://github.com/Spurwing/Appointment-Scheduling-API).
+
