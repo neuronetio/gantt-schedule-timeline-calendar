@@ -47,6 +47,7 @@ Keywords: [ gantt, javascript gantt, typescript gantt, project manager, js gantt
 - plugins support
 - attractive visually
 - written in typescript
+- offline license key
 
 <p>
 You can use it in <strong>react</strong>, <strong>vue</strong>, <strong>angular</strong>, <strong>svelte</strong> or any other projects.
