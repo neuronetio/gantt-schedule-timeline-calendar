@@ -259,3 +259,7 @@
 [3.7.3]
 
 - cache calculation bugfix (chart not responding to all changes)
+
+[3.7.4]
+
+- cut items to last date
