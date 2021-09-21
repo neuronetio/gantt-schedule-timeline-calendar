@@ -263,3 +263,7 @@
 [3.7.4]
 
 - cut items to last date
+
+[3.7.5]
+
+- right arrow not appearing in some circumstances bugfix
