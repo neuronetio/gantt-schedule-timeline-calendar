@@ -255,3 +255,7 @@
 [3.7.2]
 
 - #275 bugfix (wrong right position of the item in calculatedTimeZoom mode)
+
+[3.7.3]
+
+- cache calculation bugfix (chart not responding to all changes)
