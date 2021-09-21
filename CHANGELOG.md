@@ -251,3 +251,7 @@
 
 - license info stored in state (`state.get('license')`)
 - grid cells bugfix
+
+[3.7.2]
+
+- #275 bugfix (wrong right position of the item in calculatedTimeZoom mode)
