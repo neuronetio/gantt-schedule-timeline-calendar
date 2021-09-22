@@ -267,3 +267,7 @@
 [3.7.5]
 
 - right arrow not appearing in some circumstances bugfix
+
+[3.7.6]
+
+- ItemResizing plugin handle content improvement (function | object) with left and right values

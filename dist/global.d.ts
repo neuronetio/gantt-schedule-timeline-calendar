@@ -1260,12 +1260,21 @@ declare module "plugins/item-resizing" {
         speed?: number;
         edgeThreshold?: number;
     }
+    export interface HandleContentObject {
+        left: htmlResult;
+        right: htmlResult;
+    }
+    export type HandleContentFunction = ({ item: Item, vido: Vido }: {
+        item: any;
+        vido: any;
+    }) => HandleContentObject;
+    export type HandleContent = HandleContentObject | HandleContentFunction | htmlResult;
     export interface Options {
         enabled?: boolean;
         dependant?: boolean;
         debug?: boolean;
         handle?: Handle;
-        content?: htmlResult;
+        content?: HandleContent;
         bodyClass?: string;
         bodyClassLeft?: string;
         bodyClassRight?: string;

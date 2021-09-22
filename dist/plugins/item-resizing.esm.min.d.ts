@@ -50,12 +50,21 @@ export interface AutoScroll {
     speed?: number;
     edgeThreshold?: number;
 }
+export interface HandleContentObject {
+    left: htmlResult;
+    right: htmlResult;
+}
+export declare type HandleContentFunction = ({ item: Item, vido: Vido }: {
+    item: any;
+    vido: any;
+}) => HandleContentObject;
+export declare type HandleContent = HandleContentObject | HandleContentFunction | htmlResult;
 export interface Options {
     enabled?: boolean;
     dependant?: boolean;
     debug?: boolean;
     handle?: Handle;
-    content?: htmlResult;
+    content?: HandleContent;
     bodyClass?: string;
     bodyClassLeft?: string;
     bodyClassRight?: string;
