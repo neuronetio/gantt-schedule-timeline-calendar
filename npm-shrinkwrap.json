@@ -1947,10 +1947,13 @@
       }
     },
     "node_modules/caniuse-lite": {
-      "version": "1.0.30001259",
-      "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001259.tgz",
-      "integrity": "sha512-V7mQTFhjITxuk9zBpI6nYsiTXhcPe05l+364nZjK7MFK/E7ibvYBSAXr4YcA6oPR8j3ZLM/LN+lUqUVAQEUZFg==",
+      "version": "1.0.30001260",
+      "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001260.tgz",
+      "integrity": "sha512-Fhjc/k8725ItmrvW5QomzxLeojewxvqiYCKeFcfFEhut28IVLdpHU19dneOmltZQIE5HNbawj1HYD+1f2bM1Dg==",
       "dev": true,
+      "dependencies": {
+        "nanocolors": "^0.1.0"
+      },
       "funding": {
         "type": "opencollective",
         "url": "https://opencollective.com/browserslist"
@@ -2459,9 +2462,9 @@
       "dev": true
     },
     "node_modules/electron-to-chromium": {
-      "version": "1.3.846",
-      "resolved": "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.3.846.tgz",
-      "integrity": "sha512-2jtSwgyiRzybHRxrc2nKI+39wH3AwQgn+sogQ+q814gv8hIFwrcZbV07Ea9f8AmK0ufPVZUvvAG1uZJ+obV4Jw==",
+      "version": "1.3.848",
+      "resolved": "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.3.848.tgz",
+      "integrity": "sha512-wchRyBcdcmibioggdO7CbMT5QQ4lXlN/g7Mkpf1K2zINidnqij6EVu94UIZ+h5nB2S9XD4bykqFv9LonAWLFyw==",
       "dev": true
     },
     "node_modules/emittery": {
@@ -3503,9 +3506,9 @@
       }
     },
     "node_modules/glob": {
-      "version": "7.1.7",
-      "resolved": "https://registry.npmjs.org/glob/-/glob-7.1.7.tgz",
-      "integrity": "sha512-OvD9ENzPLbegENnYP5UUfJIirTg4+XwMWGaQfQTY0JenxNvvIKP3U3/tAQSPIu/lHxXYSZmpXlUHeqAIdKzBLQ==",
+      "version": "7.2.0",
+      "resolved": "https://registry.npmjs.org/glob/-/glob-7.2.0.tgz",
+      "integrity": "sha512-lmLf6gtyrPq8tTjSmrO94wBeQbFR3HbLHbuyD69wuyQkImp2hWqMGB47OX65FBkPffO641IP9jWa1z4ivqG26Q==",
       "dev": true,
       "dependencies": {
         "fs.realpath": "^1.0.0",
@@ -4161,9 +4164,9 @@
       }
     },
     "node_modules/istanbul-lib-coverage": {
-      "version": "3.0.0",
-      "resolved": "https://registry.npmjs.org/istanbul-lib-coverage/-/istanbul-lib-coverage-3.0.0.tgz",
-      "integrity": "sha512-UiUIqxMgRDET6eR+o5HbfRYP1l0hqkWOs7vNxC/mggutCMUIhWMm8gAHb8tHlyfD3/l6rlgNA5cKdDzEAf6hEg==",
+      "version": "3.0.1",
+      "resolved": "https://registry.npmjs.org/istanbul-lib-coverage/-/istanbul-lib-coverage-3.0.1.tgz",
+      "integrity": "sha512-GvCYYTxaCPqwMjobtVcVKvSHtAGe48MNhGjpK8LtVF8K0ISX7hCKl85LgtuaSneWVyQmaGcW3iXVV3GaZSLpmQ==",
       "dev": true,
       "engines": {
         "node": ">=8"
@@ -5475,13 +5478,10 @@
       "dev": true
     },
     "node_modules/nanocolors": {
-      "version": "0.1.6",
-      "resolved": "https://registry.npmjs.org/nanocolors/-/nanocolors-0.1.6.tgz",
-      "integrity": "sha512-2pvTw6vYRaBLGir2xR7MxaJtyWkrn+C53EpW8yPotG+pdAwBvt0Xwk4VJ6VHLY0aLthVZPvDfm9TdZvrvAm5UQ==",
-      "dev": true,
-      "engines": {
-        "node": ">=8.0.0"
-      }
+      "version": "0.1.12",
+      "resolved": "https://registry.npmjs.org/nanocolors/-/nanocolors-0.1.12.tgz",
+      "integrity": "sha512-2nMHqg1x5PU+unxX7PGY7AuYxl2qDx7PSrTRjizr8sxdd3l/3hBuWWaki62qmtYm2U5i4Z5E7GbjlyDFhs9/EQ==",
+      "dev": true
     },
     "node_modules/nanomatch": {
       "version": "1.2.13",
@@ -9824,10 +9824,13 @@
       "dev": true
     },
     "caniuse-lite": {
-      "version": "1.0.30001259",
-      "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001259.tgz",
-      "integrity": "sha512-V7mQTFhjITxuk9zBpI6nYsiTXhcPe05l+364nZjK7MFK/E7ibvYBSAXr4YcA6oPR8j3ZLM/LN+lUqUVAQEUZFg==",
-      "dev": true
+      "version": "1.0.30001260",
+      "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001260.tgz",
+      "integrity": "sha512-Fhjc/k8725ItmrvW5QomzxLeojewxvqiYCKeFcfFEhut28IVLdpHU19dneOmltZQIE5HNbawj1HYD+1f2bM1Dg==",
+      "dev": true,
+      "requires": {
+        "nanocolors": "^0.1.0"
+      }
     },
     "capture-exit": {
       "version": "2.0.0",
@@ -10232,9 +10235,9 @@
       "dev": true
     },
     "electron-to-chromium": {
-      "version": "1.3.846",
-      "resolved": "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.3.846.tgz",
-      "integrity": "sha512-2jtSwgyiRzybHRxrc2nKI+39wH3AwQgn+sogQ+q814gv8hIFwrcZbV07Ea9f8AmK0ufPVZUvvAG1uZJ+obV4Jw==",
+      "version": "1.3.848",
+      "resolved": "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.3.848.tgz",
+      "integrity": "sha512-wchRyBcdcmibioggdO7CbMT5QQ4lXlN/g7Mkpf1K2zINidnqij6EVu94UIZ+h5nB2S9XD4bykqFv9LonAWLFyw==",
       "dev": true
     },
     "emittery": {
@@ -11023,9 +11026,9 @@
       "dev": true
     },
     "glob": {
-      "version": "7.1.7",
-      "resolved": "https://registry.npmjs.org/glob/-/glob-7.1.7.tgz",
-      "integrity": "sha512-OvD9ENzPLbegENnYP5UUfJIirTg4+XwMWGaQfQTY0JenxNvvIKP3U3/tAQSPIu/lHxXYSZmpXlUHeqAIdKzBLQ==",
+      "version": "7.2.0",
+      "resolved": "https://registry.npmjs.org/glob/-/glob-7.2.0.tgz",
+      "integrity": "sha512-lmLf6gtyrPq8tTjSmrO94wBeQbFR3HbLHbuyD69wuyQkImp2hWqMGB47OX65FBkPffO641IP9jWa1z4ivqG26Q==",
       "dev": true,
       "requires": {
         "fs.realpath": "^1.0.0",
@@ -11519,9 +11522,9 @@
       "dev": true
     },
     "istanbul-lib-coverage": {
-      "version": "3.0.0",
-      "resolved": "https://registry.npmjs.org/istanbul-lib-coverage/-/istanbul-lib-coverage-3.0.0.tgz",
-      "integrity": "sha512-UiUIqxMgRDET6eR+o5HbfRYP1l0hqkWOs7vNxC/mggutCMUIhWMm8gAHb8tHlyfD3/l6rlgNA5cKdDzEAf6hEg==",
+      "version": "3.0.1",
+      "resolved": "https://registry.npmjs.org/istanbul-lib-coverage/-/istanbul-lib-coverage-3.0.1.tgz",
+      "integrity": "sha512-GvCYYTxaCPqwMjobtVcVKvSHtAGe48MNhGjpK8LtVF8K0ISX7hCKl85LgtuaSneWVyQmaGcW3iXVV3GaZSLpmQ==",
       "dev": true
     },
     "istanbul-lib-instrument": {
@@ -12567,9 +12570,9 @@
       "dev": true
     },
     "nanocolors": {
-      "version": "0.1.6",
-      "resolved": "https://registry.npmjs.org/nanocolors/-/nanocolors-0.1.6.tgz",
-      "integrity": "sha512-2pvTw6vYRaBLGir2xR7MxaJtyWkrn+C53EpW8yPotG+pdAwBvt0Xwk4VJ6VHLY0aLthVZPvDfm9TdZvrvAm5UQ==",
+      "version": "0.1.12",
+      "resolved": "https://registry.npmjs.org/nanocolors/-/nanocolors-0.1.12.tgz",
+      "integrity": "sha512-2nMHqg1x5PU+unxX7PGY7AuYxl2qDx7PSrTRjizr8sxdd3l/3hBuWWaki62qmtYm2U5i4Z5E7GbjlyDFhs9/EQ==",
       "dev": true
     },
     "nanomatch": {

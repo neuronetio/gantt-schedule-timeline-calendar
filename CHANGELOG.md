@@ -271,3 +271,7 @@
 [3.7.6]
 
 - ItemResizing plugin handle content improvement (function | object) with left and right values
+
+[3.7.7]
+
+- gstc.api.render() method added to refresh the view if needed

@@ -36,6 +36,7 @@ export declare class Api {
     allActions: any[];
     main: any;
     constructor(state: DeepState);
+    render(): Promise<unknown>;
     getListenerPosition(callback: any): string | number;
     setVido(Vido: Vido): void;
     log(...args: any[]): void;
