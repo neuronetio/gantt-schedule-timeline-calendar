@@ -275,3 +275,8 @@
 [3.7.7]
 
 - gstc.api.render() method added to refresh the view if needed
+
+[3.7.8]
+
+- Selection plugin: changed path from `gstc.api.plugins.selection` to `gstc.api.plugins.Selection`
+- Selection plugin: added ITEM and CELL string to api

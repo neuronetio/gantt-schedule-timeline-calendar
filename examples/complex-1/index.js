@@ -257,5 +257,12 @@ function scrollToFirstItem() {
 }
 document.getElementById('scroll-to-item').addEventListener('click', scrollToFirstItem);
 
+function makeSelectedItemsDependent() {
+  const ITEM = 'chart-timeline-items-row-item';
+  const selectedItems = state.get('config.plugin.Selection.selected.' + ITEM);
+  console.log('selected items', selectedItems);
+}
+document.getElementById('make-dependant').addEventListener('click', makeSelectedItemsDependent);
+
 // @ts-ignore
 window.scrollToFirstItem = scrollToFirstItem;
