@@ -259,8 +259,13 @@ document.getElementById('scroll-to-item').addEventListener('click', scrollToFirs
 
 function makeSelectedItemsDependent() {
   const ITEM = 'chart-timeline-items-row-item';
-  const selectedItems = state.get('config.plugin.Selection.selected.' + ITEM);
+  const selectedItems = gstc.api.plugins.Selection.getSelected()[ITEM];
   console.log('selected items', selectedItems);
+  selectedItems.forEach((item, index, all) => {
+    if (index + 1 < all.length) {
+      state.update(`config.chart.items.${item.id}.dependant`, [all[index + 1].id]);
+    }
+  });
 }
 document.getElementById('make-dependant').addEventListener('click', makeSelectedItemsDependent);
 
