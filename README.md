@@ -65,7 +65,9 @@ You can control almost everything. You can change html structure, stylize every 
 
 <h2 align="center">EXAMPLES</h2>
 
-To run examples type
+<a href="https://gantt-schedule-timeline-calendar.neuronet.io/examples" target="_blank">Online examples</a>
+
+To run examples on your machine type
 
 ```bash
 git clone https://github.com/neuronetio/gantt-schedule-timeline-calendar.git
