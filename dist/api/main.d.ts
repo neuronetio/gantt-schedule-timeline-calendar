@@ -36,8 +36,14 @@ export default function main(vido: Vido): {
     updateVisibleItems(time?: DataChartTime, multi?: {
         update(updatePath: string, fn: any, options?: import("deep-state-observer").UpdateOptions): any;
         done(): void;
+    } | {
+        update(): void;
+        done(): void;
     }): {
         update(updatePath: string, fn: any, options?: import("deep-state-observer").UpdateOptions): any;
+        done(): void;
+    } | {
+        update(): void;
         done(): void;
     };
     recalculateTimes(reason: Reason): void;

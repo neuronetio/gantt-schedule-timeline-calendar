@@ -280,3 +280,7 @@
 
 - Selection plugin: changed path from `gstc.api.plugins.selection` to `gstc.api.plugins.Selection`
 - Selection plugin: added ITEM and CELL string to api
+
+[3.7.9]
+
+- performance optimization

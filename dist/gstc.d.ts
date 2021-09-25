@@ -127,7 +127,6 @@ export interface GridRow {
     rowData: RowData;
     cells: string[];
     top: number;
-    width: number;
 }
 export interface GridRows {
     [rowId: string]: GridRow;

@@ -260,8 +260,14 @@ declare module "api/main" {
         updateVisibleItems(time?: DataChartTime, multi?: {
             update(updatePath: string, fn: any, options?: import("deep-state-observer").UpdateOptions): any;
             done(): void;
+        } | {
+            update(): void;
+            done(): void;
         }): {
             update(updatePath: string, fn: any, options?: import("deep-state-observer").UpdateOptions): any;
+            done(): void;
+        } | {
+            update(): void;
             done(): void;
         };
         recalculateTimes(reason: Reason): void;
@@ -404,7 +410,6 @@ declare module "gstc" {
         rowData: RowData;
         cells: string[];
         top: number;
-        width: number;
     }
     export interface GridRows {
         [rowId: string]: GridRow;
