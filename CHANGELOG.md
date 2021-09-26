@@ -294,3 +294,7 @@
 [3.7.11]
 
 - console.log :/
+
+[3.7.12]
+
+- `gstc-loaded` event bugfix and it fires only once to listen config changes just subscribe `state.subscribe('config;', ()=>{ console.log('gstc reloaded') })`
