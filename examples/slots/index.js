@@ -82,7 +82,7 @@ function dateSlot(vido, props) {
 
   onChange((newProps) => {
     props = newProps;
-    if (!props) return;
+    if (!props || !props.date) return;
     const day = props.date.leftGlobalDate.format('DD');
     if (Number(day) % 2 === 0) {
       style = 'background: red;color:white;cursor:pointer;';
@@ -96,10 +96,7 @@ function dateSlot(vido, props) {
     alert(props.date.leftGlobalDate.format('YYYY-MM-DD') + ' date clicked!');
   }
 
-  return (content) =>
-    html`<div class="my-date-slot" style=${style} @click=${onDateClick}>
-      ${content}
-    </div>`;
+  return (content) => html`<div class="my-date-slot" style=${style} @click=${onDateClick}>${content}</div>`;
 }
 
 // Configuration object

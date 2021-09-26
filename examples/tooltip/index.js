@@ -95,13 +95,12 @@ function itemSlot(vido, props) {
   let itemData, startDate, endDate, tooltipContent;
   onChange((newProps) => {
     props = newProps;
-    if (!props) return;
+    if (!props || !props.item) return;
     itemData = api.getItemData(props.item.id);
+    if (!itemData) return;
     startDate = itemData.time.startDate;
     endDate = itemData.time.endDate;
-    tooltipContent = `${props.item.label} from ${startDate.format(
-      'YYYY-MM-DD'
-    )} to ${endDate.format('YYYY-MM-DD')}`;
+    tooltipContent = `${props.item.label} from ${startDate.format('YYYY-MM-DD')} to ${endDate.format('YYYY-MM-DD')}`;
 
     // render the view and after that set tippy content
     update(() => {
@@ -110,13 +109,7 @@ function itemSlot(vido, props) {
   });
 
   return (content) =>
-    html`<div
-      directive=${getElement(initialize)}
-      class="my-item"
-      style="width:100%;display:flex;"
-    >
-      ${content}
-    </div>`;
+    html`<div directive=${getElement(initialize)} class="my-item" style="width:100%;display:flex;">${content}</div>`;
 }
 
 // Configuration object

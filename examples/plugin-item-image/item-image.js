@@ -35,8 +35,7 @@ class ItemImage {
     );
     // add new slot with image to item
     this.state.update(slotPath, (itemContentSlots) => {
-      if (!itemContentSlots.includes(this.itemSlot))
-        itemContentSlots.push(this.itemSlot);
+      if (!itemContentSlots.includes(this.itemSlot)) itemContentSlots.push(this.itemSlot);
       return itemContentSlots;
     });
   }
@@ -60,7 +59,7 @@ class ItemImage {
     let imageSource = '';
     onChange((modifiedProps) => {
       props = modifiedProps;
-      if (!props) return;
+      if (!props || !props.item) return;
       if (props.item && props.item[this.options.imageField]) {
         imageSource = props.item[this.options.imageField];
       }
