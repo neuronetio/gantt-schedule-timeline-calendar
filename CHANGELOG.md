@@ -302,3 +302,7 @@
 [3.7.13]
 
 - performance optimization
+
+[3.7.14]
+
+- selection plugin not selecting grid cells bugfix
