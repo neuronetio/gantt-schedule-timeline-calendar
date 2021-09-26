@@ -72,6 +72,8 @@ export interface ItemData {
     dependant?: string[];
     visible?: boolean;
     inView?: boolean;
+    selected?: boolean;
+    selecting?: boolean;
 }
 export interface ItemDataUpdate {
     time?: ItemDataTime;
@@ -250,20 +252,8 @@ export interface ScrollPercent {
 export interface ScrollType {
     size?: number;
     minInnerSize?: number;
-    data?: Row | ChartTimeDate;
-    posPx?: number;
-    maxPosPx?: number;
-    area?: number;
-    areaWithoutLastPage?: number;
     precise?: boolean;
-    lastPageSize?: number;
-    lastPageCount?: number;
-    dataIndex?: number;
-    sub?: number;
-    scrollArea?: number;
-    innerSize?: number;
     multiplier?: number;
-    offset?: number;
 }
 export interface ScrollTypeHorizontal extends ScrollType {
     data?: ChartTimeDate;
@@ -275,6 +265,29 @@ export interface Scroll {
     bodyClassName?: string;
     horizontal?: ScrollTypeHorizontal;
     vertical?: ScrollTypeVertical;
+}
+export interface DataScrollValues {
+    lastPageSize: number;
+    lastPageCount: number;
+    area: number;
+    offset: number;
+    posPx: number;
+    maxPosPx: number;
+    areaWithoutLastPage?: number;
+    scrollArea?: number;
+    dataIndex?: number;
+    innerSize?: number;
+    sub?: number;
+}
+export interface DataScrollHorizontal extends DataScrollValues {
+    data: ChartTimeDate;
+}
+export interface DataScrollVertical extends DataScrollValues {
+    data: Row;
+}
+export interface DataScroll {
+    horizontal: DataScrollHorizontal;
+    vertical: DataScrollVertical;
 }
 export interface ChartTimeDate extends DataChartTimeLevelDate {
 }
@@ -562,6 +575,7 @@ export interface Data {
     list: DataList;
     dimensions: Dimensions;
     chart: DataChart;
+    scroll: DataScroll;
     elements: DataElements;
 }
 export interface Reason {

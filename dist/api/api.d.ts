@@ -1,6 +1,6 @@
 import { Time } from './time';
 import DeepState from 'deep-state-observer';
-import { DataChartTime, ScrollTypeHorizontal, Row, Item, Vido, Items, ScrollTypeVertical, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, TreeMap } from '../gstc';
+import { DataChartTime, Row, Item, Vido, Items, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, TreeMap, DataScrollVertical, DataScrollHorizontal } from '../gstc';
 import { generateSlots } from './slots';
 export declare const mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
 export declare function getClass(name: string, appendix?: string): string;
@@ -95,9 +95,9 @@ export declare class Api {
     normalizeMouseWheelEvent(event: WheelEvent): WheelResult;
     scrollToTime(toTime: number, centered?: boolean, time?: DataChartTime): number;
     setScrollLeft(dataIndex: number | undefined, time?: DataChartTime, multi?: any, recalculateTimesLastReason?: string): any;
-    getScrollLeft(): ScrollTypeHorizontal;
+    getScrollLeft(): DataScrollHorizontal;
     setScrollTop(dataIndex: number | undefined, offset?: number): void;
-    getScrollTop(): ScrollTypeVertical;
+    getScrollTop(): DataScrollVertical;
     getCurrentCalendarLevels(): DataChartTimeLevels;
     getGridCells(cellIds?: string[]): GridCell[];
     getAllGridCells(): GridCells;
