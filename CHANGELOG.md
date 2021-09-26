@@ -290,3 +290,7 @@
 - (code cleanup) some properties from `config.scroll` moved to `$data.scroll`
 - (code cleanup) `config.items.*.selected` and `config.items.*.selecting` moved to `$data.items.*.selected` and `$data.items.*.selecting`
 - minor performance improvements
+
+[3.7.11]
+
+- console.log :/
