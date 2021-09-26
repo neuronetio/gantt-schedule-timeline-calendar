@@ -257,21 +257,7 @@ declare module "api/main" {
         updateLevels(time: DataChartTime, levels: ChartCalendarLevel[]): void;
         calculateTotalViewDuration(time: DataChartTime): void;
         calculateRightGlobal(leftGlobal: number, chartWidth: number, allMainDates: DataChartTimeLevelDate[]): number;
-        updateVisibleItems(time?: DataChartTime, multi?: {
-            update(updatePath: string, fn: any, options?: import("deep-state-observer").UpdateOptions): any;
-            done(): void;
-            getStack(): import("deep-state-observer").UpdateStack[];
-        } | {
-            update(): void;
-            done(): void;
-        }): {
-            update(updatePath: string, fn: any, options?: import("deep-state-observer").UpdateOptions): any;
-            done(): void;
-            getStack(): import("deep-state-observer").UpdateStack[];
-        } | {
-            update(): void;
-            done(): void;
-        };
+        updateVisibleItems(time?: DataChartTime, multi?: import("deep-state-observer").Multi): import("deep-state-observer").Multi;
         recalculateTimes(reason: Reason): void;
         minimalReload(eventInfo: ListenerFunctionEventInfo): void;
         partialReload(fullReload: boolean, eventInfo: ListenerFunctionEventInfo): void;

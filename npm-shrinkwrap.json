@@ -2336,9 +2336,9 @@
       "dev": true
     },
     "node_modules/deep-state-observer": {
-      "version": "3.25.3",
-      "resolved": "https://registry.npmjs.org/deep-state-observer/-/deep-state-observer-3.25.3.tgz",
-      "integrity": "sha512-zAR0THHQSGN5I5pYNCShXr9440oLGlX06RFLCTJXdhH7TzxCi2DMBabU2NK4NNviWp9K+6RbwmQmj567ZXjQ/A=="
+      "version": "3.26.8",
+      "resolved": "https://registry.npmjs.org/deep-state-observer/-/deep-state-observer-3.26.8.tgz",
+      "integrity": "sha512-owslTi+cQPfGstgVcDiFdIEZYvop53FuPZzNzM+xIhyy65MvuEoyEVisMIoBvkNArXUAI2+errOHZKltu6+00w=="
     },
     "node_modules/deepmerge": {
       "version": "4.2.2",
@@ -10137,9 +10137,9 @@
       "dev": true
     },
     "deep-state-observer": {
-      "version": "3.25.3",
-      "resolved": "https://registry.npmjs.org/deep-state-observer/-/deep-state-observer-3.25.3.tgz",
-      "integrity": "sha512-zAR0THHQSGN5I5pYNCShXr9440oLGlX06RFLCTJXdhH7TzxCi2DMBabU2NK4NNviWp9K+6RbwmQmj567ZXjQ/A=="
+      "version": "3.26.8",
+      "resolved": "https://registry.npmjs.org/deep-state-observer/-/deep-state-observer-3.26.8.tgz",
+      "integrity": "sha512-owslTi+cQPfGstgVcDiFdIEZYvop53FuPZzNzM+xIhyy65MvuEoyEVisMIoBvkNArXUAI2+errOHZKltu6+00w=="
     },
     "deepmerge": {
       "version": "4.2.2",
