@@ -306,3 +306,7 @@
 [3.7.14]
 
 - selection plugin not selecting grid cells bugfix
+
+[3.7.15]
+
+- changing columns bugfix (#278)
