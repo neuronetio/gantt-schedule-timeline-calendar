@@ -519,6 +519,7 @@ export interface Config {
     plugins?: PluginInitialization[];
     plugin?: unknown;
     innerHeight?: number;
+    autoInnerHeight?: boolean;
     headerHeight?: number;
     components?: Components;
     slots?: Slots;

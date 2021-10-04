@@ -315,3 +315,8 @@
 
 - added `hidden` to the column data to easily hide column without changing data
 - added `position` to show columns in specified order
+
+[3.8.0]
+
+- innerHeight bugfix (#242)
+- automatic innerHeight feature (#276)
