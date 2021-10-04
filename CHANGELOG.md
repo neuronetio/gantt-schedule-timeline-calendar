@@ -310,3 +310,8 @@
 [3.7.15]
 
 - changing columns bugfix (#278)
+
+[3.7.16]
+
+- added `hidden` to the column data to easily hide column without changing data
+- added `position` to show columns in specified order

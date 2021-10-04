@@ -186,6 +186,8 @@ export interface ColumnData {
     resizer?: boolean;
     sortable?: Sortable;
     minWidth?: number;
+    hidden?: boolean;
+    position?: number;
 }
 export interface ColumnsData {
     [id: string]: ColumnData;
