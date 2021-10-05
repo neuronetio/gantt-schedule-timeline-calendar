@@ -324,3 +324,8 @@
 [3.8.1]
 
 - wrong scroll position after changing innerHeight bugfix
+
+[3.8.2]
+
+- autoInnerHeight bugfix when innerHeight is not specified
+- horizontal scroll goes to vertical scroll position when window is resized with `autoInnerHeight` option enabled bugfix
