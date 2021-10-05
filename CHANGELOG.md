@@ -320,3 +320,7 @@
 
 - innerHeight bugfix (#242)
 - automatic innerHeight feature (#276)
+
+[3.8.1]
+
+- wrong scroll position after changing innerHeight bugfix
