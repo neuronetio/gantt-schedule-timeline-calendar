@@ -334,3 +334,7 @@
 
 - add row by id bugfix
 - scroll area watching bugfix
+
+[3.8.4]
+
+- add item by id bugfix (#286)
