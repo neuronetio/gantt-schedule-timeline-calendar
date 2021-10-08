@@ -82,7 +82,7 @@ const columns = [
 
 // Item slot
 function itemSlot(vido, props) {
-  const { onChange, update, html, api, getElement } = vido;
+  const { onChange, onDestroy, update, html, api, getElement } = vido;
 
   // Get element and initialize tippy instance
   let element, tippyInstance;
@@ -106,6 +106,10 @@ function itemSlot(vido, props) {
     update(() => {
       tippyInstance.setContent(tooltipContent);
     });
+  });
+
+  onDestroy(() => {
+    if (tippyInstance) tippyInstance.destroy();
   });
 
   return (content) =>
