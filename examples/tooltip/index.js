@@ -80,40 +80,27 @@ const columns = [
   },
 ];
 
-// Item slot
-function itemSlot(vido, props) {
-  const { onChange, onDestroy, update, html, api, getElement } = vido;
+function setTippyContent(element, data) {
+  if (!gstc || !element._tippy) return;
+  const itemData = gstc.api.getItemData(data.item.id);
+  if (!itemData || itemData.detached) return;
+  const startDate = itemData.time.startDate;
+  const endDate = itemData.time.endDate;
+  const tooltipContent = `${data.item.label} from ${startDate.format('YYYY-MM-DD')} to ${endDate.format('YYYY-MM-DD')}`;
+  element._tippy.setContent(tooltipContent);
+}
 
-  // Get element and initialize tippy instance
-  let element, tippyInstance;
-  function initialize(el) {
-    element = el;
-    // @ts-ignore
-    if (!tippyInstance) tippyInstance = tippy(element);
-  }
-
-  let itemData, startDate, endDate, tooltipContent;
-  onChange((newProps) => {
-    props = newProps;
-    if (!props || !props.item) return;
-    itemData = api.getItemData(props.item.id);
-    if (!itemData) return;
-    startDate = itemData.time.startDate;
-    endDate = itemData.time.endDate;
-    tooltipContent = `${props.item.label} from ${startDate.format('YYYY-MM-DD')} to ${endDate.format('YYYY-MM-DD')}`;
-
-    // render the view and after that set tippy content
-    update(() => {
-      tippyInstance.setContent(tooltipContent);
-    });
-  });
-
-  onDestroy(() => {
-    if (tippyInstance) tippyInstance.destroy();
-  });
-
-  return (content) =>
-    html`<div directive=${getElement(initialize)} class="my-item" style="width:100%;display:flex;">${content}</div>`;
+function itemTippy(element, data) {
+  if (!element._tippy) tippy(element);
+  setTippyContent(element, data);
+  return {
+    update(element, data) {
+      setTippyContent(element, data);
+    },
+    destroy(element, data) {
+      if (element._tippy) element._tippy.destroy();
+    },
+  };
 }
 
 // Configuration object
@@ -133,8 +120,8 @@ const config = {
   chart: {
     items: GSTC.api.fromArray(items),
   },
-  slots: {
-    'chart-timeline-items-row-item': { inner: [itemSlot] },
+  actions: {
+    'chart-timeline-items-row-item': [itemTippy],
   },
 };
 
