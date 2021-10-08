@@ -81,9 +81,13 @@ const columns = [
 ];
 
 function setTippyContent(element, data) {
-  if (!gstc || !element._tippy) return;
+  if (!gstc) return;
+  if ((!data || !data.item) && element._tippy) return element._tippy.destroy();
   const itemData = gstc.api.getItemData(data.item.id);
-  if (!itemData || itemData.detached) return;
+  if (!itemData) return element._tippy.destroy();
+  if (itemData.detached && element._tippy) return element._tippy.destroy();
+  if (!itemData.detached && !element._tippy) tippy(element);
+  if (!element._tippy) return;
   const startDate = itemData.time.startDate;
   const endDate = itemData.time.endDate;
   const tooltipContent = `${data.item.label} from ${startDate.format('YYYY-MM-DD')} to ${endDate.format('YYYY-MM-DD')}`;
@@ -91,7 +95,6 @@ function setTippyContent(element, data) {
 }
 
 function itemTippy(element, data) {
-  if (!element._tippy) tippy(element);
   setTippyContent(element, data);
   return {
     update(element, data) {
