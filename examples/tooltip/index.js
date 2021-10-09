@@ -86,7 +86,7 @@ function setTippyContent(element, data) {
   const itemData = gstc.api.getItemData(data.item.id);
   if (!itemData) return element._tippy.destroy();
   if (itemData.detached && element._tippy) return element._tippy.destroy();
-  if (!itemData.detached && !element._tippy) tippy(element);
+  if (!itemData.detached && !element._tippy) tippy(element, { trigger: 'mouseenter click' });
   if (!element._tippy) return;
   const startDate = itemData.time.startDate;
   const endDate = itemData.time.endDate;
@@ -98,13 +98,13 @@ function itemTippy(element, data) {
   setTippyContent(element, data);
   return {
     update(element, data) {
+      if (element._tippy) element._tippy.destroy();
       setTippyContent(element, data);
     },
     destroy(element, data) {
       if (element._tippy) element._tippy.destroy();
     },
   };
-}
 
 // Configuration object
 const config = {
