@@ -86,7 +86,7 @@ function setTippyContent(element, data) {
   const itemData = gstc.api.getItemData(data.item.id);
   if (!itemData) return element._tippy.destroy();
   if (itemData.detached && element._tippy) return element._tippy.destroy();
-  if (!itemData.detached && !element._tippy) tippy(element, { trigger: 'mouseenter click' });
+  if (!itemData.detached && !element._tippy) tippy(element);
   if (!element._tippy) return;
   const startDate = itemData.time.startDate;
   const endDate = itemData.time.endDate;
