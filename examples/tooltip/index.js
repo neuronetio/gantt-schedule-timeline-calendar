@@ -105,6 +105,7 @@ function itemTippy(element, data) {
       if (element._tippy) element._tippy.destroy();
     },
   };
+}
 
 // Configuration object
 const config = {
