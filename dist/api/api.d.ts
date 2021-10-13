@@ -17,7 +17,7 @@ export interface IconsCache {
 export declare type Unsubscribes = (() => void)[];
 export declare class Api {
     name: string;
-    debug: boolean;
+    debug: string | boolean;
     state: DeepState;
     time: Time;
     vido: Vido;

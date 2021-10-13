@@ -99,7 +99,7 @@ declare module "api/api" {
     export type Unsubscribes = (() => void)[];
     export class Api {
         name: string;
-        debug: boolean;
+        debug: string | boolean;
         state: DeepState;
         time: Time;
         vido: Vido;
@@ -195,7 +195,7 @@ declare module "api/api" {
     }
 }
 declare module "api/public" {
-    import State from 'deep-state-observer';
+    import DeepState from 'deep-state-observer';
     import dayjs from 'dayjs';
     import { Config, Period } from "gstc";
     import { lithtml } from '@neuronet.io/vido';
@@ -203,7 +203,7 @@ declare module "api/public" {
     export function prepareState(userConfig: Config): {
         config: unknown;
     };
-    export function stateFromConfig(userConfig: Config): State;
+    export function stateFromConfig(userConfig: Config): DeepState;
     export function wasmStateFromConfig(userConfig: Config, wasmFile?: string): Promise<any>;
     export const publicApi: {
         name: string;
@@ -223,7 +223,6 @@ declare module "api/public" {
 }
 declare module "api/main" {
     import { DataChartTime, DataChartTimeLevel, DataChartTimeLevelDate, ChartCalendarLevel, ChartTimeDate, ChartTimeDates, ChartCalendarLevelFormat, Vido, Reason } from "gstc";
-    import { ListenerFunctionEventInfo } from 'deep-state-observer';
     export default function main(vido: Vido): {
         className: string;
         styleMap: import("@neuronet.io/vido").StyleMap;
@@ -259,9 +258,9 @@ declare module "api/main" {
         calculateRightGlobal(leftGlobal: number, chartWidth: number, allMainDates: DataChartTimeLevelDate[]): number;
         updateVisibleItems(time?: DataChartTime, multi?: import("deep-state-observer").Multi): import("deep-state-observer").Multi;
         recalculateTimes(reason: Reason): void;
-        minimalReload(eventInfo: ListenerFunctionEventInfo): void;
-        partialReload(fullReload: boolean, eventInfo: ListenerFunctionEventInfo): void;
-        fullReload(eventInfo: ListenerFunctionEventInfo): void;
+        minimalReload(eventInfo: any): void;
+        partialReload(fullReload: boolean, eventInfo: any): void;
+        fullReload(eventInfo: any): void;
     };
 }
 declare module "components/main" {
@@ -413,7 +412,7 @@ declare module "gstc" {
     export interface Components {
         [name: string]: Component;
     }
-    export type SlotName = 'main' | 'scroll-bar' | 'list' | 'list-column' | 'list-column-header' | 'list-column-header-resizer' | 'list-column-row' | 'list-column-row-expander' | 'list-column-row-expander-toggle' | 'list-toggle' | 'chart' | 'chart-calendar' | 'chart-calendar-date' | 'chart-timeline' | 'chart-timeline-grid' | 'chart-timeline-grid-row' | 'chart-timeline-grid-row-cell' | 'chart-timeline-items' | 'chart-timeline-items-row' | 'chart-timeline-items-row-item';
+    export type SlotName = 'main' | 'scroll-bar' | 'list' | 'list-column' | 'list-column-headers' | 'list-column-header' | 'list-column-header-resizer' | 'list-column-rows' | 'list-column-row' | 'list-column-row-expander' | 'list-column-row-expander-toggle' | 'list-toggle' | 'chart' | 'chart-calendar' | 'chart-calendar-date' | 'chart-timeline' | 'chart-timeline-grid' | 'chart-timeline-grid-row' | 'chart-timeline-grid-row-cell' | 'chart-timeline-items' | 'chart-timeline-items-row' | 'chart-timeline-items-row-item';
     export type SlotPlacement = 'outer' | 'inner' | 'container-outer' | 'container-inner' | 'content';
     export type Slot = {
         [placement in SlotPlacement]?: Component[];
@@ -740,7 +739,11 @@ declare module "gstc" {
         update?: (element: HTMLElement, data: unknown) => void;
         destroy?: (element: HTMLElement, data: unknown) => void;
     }
-    export type Action = (element: HTMLElement, data: unknown) => ActionFunctionResult | void;
+    export interface ActionData {
+        componentName: SlotName;
+        [key: string]: any;
+    }
+    export type Action = (element: HTMLElement, data: ActionData) => ActionFunctionResult | void;
     export type Actions = {
         [name in SlotName]?: Action[];
     };
@@ -838,7 +841,7 @@ declare module "gstc" {
         grid: DataGrid;
         items: DataItems;
         dimensions: DataChartDimensions;
-        visibleItems: Item[];
+        visibleItems: string[];
         time: DataChartTime;
     }
     export interface DataElements {
@@ -851,6 +854,10 @@ declare module "gstc" {
         chart: DataChart;
         scroll: DataScroll;
         elements: DataElements;
+    }
+    export interface GSTCState {
+        config: Config;
+        $data: Data;
     }
     export interface Reason {
         name: string;
@@ -1308,14 +1315,6 @@ declare module "plugins/item-resizing" {
     }
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
-declare module "plugins/item-tooltipbox" {
-    import { Vido } from "gstc";
-    export const pluginPath = "config.plugin.ItemTooltipBox";
-    export const templatePath = "config.templates.chart-timeline-items-row-item";
-    export interface Options {
-    }
-    export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
-}
 declare module "plugins/item-types" {
     import { Template, Vido } from "gstc";
     export const pluginPath = "config.plugin.ItemTypes";
@@ -1438,5 +1437,29 @@ declare module "plugins/time-bookmarks" {
         bookmarks?: Bookmarks;
     }
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
+}
+declare module "plugins/tooltip" {
+    import { SlotName } from "gstc";
+    import { htmlResult } from '@neuronet.io/vido';
+    export type TooltipPlacement = 'top' | 'top-start' | 'top-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end' | 'bottom' | 'bottom-start' | 'bottom-end';
+    export type TooltipTrigger = 'pointerdown' | 'pointerenter';
+    export type TooltipShow = (event: PointerEvent, data: any) => htmlResult;
+    export type TooltipMove = (event: PointerEvent, data: any) => htmlResult;
+    export type TooltipHide = (event: PointerEvent, data: any) => void;
+    export interface TooltipConfig {
+        placement: TooltipPlacement;
+        trigger: TooltipTrigger;
+        show: TooltipShow;
+        move: TooltipMove;
+        hide: TooltipHide;
+    }
+    export type AttachTo = {
+        [element in SlotName]?: TooltipConfig;
+    };
+    export interface Options {
+        enabled: boolean;
+        attachTo: AttachTo;
+    }
+    export function Plugin(options?: Options): (vidoInstance: any) => () => void;
 }
 //# sourceMappingURL=global.d.ts.map

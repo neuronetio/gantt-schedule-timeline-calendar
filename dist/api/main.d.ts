@@ -1,5 +1,4 @@
 import { DataChartTime, DataChartTimeLevel, DataChartTimeLevelDate, ChartCalendarLevel, ChartTimeDate, ChartTimeDates, ChartCalendarLevelFormat, Vido, Reason } from '../gstc';
-import { ListenerFunctionEventInfo } from 'deep-state-observer';
 export default function main(vido: Vido): {
     className: string;
     styleMap: import("@neuronet.io/vido").StyleMap;
@@ -35,8 +34,8 @@ export default function main(vido: Vido): {
     calculateRightGlobal(leftGlobal: number, chartWidth: number, allMainDates: DataChartTimeLevelDate[]): number;
     updateVisibleItems(time?: DataChartTime, multi?: import("deep-state-observer").Multi): import("deep-state-observer").Multi;
     recalculateTimes(reason: Reason): void;
-    minimalReload(eventInfo: ListenerFunctionEventInfo): void;
-    partialReload(fullReload: boolean, eventInfo: ListenerFunctionEventInfo): void;
-    fullReload(eventInfo: ListenerFunctionEventInfo): void;
+    minimalReload(eventInfo: any): void;
+    partialReload(fullReload: boolean, eventInfo: any): void;
+    fullReload(eventInfo: any): void;
 };
 //# sourceMappingURL=main.d.ts.map

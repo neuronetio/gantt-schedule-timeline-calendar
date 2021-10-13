@@ -338,3 +338,8 @@
 [3.8.4]
 
 - add item by id bugfix (#286)
+
+[3.9.0]
+
+- deep-state-observer updated
+- classes on the DOM Element is not displaying `id`s to improve performance a lot

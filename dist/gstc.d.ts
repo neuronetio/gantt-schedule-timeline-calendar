@@ -142,7 +142,7 @@ export declare type Component = (vido: unknown, props: unknown) => RenderFunctio
 export interface Components {
     [name: string]: Component;
 }
-export declare type SlotName = 'main' | 'scroll-bar' | 'list' | 'list-column' | 'list-column-header' | 'list-column-header-resizer' | 'list-column-row' | 'list-column-row-expander' | 'list-column-row-expander-toggle' | 'list-toggle' | 'chart' | 'chart-calendar' | 'chart-calendar-date' | 'chart-timeline' | 'chart-timeline-grid' | 'chart-timeline-grid-row' | 'chart-timeline-grid-row-cell' | 'chart-timeline-items' | 'chart-timeline-items-row' | 'chart-timeline-items-row-item';
+export declare type SlotName = 'main' | 'scroll-bar' | 'list' | 'list-column' | 'list-column-headers' | 'list-column-header' | 'list-column-header-resizer' | 'list-column-rows' | 'list-column-row' | 'list-column-row-expander' | 'list-column-row-expander-toggle' | 'list-toggle' | 'chart' | 'chart-calendar' | 'chart-calendar-date' | 'chart-timeline' | 'chart-timeline-grid' | 'chart-timeline-grid-row' | 'chart-timeline-grid-row-cell' | 'chart-timeline-items' | 'chart-timeline-items-row' | 'chart-timeline-items-row-item';
 export declare type SlotPlacement = 'outer' | 'inner' | 'container-outer' | 'container-inner' | 'content';
 export declare type Slot = {
     [placement in SlotPlacement]?: Component[];
@@ -469,7 +469,11 @@ export interface ActionFunctionResult {
     update?: (element: HTMLElement, data: unknown) => void;
     destroy?: (element: HTMLElement, data: unknown) => void;
 }
-export declare type Action = (element: HTMLElement, data: unknown) => ActionFunctionResult | void;
+export interface ActionData {
+    componentName: SlotName;
+    [key: string]: any;
+}
+export declare type Action = (element: HTMLElement, data: ActionData) => ActionFunctionResult | void;
 export declare type Actions = {
     [name in SlotName]?: Action[];
 };
@@ -567,7 +571,7 @@ export interface DataChart {
     grid: DataGrid;
     items: DataItems;
     dimensions: DataChartDimensions;
-    visibleItems: Item[];
+    visibleItems: string[];
     time: DataChartTime;
 }
 export interface DataElements {
@@ -580,6 +584,10 @@ export interface Data {
     chart: DataChart;
     scroll: DataScroll;
     elements: DataElements;
+}
+export interface GSTCState {
+    config: Config;
+    $data: Data;
 }
 export interface Reason {
     name: string;
