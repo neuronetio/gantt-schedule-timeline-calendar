@@ -9,7 +9,7 @@ assignees: ''
 ---
 
 **Your question and description of the problem goes here**
-Live or not to live?
+To be or not to be?
 
 **Code**
 You can paste your code and data examples here if it will help to answer the question.
