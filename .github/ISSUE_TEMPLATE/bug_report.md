@@ -18,6 +18,7 @@ your code here
 
 **gantt-schedule-timeline-calendar version**
 What version are you using?
+You can get it from `package.json` or with `state.get('config.version')`.
 
 **Screenshots or movies**
 If applicable, add screenshots or movie to help explain your problem.
