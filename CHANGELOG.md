@@ -343,3 +343,12 @@
 
 - deep-state-observer updated
 - classes on the DOM Element is not displaying `id`s to improve performance a lot
+
+[3.9.1]
+
+- `deep-state-observer` updated
+
+[3.9.2]
+
+- `deep-state-observer` updated
+- gstcInstance.api.setScrollTop now accepts `number` (for row index inside rows with parents expanded array) and `string` for rowId

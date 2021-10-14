@@ -96,7 +96,7 @@ export declare class Api {
     scrollToTime(toTime: number, centered?: boolean, time?: DataChartTime): number;
     setScrollLeft(dataIndex: number | undefined, time?: DataChartTime, multi?: any, recalculateTimesLastReason?: string): any;
     getScrollLeft(): DataScrollHorizontal;
-    setScrollTop(dataIndex: number | undefined, offset?: number): void;
+    setScrollTop(dataIndexOrRowId?: string | number, offset?: number): void;
     getScrollTop(): DataScrollVertical;
     getCurrentCalendarLevels(): DataChartTimeLevels;
     getGridCells(cellIds?: string[]): GridCell[];
