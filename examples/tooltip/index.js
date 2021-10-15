@@ -80,13 +80,15 @@ const columns = [
   },
 ];
 
+let gstc, state;
+
 function setTippyContent(element, data) {
   if (!gstc) return;
   if ((!data || !data.item) && element._tippy) return element._tippy.destroy();
   const itemData = gstc.api.getItemData(data.item.id);
   if (!itemData) return element._tippy.destroy();
   if (itemData.detached && element._tippy) return element._tippy.destroy();
-  if (!itemData.detached && !element._tippy) tippy(element);
+  if (!itemData.detached && !element._tippy) tippy(element, { trigger: 'mouseenter click' });
   if (!element._tippy) return;
   const startDate = itemData.time.startDate;
   const endDate = itemData.time.endDate;
@@ -130,18 +132,13 @@ const config = {
 };
 
 // Generate GSTC state from configuration object
-const state = GSTC.api.stateFromConfig(config);
-
-// for testing
-// @ts-ignore
-window.state = state;
+state = GSTC.api.stateFromConfig(config);
 
 // Mount the component
-const app = GSTC({
+gstc = GSTC({
   element: document.getElementById('gstc'),
   state,
 });
 
-//for testing
-// @ts-ignore
-window.gstc = app;
+globalThis.gstc = gstc;
+globalThis.state = state;
