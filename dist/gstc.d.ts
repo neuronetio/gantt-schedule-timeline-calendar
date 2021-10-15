@@ -1,9 +1,11 @@
-import { vido, lithtml, ComponentInstance } from '@neuronet.io/vido';
+import { vido, lithtml } from '@neuronet.io/vido';
+import { StyleInfo, ComponentInstance } from '@neuronet.io/vido';
 import { Api } from './api/api';
+import { publicApi } from './api/public';
 import { Dayjs, OpUnitType } from 'dayjs';
-import { Properties as CSSProps } from 'csstype';
 import DeepState from 'deep-state-observer';
 export declare type Vido = vido<DeepState, Api>;
+export { Api, publicApi, DeepState };
 export interface RowDataPosition {
     top: number;
     topPercent: number;
@@ -31,7 +33,7 @@ export interface Row {
     expanded?: boolean;
     height?: number;
     gap?: RowGap;
-    style?: CSSProps;
+    style?: StyleInfo;
     classNames?: string[] | classNamesFn;
     [key: string]: any;
 }
@@ -99,7 +101,7 @@ export interface Item {
     top?: number;
     gap?: ItemGap;
     minWidth?: number;
-    style?: CSSProps;
+    style?: StyleInfo;
     classNames?: string[] | (({ item, vido }: {
         item: Item;
         vido: Vido;

@@ -352,3 +352,11 @@
 
 - `deep-state-observer` updated
 - gstcInstance.api.setScrollTop now accepts `number` (for row index inside rows with parents expanded array) and `string` for rowId
+
+[3.9.3]
+
+- `DeepState`, `Api`, `publicApi`, `CSSProps`, `ComponentInstance` types added
+
+[3.10.0]
+
+- vido updated

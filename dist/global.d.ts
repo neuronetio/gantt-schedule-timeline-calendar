@@ -268,12 +268,14 @@ declare module "components/main" {
     export default function Main(vido: Vido, props?: {}): () => any;
 }
 declare module "gstc" {
-    import { vido, lithtml, ComponentInstance } from '@neuronet.io/vido';
+    import { vido, lithtml } from '@neuronet.io/vido';
+    import { StyleInfo, ComponentInstance } from '@neuronet.io/vido';
     import { Api } from "api/api";
+    import { publicApi } from "api/public";
     import { Dayjs, OpUnitType } from 'dayjs';
-    import { Properties as CSSProps } from 'csstype';
     import DeepState from 'deep-state-observer';
     export type Vido = vido<DeepState, Api>;
+    export { Api, publicApi, DeepState };
     export interface RowDataPosition {
         top: number;
         topPercent: number;
@@ -301,7 +303,7 @@ declare module "gstc" {
         expanded?: boolean;
         height?: number;
         gap?: RowGap;
-        style?: CSSProps;
+        style?: StyleInfo;
         classNames?: string[] | classNamesFn;
         [key: string]: any;
     }
@@ -369,7 +371,7 @@ declare module "gstc" {
         top?: number;
         gap?: ItemGap;
         minWidth?: number;
-        style?: CSSProps;
+        style?: StyleInfo;
         classNames?: string[] | (({ item, vido }: {
             item: Item;
             vido: Vido;
@@ -1437,29 +1439,5 @@ declare module "plugins/time-bookmarks" {
         bookmarks?: Bookmarks;
     }
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
-}
-declare module "plugins/tooltip" {
-    import { SlotName } from "gstc";
-    import { htmlResult } from '@neuronet.io/vido';
-    export type TooltipPlacement = 'top' | 'top-start' | 'top-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end' | 'bottom' | 'bottom-start' | 'bottom-end';
-    export type TooltipTrigger = 'pointerdown' | 'pointerenter';
-    export type TooltipShow = (event: PointerEvent, data: any) => htmlResult;
-    export type TooltipMove = (event: PointerEvent, data: any) => htmlResult;
-    export type TooltipHide = (event: PointerEvent, data: any) => void;
-    export interface TooltipConfig {
-        placement: TooltipPlacement;
-        trigger: TooltipTrigger;
-        show: TooltipShow;
-        move: TooltipMove;
-        hide: TooltipHide;
-    }
-    export type AttachTo = {
-        [element in SlotName]?: TooltipConfig;
-    };
-    export interface Options {
-        enabled: boolean;
-        attachTo: AttachTo;
-    }
-    export function Plugin(options?: Options): (vidoInstance: any) => () => void;
 }
 //# sourceMappingURL=global.d.ts.map
