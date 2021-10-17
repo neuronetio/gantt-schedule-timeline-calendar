@@ -34,23 +34,15 @@ for (let i = 0; i < iterations; i++) {
     label: `John Doe ${i}`,
     parentId: withParent ? GSTCID(String(i - 1)) : undefined,
     expanded: false,
-    vacations: [],
     img: getRandomFaceImage(),
     progress: Math.floor(Math.random() * 100),
   };
 }
 
-rows[GSTCID('3')].vacations = [
-  startDate.add(5, 'days').startOf('day').format('YYYY-MM-DD'),
-  startDate.add(6, 'days').startOf('day').format('YYYY-MM-DD'),
-];
-
 rows[GSTCID('11')].label = 'NESTED TREE HERE';
 rows[GSTCID('12')].parentId = GSTCID('11');
 rows[GSTCID('13')].parentId = GSTCID('12');
 rows[GSTCID('14')].parentId = GSTCID('13');
-
-rows[GSTCID('7')].birthday = startDate.add(3, 'day').startOf('day').format('YYYY-MM-DD');
 
 const items = {};
 for (let i = 0; i < iterations; i++) {
@@ -208,20 +200,6 @@ function rowSlot(vido, props) {
       : content;
 }
 
-function onCellCreateVacation({ time, row, vido, content }) {
-  if (row.vacations.includes(time.leftGlobalDate.format('YYYY-MM-DD'))) {
-    return vido.html`<div title="🏖️ VACATION" style="height:100%"><div style="font-size:11px;background:#A0A0A0;color:white;">Vacation</div></div>${content}`;
-  }
-  return content;
-}
-
-function onCellCreateBirthday({ time, row, vido, content }) {
-  if (row.birthday === time.leftGlobalDate.format('YYYY-MM-DD')) {
-    return vido.html`${content}<div title="🎁 BIRTHDAY" style="height:100%;font-size:18px;"><div style="font-size:11px;background:#F9B32F;color:white;margin-bottom:10px;">🎁 Birthday</div></div>`;
-  }
-  return content;
-}
-
 function mainOuterSlot(vido, props) {
   const { onChange, api, update, html, state, getElement } = vido;
 
@@ -336,52 +314,6 @@ function mainOuterSlot(vido, props) {
     </div>${content}<div class=${overlay}>${loading}</div>`;
 }
 
-const itemMovementOptions = {
-  events: {
-    onMove({ items }) {
-      for (const item of items.after) {
-        const row = gstc.api.getRow(item.rowId);
-        for (const vacation of row.vacations) {
-          const vacationStart = gstc.api.time.date(vacation).startOf('day').valueOf();
-          const vacationEnd = gstc.api.time.date(vacation).endOf('day').valueOf();
-          // item start time inside vacation
-          if (item.time.start >= vacationStart && item.time.start <= vacationEnd) return items.before;
-          // item end time inside vacation
-          if (item.time.end >= vacationStart && item.time.end <= vacationEnd) return items.before;
-          // vacation is between item start and end
-          if (item.time.start <= vacationStart && item.time.end >= vacationEnd) return items.before;
-          // item start and end time is inside vacation
-          if (item.time.start >= vacationStart && item.time.end <= vacationEnd) return items.before;
-        }
-      }
-      return items.after;
-    },
-  },
-};
-
-const itemResizeOptions = {
-  events: {
-    onResize({ items }) {
-      for (const item of items.after) {
-        const row = gstc.api.getRow(item.rowId);
-        for (const vacation of row.vacations) {
-          const vacationStart = gstc.api.time.date(vacation).startOf('day').valueOf();
-          const vacationEnd = gstc.api.time.date(vacation).endOf('day').valueOf();
-          // item start time inside vacation
-          if (item.time.start >= vacationStart && item.time.start <= vacationEnd) return items.before;
-          // item end time inside vacation
-          if (item.time.end >= vacationStart && item.time.end <= vacationEnd) return items.before;
-          // vacation is between item start and end
-          if (item.time.start <= vacationStart && item.time.end >= vacationEnd) return items.before;
-          // item start and end time is inside vacation
-          if (item.time.start >= vacationStart && item.time.end <= vacationEnd) return items.before;
-        }
-      }
-      return items.after;
-    },
-  },
-};
-
 const config = {
   //debug: true,
   licenseKey:
@@ -391,8 +323,8 @@ const config = {
     HighlightWeekends(),
     TimelinePointer(), // timeline pointer must go first before selection, resizing and movement
     Selection(),
-    ItemResizing(itemResizeOptions), // resizing must fo before movement
-    ItemMovement(itemMovementOptions),
+    ItemResizing(), // resizing must fo before movement
+    ItemMovement(),
     CalendarScroll(),
     ProgressBar(),
     TimeBookmarks({
@@ -422,17 +354,8 @@ const config = {
     },
     item: {
       height: 50,
-      gap: {
-        top: 14,
-        bottom: 0,
-      },
     },
     items,
-    grid: {
-      cell: {
-        onCreate: [onCellCreateVacation, onCellCreateBirthday],
-      },
-    },
   },
   scroll: {
     vertical: { precise: true },

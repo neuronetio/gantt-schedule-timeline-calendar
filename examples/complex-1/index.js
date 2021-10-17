@@ -221,22 +221,42 @@ function onCellCreateBirthday({ time, row, vido, content }) {
   return content;
 }
 
+function youCant(item) {
+  state.update(`config.chart.items.${item.id}.label`, `You can't huh? 👅`);
+  setTimeout(() => {
+    state.update(`config.chart.items.${item.id}.label`, 'Grab and move me into vacation area');
+  }, 2000);
+}
+
 const itemMovementOptions = {
   events: {
     onMove({ items }) {
-      for (const item of items.after) {
+      for (let i = 0, len = items.after.length; i < len; i++) {
+        const item = items.after[i];
         const row = gstc.api.getRow(item.rowId);
         for (const vacation of row.vacations) {
           const vacationStart = gstc.api.time.date(vacation).startOf('day').valueOf();
           const vacationEnd = gstc.api.time.date(vacation).endOf('day').valueOf();
           // item start time inside vacation
-          if (item.time.start >= vacationStart && item.time.start <= vacationEnd) return items.before;
+          if (item.time.start >= vacationStart && item.time.start <= vacationEnd) {
+            youCant(items.before[i]);
+            return items.before;
+          }
           // item end time inside vacation
-          if (item.time.end >= vacationStart && item.time.end <= vacationEnd) return items.before;
+          if (item.time.end >= vacationStart && item.time.end <= vacationEnd) {
+            youCant(items.before[i]);
+            return items.before;
+          }
           // vacation is between item start and end
-          if (item.time.start <= vacationStart && item.time.end >= vacationEnd) return items.before;
+          if (item.time.start <= vacationStart && item.time.end >= vacationEnd) {
+            youCant(items.before[i]);
+            return items.before;
+          }
           // item start and end time is inside vacation
-          if (item.time.start >= vacationStart && item.time.end <= vacationEnd) return items.before;
+          if (item.time.start >= vacationStart && item.time.end <= vacationEnd) {
+            youCant(items.before[i]);
+            return items.before;
+          }
         }
       }
       return items.after;
@@ -253,13 +273,25 @@ const itemResizeOptions = {
           const vacationStart = gstc.api.time.date(vacation).startOf('day').valueOf();
           const vacationEnd = gstc.api.time.date(vacation).endOf('day').valueOf();
           // item start time inside vacation
-          if (item.time.start >= vacationStart && item.time.start <= vacationEnd) return items.before;
+          if (item.time.start >= vacationStart && item.time.start <= vacationEnd) {
+            youCant(item);
+            return items.before;
+          }
           // item end time inside vacation
-          if (item.time.end >= vacationStart && item.time.end <= vacationEnd) return items.before;
+          if (item.time.end >= vacationStart && item.time.end <= vacationEnd) {
+            youCant(item);
+            return items.before;
+          }
           // vacation is between item start and end
-          if (item.time.start <= vacationStart && item.time.end >= vacationEnd) return items.before;
+          if (item.time.start <= vacationStart && item.time.end >= vacationEnd) {
+            youCant(item);
+            return items.before;
+          }
           // item start and end time is inside vacation
-          if (item.time.start >= vacationStart && item.time.end <= vacationEnd) return items.before;
+          if (item.time.start >= vacationStart && item.time.end <= vacationEnd) {
+            youCant(item);
+            return items.before;
+          }
         }
       }
       return items.after;
