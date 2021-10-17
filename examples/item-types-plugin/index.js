@@ -34,7 +34,12 @@ for (let i = 0; i < iterations; i++) {
   };
 }
 
-const startDate = GSTC.api.date().subtract(5, 'month').valueOf();
+rows[GSTCID('11')].label = 'NESTED TREE HERE';
+rows[GSTCID('12')].parentId = GSTCID('11');
+rows[GSTCID('13')].parentId = GSTCID('12');
+rows[GSTCID('14')].parentId = GSTCID('13');
+
+const startDate = GSTC.api.date().subtract(2, 'month').valueOf();
 
 const items = {};
 for (let i = 0; i < iterations; i++) {
@@ -43,7 +48,7 @@ for (let i = 0; i < iterations; i++) {
   let startDayjs = GSTC.api
     .date(startDate)
     .startOf('day')
-    .add(Math.floor(Math.random() * 365 * 2), 'days');
+    .add(Math.floor(Math.random() * 30), 'days');
   const type = getRandomItemType();
   items[id] = {
     id,
@@ -64,16 +69,26 @@ for (let i = 0; i < iterations; i++) {
 }
 
 items[GSTCID('0')].linkedWith = [GSTCID('1')];
+items[GSTCID('0')].label = 'Task 0 linked with 1 (clone)';
+items[GSTCID('0')].type = 'task';
+items[GSTCID('0')].fill = colors[0];
+items[GSTCID('1')].fill = colors[0];
+items[GSTCID('1')].label = 'Task 1 linked with 0 (clone)';
+items[GSTCID('1')].type = 'task';
 items[GSTCID('1')].time = { ...items[GSTCID('0')].time };
 
 items[GSTCID('3')].dependant = [GSTCID('5')];
-items[GSTCID('5')].time.start = items[GSTCID('3')].time.end + 1;
+items[GSTCID('3')].time.start = GSTC.api.date(startDate).add(2, 'day').startOf('day').add(5, 'day').valueOf();
+items[GSTCID('3')].time.end = GSTC.api.date(items[GSTCID('3')].time.start).endOf('day').add(2, 'day').valueOf();
+
+items[GSTCID('5')].time.start = GSTC.api.date(items[GSTCID('3')].time.end).startOf('day').add(5, 'day').valueOf();
 items[GSTCID('5')].time.end = GSTC.api.date(items[GSTCID('5')].time.start).endOf('day').add(2, 'day').valueOf();
 items[GSTCID('5')].dependant = [GSTCID('7'), GSTCID('9')];
-items[GSTCID('7')].time.start = items[GSTCID('5')].time.end + 1;
+
+items[GSTCID('7')].time.start = GSTC.api.date(items[GSTCID('5')].time.end).startOf('day').add(3, 'day').valueOf();
 items[GSTCID('7')].time.end = GSTC.api.date(items[GSTCID('7')].time.start).endOf('day').add(2, 'day').valueOf();
-items[GSTCID('9')].time.start = items[GSTCID('5')].time.end + 1;
-items[GSTCID('9')].time.end = GSTC.api.date(items[GSTCID('7')].time.start).endOf('day').add(2, 'day').valueOf();
+items[GSTCID('9')].time.start = GSTC.api.date(items[GSTCID('5')].time.end).startOf('day').add(2, 'day').valueOf();
+items[GSTCID('9')].time.end = GSTC.api.date(items[GSTCID('9')].time.start).endOf('day').add(3, 'day').valueOf();
 
 const columns = {
   data: {
@@ -105,7 +120,7 @@ const config = {
   //debug: true,
   licenseKey:
     '====BEGIN LICENSE KEY====\nXOfH/lnVASM6et4Co473t9jPIvhmQ/l0X3Ewog30VudX6GVkOB0n3oDx42NtADJ8HjYrhfXKSNu5EMRb5KzCLvMt/pu7xugjbvpyI1glE7Ha6E5VZwRpb4AC8T1KBF67FKAgaI7YFeOtPFROSCKrW5la38jbE5fo+q2N6wAfEti8la2ie6/7U2V+SdJPqkm/mLY/JBHdvDHoUduwe4zgqBUYLTNUgX6aKdlhpZPuHfj2SMeB/tcTJfH48rN1mgGkNkAT9ovROwI7ReLrdlHrHmJ1UwZZnAfxAC3ftIjgTEHsd/f+JrjW6t+kL6Ef1tT1eQ2DPFLJlhluTD91AsZMUg==||U2FsdGVkX1/SWWqU9YmxtM0T6Nm5mClKwqTaoF9wgZd9rNw2xs4hnY8Ilv8DZtFyNt92xym3eB6WA605N5llLm0D68EQtU9ci1rTEDopZ1ODzcqtTVSoFEloNPFSfW6LTIC9+2LSVBeeHXoLEQiLYHWihHu10Xll3KsH9iBObDACDm1PT7IV4uWvNpNeuKJc\npY3C5SG+3sHRX1aeMnHlKLhaIsOdw2IexjvMqocVpfRpX4wnsabNA0VJ3k95zUPS3vTtSegeDhwbl6j+/FZcGk9i+gAy6LuetlKuARjPYn2LH5Be3Ah+ggSBPlxf3JW9rtWNdUoFByHTcFlhzlU9HnpnBUrgcVMhCQ7SAjN9h2NMGmCr10Rn4OE0WtelNqYVig7KmENaPvFT+k2I0cYZ4KWwxxsQNKbjEAxJxrzK4HkaczCvyQbzj4Ppxx/0q+Cns44OeyWcwYD/vSaJm4Kptwpr+L4y5BoSO/WeqhSUQQ85nvOhtE0pSH/ZXYo3pqjPdQRfNm6NFeBl2lwTmZUEuw==\n====END LICENSE KEY====',
-
+  innerHeight: 500,
   plugins: [
     TimelinePointer(),
     Selection(),

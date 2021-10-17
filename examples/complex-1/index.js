@@ -16,34 +16,54 @@ function getRandomFaceImage() {
   return `./faces/face-${Math.ceil(Math.random() * 50)}.jpg`;
 }
 
+const colors = ['#E74C3C', '#DA3C78', '#7E349D', '#0077C0', '#07ABA0', '#0EAC51', '#F1892D'];
+function getRandomColor() {
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+const startDate = GSTC.api.date().subtract(15, 'day');
+const startTime = startDate.valueOf();
+
 const rows = {};
 for (let i = 0; i < iterations; i++) {
   const withParent = i > 0 && i % 2 === 0;
   const id = GSTCID(String(i));
   rows[id] = {
     id,
-    label: `Lorem ipsum ${i}`,
+    label: `John Doe ${i}`,
     parentId: withParent ? GSTCID(String(i - 1)) : undefined,
     expanded: false,
+    vacations: [],
     img: getRandomFaceImage(),
     progress: Math.floor(Math.random() * 100),
   };
 }
 
-const startDate = GSTC.api.date().subtract(2, 'month').valueOf();
+rows[GSTCID('3')].vacations = [
+  startDate.add(5, 'days').startOf('day').format('YYYY-MM-DD'),
+  startDate.add(6, 'days').startOf('day').format('YYYY-MM-DD'),
+];
+
+rows[GSTCID('11')].label = 'NESTED TREE HERE';
+rows[GSTCID('12')].parentId = GSTCID('11');
+rows[GSTCID('13')].parentId = GSTCID('12');
+rows[GSTCID('14')].parentId = GSTCID('13');
+
+rows[GSTCID('7')].birthday = startDate.add(3, 'day').startOf('day').format('YYYY-MM-DD');
 
 const items = {};
 for (let i = 0; i < iterations; i++) {
   let rowId = GSTCID(i);
   let id = GSTCID(i);
   let startDayjs = GSTC.api
-    .date(startDate)
+    .date(startTime)
     .startOf('day')
-    .add(Math.floor((Math.random() * 365) / 2), 'day');
+    .add(Math.floor(Math.random() * 30), 'day');
   items[id] = {
     id,
     label: `John Doe ${i}`,
     progress: Math.round(Math.random() * 100),
+    style: { background: getRandomColor() },
     time: {
       start: startDayjs.startOf('day').valueOf(),
       end: startDayjs
@@ -59,14 +79,28 @@ for (let i = 0; i < iterations; i++) {
 }
 
 items[GSTCID('0')].linkedWith = [GSTCID('1')];
+items[GSTCID('0')].label = 'Task 0 linked with 1';
+items[GSTCID('0')].type = 'task';
+items[GSTCID('1')].label = 'Task 1 linked with 0';
+items[GSTCID('1')].type = 'task';
 items[GSTCID('1')].time = { ...items[GSTCID('0')].time };
 
+items[GSTCID('0')].style = { background: colors[3] };
+items[GSTCID('1')].style = { background: colors[3] };
+
 items[GSTCID('3')].dependant = [GSTCID('5')];
-items[GSTCID('5')].time.start = items[GSTCID('3')].time.end + 1;
+items[GSTCID('3')].label = 'Grab and move me into vacation area';
+items[GSTCID('3')].time.start = GSTC.api.date(startTime).add(4, 'day').startOf('day').add(5, 'day').valueOf();
+items[GSTCID('3')].time.end = GSTC.api.date(items[GSTCID('3')].time.start).endOf('day').add(5, 'day').valueOf();
+
+items[GSTCID('5')].time.start = GSTC.api.date(items[GSTCID('3')].time.end).startOf('day').add(5, 'day').valueOf();
 items[GSTCID('5')].time.end = GSTC.api.date(items[GSTCID('5')].time.start).endOf('day').add(2, 'day').valueOf();
-items[GSTCID('5')].dependant = [GSTCID('7')];
-items[GSTCID('7')].time.start = items[GSTCID('5')].time.end + 1;
+items[GSTCID('5')].dependant = [GSTCID('7'), GSTCID('9')];
+
+items[GSTCID('7')].time.start = GSTC.api.date(items[GSTCID('5')].time.end).startOf('day').add(3, 'day').valueOf();
 items[GSTCID('7')].time.end = GSTC.api.date(items[GSTCID('7')].time.start).endOf('day').add(2, 'day').valueOf();
+items[GSTCID('9')].time.start = GSTC.api.date(items[GSTCID('5')].time.end).startOf('day').add(2, 'day').valueOf();
+items[GSTCID('9')].time.end = GSTC.api.date(items[GSTCID('9')].time.start).endOf('day').add(3, 'day').valueOf();
 
 const columns = {
   data: {
@@ -173,16 +207,54 @@ function rowSlot(vido, props) {
       : content;
 }
 
+function onCellCreateVacation({ time, row, vido, content }) {
+  if (row.vacations.includes(time.leftGlobalDate.format('YYYY-MM-DD'))) {
+    return vido.html`<div title="🏖️ VACATION" style="height:100%"><div style="font-size:11px;background:#A0A0A0;color:white;">Vacation</div></div>${content}`;
+  }
+  return content;
+}
+
+function onCellCreateBirthday({ time, row, vido, content }) {
+  if (row.birthday === time.leftGlobalDate.format('YYYY-MM-DD')) {
+    return vido.html`${content}<div title="🎁 BIRTHDAY" style="height:100%;font-size:18px;"><div style="font-size:11px;background:#F9B32F;color:white;margin-bottom:10px;">🎁 Birthday</div></div>`;
+  }
+  return content;
+}
+
+const itemMovementOptions = {
+  events: {
+    onMove({ items }) {
+      for (const item of items.after) {
+        const row = gstc.api.getRow(item.rowId);
+        for (const vacation of row.vacations) {
+          const vacationStart = gstc.api.time.date(vacation).startOf('day').valueOf();
+          const vacationEnd = gstc.api.time.date(vacation).endOf('day').valueOf();
+          // item start time inside vacation
+          if (item.time.start >= vacationStart && item.time.start <= vacationEnd) return items.before;
+          // item end time inside vacation
+          if (item.time.end >= vacationStart && item.time.end <= vacationEnd) return items.before;
+          // vacation is between item start and end
+          if (item.time.start <= vacationStart && item.time.end >= vacationEnd) return items.before;
+          // item start and end time is inside vacation
+          if (item.time.start >= vacationStart && item.time.end <= vacationEnd) return items.before;
+        }
+      }
+      return items.after;
+    },
+  },
+};
+
 const config = {
   //debug: true,
   licenseKey:
     '====BEGIN LICENSE KEY====\nXOfH/lnVASM6et4Co473t9jPIvhmQ/l0X3Ewog30VudX6GVkOB0n3oDx42NtADJ8HjYrhfXKSNu5EMRb5KzCLvMt/pu7xugjbvpyI1glE7Ha6E5VZwRpb4AC8T1KBF67FKAgaI7YFeOtPFROSCKrW5la38jbE5fo+q2N6wAfEti8la2ie6/7U2V+SdJPqkm/mLY/JBHdvDHoUduwe4zgqBUYLTNUgX6aKdlhpZPuHfj2SMeB/tcTJfH48rN1mgGkNkAT9ovROwI7ReLrdlHrHmJ1UwZZnAfxAC3ftIjgTEHsd/f+JrjW6t+kL6Ef1tT1eQ2DPFLJlhluTD91AsZMUg==||U2FsdGVkX1/SWWqU9YmxtM0T6Nm5mClKwqTaoF9wgZd9rNw2xs4hnY8Ilv8DZtFyNt92xym3eB6WA605N5llLm0D68EQtU9ci1rTEDopZ1ODzcqtTVSoFEloNPFSfW6LTIC9+2LSVBeeHXoLEQiLYHWihHu10Xll3KsH9iBObDACDm1PT7IV4uWvNpNeuKJc\npY3C5SG+3sHRX1aeMnHlKLhaIsOdw2IexjvMqocVpfRpX4wnsabNA0VJ3k95zUPS3vTtSegeDhwbl6j+/FZcGk9i+gAy6LuetlKuARjPYn2LH5Be3Ah+ggSBPlxf3JW9rtWNdUoFByHTcFlhzlU9HnpnBUrgcVMhCQ7SAjN9h2NMGmCr10Rn4OE0WtelNqYVig7KmENaPvFT+k2I0cYZ4KWwxxsQNKbjEAxJxrzK4HkaczCvyQbzj4Ppxx/0q+Cns44OeyWcwYD/vSaJm4Kptwpr+L4y5BoSO/WeqhSUQQ85nvOhtE0pSH/ZXYo3pqjPdQRfNm6NFeBl2lwTmZUEuw==\n====END LICENSE KEY====',
+  innerHeight: 500,
   plugins: [
     HighlightWeekends(),
     TimelinePointer(), // timeline pointer must go first before selection, resizing and movement
     Selection(),
     ItemResizing(), // resizing must fo before movement
-    ItemMovement(),
+    ItemMovement(itemMovementOptions),
     CalendarScroll(),
     ProgressBar(),
     TimeBookmarks({
@@ -209,6 +281,11 @@ const config = {
       height: 50,
     },
     items,
+    grid: {
+      cell: {
+        onCreate: [onCellCreateVacation, onCellCreateBirthday],
+      },
+    },
   },
   scroll: {
     vertical: { precise: true },
@@ -223,10 +300,6 @@ let gstc;
 let state = GSTC.api.stateFromConfig(config);
 (async function mountGSTC() {
   const element = document.getElementById('gstc');
-
-  element.addEventListener('gstc-loaded', () => {
-    gstc.api.scrollToTime(gstc.api.time.date().valueOf()); // eslint-disable-line
-  });
 
   gstc = GSTC({
     element,
@@ -243,9 +316,8 @@ let state = GSTC.api.stateFromConfig(config);
 function selectCells() {
   const api = gstc.api;
   const allCells = api.getGridCells();
-  api.plugins.selection.selectCells([allCells[0].id, allCells[1].id]);
-  //api.plugins.selection.selectItems([api.GSTCID('1')]);
-  console.log(api.plugins.selection.getSelection());
+  api.plugins.Selection.selectCells([allCells[0].id, allCells[1].id]);
+  console.log(api.plugins.Selection.getSelection());
 }
 document.getElementById('select-cells').addEventListener('click', selectCells);
 
@@ -267,7 +339,6 @@ function makeSelectedItemsDependent() {
     }
   });
 }
-document.getElementById('make-dependant').addEventListener('click', makeSelectedItemsDependent);
 
 // @ts-ignore
 window.scrollToFirstItem = scrollToFirstItem;
