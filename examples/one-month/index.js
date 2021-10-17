@@ -260,7 +260,7 @@ function mainOuterSlot(vido, props) {
       .date(`${year}-${month + 1}-01`)
       .endOf('month')
       .valueOf();
-    loading = 'You can load items from backend now.';
+    loading = 'LOADING... You can load items from backend now.';
     overlay = 'overlay';
     setTimeout(() => {
       // if you have items you can change view
@@ -333,7 +333,7 @@ function mainOuterSlot(vido, props) {
     )}>${months.map(
       (monthText, index) => html`<option value=${index} ?selected=${index === month}>${monthText}</option>`
     )}</option></select><button style="margin-right:20px;" @click=${setNextMonth}>></button>
-    </div>${content}<div class=${overlay}>LOADING... ${loading}</div>`;
+    </div>${content}<div class=${overlay}>${loading}</div>`;
 }
 
 const itemMovementOptions = {
