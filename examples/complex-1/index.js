@@ -174,7 +174,7 @@ function itemSlot(vido, props) {
   return (content) =>
     html`<div
         class="item-image"
-        style="background:url(${imageSrc}),transparent;border-radius:100%;width:34px;height:34px;vertical-align: middle;background-size: 100%;margin: 4px 11px 0px 0px;"
+        style="background:url(${imageSrc}),transparent;flex-shrink:0;border-radius:100%;width:34px;height:34px;vertical-align: middle;background-size: 100%;margin: 4px 11px 0px 0px;"
       ></div>
       <div class="item-text">
         <div class="item-label">${content}</div>
@@ -244,6 +244,29 @@ const itemMovementOptions = {
   },
 };
 
+const itemResizeOptions = {
+  events: {
+    onResize({ items }) {
+      for (const item of items.after) {
+        const row = gstc.api.getRow(item.rowId);
+        for (const vacation of row.vacations) {
+          const vacationStart = gstc.api.time.date(vacation).startOf('day').valueOf();
+          const vacationEnd = gstc.api.time.date(vacation).endOf('day').valueOf();
+          // item start time inside vacation
+          if (item.time.start >= vacationStart && item.time.start <= vacationEnd) return items.before;
+          // item end time inside vacation
+          if (item.time.end >= vacationStart && item.time.end <= vacationEnd) return items.before;
+          // vacation is between item start and end
+          if (item.time.start <= vacationStart && item.time.end >= vacationEnd) return items.before;
+          // item start and end time is inside vacation
+          if (item.time.start >= vacationStart && item.time.end <= vacationEnd) return items.before;
+        }
+      }
+      return items.after;
+    },
+  },
+};
+
 const config = {
   //debug: true,
   licenseKey:
@@ -253,7 +276,7 @@ const config = {
     HighlightWeekends(),
     TimelinePointer(), // timeline pointer must go first before selection, resizing and movement
     Selection(),
-    ItemResizing(), // resizing must fo before movement
+    ItemResizing(itemResizeOptions), // resizing must fo before movement
     ItemMovement(itemMovementOptions),
     CalendarScroll(),
     ProgressBar(),
@@ -271,7 +294,7 @@ const config = {
   ],
   list: {
     row: {
-      height: 58,
+      height: 68,
     },
     rows,
     columns,
@@ -279,6 +302,10 @@ const config = {
   chart: {
     item: {
       height: 50,
+      gap: {
+        top: 14,
+        bottom: 0,
+      },
     },
     items,
     grid: {

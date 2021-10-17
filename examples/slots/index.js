@@ -1,45 +1,60 @@
 import GSTC from '../../dist/gstc.esm.min.js';
+const iterations = 100;
+const GSTCID = GSTC.api.GSTCID;
 
-const rowsFromDB = [
-  {
-    id: '1',
-    label: 'Row 1',
-  },
-  {
-    id: '2',
-    label: 'Row 2',
-  },
-];
+function getRandomFaceImage() {
+  return `./faces/face-${Math.ceil(Math.random() * 50)}.jpg`;
+}
 
-const itemsFromDB = [
-  {
-    id: '1',
-    label: 'Item 1',
-    rowId: '1',
+const colors = ['#E74C3C', '#DA3C78', '#7E349D', '#0077C0', '#07ABA0', '#0EAC51', '#F1892D'];
+function getRandomColor() {
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+const startDate = GSTC.api.date().subtract(15, 'day');
+const startTime = startDate.valueOf();
+
+const rows = {};
+for (let i = 0; i < iterations; i++) {
+  const withParent = i > 0 && i % 2 === 0;
+  const id = GSTCID(String(i));
+  rows[id] = {
+    id,
+    label: `John Doe ${i}`,
+    parentId: withParent ? GSTCID(String(i - 1)) : undefined,
+    expanded: false,
+    vacations: [],
+    img: getRandomFaceImage(),
+    progress: Math.floor(Math.random() * 100),
+  };
+}
+
+const items = {};
+for (let i = 0; i < iterations; i++) {
+  let rowId = GSTCID(i);
+  let id = GSTCID(i);
+  let startDayjs = GSTC.api
+    .date(startTime)
+    .startOf('day')
+    .add(Math.floor(Math.random() * 30), 'day');
+  items[id] = {
+    id,
+    label: `John Doe ${i}`,
+    progress: Math.round(Math.random() * 100),
+    style: { background: getRandomColor() },
     time: {
-      start: GSTC.api.date('2020-01-01').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-01-06').endOf('day').valueOf(),
+      start: startDayjs.startOf('day').valueOf(),
+      end: startDayjs
+        .clone()
+        .add(Math.floor(Math.random() * 20) + 4, 'day')
+        .endOf('day')
+        .valueOf(),
     },
-  },
-  {
-    id: '2',
-    label: 'Item 2',
-    rowId: '1',
-    time: {
-      start: GSTC.api.date('2020-02-01').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-02-15').endOf('day').valueOf(),
-    },
-  },
-  {
-    id: '3',
-    label: 'Item 3',
-    rowId: '2',
-    time: {
-      start: GSTC.api.date('2020-01-15').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-01-20').endOf('day').valueOf(),
-    },
-  },
-];
+    rowId,
+    img: getRandomFaceImage(),
+    description: 'Lorem ipsum dolor sit amet',
+  };
+}
 
 const columnsFromDB = [
   {
@@ -111,10 +126,10 @@ const config = {
     columns: {
       data: GSTC.api.fromArray(columnsFromDB),
     },
-    rows: GSTC.api.fromArray(rowsFromDB),
+    rows,
   },
   chart: {
-    items: GSTC.api.fromArray(itemsFromDB),
+    items,
   },
   slots: {
     'chart-timeline-items': { outer: [itemsSlot] },

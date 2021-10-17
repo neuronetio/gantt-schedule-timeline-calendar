@@ -360,3 +360,7 @@
 [3.10.0]
 
 - vido updated
+
+[3.10.1]
+
+- move dependant items only when time was changed bugfix
