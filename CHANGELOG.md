@@ -364,3 +364,7 @@
 [3.10.1]
 
 - move dependant items only when time was changed bugfix
+
+[3.10.2]
+
+- jest testing engine updated
