@@ -368,3 +368,7 @@
 [3.10.2]
 
 - jest testing engine updated
+
+[3.10.3]
+
+- do not expand view while resizing or moving in `config.chart.time.calculatedZoomMode`
