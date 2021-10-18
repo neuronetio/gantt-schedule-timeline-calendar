@@ -384,3 +384,7 @@
 [3.11.1]
 
 - bookmarks plugin `className` bugfix
+
+[3.11.2]
+
+- bookmarks improved (show only bookmarks that are in current view)

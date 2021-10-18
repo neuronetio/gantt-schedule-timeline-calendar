@@ -1,5 +1,6 @@
 import { Vido } from '../gstc';
 import { Color } from 'csstype';
+import { Dayjs } from 'dayjs';
 export declare const pluginPath = "config.plugin.TimeBookmarks";
 export declare const slotPath = "config.slots.chart.content";
 export interface Bookmark {
@@ -11,6 +12,9 @@ export interface Bookmark {
 export interface InternalBookmark extends Bookmark {
     id: string;
     leftViewPx: number;
+    absoluteLeftPx: number;
+    visible: boolean;
+    date: Dayjs;
 }
 export interface Bookmarks {
     [key: string]: Bookmark;

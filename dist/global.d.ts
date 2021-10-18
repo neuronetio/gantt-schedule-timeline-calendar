@@ -1416,6 +1416,7 @@ declare module "plugins/selection" {
 declare module "plugins/time-bookmarks" {
     import { Vido } from "gstc";
     import { Color } from 'csstype';
+    import { Dayjs } from 'dayjs';
     export const pluginPath = "config.plugin.TimeBookmarks";
     export const slotPath = "config.slots.chart.content";
     export interface Bookmark {
@@ -1427,6 +1428,9 @@ declare module "plugins/time-bookmarks" {
     export interface InternalBookmark extends Bookmark {
         id: string;
         leftViewPx: number;
+        absoluteLeftPx: number;
+        visible: boolean;
+        date: Dayjs;
     }
     export interface Bookmarks {
         [key: string]: Bookmark;
