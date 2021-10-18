@@ -372,3 +372,11 @@
 [3.10.3]
 
 - do not expand view while resizing or moving in `config.chart.time.calculatedZoomMode`
+
+[3.10.4]
+
+- time bookmarks plugin custom `className` not appearing bugfix
+
+[3.11.0]
+
+- `config.templates` configuration added - now you can use templates for all components
