@@ -314,7 +314,7 @@ const config = {
     ProgressBar(),
     TimeBookmarks({
       bookmarks,
-      className: 'bookmark',
+      //className: 'bookmark',
     }),
     DependencyLines({
       onLine: [

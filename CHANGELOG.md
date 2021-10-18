@@ -380,3 +380,7 @@
 [3.11.0]
 
 - `config.templates` configuration added - now you can use templates for all components
+
+[3.11.1]
+
+- bookmarks plugin `className` bugfix
