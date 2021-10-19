@@ -221,13 +221,6 @@ function onCellCreateBirthday({ time, row, vido, content }) {
   return content;
 }
 
-function youCant(item) {
-  state.update(`config.chart.items.${item.id}.label`, `You can't huh? 👅`);
-  setTimeout(() => {
-    state.update(`config.chart.items.${item.id}.label`, 'Grab and move me into vacation area');
-  }, 2000);
-}
-
 const itemMovementOptions = {
   events: {
     onMove({ items }) {
@@ -239,22 +232,18 @@ const itemMovementOptions = {
           const vacationEnd = gstc.api.time.date(vacation).endOf('day').valueOf();
           // item start time inside vacation
           if (item.time.start >= vacationStart && item.time.start <= vacationEnd) {
-            youCant(items.before[i]);
             return items.before;
           }
           // item end time inside vacation
           if (item.time.end >= vacationStart && item.time.end <= vacationEnd) {
-            youCant(items.before[i]);
             return items.before;
           }
           // vacation is between item start and end
           if (item.time.start <= vacationStart && item.time.end >= vacationEnd) {
-            youCant(items.before[i]);
             return items.before;
           }
           // item start and end time is inside vacation
           if (item.time.start >= vacationStart && item.time.end <= vacationEnd) {
-            youCant(items.before[i]);
             return items.before;
           }
         }
@@ -274,22 +263,18 @@ const itemResizeOptions = {
           const vacationEnd = gstc.api.time.date(vacation).endOf('day').valueOf();
           // item start time inside vacation
           if (item.time.start >= vacationStart && item.time.start <= vacationEnd) {
-            youCant(item);
             return items.before;
           }
           // item end time inside vacation
           if (item.time.end >= vacationStart && item.time.end <= vacationEnd) {
-            youCant(item);
             return items.before;
           }
           // vacation is between item start and end
           if (item.time.start <= vacationStart && item.time.end >= vacationEnd) {
-            youCant(item);
             return items.before;
           }
           // item start and end time is inside vacation
           if (item.time.start >= vacationStart && item.time.end <= vacationEnd) {
-            youCant(item);
             return items.before;
           }
         }
@@ -337,7 +322,7 @@ const config = {
       height: 50,
       gap: {
         top: 14,
-        bottom: 0,
+        //bottom: 0,
       },
     },
     items,

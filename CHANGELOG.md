@@ -388,3 +388,8 @@
 [3.11.2]
 
 - bookmarks improved (show only bookmarks that are in current view)
+
+[3.11.3]
+
+- itemMovement & itemResizing update state bugfix
+- calendar dates with wrong widths when week or non standard period is used as main date bugfix (#294)
