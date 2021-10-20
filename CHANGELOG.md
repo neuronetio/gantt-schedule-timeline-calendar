@@ -393,3 +393,7 @@
 
 - itemMovement & itemResizing update state bugfix
 - calendar dates with wrong widths when week or non standard period is used as main date bugfix (#294)
+
+[3.11.4]
+
+- vido updated (StyleMap bugfix)
