@@ -397,3 +397,7 @@
 [3.11.4]
 
 - vido updated (StyleMap bugfix)
+
+[3.12.0]
+
+- `ExportImage` plugin added

@@ -547,6 +547,7 @@ body.gstc-scrolling * {
   vertical-align: bottom;
   width: 18px;
   opacity: 0.7;
+  margin: auto;
 }
 .gstc__chart-timeline-items-row-item-label {
   touch-action: none;

@@ -8,6 +8,7 @@ import { Plugin as HighlightWeekends } from '../../dist/plugins/highlight-weeken
 import { Plugin as ProgressBar } from '../../dist/plugins/progress-bar.esm.min.js';
 import { Plugin as TimeBookmarks } from '../../dist/plugins/time-bookmarks.esm.min.js';
 import { Plugin as DependencyLines } from '../../dist/plugins/dependency-lines.esm.min.js';
+import { Plugin as ExportImage } from '../../dist/plugins/export-image.esm.min.js';
 
 const iterations = 100;
 const GSTCID = GSTC.api.GSTCID;
@@ -309,6 +310,7 @@ const config = {
         },
       ],
     }),
+    ExportImage(),
   ],
   list: {
     row: {
@@ -387,3 +389,9 @@ function makeSelectedItemsDependent() {
 
 // @ts-ignore
 window.scrollToFirstItem = scrollToFirstItem;
+
+function downloadImage() {
+  gstc.api.plugins.ExportImage.download();
+}
+
+document.getElementById('download-image').addEventListener('click', downloadImage);

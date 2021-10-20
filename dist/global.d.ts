@@ -1080,6 +1080,14 @@ declare module "plugins/dependency-lines" {
     }
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
+declare module "plugins/export-image" {
+    import type { Vido } from "gstc";
+    export const pluginName = "ExportImage";
+    export const pluginPath: string;
+    export interface Options {
+    }
+    export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
+}
 declare module "plugins/grab-scroll" {
     import { Vido } from "gstc";
     export const pluginPath = "config.plugin.ItemTypes";
