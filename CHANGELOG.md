@@ -401,3 +401,7 @@
 [3.12.0]
 
 - `ExportImage` plugin added
+
+[3.13.0]
+
+- `ExportPDF` plugin added

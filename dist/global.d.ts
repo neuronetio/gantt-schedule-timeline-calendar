@@ -1088,6 +1088,14 @@ declare module "plugins/export-image" {
     }
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
+declare module "plugins/export-pdf" {
+    import type { Vido } from "gstc";
+    export const pluginName = "ExportPDF";
+    export const pluginPath: string;
+    export interface Options {
+    }
+    export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
+}
 declare module "plugins/grab-scroll" {
     import { Vido } from "gstc";
     export const pluginPath = "config.plugin.ItemTypes";

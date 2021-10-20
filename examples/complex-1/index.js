@@ -9,6 +9,7 @@ import { Plugin as ProgressBar } from '../../dist/plugins/progress-bar.esm.min.j
 import { Plugin as TimeBookmarks } from '../../dist/plugins/time-bookmarks.esm.min.js';
 import { Plugin as DependencyLines } from '../../dist/plugins/dependency-lines.esm.min.js';
 import { Plugin as ExportImage } from '../../dist/plugins/export-image.esm.min.js';
+import { Plugin as ExportPDF } from '../../dist/plugins/export-pdf.esm.min.js';
 
 const iterations = 100;
 const GSTCID = GSTC.api.GSTCID;
@@ -311,6 +312,7 @@ const config = {
       ],
     }),
     ExportImage(),
+    ExportPDF(),
   ],
   list: {
     row: {
@@ -395,3 +397,6 @@ function downloadImage() {
 }
 
 document.getElementById('download-image').addEventListener('click', downloadImage);
+document.getElementById('download-pdf').addEventListener('click', () => {
+  gstc.api.plugins.ExportPDF.download('timeline.pdf');
+});
