@@ -1,6 +1,6 @@
 import { Time } from './time';
 import DeepState from 'deep-state-observer';
-import { DataChartTime, Row, Item, Vido, Items, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, TreeMap, DataScrollVertical, DataScrollHorizontal } from '../gstc';
+import { DataChartTime, Row, Item, Vido, Items, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, DataScrollVertical, DataScrollHorizontal } from '../gstc';
 import { generateSlots } from './slots';
 export declare const mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
 export declare function getClass(name: string, appendix?: string): string;
@@ -74,7 +74,7 @@ export declare class Api {
     prepareDependantItems(item: Item, items: Items): string[];
     prepareItem(item: Item, defaultItemHeight?: number, itemsData?: DataItems, items?: Items): void;
     prepareItems(items: Items): Items;
-    sortRows(sortedRowsArray: Row[], children: TreeMap[], rows?: Rows): Rows;
+    sortRowsByChildren(rowsAsArray: Row[]): Rows;
     fillEmptyRowValues(rows: Rows): Rows;
     itemsOnTheSameLevel(item1: Item, item2: Item): boolean;
     itemsOverlaps(item1: Item, item2: Item): boolean;
@@ -84,10 +84,11 @@ export declare class Api {
     recalculateRowsHeights(rowsId?: string[]): number;
     recalculateRowsPercents(rowsId: string[], verticalAreaHeight: number): void;
     calculateVisibleRowsHeights(): void;
-    generateParents(rows: RowsData | Items, parentName?: string): {};
-    fastTree(rowParents: any, node: any, parents?: any[]): any;
-    makeRowsTree(rowsData: RowsData, rowsTreeNode: any): any;
-    makeTreeMap(rowsData: RowsData, items: Items, onlyItems?: boolean): void;
+    private makeChildren;
+    private keysToKeep;
+    private clearNested;
+    private fastTree;
+    makeTreeMap(rowsData: RowsData, items: Items, onlyItems?: boolean): RowsData;
     getRowsWithParentsExpanded(rows: Rows): any[];
     getVisibleRowsAndCalculateViewTop(): string[];
     private getSortableValue;

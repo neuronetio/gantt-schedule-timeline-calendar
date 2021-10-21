@@ -413,3 +413,7 @@
 [3.13.2]
 
 - loading big data set is a little bit faster now
+
+[3.13.3]
+
+- working with bigger data set is now much faster

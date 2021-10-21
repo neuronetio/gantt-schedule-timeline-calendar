@@ -82,7 +82,7 @@ declare module "api/slots" {
 declare module "api/api" {
     import { Time } from "api/time";
     import DeepState from 'deep-state-observer';
-    import { DataChartTime, Row, Item, Vido, Items, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, TreeMap, DataScrollVertical, DataScrollHorizontal } from "gstc";
+    import { DataChartTime, Row, Item, Vido, Items, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, DataScrollVertical, DataScrollHorizontal } from "gstc";
     import { generateSlots } from "api/slots";
     export const mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
     export function getClass(name: string, appendix?: string): string;
@@ -156,7 +156,7 @@ declare module "api/api" {
         prepareDependantItems(item: Item, items: Items): string[];
         prepareItem(item: Item, defaultItemHeight?: number, itemsData?: DataItems, items?: Items): void;
         prepareItems(items: Items): Items;
-        sortRows(sortedRowsArray: Row[], children: TreeMap[], rows?: Rows): Rows;
+        sortRowsByChildren(rowsAsArray: Row[]): Rows;
         fillEmptyRowValues(rows: Rows): Rows;
         itemsOnTheSameLevel(item1: Item, item2: Item): boolean;
         itemsOverlaps(item1: Item, item2: Item): boolean;
@@ -166,10 +166,11 @@ declare module "api/api" {
         recalculateRowsHeights(rowsId?: string[]): number;
         recalculateRowsPercents(rowsId: string[], verticalAreaHeight: number): void;
         calculateVisibleRowsHeights(): void;
-        generateParents(rows: RowsData | Items, parentName?: string): {};
-        fastTree(rowParents: any, node: any, parents?: any[]): any;
-        makeRowsTree(rowsData: RowsData, rowsTreeNode: any): any;
-        makeTreeMap(rowsData: RowsData, items: Items, onlyItems?: boolean): void;
+        private makeChildren;
+        private keysToKeep;
+        private clearNested;
+        private fastTree;
+        makeTreeMap(rowsData: RowsData, items: Items, onlyItems?: boolean): RowsData;
         getRowsWithParentsExpanded(rows: Rows): any[];
         getVisibleRowsAndCalculateViewTop(): string[];
         private getSortableValue;
@@ -288,6 +289,7 @@ declare module "gstc" {
         position: RowDataPosition;
         parents: string[];
         children: string[];
+        allChildren: string[];
         items: string[];
         inView: boolean;
         visible: boolean;
@@ -810,9 +812,15 @@ declare module "gstc" {
         mute?: string[];
         readonly version?: string;
     }
-    export interface TreeMap {
+    export interface TreeMapNode {
         id: string;
-        children: TreeMap[];
+        children: string[];
+        allChildren: string[];
+        parents: string[];
+        parentId: string | undefined;
+    }
+    export interface TreeMap {
+        [rowId: string]: TreeMapNode;
     }
     export interface DataList {
         width: number;
@@ -847,8 +855,12 @@ declare module "gstc" {
     export interface DataElements {
         [key: string]: HTMLElement;
     }
+    export interface ItemRowMap {
+        [itemId: string]: string;
+    }
     export interface Data {
         treeMap: TreeMap;
+        itemRowMap: ItemRowMap;
         list: DataList;
         dimensions: Dimensions;
         chart: DataChart;

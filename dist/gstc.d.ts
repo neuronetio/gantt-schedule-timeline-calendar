@@ -18,6 +18,7 @@ export interface RowData {
     position: RowDataPosition;
     parents: string[];
     children: string[];
+    allChildren: string[];
     items: string[];
     inView: boolean;
     visible: boolean;
@@ -540,9 +541,15 @@ export interface Config {
     mute?: string[];
     readonly version?: string;
 }
-export interface TreeMap {
+export interface TreeMapNode {
     id: string;
-    children: TreeMap[];
+    children: string[];
+    allChildren: string[];
+    parents: string[];
+    parentId: string | undefined;
+}
+export interface TreeMap {
+    [rowId: string]: TreeMapNode;
 }
 export interface DataList {
     width: number;
@@ -577,8 +584,12 @@ export interface DataChart {
 export interface DataElements {
     [key: string]: HTMLElement;
 }
+export interface ItemRowMap {
+    [itemId: string]: string;
+}
 export interface Data {
     treeMap: TreeMap;
+    itemRowMap: ItemRowMap;
     list: DataList;
     dimensions: Dimensions;
     chart: DataChart;
