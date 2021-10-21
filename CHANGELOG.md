@@ -405,3 +405,7 @@
 [3.13.0]
 
 - `ExportPDF` plugin added
+
+[3.13.1]
+
+- item `minWidth` bugfix (#296)

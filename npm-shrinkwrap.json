@@ -2281,9 +2281,9 @@
       "dev": true
     },
     "node_modules/electron-to-chromium": {
-      "version": "1.3.873",
-      "resolved": "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.3.873.tgz",
-      "integrity": "sha512-TiHlCgl2uP26Z0c67u442c0a2MZCWZNCRnPTQDPhVJ4h9G6z2zU0lApD9H0K9R5yFL5SfdaiVsVD2izOY24xBQ==",
+      "version": "1.3.875",
+      "resolved": "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.3.875.tgz",
+      "integrity": "sha512-K/rqxvLwZOshysgPOqfU1x8rfdFXyieYLdT1JYlLHkLj8gI/4Qh4Xi+KrO6kq4t3aNhp/wGSGOyR4ooYvXbvyg==",
       "dev": true
     },
     "node_modules/emittery": {
@@ -4790,9 +4790,9 @@
       }
     },
     "node_modules/node-releases": {
-      "version": "2.0.0",
-      "resolved": "https://registry.npmjs.org/node-releases/-/node-releases-2.0.0.tgz",
-      "integrity": "sha512-aA87l0flFYMzCHpTM3DERFSYxc6lv/BltdbRTOMZuxZ0cwZCD3mejE5n9vLhSJCN++/eOqr77G1IO5uXxlQYWA==",
+      "version": "2.0.1",
+      "resolved": "https://registry.npmjs.org/node-releases/-/node-releases-2.0.1.tgz",
+      "integrity": "sha512-CqyzN6z7Q6aMeF/ktcMVTzhAHCEpf8SOarwpzpf8pNBY2k5/oM34UHldUwp8VKI7uxct2HxSRdJjBaZeESzcxA==",
       "dev": true
     },
     "node_modules/normalize-path": {
@@ -8138,9 +8138,9 @@
       "dev": true
     },
     "electron-to-chromium": {
-      "version": "1.3.873",
-      "resolved": "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.3.873.tgz",
-      "integrity": "sha512-TiHlCgl2uP26Z0c67u442c0a2MZCWZNCRnPTQDPhVJ4h9G6z2zU0lApD9H0K9R5yFL5SfdaiVsVD2izOY24xBQ==",
+      "version": "1.3.875",
+      "resolved": "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.3.875.tgz",
+      "integrity": "sha512-K/rqxvLwZOshysgPOqfU1x8rfdFXyieYLdT1JYlLHkLj8gI/4Qh4Xi+KrO6kq4t3aNhp/wGSGOyR4ooYvXbvyg==",
       "dev": true
     },
     "emittery": {
@@ -10056,9 +10056,9 @@
       "dev": true
     },
     "node-releases": {
-      "version": "2.0.0",
-      "resolved": "https://registry.npmjs.org/node-releases/-/node-releases-2.0.0.tgz",
-      "integrity": "sha512-aA87l0flFYMzCHpTM3DERFSYxc6lv/BltdbRTOMZuxZ0cwZCD3mejE5n9vLhSJCN++/eOqr77G1IO5uXxlQYWA==",
+      "version": "2.0.1",
+      "resolved": "https://registry.npmjs.org/node-releases/-/node-releases-2.0.1.tgz",
+      "integrity": "sha512-CqyzN6z7Q6aMeF/ktcMVTzhAHCEpf8SOarwpzpf8pNBY2k5/oM34UHldUwp8VKI7uxct2HxSRdJjBaZeESzcxA==",
       "dev": true
     },
     "normalize-path": {
