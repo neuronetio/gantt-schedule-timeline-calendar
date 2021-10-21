@@ -409,3 +409,7 @@
 [3.13.1]
 
 - item `minWidth` bugfix (#296)
+
+[3.13.2]
+
+- loading big data set is a little bit faster now
