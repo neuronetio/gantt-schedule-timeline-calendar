@@ -1,6 +1,6 @@
 declare module "api/time" {
     import dayjs, { Dayjs } from 'dayjs';
-    import { DataChartTime, DataChartTimeLevelDate, ChartTimeDate, Period, ChartCalendarLevel, ChartCalendarLevelFormat, DataScrollValues } from "gstc";
+    import { DataChartTime, DataChartTimeLevelDate, ChartTimeDate, Period, ChartCalendarLevel, ChartCalendarLevelFormat } from "gstc";
     import DeepState from 'deep-state-observer';
     import { Api } from "api/api";
     export interface CurrentDate {
@@ -32,7 +32,6 @@ declare module "api/time" {
         findDateAtOffsetPx(offsetPx: number, allPeriodDates: ChartTimeDate[]): ChartTimeDate | undefined;
         findDateAtTime(milliseconds: number, allPeriodDates: ChartTimeDate[]): ChartTimeDate | undefined;
         getTimeFromViewOffsetPx(offsetPx: number, time?: DataChartTime, snapToStartOf?: boolean): number;
-        calculateScrollPosPxFromTime(milliseconds: number, time: DataChartTime | undefined, scroll: DataScrollValues | undefined): number;
         getCurrentFormatForLevel(level: ChartCalendarLevel, time: DataChartTime): ChartCalendarLevelFormat;
         generatePeriodDates({ leftDate, rightDate, period, level, levelIndex, time, callOnDate, callOnLevelDates, }: {
             leftDate: Dayjs;
@@ -82,7 +81,7 @@ declare module "api/slots" {
 declare module "api/api" {
     import { Time } from "api/time";
     import DeepState from 'deep-state-observer';
-    import { DataChartTime, Row, Item, Vido, Items, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, DataScrollVertical, DataScrollHorizontal } from "gstc";
+    import { DataChartTime, Row, Item, Vido, Items, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, DataScrollVertical, DataScrollHorizontal, ChartTimeDates } from "gstc";
     import { generateSlots } from "api/slots";
     export const mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
     export function getClass(name: string, appendix?: string): string;
@@ -108,6 +107,7 @@ declare module "api/api" {
         iconsCache: IconsCache;
         unsubscribes: Unsubscribes;
         private mutedMethods;
+        private rowsWithParentsExpanded;
         generateSlots: typeof generateSlots;
         mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
         getClass: typeof getClass;
@@ -134,10 +134,10 @@ declare module "api/api" {
         private getChildrenLinkedItemsIds;
         collectAllLinkedItems(items: Items, itemsData: DataItems): void;
         getChildrenDependantItemsIds(item: Item, items: Items, allDependant?: string[]): string[];
-        calculateItemVerticalPosition(itemId: string, itemData?: ItemData, rowData?: RowData): ItemDataPosition;
-        calculateItemHorizontalPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, spacing?: any): ItemDataPosition;
-        calculateItemPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, spacing?: any): ItemDataPosition;
-        getItemPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, spacing?: any): ItemDataPosition;
+        calculateItemVerticalPosition(itemId: string, itemData?: ItemData, rowData?: RowData, item?: Item): ItemDataPosition;
+        calculateItemHorizontalPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, spacing?: number, item?: Item): ItemDataPosition;
+        calculateItemPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, spacing?: number, item?: Item): ItemDataPosition;
+        getItemPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, spacing?: number, item?: Item): ItemDataPosition;
         getRow(rowId: string): Row;
         getRows(rowsId: string[]): Row[];
         getAllRows(): Rows;
@@ -156,30 +156,45 @@ declare module "api/api" {
         prepareDependantItems(item: Item, items: Items): string[];
         prepareItem(item: Item, defaultItemHeight?: number, itemsData?: DataItems, items?: Items): void;
         prepareItems(items: Items): Items;
-        sortRowsByChildren(rowsAsArray: Row[]): Rows;
+        sortRowsByChildren(rowsIds: string[], sortedRows?: {}, rows?: Rows, rowsData?: RowsData): Rows;
+        private getSortableValue;
+        sortRowsByColumn(column: ColumnData, asc?: boolean): Rows;
         fillEmptyRowValues(rows: Rows): Rows;
         itemsOnTheSameLevel(item1: Item, item2: Item): boolean;
         itemsOverlaps(item1: Item, item2: Item): boolean;
         itemOverlapsWithOthers(item: Item, items: Item[]): Item;
         fixOverlappedItems(rowItems: Item[]): void;
-        recalculateRowHeight(row: Row, rowData: RowData): number;
-        recalculateRowsHeights(rowsId?: string[]): number;
-        recalculateRowsPercents(rowsId: string[], verticalAreaHeight: number): void;
-        calculateVisibleRowsHeights(): void;
         private makeChildren;
         private keysToKeep;
         private clearNested;
         private fastTree;
         makeTreeMap(rowsData: RowsData, items: Items, onlyItems?: boolean): RowsData;
         getRowsWithParentsExpanded(rows: Rows): any[];
-        getVisibleRowsAndCalculateViewTop(): string[];
-        private getSortableValue;
-        sortRowsByColumn(column: ColumnData, asc?: boolean): Rows;
+        getRowViewTop(rowId: string, rowsData?: RowsData, scrollVertical?: DataScrollVertical): number;
+        parentsExpanded(rowId: string): boolean;
+        recalculateRowHeight(row: Row, rowData: RowData): number;
+        calculateVisibleRowsHeights(): void;
+        getRealChartHeight(withScrollBar?: boolean): any;
+        measureRows(all?: boolean): number | any[];
+        getVisibleRows(): string[];
         normalizeMouseWheelEvent(event: WheelEvent): WheelResult;
-        scrollToTime(toTime: number, centered?: boolean, time?: DataChartTime): number;
-        setScrollLeft(dataIndex: number | undefined, time?: DataChartTime, multi?: any, recalculateTimesLastReason?: string): any;
+        scrollToTime(toTime: number, centered?: boolean): number;
+        setScrollLeft(dataIndex: number | undefined, offset?: number): number;
         getScrollLeft(): DataScrollHorizontal;
-        setScrollTop(dataIndexOrRowId?: string | number, offset?: number): void;
+        getScrollSize(type: 'horizontal' | 'vertical'): number;
+        getLastPageDatesWidth(chartWidth: number, allDates: ChartTimeDates): {
+            lastPageSize: number;
+            lastPageCount: number;
+        };
+        calculateInitialChartWidth(withoutScrollBar?: boolean): number;
+        getChartWidth(withoutScrollBar?: boolean): any;
+        calculateHorizontalScrollSize(): void;
+        getLastPageRowsHeight(innerHeight: number, rowsWithParentsExpanded: string[]): {
+            lastPageSize: number;
+            lastPageCount: number;
+        };
+        calculateVerticalScrollSize(): void;
+        setScrollTop(dataIndexOrRowId?: string | number, offset?: number): number;
         getScrollTop(): DataScrollVertical;
         getCurrentCalendarLevels(): DataChartTimeLevels;
         getGridCells(cellIds?: string[]): GridCell[];
@@ -223,6 +238,7 @@ declare module "api/public" {
     };
 }
 declare module "api/main" {
+    import { Dayjs } from 'dayjs';
     import { DataChartTime, DataChartTimeLevel, DataChartTimeLevelDate, ChartCalendarLevel, ChartTimeDate, ChartTimeDates, ChartCalendarLevelFormat, Vido, Reason } from "gstc";
     export default function main(vido: Vido): {
         className: string;
@@ -233,10 +249,6 @@ declare module "api/main" {
         generateTreeFromVisibleRows(): void;
         generateTree(fullReload?: boolean): void;
         prepareExpanded(): void;
-        calculateRowsHeight(): void;
-        recalculateRowPercents(): void;
-        getLastPageRowsHeight(innerHeight: number, rowsWithParentsExpanded: string[]): number;
-        calculateVerticalScrollArea(): void;
         generateVisibleRowsAndItems(): void;
         resetScroll(): void;
         updateItemsVerticalPositions(): void;
@@ -247,16 +259,15 @@ declare module "api/main" {
         limitGlobal(time: DataChartTime, oldTime: DataChartTime): DataChartTime;
         setCenter(time: DataChartTime): void;
         guessPeriod(time: DataChartTime, levels: ChartCalendarLevel[]): DataChartTime;
-        calculateDatesPercents(allMainDates: DataChartTimeLevelDate[], chartWidth: number): number;
         getFormatAndLevelIndexForZoom(zoom: number, levels?: ChartCalendarLevel[]): {
             levelIndex: number;
             format: ChartCalendarLevelFormat;
         };
-        generateAllDates(time: DataChartTime, levels: ChartCalendarLevel[], chartWidth: number): number;
+        generateAllDates(time: DataChartTime, levels: ChartCalendarLevel[]): ChartTimeDates[] | 0;
         getPeriodDates(allLevelDates: ChartTimeDates, time: DataChartTime): ChartTimeDate[];
         updateLevels(time: DataChartTime, levels: ChartCalendarLevel[]): void;
         calculateTotalViewDuration(time: DataChartTime): void;
-        calculateRightGlobal(leftGlobal: number, chartWidth: number, allMainDates: DataChartTimeLevelDate[]): number;
+        calculateRightGlobal(leftGlobalDate: Dayjs, chartWidth: number, allMainDates: DataChartTimeLevelDate[], offsetPx: any, offsetMs: any): number;
         updateVisibleItems(time?: DataChartTime, multi?: import("deep-state-observer").Multi): import("deep-state-observer").Multi;
         recalculateTimes(reason: Reason): void;
         minimalReload(eventInfo: any): void;
@@ -277,9 +288,7 @@ declare module "gstc" {
     export type Vido = vido<DeepState, Api>;
     export interface RowDataPosition {
         top: number;
-        topPercent: number;
-        bottomPercent: number;
-        viewTop: number;
+        bottom: number;
     }
     export interface RowData {
         id: string;
@@ -292,7 +301,7 @@ declare module "gstc" {
         allChildren: string[];
         items: string[];
         inView: boolean;
-        visible: boolean;
+        parentsExpanded: boolean;
     }
     export interface RowsData {
         [key: string]: RowData;
@@ -333,6 +342,7 @@ declare module "gstc" {
         viewTop: number;
     }
     export interface ItemData {
+        id: string;
         time: ItemDataTime;
         actualHeight: number;
         outerHeight: number;
@@ -519,12 +529,8 @@ declare module "gstc" {
         toggle?: ListToggle;
         sort?: Sort;
     }
-    export interface ScrollPercent {
-        top?: number;
-        left?: number;
-    }
     export interface ScrollType {
-        size?: number;
+        width?: number;
         minInnerSize?: number;
         precise?: boolean;
         multiplier?: number;
@@ -543,15 +549,15 @@ declare module "gstc" {
     export interface DataScrollValues {
         lastPageSize: number;
         lastPageCount: number;
-        area: number;
-        offset: number;
-        posPx: number;
-        maxPosPx: number;
-        areaWithoutLastPage?: number;
-        scrollArea?: number;
-        dataIndex?: number;
-        innerSize?: number;
-        sub?: number;
+        absolutePosPx: number;
+        preciseOffset: number;
+        handlePosPx: number;
+        maxHandlePosPx: number;
+        absoluteSizeWithoutLastPage?: number;
+        absoluteSize: number;
+        scrollSize: number;
+        innerHandleSize: number;
+        dataIndex: number;
     }
     export interface DataScrollHorizontal extends DataScrollValues {
         data: ChartTimeDate;
@@ -625,8 +631,6 @@ declare module "gstc" {
         next: boolean;
         previous: boolean;
         currentView?: DataChartTimeLevelDateCurrentView;
-        leftPercent?: number;
-        rightPercent?: number;
     }
     export type DataChartTimeLevel = DataChartTimeLevelDate[];
     export type DataChartTimeLevels = DataChartTimeLevel[];
@@ -650,7 +654,6 @@ declare module "gstc" {
         leftPx: number;
         rightPx: number;
         width?: number;
-        scrollWidth?: number;
         zoom: number;
         format: ChartCalendarLevelFormat;
         level: number;
@@ -796,6 +799,7 @@ declare module "gstc" {
         plugin?: unknown;
         innerHeight?: number;
         autoInnerHeight?: boolean;
+        initialWidth?: number;
         headerHeight?: number;
         components?: Components;
         slots?: Slots;
@@ -837,6 +841,7 @@ declare module "gstc" {
     }
     export interface DataChartDimensions extends Dimensions {
         innerWidth: number;
+        heightWithoutScrollBar: number;
     }
     export interface DataGrid {
         cells: GridCells;

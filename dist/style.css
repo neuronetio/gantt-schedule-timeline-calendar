@@ -66,14 +66,16 @@ body.gstc-scrolling * {
 }
 .gstc__scroll-bar {
   overflow: hidden;
-  position: relative;
-  border-radius: 4px;
+  position: absolute;
+  background: rgba(253,253,253,0.871);
   cursor: grab;
 }
 .gstc__scroll-bar--vertical {
   flex-shrink: 0;
-  position: absolute;
   right: 0px;
+}
+.gstc__scroll-bar--horizontal {
+  bottom: 0px;
 }
 .gstc__scroll-bar-inner {
   background: rgba(0,0,0,0.16);
@@ -134,6 +136,7 @@ body.gstc-scrolling * {
 .gstc__list-column-row-expander-toggle img {
   width: 16px;
   height: 16px;
+  vertical-align: text-bottom;
 }
 .gstc__list-column-row-expander-toggle-child {
   cursor: default;
@@ -167,7 +170,7 @@ body.gstc-scrolling * {
 .gstc__list-column-row * {
   overflow: hidden;
   text-overflow: ellipsis;
-  vertical-align: middle;
+  vertical-align: text-bottom;
   line-height: var(--height);
 }
 .gstc__list-column-row {

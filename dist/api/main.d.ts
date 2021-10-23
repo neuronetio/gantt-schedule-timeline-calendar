@@ -1,3 +1,4 @@
+import { Dayjs } from 'dayjs';
 import { DataChartTime, DataChartTimeLevel, DataChartTimeLevelDate, ChartCalendarLevel, ChartTimeDate, ChartTimeDates, ChartCalendarLevelFormat, Vido, Reason } from '../gstc';
 export default function main(vido: Vido): {
     className: string;
@@ -8,10 +9,6 @@ export default function main(vido: Vido): {
     generateTreeFromVisibleRows(): void;
     generateTree(fullReload?: boolean): void;
     prepareExpanded(): void;
-    calculateRowsHeight(): void;
-    recalculateRowPercents(): void;
-    getLastPageRowsHeight(innerHeight: number, rowsWithParentsExpanded: string[]): number;
-    calculateVerticalScrollArea(): void;
     generateVisibleRowsAndItems(): void;
     resetScroll(): void;
     updateItemsVerticalPositions(): void;
@@ -22,16 +19,15 @@ export default function main(vido: Vido): {
     limitGlobal(time: DataChartTime, oldTime: DataChartTime): DataChartTime;
     setCenter(time: DataChartTime): void;
     guessPeriod(time: DataChartTime, levels: ChartCalendarLevel[]): DataChartTime;
-    calculateDatesPercents(allMainDates: DataChartTimeLevelDate[], chartWidth: number): number;
     getFormatAndLevelIndexForZoom(zoom: number, levels?: ChartCalendarLevel[]): {
         levelIndex: number;
         format: ChartCalendarLevelFormat;
     };
-    generateAllDates(time: DataChartTime, levels: ChartCalendarLevel[], chartWidth: number): number;
+    generateAllDates(time: DataChartTime, levels: ChartCalendarLevel[]): 0 | ChartTimeDates[];
     getPeriodDates(allLevelDates: ChartTimeDates, time: DataChartTime): ChartTimeDate[];
     updateLevels(time: DataChartTime, levels: ChartCalendarLevel[]): void;
     calculateTotalViewDuration(time: DataChartTime): void;
-    calculateRightGlobal(leftGlobal: number, chartWidth: number, allMainDates: DataChartTimeLevelDate[]): number;
+    calculateRightGlobal(leftGlobalDate: Dayjs, chartWidth: number, allMainDates: DataChartTimeLevelDate[], offsetPx: any, offsetMs: any): number;
     updateVisibleItems(time?: DataChartTime, multi?: import("deep-state-observer").Multi): import("deep-state-observer").Multi;
     recalculateTimes(reason: Reason): void;
     minimalReload(eventInfo: any): void;

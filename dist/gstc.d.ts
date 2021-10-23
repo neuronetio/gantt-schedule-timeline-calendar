@@ -6,9 +6,7 @@ import DeepState from 'deep-state-observer';
 export declare type Vido = vido<DeepState, Api>;
 export interface RowDataPosition {
     top: number;
-    topPercent: number;
-    bottomPercent: number;
-    viewTop: number;
+    bottom: number;
 }
 export interface RowData {
     id: string;
@@ -21,7 +19,7 @@ export interface RowData {
     allChildren: string[];
     items: string[];
     inView: boolean;
-    visible: boolean;
+    parentsExpanded: boolean;
 }
 export interface RowsData {
     [key: string]: RowData;
@@ -62,6 +60,7 @@ export interface ItemDataPosition {
     viewTop: number;
 }
 export interface ItemData {
+    id: string;
     time: ItemDataTime;
     actualHeight: number;
     outerHeight: number;
@@ -248,12 +247,8 @@ export interface List {
     toggle?: ListToggle;
     sort?: Sort;
 }
-export interface ScrollPercent {
-    top?: number;
-    left?: number;
-}
 export interface ScrollType {
-    size?: number;
+    width?: number;
     minInnerSize?: number;
     precise?: boolean;
     multiplier?: number;
@@ -272,15 +267,15 @@ export interface Scroll {
 export interface DataScrollValues {
     lastPageSize: number;
     lastPageCount: number;
-    area: number;
-    offset: number;
-    posPx: number;
-    maxPosPx: number;
-    areaWithoutLastPage?: number;
-    scrollArea?: number;
-    dataIndex?: number;
-    innerSize?: number;
-    sub?: number;
+    absolutePosPx: number;
+    preciseOffset: number;
+    handlePosPx: number;
+    maxHandlePosPx: number;
+    absoluteSizeWithoutLastPage?: number;
+    absoluteSize: number;
+    scrollSize: number;
+    innerHandleSize: number;
+    dataIndex: number;
 }
 export interface DataScrollHorizontal extends DataScrollValues {
     data: ChartTimeDate;
@@ -354,8 +349,6 @@ export interface DataChartTimeLevelDate {
     next: boolean;
     previous: boolean;
     currentView?: DataChartTimeLevelDateCurrentView;
-    leftPercent?: number;
-    rightPercent?: number;
 }
 export declare type DataChartTimeLevel = DataChartTimeLevelDate[];
 export declare type DataChartTimeLevels = DataChartTimeLevel[];
@@ -379,7 +372,6 @@ export interface DataChartTime extends ChartTime {
     leftPx: number;
     rightPx: number;
     width?: number;
-    scrollWidth?: number;
     zoom: number;
     format: ChartCalendarLevelFormat;
     level: number;
@@ -525,6 +517,7 @@ export interface Config {
     plugin?: unknown;
     innerHeight?: number;
     autoInnerHeight?: boolean;
+    initialWidth?: number;
     headerHeight?: number;
     components?: Components;
     slots?: Slots;
@@ -566,6 +559,7 @@ export interface Dimensions {
 }
 export interface DataChartDimensions extends Dimensions {
     innerWidth: number;
+    heightWithoutScrollBar: number;
 }
 export interface DataGrid {
     cells: GridCells;

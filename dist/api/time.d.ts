@@ -1,5 +1,5 @@
 import dayjs, { Dayjs } from 'dayjs';
-import { DataChartTime, DataChartTimeLevelDate, ChartTimeDate, Period, ChartCalendarLevel, ChartCalendarLevelFormat, DataScrollValues } from '../gstc';
+import { DataChartTime, DataChartTimeLevelDate, ChartTimeDate, Period, ChartCalendarLevel, ChartCalendarLevelFormat } from '../gstc';
 import DeepState from 'deep-state-observer';
 import { Api } from './api';
 export interface CurrentDate {
@@ -31,7 +31,6 @@ export declare class Time {
     findDateAtOffsetPx(offsetPx: number, allPeriodDates: ChartTimeDate[]): ChartTimeDate | undefined;
     findDateAtTime(milliseconds: number, allPeriodDates: ChartTimeDate[]): ChartTimeDate | undefined;
     getTimeFromViewOffsetPx(offsetPx: number, time?: DataChartTime, snapToStartOf?: boolean): number;
-    calculateScrollPosPxFromTime(milliseconds: number, time: DataChartTime | undefined, scroll: DataScrollValues | undefined): number;
     getCurrentFormatForLevel(level: ChartCalendarLevel, time: DataChartTime): ChartCalendarLevelFormat;
     generatePeriodDates({ leftDate, rightDate, period, level, levelIndex, time, callOnDate, callOnLevelDates, }: {
         leftDate: Dayjs;

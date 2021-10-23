@@ -417,3 +417,13 @@
 [3.13.3]
 
 - working with bigger data set is now much faster
+
+[3.13.4]
+
+- vertical scrollbar weird behavior at the end of the scroll area fixed
+
+[3.14.0]
+
+- huge performance improvement
+- fixed rows sorting (#297)
+- horizontal scroll precise option implemented
