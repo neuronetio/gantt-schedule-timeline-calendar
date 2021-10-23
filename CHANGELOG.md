@@ -427,3 +427,7 @@
 - huge performance improvement
 - fixed rows sorting (#297)
 - horizontal scroll precise option implemented
+
+[3.14.1]
+
+- timeline pointer plugin precise position bugfix

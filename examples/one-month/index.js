@@ -250,7 +250,7 @@ function mainOuterSlot(vido, props) {
       });
       loading = '';
       overlay = '';
-    }, 1000);
+    }, 250);
   }
 
   let listenerAdded = false;

@@ -41,6 +41,7 @@ body.gstc-scrolling * {
   font-size: 14px;
   background-color: #fdfdfd;
   line-height: 1.2;
+  box-sizing: border-box;
 }
 .gstc * {
   box-sizing: border-box;
@@ -67,7 +68,7 @@ body.gstc-scrolling * {
 .gstc__scroll-bar {
   overflow: hidden;
   position: absolute;
-  background: rgba(253,253,253,0.871);
+  background: rgba(253,253,253,0.471);
   cursor: grab;
 }
 .gstc__scroll-bar--vertical {
@@ -155,6 +156,7 @@ body.gstc-scrolling * {
   height: var(--height);
   width: var(--width);
   overflow: hidden;
+  position: absolute;
 }
 .gstc__list-column-row,
 .gstc__list-column-header {
@@ -165,6 +167,7 @@ body.gstc-scrolling * {
   line-height: var(--height);
   vertical-align: middle;
   font-size: 14px;
+  position: absolute;
   display: flex;
 }
 .gstc__list-column-row * {
@@ -418,6 +421,8 @@ body.gstc-scrolling * {
   user-select: none;
   pointer-events: all;
   overflow: hidden;
+  position: absolute;
+  width: 100%;
 }
 .gstc__chart-timeline-grid-row-cell {
   pointer-events: all;
@@ -428,6 +433,7 @@ body.gstc-scrolling * {
   border-right: 1px solid rgba(237,241,242,0.75);
   border-bottom: 1px solid rgba(237,241,242,0.75);
   touch-action: none;
+  position: absolute;
 }
 .gstc__chart-timeline-grid-row-cell--selecting {
   background: rgba(0,119,192,0.5) !important;
@@ -519,7 +525,7 @@ body.gstc-scrolling * {
 }
 .gstc__chart-timeline-items-row {
   overflow: hidden;
-  position: relative;
+  position: absolute;
   pointer-events: none !important;
   touch-action: none;
 }
