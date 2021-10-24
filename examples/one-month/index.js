@@ -341,7 +341,7 @@ const config = {
   ],
   list: {
     row: {
-      height: 68,
+      height: 60,
     },
     rows,
     columns,
