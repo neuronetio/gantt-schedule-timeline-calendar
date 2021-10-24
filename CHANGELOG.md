@@ -435,3 +435,8 @@
 [3.14.2]
 
 - bookmarks style option added and changed DOM position
+
+[3.14.3]
+
+- bookmarks DOM divided into two parts
+- chart overflow visible changed back to hidden
