@@ -261,7 +261,7 @@ body.gstc-scrolling * {
   width: 100%;
   user-select: none;
   pointer-events: none;
-  overflow: hidden;
+  overflow: visible;
 }
 .gstc__chart-time-bookmark {
   position: absolute;
@@ -403,11 +403,11 @@ body.gstc-scrolling * {
   border-right: none;
 }
 .gstc__chart-timeline {
-  overflow: hidden;
+  overflow: visible;
   position: relative;
 }
 .gstc__chart-timeline-inner {
-  overflow: hidden;
+  overflow: visible;
 }
 .gstc__chart-timeline-grid {
   overflow: hidden;

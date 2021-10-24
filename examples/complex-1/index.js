@@ -13,6 +13,7 @@ import { Plugin as ExportPDF } from '../../dist/plugins/export-pdf.esm.min.js';
 
 const iterations = 100;
 const GSTCID = GSTC.api.GSTCID;
+const addDays = 30;
 
 function getRandomFaceImage() {
   return `./faces/face-${Math.ceil(Math.random() * 50)}.jpg`;
@@ -60,7 +61,7 @@ for (let i = 0; i < iterations; i++) {
   let startDayjs = GSTC.api
     .date(startTime)
     .startOf('day')
-    .add(Math.floor(Math.random() * 30), 'day');
+    .add(Math.floor(Math.random() * addDays), 'day');
   items[id] = {
     id,
     label: `John Doe ${i}`,
@@ -143,17 +144,20 @@ const columns = {
 const bookmarks = {
   now: {
     time: GSTC.api.date().valueOf(),
-    color: '#3498DB',
     label: 'Now',
+    style: {
+      background: '#3498DB',
+      fontWeight: 'bold',
+    },
   },
 };
 
-for (let i = 0; i < 50; i++) {
+for (let i = 0; i < 5; i++) {
   const id = `Bookmark ${i}`;
   bookmarks[id] = {
     time: GSTC.api
       .date()
-      .add(Math.round(Math.random() * 600) - 300, 'day')
+      .add(Math.round(Math.random() * addDays), 'day')
       .startOf('day')
       .valueOf(),
     label: id,
@@ -302,7 +306,6 @@ const config = {
     ProgressBar(),
     TimeBookmarks({
       bookmarks,
-      //className: 'bookmark',
     }),
     DependencyLines({
       onLine: [

@@ -431,3 +431,7 @@
 [3.14.1]
 
 - timeline pointer plugin precise position bugfix
+
+[3.14.2]
+
+- bookmarks style option added and changed DOM position

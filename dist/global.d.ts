@@ -1450,13 +1450,15 @@ declare module "plugins/time-bookmarks" {
     import { Vido } from "gstc";
     import { Color } from 'csstype';
     import { Dayjs } from 'dayjs';
+    import { StyleInfo, StyleMap } from '@neuronet.io/vido';
     export const pluginPath = "config.plugin.TimeBookmarks";
-    export const slotPath = "config.slots.chart.content";
+    export const slotPath = "config.slots.chart-timeline-items.outer";
     export interface Bookmark {
         time: string | number;
         label: string;
         className?: string;
         color?: Color;
+        style?: StyleInfo;
     }
     export interface InternalBookmark extends Bookmark {
         id: string;
@@ -1464,6 +1466,7 @@ declare module "plugins/time-bookmarks" {
         absoluteLeftPx: number;
         visible: boolean;
         date: Dayjs;
+        styleMap: StyleMap;
     }
     export interface Bookmarks {
         [key: string]: Bookmark;
