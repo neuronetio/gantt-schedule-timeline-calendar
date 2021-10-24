@@ -444,3 +444,7 @@
 [3.14.4]
 
 - time diff bugfix
+
+[3.14.5]
+
+- `config.chart.item.overlap` option added

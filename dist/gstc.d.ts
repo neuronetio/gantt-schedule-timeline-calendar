@@ -107,6 +107,7 @@ export interface Item {
     isHTML?: boolean;
     linkedWith?: string[];
     selected?: boolean;
+    overlap?: boolean;
     [key: string]: any;
 }
 export interface Items {
@@ -449,6 +450,7 @@ export interface DefaultItem {
     rowTop?: number;
     minWidth?: number;
     cutIcons?: CutIcons;
+    overlap?: boolean;
 }
 export interface Chart {
     time?: ChartTime;
