@@ -440,3 +440,7 @@
 
 - bookmarks DOM divided into two parts
 - chart overflow visible changed back to hidden
+
+[3.14.4]
+
+- time diff bugfix
