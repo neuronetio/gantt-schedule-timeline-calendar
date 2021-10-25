@@ -452,3 +452,7 @@
 [3.14.6]
 
 - `config.chart.time.calendarLevels -> periodIncrement` `leftDate` argument changed to `date`
+
+[3.14.7]
+
+- scroll bar pointer events works on touch devices now

@@ -44,6 +44,7 @@ Keywords: [ gantt, javascript gantt, typescript gantt, project manager, js gantt
 - BEM based CSS rules (easy to change appearance)
 - you can easily add third party libraries
 - highly configurable
+- mobile ready
 - plugins support
 - attractive visually
 - written in typescript

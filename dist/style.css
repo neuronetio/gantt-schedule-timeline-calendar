@@ -82,6 +82,7 @@ body.gstc-scrolling * {
   background: rgba(0,0,0,0.16);
   border-radius: 4px;
   position: absolute;
+  touch-action: none;
 }
 .gstc__scroll-bar-inner:hover,
 .gstc__scroll-bar-inner--active {
