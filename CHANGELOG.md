@@ -456,3 +456,7 @@
 [3.14.7]
 
 - scroll bar pointer events works on touch devices now
+
+[3.14.8]
+
+- grid cells cache bugfix
