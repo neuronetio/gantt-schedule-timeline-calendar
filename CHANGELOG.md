@@ -448,3 +448,7 @@
 [3.14.5]
 
 - `config.chart.item.overlap` option added
+
+[3.14.6]
+
+- `config.chart.time.calendarLevels -> periodIncrement` `leftDate` argument changed to `date`

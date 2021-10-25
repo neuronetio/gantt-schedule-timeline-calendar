@@ -394,8 +394,9 @@ export interface ChartCalendarFormatArguments {
 }
 export declare type PeriodString = 'year' | 'month' | 'week' | 'day' | 'hour' | 'minute' | 'second' | 'millisecond';
 export declare type Period = PeriodString | OpUnitType;
-export declare type CharCalendarLevelFormatFunction = ({ currentDates, leftDate, rightDate, period, level, levelIndex, time, vido, api, }: {
+export declare type CharCalendarLevelFormatFunction = ({ currentDates, date, leftDate, rightDate, period, level, levelIndex, time, vido, api, }: {
     currentDates: DataChartTimeLevelDate[];
+    date: Dayjs;
     leftDate: Dayjs;
     rightDate: Dayjs;
     period: Period;

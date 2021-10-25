@@ -91,8 +91,8 @@ const days = [
   {
     zoomTo: 100, // we want to display this format for all zoom levels until 100
     period: 'day',
-    periodIncrement({ currentDates, leftDate }) {
-      if (!currentDates.length) return Math.ceil(leftDate.endOf('month').date() / 2);
+    periodIncrement({ currentDates, date }) {
+      if (!currentDates.length) return Math.ceil(date.endOf('month').date() / 2);
       const lastDate = currentDates[currentDates.length - 1];
       if (lastDate.leftGlobalDate.date() === 1) {
         // we are in the middle of the month

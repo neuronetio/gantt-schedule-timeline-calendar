@@ -676,8 +676,9 @@ declare module "gstc" {
     }
     export type PeriodString = 'year' | 'month' | 'week' | 'day' | 'hour' | 'minute' | 'second' | 'millisecond';
     export type Period = PeriodString | OpUnitType;
-    export type CharCalendarLevelFormatFunction = ({ currentDates, leftDate, rightDate, period, level, levelIndex, time, vido, api, }: {
+    export type CharCalendarLevelFormatFunction = ({ currentDates, date, leftDate, rightDate, period, level, levelIndex, time, vido, api, }: {
         currentDates: DataChartTimeLevelDate[];
+        date: Dayjs;
         leftDate: Dayjs;
         rightDate: Dayjs;
         period: Period;
