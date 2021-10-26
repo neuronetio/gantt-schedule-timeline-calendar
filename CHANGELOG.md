@@ -470,3 +470,8 @@
 [3.14.10]
 
 - cell content bugfix
+
+[3.14.11]
+
+- Math.round for all css positions
+- bookmark height bugfix
