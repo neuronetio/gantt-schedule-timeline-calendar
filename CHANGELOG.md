@@ -475,3 +475,7 @@
 
 - Math.round for all css positions
 - bookmark height bugfix
+
+[3.4.12]
+
+- a little bit of optimization again
