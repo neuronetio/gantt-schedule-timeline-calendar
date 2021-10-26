@@ -173,13 +173,14 @@ const config = {
           const { onChange, html } = vido;
           let letter = props.item.label.charAt(0).toUpperCase();
           onChange((newProps) => {
-            if (newProps.item) {
+            if (newProps && newProps.item) {
               props = newProps;
               letter = props.item.label.charAt(0).toUpperCase();
             }
           });
-          return (content) =>
-            html`<div
+          return (content) => {
+            if (!props || !props.item) return content;
+            return html`<div
                 class="item-img"
                 style="width:24px;height:24px;background:${props.item
                   .imgColor};border-radius:100%;text-align:center;line-height:24px;font-weight:bold;margin-right:10px;"
@@ -187,6 +188,7 @@ const config = {
                 ${letter}
               </div>
               ${content}`;
+          };
         },
       ],
     },

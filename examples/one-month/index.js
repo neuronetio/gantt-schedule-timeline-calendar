@@ -158,14 +158,15 @@ function itemSlot(vido, props) {
   let description = '';
   onChange((newProps) => {
     props = newProps;
-    if (!props) return;
+    if (!props || !props.item) return;
     imageSrc = props.item.img;
     description = props.item.description;
     update();
   });
 
-  return (content) =>
-    html`<div
+  return (content) => {
+    if (!props || !props.item) return content;
+    return html`<div
         class="item-image"
         style="background:url(${imageSrc}),transparent;flex-shrink:0;border-radius:100%;width:34px;height:34px;vertical-align: middle;background-size: 100%;margin: 4px 11px 0px 0px;"
       ></div>
@@ -175,6 +176,7 @@ function itemSlot(vido, props) {
           ${description}
         </div>
       </div>`;
+  };
 }
 
 function rowSlot(vido, props) {
@@ -183,13 +185,14 @@ function rowSlot(vido, props) {
   let img = '';
   onChange((newProps) => {
     props = newProps;
-    if (!props) return;
+    if (!props || !props.row) return;
     img = props.row.img;
     update();
   });
 
-  return (content) =>
-    api.sourceID(props.column.id) === 'label'
+  return (content) => {
+    if (!props || !props.column) return;
+    return api.sourceID(props.column.id) === 'label'
       ? html`<div class="row-content-wrapper" style="display:flex">
           <div class="row-content" style="flex-grow:1;">${content}</div>
           <div
@@ -198,6 +201,7 @@ function rowSlot(vido, props) {
           ></div>
         </div>`
       : content;
+  };
 }
 
 function mainOuterSlot(vido, props) {

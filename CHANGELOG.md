@@ -460,3 +460,9 @@
 [3.14.8]
 
 - grid cells cache bugfix
+
+[3.14.9]
+
+- performance optimizations
+- scrollbar visibility bugfix when all dates are visible bugfix
+- grid cells cache bugfix
