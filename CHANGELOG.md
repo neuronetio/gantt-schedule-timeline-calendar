@@ -466,3 +466,7 @@
 - performance optimizations
 - scrollbar visibility bugfix when all dates are visible bugfix
 - grid cells cache bugfix
+
+[3.14.10]
+
+- cell content bugfix
