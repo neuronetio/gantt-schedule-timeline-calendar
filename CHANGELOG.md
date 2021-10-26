@@ -476,6 +476,10 @@
 - Math.round for all css positions
 - bookmark height bugfix
 
-[3.4.12]
+[3.14.12]
 
 - a little bit of optimization again
+
+[3.14.13]
+
+- grid cells cache bugfix
