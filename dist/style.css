@@ -528,11 +528,14 @@ body.gstc-scrolling * {
   pointer-events: none !important;
   touch-action: none;
 }
+.gstc__chart-timeline-items-row * {
+  touch-action: none;
+  pointer-events: all;
+}
 .gstc__chart-timeline-items-row-item {
   touch-action: none;
   overflow: visible;
   position: absolute;
-  pointer-events: all;
   user-select: none;
   background: #e74c3c;
   border-radius: 14px;

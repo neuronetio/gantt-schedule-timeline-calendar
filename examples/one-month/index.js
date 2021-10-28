@@ -82,7 +82,6 @@ items[GSTCID('0')].style = { background: colors[3] };
 items[GSTCID('1')].style = { background: colors[3] };
 
 items[GSTCID('3')].dependant = [GSTCID('5')];
-items[GSTCID('3')].label = 'Grab and move me into vacation area';
 items[GSTCID('3')].time.start = GSTC.api.date(startTime).add(4, 'day').startOf('day').add(5, 'day').valueOf();
 items[GSTCID('3')].time.end = GSTC.api.date(items[GSTCID('3')].time.start).endOf('day').add(5, 'day').valueOf();
 

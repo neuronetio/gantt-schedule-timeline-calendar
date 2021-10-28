@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf8" />
-    <title>GSTC Big data set example</title>
+    <title>GSTC Item slot html content example</title>
     <link rel="stylesheet" href="../../dist/style.css" />
     <!-- replace this path  -->
     <link rel="stylesheet" href="../reset.css" />
@@ -29,18 +29,17 @@
       #gen div {
         margin-top: 140px;
       }
+      .dot {
+        width: 16px;
+        height: 16px;
+        position: absolute;
+        background: green;
+        border-radius: 100%;
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
-    <div class="toolbox">
-      <button id="1k">1K rows and items</button>
-      <button id="5k">5K rows and items</button>
-      <button id="10k">10K rows and items</button>
-      <button id="20k">20K rows and items</button>
-      <button id="30k">30K rows and items</button>
-      <button id="50k">50K rows and items</button>
-      <button id="100k">100K rows and items</button>
-    </div>
     <div id="gstc"></div>
     <script type="module" src="index.js"></script>
     <!-- replace this path  -->

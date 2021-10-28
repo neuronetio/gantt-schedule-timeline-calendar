@@ -14,13 +14,25 @@ export interface WheelResult {
 export interface IconsCache {
     [key: string]: string;
 }
-export interface RowsHeightMap {
+export interface RowsHeightMapNode {
     id: string;
     dataIndex: number;
-    [height: number]: RowsHeightMap;
+    keys: number[];
+    [height: number]: RowsHeightMapNode;
 }
 export declare type Unsubscribes = (() => void)[];
+export interface Cache {
+    rowsWithParentsExpanded: Row[];
+    rowsDataWithParentsExpanded: RowData[];
+    rowsIdsWithParentsExpanded: string[];
+    rowsWithParentsExpandedAsMap: Map<string, Row>;
+    rowsHeightMap: RowsHeightMapNode;
+    rowsWithParentsExpandedDataIndexMap: Map<string, number>;
+    itemsAsArray: Item[];
+    itemsDataAsArray: ItemData[];
+}
 export declare class Api {
+    apiId: number;
     name: string;
     debug: string | boolean;
     state: DeepState;
@@ -71,6 +83,8 @@ export declare class Api {
     setRowData(rowId: string, data: RowData): void;
     getItem(itemId: string): Item;
     getItems(itemsId?: string[]): Item[];
+    getAllItemsAsArray(): Item[];
+    getAllItemsDataAsArray(): ItemData[];
     getAllItems(): Items;
     getItemData(itemId: string): ItemData;
     getItemsData(): DataItems;
@@ -107,7 +121,7 @@ export declare class Api {
     getLastRowId(rowsWithParentsExpanded?: string[], verticalScroll?: DataScrollVertical): string;
     getLastRowIndex(rowsWithParentsExpanded?: string[], verticalScroll?: DataScrollVertical): number;
     private generateRowsHeightMap;
-    getDataIndexFromHeightMap(topPosition: number, node?: RowsHeightMap): RowsHeightMap;
+    getRowHeightMapNode(topPosition: number, node?: RowsHeightMapNode): RowsHeightMapNode;
     measureRows(): number | any[];
     getVisibleRows(): string[];
     normalizeMouseWheelEvent(event: WheelEvent): WheelResult;

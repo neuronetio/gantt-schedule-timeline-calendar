@@ -489,3 +489,9 @@
 - when scroll position is higher than number of rows visible rows not showing up bugfix
 - when `time.from` and `time.to` are not set when changing data nothing shows up bugfix
 - huge performance optimizations
+
+[3.14.15]
+
+- performance optimization
+- row items pointer events bugfix
+- detach directive removed (cache directive is a better alternative)

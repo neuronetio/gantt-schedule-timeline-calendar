@@ -4,7 +4,7 @@ import { Plugin as Selection } from '../../dist/plugins/selection.esm.min.js';
 import { Plugin as ItemMovement } from '../../dist/plugins/item-movement.esm.min.js';
 import { Plugin as ItemResizing } from '../../dist/plugins/item-resizing.esm.min.js';
 
-let iterations = 1000;
+let iterations = 500;
 
 let gstc, state;
 
@@ -29,8 +29,8 @@ function generateNewItems() {
   let rowsIds = Object.keys(rows);
   items = {};
   for (let i = 0, len = rowsIds.length; i < len; i++) {
-    let rowId = rowsIds[i];
-    let id = GSTC.api.GSTCID(String(i++));
+    let rowId = rowsIds[i /* % 2 === 0 ? i : i + 1*/];
+    let id = GSTC.api.GSTCID(String(i));
     if (dateIncrement >= 30) dateIncrement = 0;
     const startTime = fromDate.add(dateIncrement, 'day').startOf('day').valueOf();
     const endTime = fromDate.add(dateIncrement, 'day').endOf('day').valueOf();
@@ -74,6 +74,38 @@ const columns = {
   },
 };
 
+function itemSlot(vido, props) {
+  const { onChange, html } = vido;
+
+  let position;
+
+  function updatePosition() {
+    if (props && props.itemData) {
+      position = props.itemData.position;
+    }
+  }
+
+  updatePosition();
+
+  onChange((changedProps) => {
+    // if current element is reused to display other item data just update your data so when you click you will display right alert
+    props = changedProps;
+    updatePosition();
+  });
+
+  function onClick() {
+    alert(props.item.label);
+  }
+
+  // return render function
+  return (content) =>
+    html`${content}${html`<div
+      class="dot"
+      @click="${onClick}"
+      style="${`left: ${position.actualLeft}px; top: ${position.rowTop}px`}"
+    ></div>`}`;
+}
+
 const config = {
   licenseKey:
     '====BEGIN LICENSE KEY====\nXOfH/lnVASM6et4Co473t9jPIvhmQ/l0X3Ewog30VudX6GVkOB0n3oDx42NtADJ8HjYrhfXKSNu5EMRb5KzCLvMt/pu7xugjbvpyI1glE7Ha6E5VZwRpb4AC8T1KBF67FKAgaI7YFeOtPFROSCKrW5la38jbE5fo+q2N6wAfEti8la2ie6/7U2V+SdJPqkm/mLY/JBHdvDHoUduwe4zgqBUYLTNUgX6aKdlhpZPuHfj2SMeB/tcTJfH48rN1mgGkNkAT9ovROwI7ReLrdlHrHmJ1UwZZnAfxAC3ftIjgTEHsd/f+JrjW6t+kL6Ef1tT1eQ2DPFLJlhluTD91AsZMUg==||U2FsdGVkX1/SWWqU9YmxtM0T6Nm5mClKwqTaoF9wgZd9rNw2xs4hnY8Ilv8DZtFyNt92xym3eB6WA605N5llLm0D68EQtU9ci1rTEDopZ1ODzcqtTVSoFEloNPFSfW6LTIC9+2LSVBeeHXoLEQiLYHWihHu10Xll3KsH9iBObDACDm1PT7IV4uWvNpNeuKJc\npY3C5SG+3sHRX1aeMnHlKLhaIsOdw2IexjvMqocVpfRpX4wnsabNA0VJ3k95zUPS3vTtSegeDhwbl6j+/FZcGk9i+gAy6LuetlKuARjPYn2LH5Be3Ah+ggSBPlxf3JW9rtWNdUoFByHTcFlhzlU9HnpnBUrgcVMhCQ7SAjN9h2NMGmCr10Rn4OE0WtelNqYVig7KmENaPvFT+k2I0cYZ4KWwxxsQNKbjEAxJxrzK4HkaczCvyQbzj4Ppxx/0q+Cns44OeyWcwYD/vSaJm4Kptwpr+L4y5BoSO/WeqhSUQQ85nvOhtE0pSH/ZXYo3pqjPdQRfNm6NFeBl2lwTmZUEuw==\n====END LICENSE KEY====',
@@ -89,6 +121,9 @@ const config = {
     time: {
       zoom: 19.4,
     },
+  },
+  slots: {
+    'chart-timeline-items-row-item': { outer: [itemSlot] },
   },
 };
 
@@ -135,33 +170,7 @@ function update(count) {
   }, 0);
 }
 
-document.getElementById('1k').addEventListener('click', () => {
-  update(1000);
-});
-
-document.getElementById('5k').addEventListener('click', () => {
-  update(5000);
-});
-
-document.getElementById('10k').addEventListener('click', () => {
-  update(10000);
-});
-
-document.getElementById('20k').addEventListener('click', () => {
-  update(20000);
-});
-
-document.getElementById('30k').addEventListener('click', () => {
-  update(30000);
-});
-
-document.getElementById('50k').addEventListener('click', () => {
-  update(50000);
-});
-
-document.getElementById('100k').addEventListener('click', () => {
-  update(100000);
-});
+update(500);
 
 //@ts-ignore
 window.state = state;
