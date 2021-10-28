@@ -1,4 +1,4 @@
-import GSTC from '../../dist/gstc.esm.js';
+import GSTC from '../../dist/gstc.esm.min.js';
 import { Plugin as TimelinePointer } from '../../dist/plugins/timeline-pointer.esm.min.js';
 import { Plugin as Selection } from '../../dist/plugins/selection.esm.min.js';
 import { Plugin as ItemMovement } from '../../dist/plugins/item-movement.esm.min.js';
