@@ -7,8 +7,6 @@
   "types": "dist/gstc.d.ts",
   "scripts": {
     "examples": "node ./examples/server.js",
-    "test": "HEADLESS=1 jest",
-    "test-window": "jest",
     "lint": "eslint --fix --ext .ts .",
     "build": "echo 'nothing to build here ;)'"
   },

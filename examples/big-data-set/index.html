@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf8" />
+    <title>GSTC Big data set example</title>
+    <link rel="stylesheet" href="../../dist/style.css" />
+    <!-- replace this path  -->
+    <link rel="stylesheet" href="../reset.css" />
+    <style>
+      html,
+      body {
+        height: 100%;
+      }
+      #gstc {
+        height: calc(100% - 40px);
+      }
+      #gen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #ffffffa0;
+        text-align: center;
+        font-size: 30px;
+        font-weight: bold;
+        display: none;
+      }
+      #gen div {
+        margin-top: 140px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="toolbox">
+      <button id="1k">1K rows and items</button>
+      <button id="5k">5K rows and items</button>
+      <button id="10k">10K rows and items</button>
+      <button id="20k">20K rows and items</button>
+      <button id="30k">30K rows and items</button>
+      <button id="50k">50K rows and items</button>
+      <button id="100k">100K rows and items</button>
+    </div>
+    <div id="gstc"></div>
+    <script type="module" src="index.js"></script>
+    <!-- replace this path  -->
+    <div id="gen"><div>... GENERATING DATA PLEASE WAIT ...</div></div>
+  </body>
+</html>

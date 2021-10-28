@@ -95,6 +95,11 @@ declare module "api/api" {
     export interface IconsCache {
         [key: string]: string;
     }
+    export interface RowsHeightMap {
+        id: string;
+        dataIndex: number;
+        [height: number]: RowsHeightMap;
+    }
     export type Unsubscribes = (() => void)[];
     export class Api {
         name: string;
@@ -107,7 +112,6 @@ declare module "api/api" {
         iconsCache: IconsCache;
         unsubscribes: Unsubscribes;
         private mutedMethods;
-        private rowsWithParentsExpanded;
         generateSlots: typeof generateSlots;
         mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
         getClass: typeof getClass;
@@ -169,13 +173,23 @@ declare module "api/api" {
         private clearNested;
         private fastTree;
         makeTreeMap(rowsData: RowsData, items: Items, onlyItems?: boolean): RowsData;
-        getRowsWithParentsExpanded(rows: Rows): any[];
+        private _updateRowsWithParentsExpandedCache;
+        generateRowsWithParentsExpanded(rows: Rows): any[];
+        getRowInfoFromHeight(wantedAbsolutePosition: number): {
+            dataIndex: number;
+            row: Row;
+            rowData: RowData;
+        };
         getRowViewTop(rowId: string, rowsData?: RowsData, scrollVertical?: DataScrollVertical): number;
         parentsExpanded(rowId: string): boolean;
         recalculateRowHeight(row: Row, rowData: RowData): number;
         calculateVisibleRowsHeights(): void;
         getRealChartHeight(withScrollBar?: boolean): any;
-        measureRows(all?: boolean): number | any[];
+        getLastRowId(rowsWithParentsExpanded?: string[], verticalScroll?: DataScrollVertical): string;
+        getLastRowIndex(rowsWithParentsExpanded?: string[], verticalScroll?: DataScrollVertical): number;
+        private generateRowsHeightMap;
+        getDataIndexFromHeightMap(topPosition: number, node?: RowsHeightMap): RowsHeightMap;
+        measureRows(): number | any[];
         getVisibleRows(): string[];
         normalizeMouseWheelEvent(event: WheelEvent): WheelResult;
         scrollToTime(toTime: number, centered?: boolean): number;
@@ -250,7 +264,6 @@ declare module "api/main" {
         generateTree(fullReload?: boolean): void;
         prepareExpanded(): void;
         generateVisibleRowsAndItems(): void;
-        resetScroll(): void;
         updateItemsVerticalPositions(): void;
         getMutedListeners(): any[];
         triggerLoadedEvent(): void;
@@ -268,7 +281,7 @@ declare module "api/main" {
         updateLevels(time: DataChartTime, levels: ChartCalendarLevel[]): void;
         calculateTotalViewDuration(time: DataChartTime): void;
         calculateRightGlobal(leftGlobalDate: Dayjs, chartWidth: number, allMainDates: DataChartTimeLevelDate[], offsetPx: any, offsetMs: any): number;
-        updateVisibleItems(time?: DataChartTime, multi?: import("deep-state-observer").Multi): import("deep-state-observer").Multi;
+        updateVisibleItems(time?: DataChartTime, multi?: any): any;
         recalculateTimes(reason: Reason): void;
         minimalReload(eventInfo: any): void;
         partialReload(fullReload: boolean, eventInfo: any): void;
@@ -284,7 +297,7 @@ declare module "gstc" {
     import { StyleInfo, ComponentInstance } from '@neuronet.io/vido';
     import { Api } from "api/api";
     import { Dayjs, OpUnitType } from 'dayjs';
-    import DeepState from 'deep-state-observer';
+    import DeepState from 'deep-state-observer/index.esm';
     export type Vido = vido<DeepState, Api>;
     export interface RowDataPosition {
         top: number;

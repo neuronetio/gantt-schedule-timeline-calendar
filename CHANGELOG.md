@@ -483,3 +483,9 @@
 [3.14.13]
 
 - grid cells cache bugfix
+
+[3.14.14]
+
+- when scroll position is higher than number of rows visible rows not showing up bugfix
+- when `time.from` and `time.to` are not set when changing data nothing shows up bugfix
+- huge performance optimizations

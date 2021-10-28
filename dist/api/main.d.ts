@@ -10,7 +10,6 @@ export default function main(vido: Vido): {
     generateTree(fullReload?: boolean): void;
     prepareExpanded(): void;
     generateVisibleRowsAndItems(): void;
-    resetScroll(): void;
     updateItemsVerticalPositions(): void;
     getMutedListeners(): any[];
     triggerLoadedEvent(): void;
@@ -28,7 +27,7 @@ export default function main(vido: Vido): {
     updateLevels(time: DataChartTime, levels: ChartCalendarLevel[]): void;
     calculateTotalViewDuration(time: DataChartTime): void;
     calculateRightGlobal(leftGlobalDate: Dayjs, chartWidth: number, allMainDates: DataChartTimeLevelDate[], offsetPx: any, offsetMs: any): number;
-    updateVisibleItems(time?: DataChartTime, multi?: import("deep-state-observer").Multi): import("deep-state-observer").Multi;
+    updateVisibleItems(time?: DataChartTime, multi?: any): any;
     recalculateTimes(reason: Reason): void;
     minimalReload(eventInfo: any): void;
     partialReload(fullReload: boolean, eventInfo: any): void;

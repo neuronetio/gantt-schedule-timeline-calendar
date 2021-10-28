@@ -14,6 +14,11 @@ export interface WheelResult {
 export interface IconsCache {
     [key: string]: string;
 }
+export interface RowsHeightMap {
+    id: string;
+    dataIndex: number;
+    [height: number]: RowsHeightMap;
+}
 export declare type Unsubscribes = (() => void)[];
 export declare class Api {
     name: string;
@@ -26,7 +31,6 @@ export declare class Api {
     iconsCache: IconsCache;
     unsubscribes: Unsubscribes;
     private mutedMethods;
-    private rowsWithParentsExpanded;
     generateSlots: typeof generateSlots;
     mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
     getClass: typeof getClass;
@@ -88,13 +92,23 @@ export declare class Api {
     private clearNested;
     private fastTree;
     makeTreeMap(rowsData: RowsData, items: Items, onlyItems?: boolean): RowsData;
-    getRowsWithParentsExpanded(rows: Rows): any[];
+    private _updateRowsWithParentsExpandedCache;
+    generateRowsWithParentsExpanded(rows: Rows): any[];
+    getRowInfoFromHeight(wantedAbsolutePosition: number): {
+        dataIndex: number;
+        row: Row;
+        rowData: RowData;
+    };
     getRowViewTop(rowId: string, rowsData?: RowsData, scrollVertical?: DataScrollVertical): number;
     parentsExpanded(rowId: string): boolean;
     recalculateRowHeight(row: Row, rowData: RowData): number;
     calculateVisibleRowsHeights(): void;
     getRealChartHeight(withScrollBar?: boolean): any;
-    measureRows(all?: boolean): number | any[];
+    getLastRowId(rowsWithParentsExpanded?: string[], verticalScroll?: DataScrollVertical): string;
+    getLastRowIndex(rowsWithParentsExpanded?: string[], verticalScroll?: DataScrollVertical): number;
+    private generateRowsHeightMap;
+    getDataIndexFromHeightMap(topPosition: number, node?: RowsHeightMap): RowsHeightMap;
+    measureRows(): number | any[];
     getVisibleRows(): string[];
     normalizeMouseWheelEvent(event: WheelEvent): WheelResult;
     scrollToTime(toTime: number, centered?: boolean): number;

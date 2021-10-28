@@ -2,7 +2,7 @@ import { vido, lithtml } from '@neuronet.io/vido';
 import { StyleInfo, ComponentInstance } from '@neuronet.io/vido';
 import { Api } from './api/api';
 import { Dayjs, OpUnitType } from 'dayjs';
-import DeepState from 'deep-state-observer';
+import DeepState from 'deep-state-observer/index.esm';
 export declare type Vido = vido<DeepState, Api>;
 export interface RowDataPosition {
     top: number;
