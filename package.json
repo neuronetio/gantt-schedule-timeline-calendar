@@ -8,7 +8,8 @@
   "scripts": {
     "examples": "node ./examples/server.js",
     "lint": "eslint --fix --ext .ts .",
-    "build": "echo 'nothing to build here ;)'"
+    "build": "echo 'nothing to build here ;)'",
+    "test":"echo 'tests are somewhere else'"
   },
   "repository": {
     "type": "git",
