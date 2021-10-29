@@ -1,5 +1,5 @@
-NEURONET Free License Terms
-© Copyright 2020 NEURONET - Rafał Pośpiech, all rights reserved.
+NEURONET Free / Trial License Terms
+© Copyright 2021 NEURONET - Rafał Pośpiech, all rights reserved.
 
 1. BASIC PERMISSIONS
 
@@ -19,15 +19,18 @@ terms of this license.
   d. The software should be registered in the vendor's system using a specially
      prepared tool provided by the vendor, to which the link is located in the
      official project repository or in another place indicated by the vendor.
-  e. To use it free of charge for one year, the source code of the application
-     using the software (as a whole, including the backend and frontend) must
-     be licensed under a MIT or ISC license, publicly available on the Internet
-     and registered in the vendor's system as described above. After this time,
-     the license may be renewed. If your application is proprietary and / or
-     not licensed under the MIT or ISC license with the code publicly available
-     on the Internet, you may use this license free of charge in commercial or
-     non-commercial application for a period of two months with no renewal
-     option. After or during this time, you can purchase a commercial license.
+  e. If no commercial license has been purchased, the library may only be used
+     by non-profit companies that cannot earn or derive any other benefits
+     in any way (direct or indirect). Also, to use it free of charge for one year,
+     the source code of the application using the software (as a whole, including
+     the backend and frontend) must be licensed under a MIT or ISC license,
+     publicly available on the Internet and registered in the vendor's system
+     as described above. After this time, the license may be renewed.
+     If your business profile does not match the description above,
+     you can use this license for free in a commercial or non-commercial
+     application for a period of two months without the possibility of renewal.
+     After or during this time, you can purchase a commercial license.
+
 
 3. DISCLAIMER OF WARRANTIES
 
