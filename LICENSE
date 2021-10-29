@@ -1,23 +1,29 @@
 NEURONET Free / Trial License Terms
-
 © Copyright 2021 NEURONET - Rafał Pośpiech, all rights reserved.
 
 1. BASIC PERMISSIONS
+   NEURONET - Rafał Pośpiech (“NEURONET” or “VENDOR”) grants to you ("Licensee") a non-exclusive, non-transferable, worldwide, royalty-free license to use current version of the gantt-schedule-timeline-calendar component (the "Software"). By using the software, you agree to be bound by the terms of this license.
 
-NEURONET - Rafał Pośpiech (“NEURONET” or “VENDOR”) grants to you ("Licensee") a non-exclusive, non-transferable, worldwide, royalty-free license to use current version of the gantt-schedule-timeline-calendar component (the "Software"). By using the software, you agree to be bound by the terms of this license.
+Modifications of the software by the Licensee are allowed only by changing its configuration described in the documentation, as long as they do not contradict the license.
 
 2. GENERAL RESTRICTIONS
 
-   1. Modifications to the software by the Licensee is not allowed.
-   2. Distribution by the Licensee of the software or part(s) of it is forbidden.
-   3. Software may not be transferred, leased, assigned, or sublicensed, in whole or in part.
-   4. The software should be registered in the vendor's system using a specially prepared tool provided by the vendor, to which the link is located in the official project repository or in another place indicated by the vendor.
-   5. If no commercial license has been purchased, the library may only be used by non-profit companies that may not earn or derive any other benefits (direct or indirect) in any way. In addition, to use it free of charge for one year, the source code of the application using the software (as a whole, including backend and frontend) must be licensed under an MIT or ISC license, publicly available on the Internet (with no login required) and registered in the Seller's system as described above. After this time, the license may be renewed. If your company profile does not match the description above, you can use this license for free in a commercial or non-commercial application for a period of two months without the possibility of renewal (trial license). After or during this time, you can purchase a commercial license.
+   a) Modifications to the Software (other than described above) by the Licensee is not allowed.
+
+   b) Distribution by the Licensee of the software or part(s) of it is forbidden.
+
+   c) Software may not be transferred, leased, assigned, or sublicensed, in whole or in part.
+
+   d) The software should be registered in the vendor's system using a specially prepared tool provided by the vendor, to which the link is located in the official project repository or in another place indicated by the vendor.
+
+   e) Licensee (as well as anyone else outside NEURONET) is not allowed to bypass or circumvent any security or license checking mechanisms in any way.
+
+   f) Licensee (and anyone else outside NEURONET) may not receive financial benefit from third parties for providing access to the software or software of which this Library is a part.
+
+   g) If no commercial license has been purchased, the library may only be used by non-profit companies that may not earn or derive any other benefits (direct or indirect) in any way. In addition, to use it free of charge for one year, the source code of the application using the software (as a whole, including backend and frontend) must be licensed under an MIT or ISC license, publicly available on the Internet (with no login required) and registered in the Seller's system as described above. After this time, the license may be renewed. If your company profile does not match the description above, you can use this license for free in a commercial or non-commercial application for a period of two months without the possibility of renewal (trial license). After or during this time, you can purchase a commercial license.
 
 IF THESE RESTRICTIONS ARE NOT ALLOWED BY YOUR RESPECTIVE LAW
-THEN CONTACT NEURONET TO CHECK IF SOME RESTRICTIONS CAN BE
-WAIVED IN YOUR CASE. THE WAIVER CAN ONLY BE GIVEN BY WRITTEN
-CONSENT
+OR YOU WANT TO MODIFY THIS LICENSE IN SOME WAY THEN CONTACT NEURONET TO CHECK IF SOME RESTRICTIONS CAN BE WAIVED OR MODIFIED IN YOUR CASE. THE WAIVER OR MODIFICATION CAN ONLY BE GIVEN BY WRITTEN CONSENT
 
 3. DISCLAIMER OF WARRANTIES
 
