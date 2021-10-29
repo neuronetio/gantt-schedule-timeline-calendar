@@ -20,17 +20,16 @@ terms of this license.
      prepared tool provided by the vendor, to which the link is located in the
      official project repository or in another place indicated by the vendor.
   e. If no commercial license has been purchased, the library may only be used
-     by non-profit companies that cannot earn or derive any other benefits
-     in any way (direct or indirect). Also, to use it free of charge for one year,
-     the source code of the application using the software (as a whole, including
-     the backend and frontend) must be licensed under a MIT or ISC license,
-     publicly available on the Internet and registered in the vendor's system
-     as described above. After this time, the license may be renewed.
-     If your business profile does not match the description above,
-     you can use this license for free in a commercial or non-commercial
-     application for a period of two months without the possibility of renewal.
+     by non-profit companies that may not earn or derive any other benefits
+     (direct or indirect) in any way. In addition, to use it free of charge for one
+     year, the source code of the application using the software (as a whole, including
+     backend and frontend) must be licensed under an MIT or ISC license, publicly
+     available on the Internet (no login required) and registered in the Seller's
+     system as described above. After this time, the license may be renewed.
+     If your company profile does not match the description above, you can use this
+     license for free in a commercial or non-commercial application for a period of
+     two months without the possibility of renewal (trial license).
      After or during this time, you can purchase a commercial license.
-
 
 3. DISCLAIMER OF WARRANTIES
 
