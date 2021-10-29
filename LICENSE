@@ -2,46 +2,40 @@ NEURONET Free / Trial License Terms
 © Copyright 2021 NEURONET - Rafał Pośpiech, all rights reserved.
 
 1. BASIC PERMISSIONS
+
    NEURONET - Rafał Pośpiech (“NEURONET” or “VENDOR”) grants to you ("Licensee") a non-exclusive, non-transferable, worldwide, royalty-free license to use current version of the gantt-schedule-timeline-calendar component (the "Software"). By using the software, you agree to be bound by the terms of this license.
 
-Modifications of the software by the Licensee are allowed only by changing its configuration described in the documentation, as long as they do not contradict the license.
+   Modifications of the software by the Licensee are allowed only by changing its configuration described in the documentation, as long as they do not contradict the license.
 
 2. GENERAL RESTRICTIONS
 
-   a) Modifications to the Software (other than described above) by the Licensee is not allowed.
+   a. Modifications to the Software (other than described above) by the Licensee is not allowed.
+   b. Distribution by the Licensee of the software or part(s) of it is forbidden.
+   c. Software may not be transferred, leased, assigned, or sublicensed, in whole or in part.
+   d. The software should be registered in the vendor's system using a specially prepared tool provided by the vendor, to which the link is located in the official project repository or in another place indicated by the vendor.
+   e. Licensee (as well as anyone else outside NEURONET) is not allowed to bypass or circumvent any security or license checking mechanisms in any way.
+   f. Licensee (and anyone else outside NEURONET) may not receive financial benefit from third parties for providing access to the software or software of which this Library is a part.
+   g. If no commercial license has been purchased, the library may only be used by non-profit companies that may not earn or derive any other benefits (direct or indirect) in any way. In addition, to use it free of charge for one year, the source code of the application using the software (as a whole, including backend and frontend) must be licensed under an MIT or ISC license, publicly available on the Internet (with no login required) and registered in the Seller's system as described above. After this time, the license may be renewed. If your company profile does not match the description above, you can use this license for free in a commercial or non-commercial application for a period of two months without the possibility of renewal (trial license). After or during this time, you can purchase a commercial license.
 
-   b) Distribution by the Licensee of the software or part(s) of it is forbidden.
 
-   c) Software may not be transferred, leased, assigned, or sublicensed, in whole or in part.
-
-   d) The software should be registered in the vendor's system using a specially prepared tool provided by the vendor, to which the link is located in the official project repository or in another place indicated by the vendor.
-
-   e) Licensee (as well as anyone else outside NEURONET) is not allowed to bypass or circumvent any security or license checking mechanisms in any way.
-
-   f) Licensee (and anyone else outside NEURONET) may not receive financial benefit from third parties for providing access to the software or software of which this Library is a part.
-
-   g) If no commercial license has been purchased, the library may only be used by non-profit companies that may not earn or derive any other benefits (direct or indirect) in any way. In addition, to use it free of charge for one year, the source code of the application using the software (as a whole, including backend and frontend) must be licensed under an MIT or ISC license, publicly available on the Internet (with no login required) and registered in the Seller's system as described above. After this time, the license may be renewed. If your company profile does not match the description above, you can use this license for free in a commercial or non-commercial application for a period of two months without the possibility of renewal (trial license). After or during this time, you can purchase a commercial license.
-
-IF THESE RESTRICTIONS ARE NOT ALLOWED BY YOUR RESPECTIVE LAW
-OR YOU WANT TO MODIFY THIS LICENSE IN SOME WAY THEN CONTACT NEURONET TO CHECK IF SOME RESTRICTIONS CAN BE WAIVED OR MODIFIED IN YOUR CASE. THE WAIVER OR MODIFICATION CAN ONLY BE GIVEN BY WRITTEN CONSENT
+   IF THESE RESTRICTIONS ARE NOT ALLOWED BY YOUR RESPECTIVE LAW OR YOU WANT TO MODIFY THIS LICENSE IN SOME WAY THEN CONTACT NEURONET TO CHECK IF SOME RESTRICTIONS CAN BE WAIVED OR MODIFIED IN YOUR CASE. THE WAIVER OR MODIFICATION CAN ONLY BE GIVEN BY WRITTEN CONSENT
 
 3. DISCLAIMER OF WARRANTIES
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4. LIMITATION OF LIABILITY
 
-Under no circumstances and under no legal theory, whether tort (including negligence), contract, or otherwise, shall any Contributor, or anyone who distributes Covered Software as permitted above, be liable to You for any direct, indirect, special, incidental, or consequential damages of any character including, without limitation, damages for lost profits, loss of goodwill, work stoppage, computer failure or malfunction, or any and all other commercial damages or losses, even if such party shall have been informed of the possibility of such damages.
+   Under no circumstances and under no legal theory, whether tort (including negligence), contract, or otherwise, shall any Contributor, or anyone who distributes Covered Software as permitted above, be liable to You for any direct, indirect, special, incidental, or consequential damages of any character including, without limitation, damages for lost profits, loss of goodwill, work stoppage, computer failure or malfunction, or any and all other commercial damages or losses, even if such party shall have been informed of the possibility of such damages.
 
 5. LITIGATION
 
-Any litigation relating to this License may be brought only in the courts of a jurisdiction where the NEURONET maintains its principal place of business and such litigation shall be governed by laws of that jurisdiction, without reference to its conflict-of-law provisions.
+   Any litigation relating to this License may be brought only in the courts of a jurisdiction where the NEURONET maintains its principal place of business and such litigation shall be governed by laws of that jurisdiction, without reference to its conflict-of-law provisions.
 
 6. MISCELLANEOUS
 
-NEURONET reserves the right to change or extend the terms of this license by sending an e-mail to the licensee without the need to modify this document.
+   NEURONET reserves the right to change or extend the terms of this license by sending an e-mail to the licensee without the need to modify this document.
 
 7. TERMINATION
 
-The rights granted under this License will automatically terminate if you fail to comply with any of its terms.
-NEURONET reserves the right to terminate or suspend the provisions of this license at any time, even if the violation of its provisions is not proven in court. For this, the presumption of breach of the provisions is sufficient. By using this software, you agree that you do not have any right to claim any redress or hold NEURONET to any liability for the consequences of suspending or terminating the license terms. The Licensee has the right to send explanations regarding the situation by e-mail which may be taken into account and the license validity may be restored with the consent of NEURONET.
+   The rights granted under this License will automatically terminate if you fail to comply with any of its terms. NEURONET reserves the right to terminate or suspend the provisions of this license at any time, even if the violation of its provisions is not proven in court. For this, the presumption of breach of the provisions is sufficient. By using this software, you agree that you do not have any right to claim any redress or hold NEURONET to any liability for the consequences of suspending or terminating the license terms. The Licensee has the right to send explanations regarding the situation by e-mail which may be taken into account and the license validity may be restored with the consent of NEURONET.
