@@ -122,9 +122,7 @@ Let us know (we don't bite) neuronet.io@gmail.com
 
 <h2 align="center">LICENSE</h2>
 
-[NEURONET Free License](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
+[NEURONET Free / Trial License Terms](https://github.com/neuronetio/gantt-schedule-timeline-calendar/blob/master/LICENSE)
 
-You can generate [free license key here](https://gstc.neuronet.io/free-key).
-You can use this software for free in non-commercial projects that are under the MIT / ISC license and whose full source code is available on the Internet (backend and frontend).
-In commercial or closed source projects, you can use it for free for two months only.
-If you need a full commercial license with all plugins included, please visit [pricing page](https://gantt-schedule-timeline-calendar.neuronet.io/pricing).
+You can generate [free or trial license key here](https://gstc.neuronet.io/free-key).
+If you need a full commercial license, please visit [pricing page](https://gantt-schedule-timeline-calendar.neuronet.io/pricing).
