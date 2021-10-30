@@ -43,7 +43,7 @@ const itemsFromDB = [
   },
   {
     id: '4',
-    label: '🚫 Not selectable',
+    label: '🚫 Not selectable id4',
     rowId: '1',
     time: {
       start: GSTC.api.date('2020-01-05').startOf('day').valueOf(),
@@ -52,7 +52,7 @@ const itemsFromDB = [
   },
   {
     id: '5',
-    label: '🚫 Not selectable',
+    label: '🚫 Not selectable id5',
     canSelect: false,
     rowId: '2',
     time: {
@@ -89,6 +89,7 @@ const doNotSelectThisCells = ['2020-01-10'];
 const doNotSelectThisItems = [GSTC.api.GSTCID('4')];
 
 function canSelectItem(item) {
+  console.log('canSelect', item, doNotSelectThisItems.includes(item.id), doNotSelectThisItems);
   if (typeof item.canSelect === 'boolean') return item.canSelect;
   return !doNotSelectThisItems.includes(item.id);
 }
@@ -122,20 +123,17 @@ const config = {
     TimelinePointer({}), // timeline pointer must go first before selection
     Selection({
       events: {
-        // @ts-ignore
         onStart(lastSelected) {
           // we can clear selection each time we start to prevent shift+select multiple cells
           // gstc.api.plugins.selection.selectCells([]);
           console.log('selecting start');
         },
-        // @ts-ignore
         onSelecting(selecting, lastSelected) {
           const filtered = preventSelection(selecting);
           console.log('Selecting cells', filtered['chart-timeline-grid-row-cell']);
           console.log('Selecting items', filtered['chart-timeline-items-row-item']);
           return filtered;
         },
-        // @ts-ignore
         onEnd(selected, lastSelected) {
           const filtered = preventSelection(selected);
           console.log('Selected cells', filtered['chart-timeline-grid-row-cell']);

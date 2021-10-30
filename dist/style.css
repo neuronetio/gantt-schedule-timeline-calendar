@@ -534,7 +534,7 @@ body.gstc-scrolling * {
 }
 .gstc__chart-timeline-items-row-item {
   touch-action: none;
-  overflow: visible;
+  overflow: hidden;
   position: absolute;
   user-select: none;
   background: #e74c3c;
@@ -590,14 +590,10 @@ body.gstc-scrolling * {
   margin-left: 1px;
 }
 .gstc__chart-timeline-items-row-item-resizing-handle--right {
-  border-top-right-radius: 14px;
-  border-bottom-right-radius: 14px;
   cursor: e-resize;
   padding-left: 5px;
 }
 .gstc__chart-timeline-items-row-item-resizing-handle--left {
-  border-top-left-radius: 14px;
-  border-bottom-left-radius: 14px;
   cursor: w-resize;
   padding-left: 7px;
 }

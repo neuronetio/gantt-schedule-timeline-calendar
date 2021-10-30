@@ -69,6 +69,7 @@ export interface PluginData extends Options {
     selected: Selection;
     lastSelected: Selection;
     selecting: Selection;
+    lastSelecting: Selection;
     automaticallySelected: Selection;
     pointerEvents: PointerEvents;
     events: Events;

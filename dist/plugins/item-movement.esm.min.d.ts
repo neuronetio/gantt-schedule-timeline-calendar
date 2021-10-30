@@ -1,4 +1,4 @@
-import { Vido, Item, DataChartTime, DataItems } from '../gstc';
+import { Vido, Item, DataChartTime, ItemData, DataItems, DataScrollVertical, DataScrollHorizontal } from '../gstc';
 import DeepState from 'deep-state-observer';
 import { Dayjs } from 'dayjs';
 export interface SnapArg {
@@ -68,6 +68,10 @@ export interface PluginData extends Options {
     initialDependant: Item[];
     initialItemsData: DataItems;
     initialDependantData: DataItems;
+    clickedItem: Item;
+    clickedItemData: ItemData;
+    initialVerticalScroll: DataScrollVertical;
+    initialHorizontalScroll: DataScrollHorizontal;
     state: State;
     movement: Movement;
 }

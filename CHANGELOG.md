@@ -495,3 +495,9 @@
 - performance optimization
 - row items pointer events bugfix
 - detach directive removed (cache directive is a better alternative)
+
+[3.14.16]
+
+- selection plugin optimization and item is returned in event (not `itemData`)
+- state now contains license information `state.get('license')`
+- item movement improved

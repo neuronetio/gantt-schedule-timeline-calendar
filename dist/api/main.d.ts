@@ -27,7 +27,7 @@ export default function main(vido: Vido): {
     updateLevels(time: DataChartTime, levels: ChartCalendarLevel[]): void;
     calculateTotalViewDuration(time: DataChartTime): void;
     calculateRightGlobal(leftGlobalDate: Dayjs, chartWidth: number, allMainDates: DataChartTimeLevelDate[], offsetPx: any, offsetMs: any): number;
-    updateVisibleItems(time?: DataChartTime, multi?: any): any;
+    updateVisibleItems(time?: DataChartTime, multi?: import("deep-state-observer").Multi): import("deep-state-observer").Multi;
     recalculateTimes(reason: Reason): void;
     minimalReload(eventInfo: any): void;
     partialReload(fullReload: boolean, eventInfo: any): void;

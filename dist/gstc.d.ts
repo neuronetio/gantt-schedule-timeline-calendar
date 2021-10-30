@@ -2,7 +2,7 @@ import { vido, lithtml } from '@neuronet.io/vido';
 import { StyleInfo, ComponentInstance } from '@neuronet.io/vido';
 import { Api } from './api/api';
 import { Dayjs, OpUnitType } from 'dayjs';
-import DeepState from 'deep-state-observer/index.esm';
+import DeepState from 'deep-state-observer';
 export declare type Vido = vido<DeepState, Api>;
 export interface RowDataPosition {
     top: number;
@@ -513,6 +513,20 @@ export declare type Template = (variables: TemplateVariables) => htmlResult;
 export declare type Templates = {
     [name in SlotName]?: Template;
 };
+export interface LicenseType {
+    text: 'Trial' | 'Free' | 'Regular' | 'Ultimate';
+    value: 'trial' | 'free' | 'regular' | 'ultimate';
+}
+export interface ValidUntil {
+    text: string;
+    value: number;
+}
+export interface License {
+    type: LicenseType;
+    registeredDomains: string[];
+    validUntil: ValidUntil;
+    for: string;
+}
 export interface Config {
     licenseKey: string;
     debug?: boolean | string;
@@ -563,6 +577,8 @@ export interface Dimensions {
 export interface DataChartDimensions extends Dimensions {
     innerWidth: number;
     heightWithoutScrollBar: number;
+    innerHeight: number;
+    widthWithoutScrollBar: number;
 }
 export interface DataGrid {
     cells: GridCells;
@@ -596,6 +612,7 @@ export interface Data {
 export interface GSTCState {
     config: Config;
     $data: Data;
+    license: License;
 }
 export interface Reason {
     name: string;

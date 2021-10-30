@@ -1,6 +1,6 @@
 import { Time } from './time';
 import DeepState from 'deep-state-observer';
-import { DataChartTime, Row, Item, Vido, Items, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, DataScrollVertical, DataScrollHorizontal, ChartTimeDates } from '../gstc';
+import { DataChartTime, Row, Item, Vido, Items, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, DataScrollVertical, DataScrollHorizontal, ItemRowMap, ChartTimeDates } from '../gstc';
 import { generateSlots } from './slots';
 export declare const mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
 export declare function getClass(name: string, appendix?: string): string;
@@ -14,11 +14,11 @@ export interface WheelResult {
 export interface IconsCache {
     [key: string]: string;
 }
-export interface RowsHeightMapNode {
+export interface rowsPositionsMapNode {
     id: string;
     dataIndex: number;
     keys: number[];
-    [height: number]: RowsHeightMapNode;
+    [height: number]: rowsPositionsMapNode;
 }
 export declare type Unsubscribes = (() => void)[];
 export interface Cache {
@@ -26,7 +26,7 @@ export interface Cache {
     rowsDataWithParentsExpanded: RowData[];
     rowsIdsWithParentsExpanded: string[];
     rowsWithParentsExpandedAsMap: Map<string, Row>;
-    rowsHeightMap: RowsHeightMapNode;
+    rowsPositionsMap: rowsPositionsMapNode;
     rowsWithParentsExpandedDataIndexMap: Map<string, number>;
     itemsAsArray: Item[];
     itemsDataAsArray: ItemData[];
@@ -105,10 +105,11 @@ export declare class Api {
     private keysToKeep;
     private clearNested;
     private fastTree;
+    updateItemRowMapForItem(itemId: string, newRowId: string, itemRowMap?: ItemRowMap, rowsData?: RowsData): void;
     makeTreeMap(rowsData: RowsData, items: Items, onlyItems?: boolean): RowsData;
     private _updateRowsWithParentsExpandedCache;
     generateRowsWithParentsExpanded(rows: Rows): any[];
-    getRowInfoFromHeight(wantedAbsolutePosition: number): {
+    getRowInfoFromTop(wantedAbsolutePosition: number): {
         dataIndex: number;
         row: Row;
         rowData: RowData;
@@ -120,8 +121,8 @@ export declare class Api {
     getRealChartHeight(withScrollBar?: boolean): any;
     getLastRowId(rowsWithParentsExpanded?: string[], verticalScroll?: DataScrollVertical): string;
     getLastRowIndex(rowsWithParentsExpanded?: string[], verticalScroll?: DataScrollVertical): number;
-    private generateRowsHeightMap;
-    getRowHeightMapNode(topPosition: number, node?: RowsHeightMapNode): RowsHeightMapNode;
+    private generateRowsPositionsMap;
+    getRowPositionMapNode(topPosition: number, node?: rowsPositionsMapNode): rowsPositionsMapNode;
     measureRows(): number | any[];
     getVisibleRows(): string[];
     normalizeMouseWheelEvent(event: WheelEvent): WheelResult;

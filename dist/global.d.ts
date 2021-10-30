@@ -81,7 +81,7 @@ declare module "api/slots" {
 declare module "api/api" {
     import { Time } from "api/time";
     import DeepState from 'deep-state-observer';
-    import { DataChartTime, Row, Item, Vido, Items, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, DataScrollVertical, DataScrollHorizontal, ChartTimeDates } from "gstc";
+    import { DataChartTime, Row, Item, Vido, Items, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, DataScrollVertical, DataScrollHorizontal, ItemRowMap, ChartTimeDates } from "gstc";
     import { generateSlots } from "api/slots";
     export const mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
     export function getClass(name: string, appendix?: string): string;
@@ -95,11 +95,11 @@ declare module "api/api" {
     export interface IconsCache {
         [key: string]: string;
     }
-    export interface RowsHeightMapNode {
+    export interface rowsPositionsMapNode {
         id: string;
         dataIndex: number;
         keys: number[];
-        [height: number]: RowsHeightMapNode;
+        [height: number]: rowsPositionsMapNode;
     }
     export type Unsubscribes = (() => void)[];
     export interface Cache {
@@ -107,7 +107,7 @@ declare module "api/api" {
         rowsDataWithParentsExpanded: RowData[];
         rowsIdsWithParentsExpanded: string[];
         rowsWithParentsExpandedAsMap: Map<string, Row>;
-        rowsHeightMap: RowsHeightMapNode;
+        rowsPositionsMap: rowsPositionsMapNode;
         rowsWithParentsExpandedDataIndexMap: Map<string, number>;
         itemsAsArray: Item[];
         itemsDataAsArray: ItemData[];
@@ -186,10 +186,11 @@ declare module "api/api" {
         private keysToKeep;
         private clearNested;
         private fastTree;
+        updateItemRowMapForItem(itemId: string, newRowId: string, itemRowMap?: ItemRowMap, rowsData?: RowsData): void;
         makeTreeMap(rowsData: RowsData, items: Items, onlyItems?: boolean): RowsData;
         private _updateRowsWithParentsExpandedCache;
         generateRowsWithParentsExpanded(rows: Rows): any[];
-        getRowInfoFromHeight(wantedAbsolutePosition: number): {
+        getRowInfoFromTop(wantedAbsolutePosition: number): {
             dataIndex: number;
             row: Row;
             rowData: RowData;
@@ -201,8 +202,8 @@ declare module "api/api" {
         getRealChartHeight(withScrollBar?: boolean): any;
         getLastRowId(rowsWithParentsExpanded?: string[], verticalScroll?: DataScrollVertical): string;
         getLastRowIndex(rowsWithParentsExpanded?: string[], verticalScroll?: DataScrollVertical): number;
-        private generateRowsHeightMap;
-        getRowHeightMapNode(topPosition: number, node?: RowsHeightMapNode): RowsHeightMapNode;
+        private generateRowsPositionsMap;
+        getRowPositionMapNode(topPosition: number, node?: rowsPositionsMapNode): rowsPositionsMapNode;
         measureRows(): number | any[];
         getVisibleRows(): string[];
         normalizeMouseWheelEvent(event: WheelEvent): WheelResult;
@@ -295,7 +296,7 @@ declare module "api/main" {
         updateLevels(time: DataChartTime, levels: ChartCalendarLevel[]): void;
         calculateTotalViewDuration(time: DataChartTime): void;
         calculateRightGlobal(leftGlobalDate: Dayjs, chartWidth: number, allMainDates: DataChartTimeLevelDate[], offsetPx: any, offsetMs: any): number;
-        updateVisibleItems(time?: DataChartTime, multi?: any): any;
+        updateVisibleItems(time?: DataChartTime, multi?: import("deep-state-observer").Multi): import("deep-state-observer").Multi;
         recalculateTimes(reason: Reason): void;
         minimalReload(eventInfo: any): void;
         partialReload(fullReload: boolean, eventInfo: any): void;
@@ -311,7 +312,7 @@ declare module "gstc" {
     import { StyleInfo, ComponentInstance } from '@neuronet.io/vido';
     import { Api } from "api/api";
     import { Dayjs, OpUnitType } from 'dayjs';
-    import DeepState from 'deep-state-observer/index.esm';
+    import DeepState from 'deep-state-observer';
     export type Vido = vido<DeepState, Api>;
     export interface RowDataPosition {
         top: number;
@@ -822,6 +823,20 @@ declare module "gstc" {
     export type Templates = {
         [name in SlotName]?: Template;
     };
+    export interface LicenseType {
+        text: 'Trial' | 'Free' | 'Regular' | 'Ultimate';
+        value: 'trial' | 'free' | 'regular' | 'ultimate';
+    }
+    export interface ValidUntil {
+        text: string;
+        value: number;
+    }
+    export interface License {
+        type: LicenseType;
+        registeredDomains: string[];
+        validUntil: ValidUntil;
+        for: string;
+    }
     export interface Config {
         licenseKey: string;
         debug?: boolean | string;
@@ -872,6 +887,8 @@ declare module "gstc" {
     export interface DataChartDimensions extends Dimensions {
         innerWidth: number;
         heightWithoutScrollBar: number;
+        innerHeight: number;
+        widthWithoutScrollBar: number;
     }
     export interface DataGrid {
         cells: GridCells;
@@ -905,6 +922,7 @@ declare module "gstc" {
     export interface GSTCState {
         config: Config;
         $data: Data;
+        license: License;
     }
     export interface Reason {
         name: string;
@@ -1213,7 +1231,7 @@ declare module "plugins/timeline-pointer" {
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
 declare module "plugins/item-movement" {
-    import { Vido, Item, DataChartTime, DataItems } from "gstc";
+    import { Vido, Item, DataChartTime, ItemData, DataItems, DataScrollVertical, DataScrollHorizontal } from "gstc";
     import DeepState from 'deep-state-observer';
     import { Dayjs } from 'dayjs';
     export interface SnapArg {
@@ -1283,6 +1301,10 @@ declare module "plugins/item-movement" {
         initialDependant: Item[];
         initialItemsData: DataItems;
         initialDependantData: DataItems;
+        clickedItem: Item;
+        clickedItemData: ItemData;
+        initialVerticalScroll: DataScrollVertical;
+        initialHorizontalScroll: DataScrollHorizontal;
         state: State;
         movement: Movement;
     }
@@ -1468,6 +1490,7 @@ declare module "plugins/selection" {
         selected: Selection;
         lastSelected: Selection;
         selecting: Selection;
+        lastSelecting: Selection;
         automaticallySelected: Selection;
         pointerEvents: PointerEvents;
         events: Events;
