@@ -106,6 +106,8 @@ declare module "api/api" {
         rowsWithParentsExpanded: Row[];
         rowsDataWithParentsExpanded: RowData[];
         rowsIdsWithParentsExpanded: string[];
+        allRowsIds: string[];
+        allRowsAsArray: Row[];
         rowsWithParentsExpandedAsMap: Map<string, Row>;
         rowsPositionsMap: rowsPositionsMapNode;
         rowsWithParentsExpandedDataIndexMap: Map<string, number>;
@@ -197,6 +199,7 @@ declare module "api/api" {
         };
         getRowViewTop(rowId: string, rowsData?: RowsData, scrollVertical?: DataScrollVertical): number;
         parentsExpanded(rowId: string): boolean;
+        setAllRowsIdsCache(rowsIds: string[]): void;
         recalculateRowHeight(row: Row, rowData: RowData): number;
         calculateVisibleRowsHeights(): void;
         getRealChartHeight(withScrollBar?: boolean): number;

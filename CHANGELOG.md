@@ -510,3 +510,7 @@
 [3.14.18]
 
 - style updated: list position is now `relative`
+
+[3.14.19]
+
+- sorting nested rows bugfix (#303)
