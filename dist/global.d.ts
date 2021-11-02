@@ -29,9 +29,9 @@ declare module "api/time" {
         getGlobalOffsetPxFromDates(date: Dayjs, time?: DataChartTime): number;
         getViewOffsetPxFromDates(date: Dayjs, limitToView?: boolean, time?: DataChartTime): number;
         limitOffsetPxToView(x: number, time?: DataChartTime): number;
-        findDateAtOffsetPx(offsetPx: number, allPeriodDates: ChartTimeDate[]): ChartTimeDate | undefined;
+        findDateAtViewOffsetPx(offsetPx: number, allPeriodDates: ChartTimeDate[]): ChartTimeDate | undefined;
         findDateAtTime(milliseconds: number, allPeriodDates: ChartTimeDate[]): ChartTimeDate | undefined;
-        getTimeFromViewOffsetPx(offsetPx: number, time?: DataChartTime, snapToStartOf?: boolean): number;
+        getTimeFromOffsetPx(offsetPx: number, isViewOffset?: boolean, time?: DataChartTime): number;
         getCurrentFormatForLevel(level: ChartCalendarLevel, time: DataChartTime): ChartCalendarLevelFormat;
         generatePeriodDates({ leftDate, rightDate, period, level, levelIndex, time, callOnDate, callOnLevelDates, }: {
             leftDate: Dayjs;
@@ -1246,10 +1246,9 @@ declare module "plugins/item-movement" {
     import DeepState from 'deep-state-observer';
     import { Dayjs } from 'dayjs';
     export interface SnapArg {
-        item: Item;
         time: DataChartTime;
-        vido: Vido;
         movement: Movement;
+        vido: Vido;
     }
     export interface SnapStartArg extends SnapArg {
         startTime: Dayjs;
@@ -1264,6 +1263,7 @@ declare module "plugins/item-movement" {
     }
     export interface SnapToTime {
         start?: (snapStartArgs: SnapStartArg) => Dayjs;
+        end?: (snapEndArgs: SnapEndArg) => Dayjs;
     }
     export interface BeforeAfterInitialItems {
         initial: Item[];

@@ -514,3 +514,7 @@
 [3.14.19]
 
 - sorting nested rows bugfix (#303)
+
+[3.14.20]
+
+- `ItemMovement` and `ItemResizing` DST (Daylight saving time) bugfix

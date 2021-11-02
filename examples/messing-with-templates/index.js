@@ -86,7 +86,7 @@ function chartCalendarTemplate({ className, styleMap, components, actions, slots
             ? components.map((component, level) => {
                 if (level === 1) {
                   secondLevel = component;
-                  return null;
+                  return html`<div>removed dates</div>`;
                 }
                 return component && component.length
                   ? html`
@@ -181,12 +181,12 @@ function listTemplate({ className, styleMap, list, listColumns, actions, slots, 
                 'content',
                 listColumns.map((c) => c.html())
               )}
-            </div>
-            <div
-              class="list-bottom-content"
-              style="bottom:0px;width:100%;position:absolute;text-align:center;margin: auto;height:65px"
-            >
-              bottom content
+              <div
+                class="list-bottom-content"
+                style="bottom:0px;width:100%;position:absolute;text-align:center;margin: auto;height:65px"
+              >
+                bottom content
+              </div>
             </div>
           `
         : ''

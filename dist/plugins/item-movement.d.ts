@@ -2,10 +2,9 @@ import { Vido, Item, DataChartTime, ItemData, DataItems, DataScrollVertical, Dat
 import DeepState from 'deep-state-observer';
 import { Dayjs } from 'dayjs';
 export interface SnapArg {
-    item: Item;
     time: DataChartTime;
-    vido: Vido;
     movement: Movement;
+    vido: Vido;
 }
 export interface SnapStartArg extends SnapArg {
     startTime: Dayjs;
@@ -20,6 +19,7 @@ export interface Movement {
 }
 export interface SnapToTime {
     start?: (snapStartArgs: SnapStartArg) => Dayjs;
+    end?: (snapEndArgs: SnapEndArg) => Dayjs;
 }
 export interface BeforeAfterInitialItems {
     initial: Item[];
