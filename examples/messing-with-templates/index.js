@@ -86,7 +86,7 @@ function chartCalendarTemplate({ className, styleMap, components, actions, slots
             ? components.map((component, level) => {
                 if (level === 1) {
                   secondLevel = component;
-                  return html`<div>removed dates</div>`;
+                  return html`<div>Dates moved to the bottom</div>`;
                 }
                 return component && component.length
                   ? html`
