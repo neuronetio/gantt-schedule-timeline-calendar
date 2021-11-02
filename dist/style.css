@@ -96,6 +96,7 @@ body.gstc-scrolling * {
   flex-grow: 0;
   flex-shrink: 0;
   user-select: none;
+  position: relative;
 }
 .gstc__list > * {
   touch-action: none;

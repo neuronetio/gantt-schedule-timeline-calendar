@@ -137,21 +137,24 @@ function chartTemplate({
     html`
       <div class=${className} data-actions=${actions()} @wheel=${onWheel}>
         <div class="chart-top-content" style="${topContentStyle.directive()}">
-          ${mainLevel.map(
-            (date) =>
-              html`<div
-                style="width: ${date.currentView
-                  .width}px; border-right:1px solid; overflow:hidden;text-align:center;color:#747a81;"
-              >
-                ${date.leftGlobalDate.format('DD')}
-              </div>`
-          )}
+          ${mainLevel
+            ? mainLevel.map(
+                (date) =>
+                  html`<div
+                    style="width: ${date.currentView
+                      .width}px; border-right:1px solid #d5d9dc; overflow:hidden;text-align:center;color:#747a81;border-top:1px solid #d5d9dc;padding-top:10px"
+                  >
+                    ${date.leftGlobalDate.format('DD')}<br />
+                    content
+                  </div>`
+              )
+            : null}
         </div>
         ${slots.html(
           'content',
           html`
             ${ChartCalendar.html()}${ChartTimeline.html()}${ScrollBarVertical.html()}
-            <div class="second-level-copy">${secondLevel.map((date) => date.html())}</div>
+            <div class="second-level-copy">${secondLevel ? secondLevel.map((date) => date.html()) : null}</div>
             ${calculatedZoomMode ? null : ScrollBarHorizontal.html()}
           `
         )}
@@ -162,7 +165,6 @@ function chartTemplate({
 
 function listTemplate({ className, styleMap, list, listColumns, actions, slots, html, cache, vido, props }) {
   const headerHeight = vido.state.get('config.headerHeight');
-  const listWidth = vido.state.get('$data.list.width');
   return slots.html(
     'outer',
     cache(
@@ -171,9 +173,9 @@ function listTemplate({ className, styleMap, list, listColumns, actions, slots, 
             <div class=${className} data-actions=${actions()} style=${styleMap.directive()}>
               <div
                 class="list-top-content"
-                style="top: ${headerHeight}px;width:${listWidth}px;position:absolute;text-align:center;margin:auto;height:50px;"
+                style="top: ${headerHeight}px;width:100%;position:absolute;text-align:center;margin:auto;height:50px;"
               >
-                top content?
+                top content
               </div>
               ${slots.html(
                 'content',
@@ -181,10 +183,10 @@ function listTemplate({ className, styleMap, list, listColumns, actions, slots, 
               )}
             </div>
             <div
-              class="list-bottom-conent"
-              style="bottom:0px;width:${listWidth}px;position:absolute;text-align:center;margin: auto;height:65px"
+              class="list-bottom-content"
+              style="bottom:0px;width:100%;position:absolute;text-align:center;margin: auto;height:65px"
             >
-              bottom content?
+              bottom content
             </div>
           `
         : ''
