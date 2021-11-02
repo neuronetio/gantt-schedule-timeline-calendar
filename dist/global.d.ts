@@ -199,7 +199,7 @@ declare module "api/api" {
         parentsExpanded(rowId: string): boolean;
         recalculateRowHeight(row: Row, rowData: RowData): number;
         calculateVisibleRowsHeights(): void;
-        getRealChartHeight(withScrollBar?: boolean): any;
+        getRealChartHeight(withScrollBar?: boolean): number;
         getLastRowId(rowsWithParentsExpanded?: string[], verticalScroll?: DataScrollVertical): string;
         getLastRowIndex(rowsWithParentsExpanded?: string[], verticalScroll?: DataScrollVertical): number;
         private generateRowsPositionsMap;
@@ -244,6 +244,7 @@ declare module "api/public" {
     import dayjs from 'dayjs';
     import { Config, Period } from "gstc";
     import { lithtml } from '@neuronet.io/vido';
+    import * as vido from '@neuronet.io/vido';
     export const mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
     export function prepareState(userConfig: Config): {
         config: unknown;
@@ -261,6 +262,7 @@ declare module "api/public" {
         merge: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
         lithtml: typeof lithtml;
         html: typeof lithtml;
+        vido: typeof vido;
         date(time?: any): dayjs.Dayjs;
         setPeriod(period: Period): number;
         dayjs: typeof dayjs;
@@ -837,6 +839,10 @@ declare module "gstc" {
         validUntil: ValidUntil;
         for: string;
     }
+    export interface AdditionalSpace {
+        top: number;
+        bottom: number;
+    }
     export interface Config {
         licenseKey: string;
         debug?: boolean | string;
@@ -846,6 +852,7 @@ declare module "gstc" {
         autoInnerHeight?: boolean;
         initialWidth?: number;
         headerHeight?: number;
+        additionalSpace?: AdditionalSpace;
         components?: Components;
         slots?: Slots;
         list?: List;
@@ -956,6 +963,7 @@ declare module "gstc" {
             merge: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
             lithtml: typeof lithtml;
             html: typeof lithtml;
+            vido: typeof import("@neuronet.io/vido");
             date(time?: any): Dayjs;
             setPeriod(period: Period): number;
             dayjs: typeof import("dayjs");

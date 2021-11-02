@@ -2,6 +2,7 @@ import DeepState from 'deep-state-observer';
 import dayjs from 'dayjs';
 import { Config, Period } from '../gstc';
 import { lithtml } from '@neuronet.io/vido';
+import * as vido from '@neuronet.io/vido';
 export declare const mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
 export declare function prepareState(userConfig: Config): {
     config: unknown;
@@ -19,6 +20,7 @@ export declare const publicApi: {
     merge: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
     lithtml: typeof lithtml;
     html: typeof lithtml;
+    vido: typeof vido;
     date(time?: any): dayjs.Dayjs;
     setPeriod(period: Period): number;
     dayjs: typeof dayjs;

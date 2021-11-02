@@ -527,6 +527,10 @@ export interface License {
     validUntil: ValidUntil;
     for: string;
 }
+export interface AdditionalSpace {
+    top: number;
+    bottom: number;
+}
 export interface Config {
     licenseKey: string;
     debug?: boolean | string;
@@ -536,6 +540,7 @@ export interface Config {
     autoInnerHeight?: boolean;
     initialWidth?: number;
     headerHeight?: number;
+    additionalSpace?: AdditionalSpace;
     components?: Components;
     slots?: Slots;
     list?: List;
@@ -646,6 +651,7 @@ declare namespace GSTC {
         merge: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
         lithtml: typeof lithtml;
         html: typeof lithtml;
+        vido: typeof import("@neuronet.io/vido");
         date(time?: any): Dayjs;
         setPeriod(period: Period): number;
         dayjs: typeof import("dayjs");

@@ -42,6 +42,7 @@ body.gstc-scrolling * {
   background-color: #fdfdfd;
   line-height: 1.2;
   box-sizing: border-box;
+  position: relative;
 }
 .gstc * {
   box-sizing: border-box;
@@ -158,6 +159,9 @@ body.gstc-scrolling * {
   width: var(--width);
   overflow: hidden;
   position: absolute;
+}
+.gstc__list-column-rows-offset {
+  overflow: hidden;
 }
 .gstc__list-column-row,
 .gstc__list-column-header {
@@ -404,7 +408,7 @@ body.gstc-scrolling * {
 }
 .gstc__chart-timeline {
   overflow: hidden;
-  position: relative;
+  position: absolute;
 }
 .gstc__chart-timeline-inner {
   overflow: hidden;

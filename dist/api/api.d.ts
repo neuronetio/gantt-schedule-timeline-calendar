@@ -118,7 +118,7 @@ export declare class Api {
     parentsExpanded(rowId: string): boolean;
     recalculateRowHeight(row: Row, rowData: RowData): number;
     calculateVisibleRowsHeights(): void;
-    getRealChartHeight(withScrollBar?: boolean): any;
+    getRealChartHeight(withScrollBar?: boolean): number;
     getLastRowId(rowsWithParentsExpanded?: string[], verticalScroll?: DataScrollVertical): string;
     getLastRowIndex(rowsWithParentsExpanded?: string[], verticalScroll?: DataScrollVertical): number;
     private generateRowsPositionsMap;

@@ -501,3 +501,8 @@
 - selection plugin optimization and item is returned in event (not `itemData`)
 - state now contains license information `state.get('license')`
 - item movement improved
+
+[3.14.17]
+
+- fixed missing `cache` list template variable
+- added `additionalSpace` useful when we want to add new content above and below chart (see `messing-with-templates` example)
