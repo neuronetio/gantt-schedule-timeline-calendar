@@ -522,3 +522,7 @@
 [3.14.21]
 
 - horizontal scroll bar last position was not accessible bugfix
+
+[3.14.22]
+
+- horizontal scroll bar positive precise offset bugfix
