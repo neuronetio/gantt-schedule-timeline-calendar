@@ -518,3 +518,7 @@
 [3.14.20]
 
 - `ItemMovement` and `ItemResizing` DST (Daylight saving time) bugfix
+
+[3.14.21]
+
+- horizontal scroll bar last position was not accessible bugfix
