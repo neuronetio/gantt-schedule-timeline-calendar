@@ -139,6 +139,9 @@ const config = {
         start({ startTime }) {
           return startTime;
         },
+        end({ endTime }) {
+          return endTime;
+        },
       },
       autoScroll: {
         speed: {

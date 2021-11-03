@@ -6,16 +6,12 @@ import { Plugin as ItemResizing } from '../../dist/plugins/item-resizing.esm.min
 
 let canChangeRow = true;
 let canCollide = true;
-document
-  .getElementById('can-change-row')
-  .addEventListener('change', function (el) {
-    canChangeRow = el.target.checked;
-  });
-document
-  .getElementById('can-collide')
-  .addEventListener('change', function (el) {
-    canCollide = el.target.checked;
-  });
+document.getElementById('can-change-row').addEventListener('change', function (el) {
+  canChangeRow = el.target.checked;
+});
+document.getElementById('can-collide').addEventListener('change', function (el) {
+  canCollide = el.target.checked;
+});
 
 function isCollision(item) {
   const allItems = gstc.api.getAllItems();
@@ -23,26 +19,10 @@ function isCollision(item) {
     if (itemId === item.id) continue;
     const currentItem = allItems[itemId];
     if (currentItem.rowId === item.rowId) {
-      if (
-        item.time.start >= currentItem.time.start &&
-        item.time.start <= currentItem.time.end
-      )
-        return true;
-      if (
-        item.time.end >= currentItem.time.start &&
-        item.time.end <= currentItem.time.end
-      )
-        return true;
-      if (
-        item.time.start <= currentItem.time.start &&
-        item.time.end >= currentItem.time.end
-      )
-        return true;
-      if (
-        item.time.start >= currentItem.time.start &&
-        item.time.end <= currentItem.time.end
-      )
-        return true;
+      if (item.time.start >= currentItem.time.start && item.time.start <= currentItem.time.end) return true;
+      if (item.time.end >= currentItem.time.start && item.time.end <= currentItem.time.end) return true;
+      if (item.time.start <= currentItem.time.start && item.time.end >= currentItem.time.end) return true;
+      if (item.time.start >= currentItem.time.start && item.time.end <= currentItem.time.end) return true;
     }
   }
   return false;
@@ -70,6 +50,9 @@ const movementPluginConfig = {
     start({ startTime, time }) {
       return startTime.startOf('day').add(12, 'hour');
     },
+    end({ endTime, time }) {
+      return endTime.startOf('day').add(12, 'hour');
+    },
   },
 };
 
@@ -90,11 +73,7 @@ const itemsFromDB = [
     label: 'Item 1',
     rowId: '1',
     time: {
-      start: GSTC.api
-        .date('2020-01-01')
-        .startOf('day')
-        .add(12, 'hour')
-        .valueOf(),
+      start: GSTC.api.date('2020-01-01').startOf('day').add(12, 'hour').valueOf(),
       end: GSTC.api.date('2020-01-02').endOf('day').add(12, 'hour').valueOf(),
     },
   },
@@ -103,11 +82,7 @@ const itemsFromDB = [
     label: 'Item 2',
     rowId: '1',
     time: {
-      start: GSTC.api
-        .date('2020-02-01')
-        .startOf('day')
-        .add(12, 'hour')
-        .valueOf(),
+      start: GSTC.api.date('2020-02-01').startOf('day').add(12, 'hour').valueOf(),
       end: GSTC.api.date('2020-02-02').endOf('day').add(12, 'hour').valueOf(),
     },
   },
@@ -116,11 +91,7 @@ const itemsFromDB = [
     label: 'Item 3',
     rowId: '2',
     time: {
-      start: GSTC.api
-        .date('2020-01-15')
-        .startOf('day')
-        .add(12, 'hour')
-        .valueOf(),
+      start: GSTC.api.date('2020-01-15').startOf('day').add(12, 'hour').valueOf(),
       end: GSTC.api.date('2020-01-20').endOf('day').add(12, 'hour').valueOf(),
     },
   },
