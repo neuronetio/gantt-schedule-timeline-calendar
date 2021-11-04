@@ -526,3 +526,8 @@
 [3.14.22]
 
 - horizontal scroll bar positive precise offset bugfix
+
+[3.14.23]
+
+- `data-gstcid` added to some elements
+- cypress testing framework added
