@@ -9,7 +9,7 @@
     "examples": "node ./examples/server.js",
     "lint": "eslint --fix --ext .ts .",
     "build": "echo 'nothing to build here ;)'",
-    "test": "cypress run",
+    "test": "node ./examples/server.js & cypress run; kill -9 $(pgrep -f examples/server.js)",
     "cypress:open": "cypress open"
   },
   "repository": {
