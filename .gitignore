@@ -1,2 +1,4 @@
 node_modules
 .history
+cypress/screenshots
+cypress/videos

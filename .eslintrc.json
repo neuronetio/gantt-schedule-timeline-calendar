@@ -4,7 +4,8 @@
     "es6": true,
     "es2017": true,
     "jest": true,
-    "node": true
+    "node": true,
+    "cypress/globals": true
   },
   "extends": ["eslint:recommended", "plugin:@typescript-eslint/eslint-recommended"],
   "globals": {
@@ -18,7 +19,7 @@
     "ecmaVersion": 11,
     "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint", "prettier"],
+  "plugins": ["@typescript-eslint", "prettier", "cypress"],
   "rules": {
     "semi": ["error", "always"],
     "quotes": [
