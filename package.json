@@ -9,7 +9,7 @@
     "examples": "node ./examples/server.js",
     "lint": "eslint --fix --ext .ts .",
     "build": "echo 'nothing to build here ;)'",
-    "test": "node ./examples/server.js & cypress run && { pkill -e -f -x 'node ./examples/server.js'; echo 'ok'; exit 0; } || { pkill -e -f -x 'node ./examples/server.js'; echo 'not ok'; exit 1; }",
+    "test": "if ! pgrep -a -f 'node ./examples/server.js'  && ! pgrep -a -f 'node ./tests/server.js'; then node ./examples/server.js; fi & cypress run && { pkill -e -f -x 'node ./examples/server.js'; echo 'ok'; exit 0; } || { pkill -e -f -x 'node ./examples/server.js'; echo 'not ok'; exit 1; }",
     "cypress:open": "cypress open"
   },
   "repository": {
