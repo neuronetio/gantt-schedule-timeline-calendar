@@ -9,6 +9,46 @@ const rowsFromDB = [
     id: '2',
     label: 'Row 2',
   },
+  {
+    id: '3',
+    label: 'Row 3',
+  },
+  {
+    id: '4',
+    label: 'Row 4',
+  },
+  {
+    id: '5',
+    label: 'Row 5',
+  },
+  {
+    id: '6',
+    label: 'Row 6',
+  },
+  {
+    id: '7',
+    label: 'Row 7',
+  },
+  {
+    id: '8',
+    label: 'Row 8',
+  },
+  {
+    id: '9',
+    label: 'Row 9',
+  },
+  {
+    id: '10',
+    label: 'Row 10',
+  },
+  {
+    id: '11',
+    label: 'Row 11',
+  },
+  {
+    id: '12',
+    label: 'Row 12',
+  },
 ];
 
 const itemsFromDB = [
@@ -90,9 +130,14 @@ const state = GSTC.api.stateFromConfig(config);
 // @ts-ignore
 window.state = state;
 
+const element = document.getElementById('gstc');
+element.addEventListener('gstc-loaded', (ev) => {
+  window.dispatchEvent(new Event('gstc-loaded', ev.target));
+});
+
 // Mount the component
 const app = GSTC({
-  element: document.getElementById('gstc'),
+  element,
   state,
 });
 

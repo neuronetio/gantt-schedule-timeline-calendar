@@ -531,3 +531,7 @@
 
 - `data-gstcid` added to some elements
 - cypress testing framework added
+
+[3.14.24]
+
+- tests improved
