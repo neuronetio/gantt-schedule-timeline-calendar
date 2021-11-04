@@ -535,3 +535,7 @@
 [3.14.24]
 
 - tests improved
+
+[3.14.25]
+
+- column header render template bugfix
