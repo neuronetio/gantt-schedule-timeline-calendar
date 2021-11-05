@@ -75,7 +75,7 @@ const columns = {
 };
 
 function itemSlot(vido, props) {
-  const { onChange, html } = vido;
+  const { onChange, html, cache } = vido;
 
   let position;
 
@@ -99,11 +99,17 @@ function itemSlot(vido, props) {
 
   // return render function
   return (content) =>
-    html`${content}${html`<div
-      class="dot"
-      @click="${onClick}"
-      style="${`left: ${position.actualLeft}px; top: ${position.rowTop}px`}"
-    ></div>`}`;
+    cache(
+      props && props.item
+        ? html`${content}${html`<div
+            class="dot"
+            data-gstcid=${props.item.id}
+            data-type="chart-timeline-items-row-item"
+            @click="${onClick}"
+            style="${`left: ${position.actualLeft}px; top: ${position.rowTop}px`}"
+          ></div>`}`
+        : null
+    );
 }
 
 const config = {

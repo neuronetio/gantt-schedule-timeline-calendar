@@ -539,7 +539,6 @@ body.gstc-scrolling * {
 }
 .gstc__chart-timeline-items-row-item {
   touch-action: none;
-  overflow: hidden;
   position: absolute;
   user-select: none;
   background: #e74c3c;
@@ -581,6 +580,7 @@ body.gstc-scrolling * {
   z-index: 100;
   pointer-events: all;
   display: flex;
+  flex-shrink: 0;
   background-blend-mode: overlay;
   background: rgba(0,0,0,0.06);
 }

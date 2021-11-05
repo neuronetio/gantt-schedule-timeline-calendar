@@ -544,3 +544,9 @@
 
 - calendar levels bugfix
 - tests improvements
+
+[3.14.27]
+
+- resizing handles not visible when using item-types plugin and width is below threshold bugfix (#226)
+- item tests improved
+- testing in chrome and firefox
