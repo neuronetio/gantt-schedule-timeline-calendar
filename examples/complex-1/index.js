@@ -24,8 +24,9 @@ function getRandomColor() {
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
-const startDate = GSTC.api.date().subtract(15, 'day');
+const startDate = GSTC.api.date('2020-02-01');
 const startTime = startDate.valueOf();
+const endDate = GSTC.api.date('2020-03-31').endOf('day');
 
 const rows = {};
 for (let i = 0; i < iterations; i++) {
@@ -62,6 +63,12 @@ for (let i = 0; i < iterations; i++) {
     .date(startTime)
     .startOf('day')
     .add(Math.floor(Math.random() * addDays), 'day');
+  let end = startDayjs
+    .clone()
+    .add(Math.floor(Math.random() * 20) + 4, 'day')
+    .endOf('day')
+    .valueOf();
+  if (end > endDate.valueOf()) end = endDate.valueOf();
   items[id] = {
     id,
     label: `John Doe ${i}`,
@@ -69,11 +76,7 @@ for (let i = 0; i < iterations; i++) {
     style: { background: getRandomColor() },
     time: {
       start: startDayjs.startOf('day').valueOf(),
-      end: startDayjs
-        .clone()
-        .add(Math.floor(Math.random() * 20) + 4, 'day')
-        .endOf('day')
-        .valueOf(),
+      end,
     },
     rowId,
     img: getRandomFaceImage(),
@@ -328,6 +331,10 @@ const config = {
     columns,
   },
   chart: {
+    time: {
+      from: startDate.valueOf(),
+      to: endDate.valueOf(),
+    },
     item: {
       height: 50,
       gap: {

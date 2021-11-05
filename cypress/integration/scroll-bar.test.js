@@ -4,7 +4,7 @@ describe('Scroll bar', () => {
     const horizontalScrollBarSelector = '.gstc__scroll-bar-inner--horizontal';
     const verticalScrollBarSelector = '.gstc__scroll-bar-inner--vertical';
 
-    cy.visit('http://localhost:8080/examples/simple/simple.esm.html')
+    cy.visit('/examples/simple/simple.esm.html')
       .wait(500)
       .get(horizontalScrollBarSelector)
       .should(($el) => {
@@ -107,7 +107,7 @@ describe('Scroll bar', () => {
     const horizontalScrollBarSelector = '.gstc__scroll-bar-inner--horizontal';
     const verticalScrollBarSelector = '.gstc__scroll-bar-inner--vertical';
 
-    cy.visit('http://localhost:8080/examples/simple/simple.esm.html')
+    cy.visit('/examples/simple/simple.esm.html')
       .wait(500)
       .window()
       .then((win) => {

@@ -539,3 +539,8 @@
 [3.14.25]
 
 - column header render template bugfix
+
+[3.14.26]
+
+- calendar levels bugfix
+- tests improvements
