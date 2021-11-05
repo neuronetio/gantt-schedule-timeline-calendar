@@ -1,18 +1,17 @@
-/// <reference types="Cypress" />
-
 import DeepState from 'deep-state-observer';
 import { Api } from '../../dist/api/api';
 import { DataChartTime, GSTCState, ItemData } from '../../dist/gstc';
-import { fixed } from '../helpers';
+import { fixed, examples } from '../helpers';
 
 describe('Items', () => {
-  function test(url) {
+  function resizing(url) {
     return it('Resizing ' + url, () => {
       const rightResizerSelector =
         '.gstc__chart-timeline-items-row-item[data-gstcid="gstcid-3"] .gstc__chart-timeline-items-row-item-resizing-handle--right';
       let api: Api;
       let state: DeepState<GSTCState>;
       cy.visit(url)
+        .wait(500)
         .window()
         .then((win) => {
           // @ts-ignore
@@ -30,7 +29,7 @@ describe('Items', () => {
         .get('.gstc__chart-timeline-items-row-item[data-gstcid="gstcid-3"]')
         .then(($el) => {
           const itemData: ItemData = api.getItemData('gstcid-3');
-          const itemDataWidth = fixed(itemData.width);
+          const itemDataWidth = fixed(itemData.actualWidth);
           const elementWidth = fixed($el.css('width'));
           expect(itemDataWidth).to.eq(elementWidth);
           expect(itemDataWidth).to.be.greaterThan(0);
@@ -72,6 +71,5 @@ describe('Items', () => {
     });
   }
 
-  test('/examples/complex-1/index.html');
-  test('/examples/item-types-plugin/index.html');
+  examples.forEach((example) => resizing(example));
 });

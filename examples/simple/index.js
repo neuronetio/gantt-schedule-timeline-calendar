@@ -136,11 +136,7 @@ element.addEventListener('gstc-loaded', (ev) => {
 });
 
 // Mount the component
-const app = GSTC({
+const app = (window.gstc = GSTC({
   element,
   state,
-});
-
-//for testing
-// @ts-ignore
-window.gstc = app;
+}));

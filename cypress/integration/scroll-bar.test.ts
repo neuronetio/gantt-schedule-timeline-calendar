@@ -1,5 +1,3 @@
-/// <reference types="Cypress" />
-
 import DeepState from 'deep-state-observer';
 import { GSTCState } from '../../dist/gstc';
 import { fixed } from '../helpers';
@@ -30,7 +28,6 @@ describe('Scroll bar', () => {
       })
       .get('.gstc__list-column-row[data-gstcid="gstcid-1"]')
       .scrollH(800)
-      .window()
       .then(() => {
         const scroll = state.get('$data.scroll');
         cy.log('horizontal', scroll.horizontal);
@@ -41,7 +38,6 @@ describe('Scroll bar', () => {
       .should(($el) => {
         expect($el.css('top')).to.eq('0px');
       })
-      .window()
       .then(() => {
         const scroll = state.get('$data.scroll');
         cy.log('vertical', scroll.vertical);
@@ -49,7 +45,6 @@ describe('Scroll bar', () => {
         expect(scroll.vertical.maxHandlePosPx).to.be.greaterThan(0);
       })
       .scrollV(400)
-      .window()
       .then(() => {
         const scroll = state.get('$data.scroll');
         cy.log('vertical', scroll.vertical);
@@ -57,11 +52,9 @@ describe('Scroll bar', () => {
         expect(scroll.vertical.maxHandlePosPx).to.be.greaterThan(0);
       })
       .get('.gstc__list-column-row[data-gstcid="gstcid-12"]')
-      .window()
       .then(() => {
         cy.log('state', merge({}, state.get()));
       })
-      .window()
       .then(() => {
         const $vertical = Cypress.$(verticalScrollBarSelector);
         const $horizontal = Cypress.$(horizontalScrollBarSelector);
@@ -109,8 +102,8 @@ describe('Scroll bar', () => {
         expect(scroll.horizontal.maxHandlePosPx).to.be.greaterThan(0);
       })
       .get('.gstc__list-column-row[data-gstcid="gstcid-1"]')
+      .should('be.visible')
       .scrollH(800)
-      .wait(1)
       .then(() => {
         const scroll = state.get('$data.scroll');
         cy.log('horizontal', scroll.horizontal);
@@ -129,7 +122,6 @@ describe('Scroll bar', () => {
         expect(scroll.vertical.maxHandlePosPx).to.be.greaterThan(0);
       })
       .scrollV(400)
-      .wait(1)
       .then(() => {
         const scroll = state.get('$data.scroll');
         cy.log('vertical', scroll.vertical);
@@ -161,7 +153,6 @@ describe('Scroll bar', () => {
       // preciseOffset
       //
       .scrollH(-20)
-      .wait(1)
       .then(() => {
         const $scroll = Cypress.$(horizontalScrollBarSelector);
         const scrollData = state.get('$data.scroll.horizontal');
@@ -171,7 +162,6 @@ describe('Scroll bar', () => {
         expect(scrollData.preciseOffset).to.be.lessThan(0);
       })
       .scrollV(-20)
-      .wait(1)
       .then(() => {
         const $scroll = Cypress.$(verticalScrollBarSelector);
         const scrollData = state.get('$data.scroll.vertical');

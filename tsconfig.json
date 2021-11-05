@@ -1,5 +1,5 @@
 {
-  "include": ["./*.ts", "./cypress/*.ts"],
+  "include": ["./*.ts", "./cypress/**/*.ts"],
   "exclude": ["node_modules/**", "dist/**"],
   "compilerOptions": {
     "moduleResolution": "node",
@@ -11,6 +11,7 @@
     "allowJs": true,
     "target": "ES2015",
     "skipLibCheck": true,
-    "skipDefaultLibCheck": true
+    "skipDefaultLibCheck": true,
+    "types": ["cypress"]
   }
 }

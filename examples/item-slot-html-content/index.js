@@ -33,7 +33,7 @@ function generateNewItems() {
     let id = GSTC.api.GSTCID(String(i));
     if (dateIncrement >= 30) dateIncrement = 0;
     const startTime = fromDate.add(dateIncrement, 'day').startOf('day').valueOf();
-    const endTime = fromDate.add(dateIncrement, 'day').endOf('day').valueOf();
+    const endTime = fromDate.add(dateIncrement, 'day').add(1, 'day').endOf('day').valueOf();
     items[id] = {
       id,
       rowId,
@@ -127,7 +127,7 @@ const config = {
   chart: {
     items: {},
     time: {
-      zoom: 19.4,
+      zoom: 20.7,
     },
   },
   slots: {

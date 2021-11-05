@@ -1,5 +1,3 @@
-/// <reference types="Cypress" />
-
 import DeepState from 'deep-state-observer';
 import { GSTCState } from '../../dist/gstc';
 
@@ -7,6 +5,7 @@ describe('Basic', () => {
   it('Simple ESM', () => {
     let state: DeepState<GSTCState>;
     cy.visit('/examples/simple/simple.esm.html')
+      .wait(500)
       .get('.gstc__chart-timeline-items-row-item[data-gstcid="gstcid-1"] .gstc__chart-timeline-items-row-item-label')
       .should(($el) => {
         expect($el.text()).to.eq('Item 1');
@@ -28,6 +27,7 @@ describe('Basic', () => {
   it('Simple UMD', () => {
     let state: DeepState<GSTCState>;
     cy.visit('/examples/simple/simple.umd.html')
+      .wait(500)
       .get('.gstc__chart-timeline-items-row-item[data-gstcid="gstcid-1"] .gstc__chart-timeline-items-row-item-label')
       .should(($el) => {
         expect($el.text()).to.eq('Item 1');

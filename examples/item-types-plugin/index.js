@@ -164,8 +164,11 @@ const config = {
     items,
   },
   scroll: {
+    horizontal: {
+      precise: true,
+    },
     vertical: {
-      precise: false,
+      precise: true,
     },
   },
   slots: {
