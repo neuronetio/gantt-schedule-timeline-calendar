@@ -93,7 +93,9 @@ function itemSlot(vido, props) {
     updatePosition();
   });
 
-  function onClick() {
+  function onClick(ev) {
+    ev.stopPropagation();
+    ev.preventDefault();
     alert(props.item.label);
   }
 

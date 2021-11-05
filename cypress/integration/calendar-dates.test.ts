@@ -1,7 +1,6 @@
 /// <reference types="Cypress" />
 
 import DeepState from 'deep-state-observer';
-import { Api } from '../../dist/api/api';
 import { DataChartTime, GSTCState } from '../../dist/gstc';
 import { fixed } from '../helpers';
 

@@ -56,7 +56,6 @@ Cypress.Commands.add('scrollV', (movementY) => {
 Cypress.Commands.add('move', (selector, movementX, movementY) => {
   cy.get(selector).then(($el) => {
     const offset = $el.offset();
-    const position = $el.position();
     const width = $el.width();
     const height = $el.height();
     cy.get(selector)

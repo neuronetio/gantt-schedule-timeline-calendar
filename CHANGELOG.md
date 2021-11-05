@@ -550,3 +550,8 @@
 - resizing handles not visible when using item-types plugin and width is below threshold bugfix (#226)
 - item tests improved
 - testing in chrome and firefox
+
+[3.14.28]
+
+- removed firefox from default testing because in some env actual firefox is not installed and tests cannot be executed
+- added `npm run test:full` to test on firefox also
