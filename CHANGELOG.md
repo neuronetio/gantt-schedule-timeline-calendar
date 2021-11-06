@@ -559,3 +559,7 @@
 [3.14.29]
 
 - dates generation bugfix
+
+[3.14.30]
+
+- change column visibility bugfix
