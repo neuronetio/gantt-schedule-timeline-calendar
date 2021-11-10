@@ -403,6 +403,15 @@ function makeSelectedItemsDependent() {
   });
 }
 
+document.getElementById('one-month').addEventListener('click', () => {
+  state.update('config.chart.time', (time) => {
+    time.calculatedZoomMode = true;
+    time.from = startDate.valueOf();
+    time.to = startDate.endOf('month').valueOf();
+    return time;
+  });
+});
+
 // @ts-ignore
 window.scrollToFirstItem = scrollToFirstItem;
 

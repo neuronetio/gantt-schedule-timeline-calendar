@@ -28,7 +28,8 @@ const horizontalScrollBarSelector = '.gstc__scroll-bar-inner--horizontal';
 const verticalScrollBarSelector = '.gstc__scroll-bar-inner--vertical';
 
 Cypress.Commands.add('scrollH', (movementX) => {
-  cy.get(horizontalScrollBarSelector)
+  return cy
+    .get(horizontalScrollBarSelector)
     .then(($el) => {
       const offset = $el.offset();
       cy.get(horizontalScrollBarSelector)
@@ -39,11 +40,12 @@ Cypress.Commands.add('scrollH', (movementX) => {
         })
         .trigger('pointerup');
     })
-    .wait(1);
+    .wait(10);
 });
 
 Cypress.Commands.add('scrollV', (movementY) => {
-  cy.get(verticalScrollBarSelector)
+  return cy
+    .get(verticalScrollBarSelector)
     .then(($el) => {
       const offset = $el.offset();
       cy.get(verticalScrollBarSelector)
@@ -54,11 +56,12 @@ Cypress.Commands.add('scrollV', (movementY) => {
         })
         .trigger('pointerup');
     })
-    .wait(1);
+    .wait(10);
 });
 
 Cypress.Commands.add('move', (selector, movementX, movementY) => {
-  cy.get(selector)
+  return cy
+    .get(selector)
     .then(($el) => {
       const offset = $el.offset();
       const width = $el.width();
@@ -104,5 +107,5 @@ Cypress.Commands.add('move', (selector, movementX, movementY) => {
           y: Math.floor(offset.top + height / 2) + movementY,
         });
     })
-    .wait(1);
+    .wait(10);
 });

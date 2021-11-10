@@ -25,6 +25,8 @@ describe('Scroll bar', () => {
         cy.log('horizontal', $data.scroll.horizontal);
         expect($data.scroll.horizontal.absolutePosPx).to.eq(0);
         expect($data.scroll.horizontal.maxHandlePosPx).to.be.greaterThan(0);
+        expect($data.scroll.vertical.handlePosPx).to.eq(0);
+        expect(isNaN($data.scroll.vertical.handlePosPx)).to.eq(false);
       })
       .get('.gstc__list-column-row[data-gstcid="gstcid-1"]')
       .scrollH(800)
@@ -43,6 +45,7 @@ describe('Scroll bar', () => {
         cy.log('vertical', scroll.vertical);
         expect(scroll.vertical.absolutePosPx).to.eq(0);
         expect(scroll.vertical.maxHandlePosPx).to.be.greaterThan(0);
+        expect(isNaN(scroll.vertical.handlePosPx)).to.eq(false);
       })
       .scrollV(400)
       .then(() => {
@@ -50,6 +53,7 @@ describe('Scroll bar', () => {
         cy.log('vertical', scroll.vertical);
         expect(scroll.vertical.absolutePosPx).to.be.greaterThan(0);
         expect(scroll.vertical.maxHandlePosPx).to.be.greaterThan(0);
+        expect(isNaN(scroll.vertical.handlePosPx)).to.eq(false);
       })
       .get('.gstc__list-column-row[data-gstcid="gstcid-12"]')
       .then(() => {
@@ -120,6 +124,7 @@ describe('Scroll bar', () => {
         cy.log('vertical', scroll.vertical);
         expect(scroll.vertical.absolutePosPx).to.eq(0);
         expect(scroll.vertical.maxHandlePosPx).to.be.greaterThan(0);
+        expect(isNaN(scroll.vertical.handlePosPx)).to.eq(false);
       })
       .scrollV(400)
       .then(() => {
@@ -127,6 +132,7 @@ describe('Scroll bar', () => {
         cy.log('vertical', scroll.vertical);
         expect(scroll.vertical.absolutePosPx).to.be.greaterThan(0);
         expect(scroll.vertical.maxHandlePosPx).to.be.greaterThan(0);
+        expect(isNaN(scroll.vertical.handlePosPx)).to.eq(false);
       })
       .get('.gstc__list-column-row[data-gstcid="gstcid-12"]')
       .then(() => {

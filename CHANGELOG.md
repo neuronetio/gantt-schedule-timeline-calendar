@@ -563,3 +563,7 @@
 [3.14.30]
 
 - change column visibility bugfix
+
+[3.14.31]
+
+- updated rows were visible only after scroll bugfix
