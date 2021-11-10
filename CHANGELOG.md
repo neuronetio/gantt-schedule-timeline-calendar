@@ -567,3 +567,7 @@
 [3.14.31]
 
 - updated rows were visible only after scroll bugfix
+
+[3.14.32]
+
+- test command updated (nodejs 17.x `Error: error:0308010C:digital envelope routines::unsupported` bugfix)
