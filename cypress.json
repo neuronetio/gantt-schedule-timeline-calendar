@@ -2,6 +2,6 @@
   "viewportWidth": 1600,
   "viewportHeight":1000,
   "baseUrl":"http://localhost:8080",
-  "video": false,
+  "video": true,
   "projectId": "qdqmtw"
 }
