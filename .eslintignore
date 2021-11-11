@@ -1,0 +1,5 @@
+cypress/integration/*.ts
+cypress/integration/*.js
+examples/**/*.js
+examples/**/*.css
+examples/**/*.html

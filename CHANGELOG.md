@@ -592,3 +592,7 @@
 [3.14.37]
 
 - tests updated
+
+[3.14.38]
+
+`.eslintignore` added
