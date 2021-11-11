@@ -35,5 +35,5 @@
     "@typescript-eslint/no-unused-vars": "warn",
     "no-console": "error"
   },
-  "ignorePatterns": ["**/*.d.ts", "node_modules", ".git", ".history", "dist", "types", "./*.js", "examples"]
+  "ignorePatterns": ["**/*.d.ts", "node_modules", ".git", ".history", "dist", "types", "./*.js", "examples/**/*.*"]
 }

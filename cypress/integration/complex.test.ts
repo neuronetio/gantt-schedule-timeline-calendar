@@ -22,8 +22,26 @@ describe('Complex', () => {
       .wait(50)
       .then(() => {
         expect(state.get('config.chart.time.from')).to.eq(initialFrom);
+        expect(state.get('$data.chart.time.fromDate').valueOf()).to.eq(initialFrom);
         expect(state.get('config.chart.time.to')).to.be.lessThan(initialTo);
+        expect(state.get('$data.chart.time.toDate').valueOf()).to.be.lessThan(initialTo);
         expect(state.get('config.chart.time.calculatedZoomMode')).to.eq(true);
+      })
+      .then(() => {
+        state.update('config.chart.time', (time) => {
+          time.from = from;
+          time.to = to;
+          time.calculatedZoomMode = false;
+          return time;
+        });
+      })
+      .wait(50)
+      .then(() => {
+        expect(state.get('config.chart.time.from')).to.eq(from);
+        expect(state.get('$data.chart.time.fromDate').valueOf()).to.eq(from);
+        expect(state.get('config.chart.time.to')).to.be.eq(to);
+        expect(state.get('$data.chart.time.toDate').valueOf()).to.eq(to);
+        expect(state.get('config.chart.time.calculatedZoomMode')).to.eq(false);
       });
   });
 });

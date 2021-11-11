@@ -595,4 +595,9 @@
 
 [3.14.38]
 
-`.eslintignore` added
+- `.eslintignore` added
+
+[3.14.39]
+
+- `.eslintignore` removed and added ingore pattern to `.eslintrc.json`
+- tests updated

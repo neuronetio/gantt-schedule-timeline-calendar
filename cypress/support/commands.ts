@@ -44,7 +44,7 @@ Cypress.Commands.add('scrollH', (movementX) => {
       coordinates.screenX += +movementX;
     })
     .trigger('pointermove', coordinates)
-    .trigger('pointerup')
+    .trigger('pointerup', coordinates)
     .wait(50);
 });
 
@@ -68,7 +68,7 @@ Cypress.Commands.add('scrollV', (movementY) => {
       coordinates.screenY += movementY;
     })
     .trigger('pointermove', coordinates)
-    .trigger('pointerup')
+    .trigger('pointerup', coordinates)
     .wait(50);
 });
 
