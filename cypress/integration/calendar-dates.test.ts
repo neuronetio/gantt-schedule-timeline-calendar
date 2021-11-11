@@ -60,7 +60,7 @@ describe('Calendar dates', () => {
       //
       // move horizontal scroll bar a little bit
       //
-      .scrollH(10)
+      .scrollH(15)
       .get('.gstc__chart-calendar-date--level-1')
       .then(($el) => {
         const time: DataChartTime = state.get('$data.chart.time');
