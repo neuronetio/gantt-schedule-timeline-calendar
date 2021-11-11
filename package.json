@@ -9,9 +9,10 @@
     "examples": "node ./examples/server.js",
     "lint": "eslint --fix --ext .ts .",
     "build": "echo 'nothing to build here ;)'",
-    "test": "if ! pgrep -a -f -x 'node ./examples/server.js'  && ! pgrep -a -f -x 'node ./tests/server.js 8080'; then node ./examples/server.js; fi & export NODE_OPTIONS=--openssl-legacy-provider; cypress run && { pkill -e -f -x 'node ./examples/server.js'; echo 'ok'; exit 0; } || { pkill -e -f -x 'node ./examples/server.js'; echo 'not ok'; exit 1; }",
-    "test:full": "if ! pgrep -a -f -x 'node ./examples/server.js'  && ! pgrep -a -f -x 'node ./tests/server.js 8080'; then node ./examples/server.js; fi & cypress run --browser chrome && cypress run --browser firefox && { pkill -e -f -x 'node ./examples/server.js'; echo 'ok'; exit 0; } || { pkill -e -f -x 'node ./examples/server.js'; echo 'not ok'; exit 1; }",
-    "cypress:open": "cypress open"
+    "test": "if ! pgrep -a -f -x 'node ./examples/server.js'  && ! pgrep -a -f -x 'node ./tests/server.js 8080'; then node ./examples/server.js; fi & export NODE_OPTIONS=--openssl-legacy-provider; cypress run --record --key 70a72be1-45d1-487f-8c76-9b7df228e0e6 && { pkill -e -f -x 'node ./examples/server.js'; echo 'ok'; exit 0; } || { pkill -e -f -x 'node ./examples/server.js'; echo 'not ok'; exit 1; }",
+    "test:browsers": "if ! pgrep -a -f -x 'node ./examples/server.js'  && ! pgrep -a -f -x 'node ./tests/server.js 8080'; then node ./examples/server.js; fi & export NODE_OPTIONS=--openssl-legacy-provider; cypress run --browser chrome && cypress run --browser firefox && { pkill -e -f -x 'node ./examples/server.js'; echo 'ok'; exit 0; } || { pkill -e -f -x 'node ./examples/server.js'; echo 'not ok'; exit 1; }",
+    "test:repeat": "if ! pgrep -a -f -x 'node ./examples/server.js'  && ! pgrep -a -f -x 'node ./tests/server.js 8080'; then node ./examples/server.js; fi & export NODE_OPTIONS=--openssl-legacy-provider; npx cypress-repeat run -n 6 && { pkill -e -f -x 'node ./examples/server.js'; echo 'ok'; exit 0; } || { pkill -e -f -x 'node ./examples/server.js'; echo 'not ok'; exit 1; }",
+    "cypress:open": "export NODE_OPTIONS=--openssl-legacy-provider; cypress open"
   },
   "repository": {
     "type": "git",
@@ -136,6 +137,7 @@
     "@typescript-eslint/eslint-plugin": "^4.9.1",
     "@typescript-eslint/parser": "^4.9.1",
     "cypress": "^9.0.0",
+    "cypress-repeat": "^2.3.0",
     "eslint": "^7.15.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-cypress": "^2.12.1",

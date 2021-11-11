@@ -18,6 +18,7 @@
         "@typescript-eslint/eslint-plugin": "^4.9.1",
         "@typescript-eslint/parser": "^4.9.1",
         "cypress": "^9.0.0",
+        "cypress-repeat": "^2.3.0",
         "eslint": "^7.15.0",
         "eslint-config-prettier": "^6.15.0",
         "eslint-plugin-cypress": "^2.12.1",
@@ -1663,6 +1664,12 @@
         }
       ]
     },
+    "node_modules/arg": {
+      "version": "5.0.1",
+      "resolved": "https://registry.npmjs.org/arg/-/arg-5.0.1.tgz",
+      "integrity": "sha512-e0hDa9H2Z9AwFkk2qDlwhoMYE4eToKarchkQHovNdLTCYMHZHeRjI71crOh+dio4K6u1IcwubQqo79Ga4CyAQA==",
+      "dev": true
+    },
     "node_modules/argparse": {
       "version": "1.0.10",
       "resolved": "https://registry.npmjs.org/argparse/-/argparse-1.0.10.tgz",
@@ -2451,6 +2458,24 @@
         "node": ">=12.0.0"
       }
     },
+    "node_modules/cypress-repeat": {
+      "version": "2.3.0",
+      "resolved": "https://registry.npmjs.org/cypress-repeat/-/cypress-repeat-2.3.0.tgz",
+      "integrity": "sha512-OYM6+nixxvsXpx1/QyrF/OlXhKBcFU3ojQkYAjqnMwZNBwVS9fUsnRDPThBG2atU/Pd/b0uCP51hjKlhwfNwIw==",
+      "dev": true,
+      "dependencies": {
+        "arg": "5.0.1",
+        "bluebird": "3.7.2",
+        "debug": "4.3.2",
+        "dotenv": "8.2.0"
+      },
+      "bin": {
+        "cypress-repeat": "index.js"
+      },
+      "peerDependencies": {
+        "cypress": ">=5.3.0"
+      }
+    },
     "node_modules/dashdash": {
       "version": "1.14.1",
       "resolved": "https://registry.npmjs.org/dashdash/-/dashdash-1.14.1.tgz",
@@ -2619,6 +2644,15 @@
       "version": "5.0.0",
       "resolved": "https://registry.npmjs.org/webidl-conversions/-/webidl-conversions-5.0.0.tgz",
       "integrity": "sha512-VlZwKPCkYKxQgeSbH5EyngOmRp7Ww7I9rQLERETtf5ofd9pGeswWiOtogpEO850jziPRarreGxn5QIiTqpb2wA==",
+      "dev": true,
+      "engines": {
+        "node": ">=8"
+      }
+    },
+    "node_modules/dotenv": {
+      "version": "8.2.0",
+      "resolved": "https://registry.npmjs.org/dotenv/-/dotenv-8.2.0.tgz",
+      "integrity": "sha512-8sJ78ElpbDJBHNeBzUbUVLsqKdccaa/BXF1uPTw3GrvQTBgrQrtObr2mUrE38vzYd8cEv+m/JBfDLioYcfXoaw==",
       "dev": true,
       "engines": {
         "node": ">=8"
@@ -8766,6 +8800,12 @@
       "integrity": "sha512-Of/R0wqp83cgHozfIYLbBMnej79U/SVGOOyuB3VVFv1NRM/PSFMK12x9KVtiYzJqmnU5WR2qp0Z5rHb7sWGnFQ==",
       "dev": true
     },
+    "arg": {
+      "version": "5.0.1",
+      "resolved": "https://registry.npmjs.org/arg/-/arg-5.0.1.tgz",
+      "integrity": "sha512-e0hDa9H2Z9AwFkk2qDlwhoMYE4eToKarchkQHovNdLTCYMHZHeRjI71crOh+dio4K6u1IcwubQqo79Ga4CyAQA==",
+      "dev": true
+    },
     "argparse": {
       "version": "1.0.10",
       "resolved": "https://registry.npmjs.org/argparse/-/argparse-1.0.10.tgz",
@@ -9387,6 +9427,18 @@
         "yauzl": "^2.10.0"
       }
     },
+    "cypress-repeat": {
+      "version": "2.3.0",
+      "resolved": "https://registry.npmjs.org/cypress-repeat/-/cypress-repeat-2.3.0.tgz",
+      "integrity": "sha512-OYM6+nixxvsXpx1/QyrF/OlXhKBcFU3ojQkYAjqnMwZNBwVS9fUsnRDPThBG2atU/Pd/b0uCP51hjKlhwfNwIw==",
+      "dev": true,
+      "requires": {
+        "arg": "5.0.1",
+        "bluebird": "3.7.2",
+        "debug": "4.3.2",
+        "dotenv": "8.2.0"
+      }
+    },
     "dashdash": {
       "version": "1.14.1",
       "resolved": "https://registry.npmjs.org/dashdash/-/dashdash-1.14.1.tgz",
@@ -9520,6 +9572,12 @@
           "dev": true
         }
       }
+    },
+    "dotenv": {
+      "version": "8.2.0",
+      "resolved": "https://registry.npmjs.org/dotenv/-/dotenv-8.2.0.tgz",
+      "integrity": "sha512-8sJ78ElpbDJBHNeBzUbUVLsqKdccaa/BXF1uPTw3GrvQTBgrQrtObr2mUrE38vzYd8cEv+m/JBfDLioYcfXoaw==",
+      "dev": true
     },
     "ecc-jsbn": {
       "version": "0.1.2",

@@ -580,7 +580,6 @@ export interface Dimensions {
     height: number;
 }
 export interface DataChartDimensions extends Dimensions {
-    innerWidth: number;
     heightWithoutScrollBar: number;
     innerHeight: number;
     widthWithoutScrollBar: number;

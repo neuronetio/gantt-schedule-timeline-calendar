@@ -571,3 +571,8 @@
 [3.14.32]
 
 - test command updated (nodejs 17.x `Error: error:0308010C:digital envelope routines::unsupported` bugfix)
+
+[3.14.33]
+
+- cleaning up chart dimensions properties
+- other package.json cypress commands updated (nodejs 17.x `Error: error:0308010C:digital envelope routines::unsupported` bugfix)

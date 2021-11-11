@@ -140,7 +140,7 @@ export declare class Api {
     calculateInitialChartWidth(withoutScrollBar?: boolean): number;
     getChartWidth(withoutScrollBar?: boolean): any;
     calculateHorizontalScrollSize(): void;
-    getLastPageRowsHeight(innerHeight: number, rowsWithParentsExpanded: string[]): {
+    getLastPageRowsHeight(heightWithoutScrollBar: number, rowsWithParentsExpanded: string[]): {
         lastPageSize: number;
         lastPageCount: number;
     };

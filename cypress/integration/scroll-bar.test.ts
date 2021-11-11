@@ -1,5 +1,5 @@
 import DeepState from 'deep-state-observer';
-import { GSTCState } from '../../dist/gstc';
+import { Data, DataChartDimensions, GSTCState } from '../../dist/gstc';
 import { fixed } from '../helpers';
 
 describe('Scroll bar', () => {
@@ -21,8 +21,13 @@ describe('Scroll bar', () => {
         state = win.state;
         // @ts-ignore
         merge = win.gstc.api.mergeDeep;
-        const $data = { ...state.get('$data') };
-        cy.log('horizontal', $data.scroll.horizontal);
+        const dimensions: DataChartDimensions = state.get('$data.chart.dimensions');
+        cy.log('$data.scroll.horizontal', state.get('$data.scroll.horizontal'));
+        cy.log('$data.chart.dimensions', dimensions);
+        cy.log('widthWithoutScrollBar', dimensions.widthWithoutScrollBar);
+      })
+      .then(() => {
+        const $data: Data = { ...state.get('$data') };
         expect($data.scroll.horizontal.absolutePosPx).to.eq(0);
         expect($data.scroll.horizontal.maxHandlePosPx).to.be.greaterThan(0);
         expect($data.scroll.vertical.handlePosPx).to.eq(0);
@@ -70,7 +75,7 @@ describe('Scroll bar', () => {
         expect(fixed(h.handlePosPx)).to.eq(fixed($horizontal.css('left')));
         expect(fixed(v.innerHandleSize)).to.eq(fixed($vertical.height()));
         expect(fixed(h.innerHandleSize)).to.eq(fixed($horizontal.width()));
-        expect(fixed(state.get('$data.chart.dimensions.innerWidth'))).to.eq(fixed(h.scrollSize));
+        expect(fixed(state.get('$data.chart.dimensions.widthWithoutScrollBar'))).to.eq(fixed(h.scrollSize));
         expect(fixed(state.get('$data.chart.dimensions.heightWithoutScrollBar'))).to.eq(fixed(v.scrollSize));
         expect(h.preciseOffset).to.eq(0);
         expect(v.preciseOffset).to.eq(0);
@@ -150,7 +155,7 @@ describe('Scroll bar', () => {
         expect(fixed(h.handlePosPx)).to.eq(fixed($horizontal.css('left')));
         expect(fixed(v.innerHandleSize)).to.eq(fixed($vertical.height()));
         expect(fixed(h.innerHandleSize)).to.eq(fixed($horizontal.width()));
-        expect(fixed(state.get('$data.chart.dimensions.innerWidth'))).to.eq(fixed(h.scrollSize));
+        expect(fixed(state.get('$data.chart.dimensions.widthWithoutScrollBar'))).to.eq(fixed(h.scrollSize));
         expect(fixed(state.get('$data.chart.dimensions.heightWithoutScrollBar'))).to.eq(fixed(v.scrollSize));
         expect(h.preciseOffset).to.eq(0);
         expect(v.preciseOffset).to.eq(0);
@@ -164,7 +169,7 @@ describe('Scroll bar', () => {
         const scrollData = state.get('$data.scroll.horizontal');
         expect(fixed(scrollData.handlePosPx)).to.eq(fixed($scroll.css('left')));
         expect(fixed(scrollData.innerHandleSize)).to.eq(fixed($scroll.width()));
-        expect(fixed(state.get('$data.chart.dimensions.innerWidth'))).to.eq(fixed(scrollData.scrollSize));
+        expect(fixed(state.get('$data.chart.dimensions.widthWithoutScrollBar'))).to.eq(fixed(scrollData.scrollSize));
         expect(scrollData.preciseOffset).to.be.lessThan(0);
       })
       .scrollV(-20)
