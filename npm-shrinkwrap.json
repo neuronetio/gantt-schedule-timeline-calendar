@@ -10,7 +10,6 @@
       "license": "SEE LICENSE IN LICENSE",
       "dependencies": {
         "@neuronet.io/vido": "^3.2.7",
-        "csstype": "^3.0.5",
         "dayjs": "^1.9.7",
         "deep-state-observer": "^3.22.9"
       },
@@ -1086,11 +1085,6 @@
         "csstype": "^2.6.10",
         "lit-html-optimised": "^1.3.0"
       }
-    },
-    "node_modules/@neuronet.io/vido/node_modules/csstype": {
-      "version": "2.6.19",
-      "resolved": "https://registry.npmjs.org/csstype/-/csstype-2.6.19.tgz",
-      "integrity": "sha512-ZVxXaNy28/k3kJg0Fou5MiYpp88j7H9hLZp8PDC3jV0WFjfH5E9xHb56L0W59cPbKbcHXeP4qyT8PrHp8t6LcQ=="
     },
     "node_modules/@nodelib/fs.scandir": {
       "version": "2.1.5",
@@ -2375,9 +2369,9 @@
       "dev": true
     },
     "node_modules/csstype": {
-      "version": "3.0.10",
-      "resolved": "https://registry.npmjs.org/csstype/-/csstype-3.0.10.tgz",
-      "integrity": "sha512-2u44ZG2OcNUO9HDp/Jl8C07x6pU/eTR3ncV91SiK3dhG9TWvRVsCoJw14Ckx5DgWkzGA3waZWO3d7pgqpUI/XA=="
+      "version": "2.6.19",
+      "resolved": "https://registry.npmjs.org/csstype/-/csstype-2.6.19.tgz",
+      "integrity": "sha512-ZVxXaNy28/k3kJg0Fou5MiYpp88j7H9hLZp8PDC3jV0WFjfH5E9xHb56L0W59cPbKbcHXeP4qyT8PrHp8t6LcQ=="
     },
     "node_modules/cwd": {
       "version": "0.10.0",
@@ -8346,13 +8340,6 @@
       "requires": {
         "csstype": "^2.6.10",
         "lit-html-optimised": "^1.3.0"
-      },
-      "dependencies": {
-        "csstype": {
-          "version": "2.6.19",
-          "resolved": "https://registry.npmjs.org/csstype/-/csstype-2.6.19.tgz",
-          "integrity": "sha512-ZVxXaNy28/k3kJg0Fou5MiYpp88j7H9hLZp8PDC3jV0WFjfH5E9xHb56L0W59cPbKbcHXeP4qyT8PrHp8t6LcQ=="
-        }
       }
     },
     "@nodelib/fs.scandir": {
@@ -9334,9 +9321,9 @@
       }
     },
     "csstype": {
-      "version": "3.0.10",
-      "resolved": "https://registry.npmjs.org/csstype/-/csstype-3.0.10.tgz",
-      "integrity": "sha512-2u44ZG2OcNUO9HDp/Jl8C07x6pU/eTR3ncV91SiK3dhG9TWvRVsCoJw14Ckx5DgWkzGA3waZWO3d7pgqpUI/XA=="
+      "version": "2.6.19",
+      "resolved": "https://registry.npmjs.org/csstype/-/csstype-2.6.19.tgz",
+      "integrity": "sha512-ZVxXaNy28/k3kJg0Fou5MiYpp88j7H9hLZp8PDC3jV0WFjfH5E9xHb56L0W59cPbKbcHXeP4qyT8PrHp8t6LcQ=="
     },
     "cwd": {
       "version": "0.10.0",

@@ -612,3 +612,7 @@
 - timeline bookmarks tests added
 - added `isInCurrentView` in time api
 - fixed #319
+
+[3.14.42]
+
+- csstype junk removed

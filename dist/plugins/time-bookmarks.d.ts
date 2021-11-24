@@ -1,5 +1,4 @@
 import { Vido } from '../gstc';
-import { Color } from 'csstype';
 import { Dayjs } from 'dayjs';
 import { StyleInfo, StyleMap } from '@neuronet.io/vido';
 export declare const pluginPath = "config.plugin.TimeBookmarks";
@@ -8,7 +7,7 @@ export interface Bookmark {
     time: string | number;
     label: string;
     className?: string;
-    color?: Color;
+    color?: string;
     style?: StyleInfo;
 }
 export interface InternalBookmark extends Bookmark {

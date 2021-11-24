@@ -155,7 +155,6 @@
   },
   "dependencies": {
     "@neuronet.io/vido": "^3.2.7",
-    "csstype": "^3.0.5",
     "dayjs": "^1.9.7",
     "deep-state-observer": "^3.22.9"
   }
