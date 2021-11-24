@@ -10,8 +10,7 @@ describe('Items', () => {
         '.gstc__chart-timeline-items-row-item[data-gstcid="gstcid-3"] .gstc__chart-timeline-items-row-item-resizing-handle--right';
       let api: Api;
       let state: DeepState<GSTCState>;
-      cy.visit(url)
-        .wait(500)
+      cy.load(url)
         .window()
         .then((win) => {
           // @ts-ignore
@@ -20,12 +19,15 @@ describe('Items', () => {
           state = win.state;
           const item = api.getItem('gstcid-3');
           api.scrollToTime(item.time.start, false);
+        })
+        .wait(Cypress.env('wait'))
+        .then(() => {
+          const item = api.getItem('gstcid-3');
           expect(state.get('$data.chart.time.leftGlobal')).to.eq(item.time.start);
           const itemData = api.getItemData('gstcid-3');
           expect(itemData.position.left).to.eq(0);
           expect(itemData.width).to.be.greaterThan(0);
         })
-        .wait(1)
         .get('.gstc__chart-timeline-items-row-item[data-gstcid="gstcid-3"]')
         .then(($el) => {
           const itemData: ItemData = api.getItemData('gstcid-3');
@@ -38,7 +40,7 @@ describe('Items', () => {
           api.plugins.Selection.selectItems(['gstcid-3']);
           return $el;
         })
-        .wait(1)
+        .wait(Cypress.env('wait'))
         .then(($el) => {
           expect($el).to.have.class('gstc__selected');
         })
@@ -52,7 +54,7 @@ describe('Items', () => {
           const itemData: ItemData = state.get('$data.chart.items.gstcid-3');
           api.scrollToTime(itemData.time.startDate.valueOf(), false);
         })
-        .wait(1)
+        .wait(Cypress.env('wait'))
         .then(() => {
           const itemData: ItemData = state.get('$data.chart.items.gstcid-3');
           const time: DataChartTime = state.get('$data.chart.time');

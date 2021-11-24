@@ -268,19 +268,30 @@ body.gstc-scrolling * {
   pointer-events: none;
   overflow: hidden;
 }
-.gstc__chart-time-bookmark {
+.gstc__chart-time-bookmark-label {
   position: absolute;
   height: 100%;
-  opacity: 0.6;
-}
-.gstc__chart-time-bookmark-handle {
   color: #fff;
   font-size: 10px;
+}
+.gstc__chart-time-bookmark-label-content {
+  opacity: 0.6;
+  pointer-events: all;
   padding: 2px 4px;
   border-radius: 4px;
   border-bottom-left-radius: 0px;
 }
+.gstc__chart-time-bookmark-label-content:hover {
+  pointer-events: all;
+  opacity: 1;
+  z-index: 2;
+}
 .gstc__chart-time-bookmark-line {
+  position: absolute;
+  height: 100%;
+  opacity: 0.6;
+}
+.gstc__chart-time-bookmark-line-content {
   height: 100%;
 }
 .gstc__chart-selection {

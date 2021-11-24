@@ -9,8 +9,7 @@ describe('Scroll bar', () => {
     let state: DeepState<GSTCState>;
     let merge;
 
-    cy.visit('/examples/simple/simple.esm.html')
-      .wait(500)
+    cy.load('/examples/simple/simple.esm.html')
       .get(horizontalScrollBarSelector)
       .should(($el) => {
         expect($el.css('left')).to.eq('0px');
@@ -88,8 +87,7 @@ describe('Scroll bar', () => {
     let state: DeepState<GSTCState>;
     let merge;
 
-    cy.visit('/examples/simple/simple.esm.html')
-      .wait(500)
+    cy.load('/examples/simple/simple.esm.html')
       .window()
       .then((win) => {
         // @ts-ignore
@@ -103,7 +101,7 @@ describe('Scroll bar', () => {
       .should(($el) => {
         expect($el.css('left')).to.eq('0px');
       })
-      .wait(1)
+      .wait(Cypress.env('wait'))
       .then(() => {
         const scroll = state.get('$data.scroll');
         cy.log('horizontal', scroll.horizontal);
@@ -123,7 +121,7 @@ describe('Scroll bar', () => {
       .should(($el) => {
         expect($el.css('top')).to.eq('0px');
       })
-      .wait(1)
+      .wait(Cypress.env('wait'))
       .then(() => {
         const scroll = state.get('$data.scroll');
         cy.log('vertical', scroll.vertical);

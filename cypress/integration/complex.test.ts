@@ -4,8 +4,7 @@ import { GSTCState } from '../../dist/gstc';
 describe('Complex', () => {
   it('should change calculatedZoomMode', () => {
     let state: DeepState<GSTCState>, gstc, initialFrom, initialTo, from, to;
-    cy.visit('/examples/complex-1')
-      .wait(500)
+    cy.load('/examples/complex-1')
       .window()
       .then((win) => {
         // @ts-ignore
@@ -19,7 +18,7 @@ describe('Complex', () => {
       })
       .get('#one-month')
       .click()
-      .wait(50)
+      .wait(Cypress.env('wait'))
       .then(() => {
         expect(state.get('config.chart.time.from')).to.eq(initialFrom);
         expect(state.get('$data.chart.time.fromDate').valueOf()).to.eq(initialFrom);
@@ -35,7 +34,7 @@ describe('Complex', () => {
           return time;
         });
       })
-      .wait(50)
+      .wait(Cypress.env('wait'))
       .then(() => {
         expect(state.get('config.chart.time.from')).to.eq(from);
         expect(state.get('$data.chart.time.fromDate').valueOf()).to.eq(from);

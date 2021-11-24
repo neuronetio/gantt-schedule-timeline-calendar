@@ -27,6 +27,44 @@
 const horizontalScrollBarSelector = '.gstc__scroll-bar-inner--horizontal';
 const verticalScrollBarSelector = '.gstc__scroll-bar-inner--vertical';
 
+Cypress.Commands.add('load', (url: string) => {
+  let loaded = false;
+  function next(_cy) {
+    return loaded
+      ? _cy.wait(1)
+      : _cy.wait(100).then(() => {
+          return next(_cy);
+        });
+  }
+  function waitForElement(win) {
+    let parent = win.document.getElementById('gstc');
+    if (!parent) parent = win.document.getElementById('app');
+    if (!parent) {
+      return setTimeout(() => {
+        waitForElement(win);
+      }, 10);
+    }
+    parent.addEventListener('gstc-loaded', (ev) => {
+      loaded = true;
+    });
+    setTimeout(() => {
+      if (!loaded) {
+        loaded = true;
+      }
+    }, 2000);
+  }
+  return cy
+    .visit(url, {
+      onBeforeLoad: (win) => {
+        waitForElement(win);
+      },
+    })
+    .wait(10)
+    .then(() => {
+      return loaded ? cy : next(cy);
+    });
+});
+
 Cypress.Commands.add('scrollH', (movementX) => {
   const coordinates = { screenX: 0, screenY: 0 };
   return cy
@@ -45,7 +83,10 @@ Cypress.Commands.add('scrollH', (movementX) => {
     })
     .trigger('pointermove', coordinates)
     .trigger('pointerup', coordinates)
-    .wait(50);
+    .wait(Cypress.env('wait'))
+    .then(() => {
+      cy.log('scrollH finished');
+    });
 });
 
 Cypress.Commands.add('scrollV', (movementY) => {
@@ -69,7 +110,10 @@ Cypress.Commands.add('scrollV', (movementY) => {
     })
     .trigger('pointermove', coordinates)
     .trigger('pointerup', coordinates)
-    .wait(50);
+    .wait(Cypress.env('wait'))
+    .then(() => {
+      cy.log('scrollH finished');
+    });
 });
 
 Cypress.Commands.add('move', (selector, movementX, movementY) => {
@@ -96,5 +140,8 @@ Cypress.Commands.add('move', (selector, movementX, movementY) => {
     })
     .trigger('pointermove', coordinates)
     .trigger('pointerup', coordinates)
-    .wait(50);
+    .wait(Cypress.env('wait'))
+    .then(() => {
+      cy.log('move finished');
+    });
 });

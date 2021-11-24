@@ -601,3 +601,14 @@
 
 - `.eslintignore` removed and added ingore pattern to `.eslintrc.json`
 - tests updated
+
+[3.14.40]
+
+- tests updated
+
+[3.14.41]
+
+- cypress updated
+- timeline bookmarks tests added
+- added `isInCurrentView` in time api
+- fixed #319

@@ -7,8 +7,7 @@ import { fixed } from '../helpers';
 describe('Calendar dates', () => {
   it('should generate all dates (complex-1)', () => {
     let window, merge, state: DeepState<GSTCState>;
-    cy.visit('/examples/complex-1')
-      .wait(500)
+    cy.load('/examples/complex-1')
       .window()
       .then((win) => {
         window = win;
@@ -109,8 +108,7 @@ describe('Calendar dates', () => {
 
   it('should generate all dates (custom-period-advanced)', () => {
     let window, merge, state: DeepState<GSTCState>;
-    cy.visit('/examples/custom-period-advanced')
-      .wait(500)
+    cy.load('/examples/custom-period-advanced')
       .window()
       .then((win) => {
         window = win;
@@ -139,7 +137,7 @@ describe('Calendar dates', () => {
         expect(firstDateLevel0.valueOf()).to.be.at.most(time.fromDate.valueOf());
         expect(firstDateLevel1.valueOf()).to.be.at.most(time.fromDate.valueOf());
       })
-      .wait(1)
+      .wait(Cypress.env('wait'))
       //
       // Check first date element
       //
@@ -163,7 +161,7 @@ describe('Calendar dates', () => {
       //
       // move horizontal scroll bar a little bit
       //
-      .scrollH(10)
+      .scrollH(2)
       .get('.gstc__chart-calendar-date--level-1')
       .then(($el) => {
         const time: DataChartTime = state.get('$data.chart.time');

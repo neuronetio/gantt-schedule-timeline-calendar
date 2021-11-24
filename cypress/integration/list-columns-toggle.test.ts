@@ -13,8 +13,7 @@ function getColumns(state) {
 describe('List columns toggle', () => {
   it('should toggle columns', () => {
     let state: DeepState<GSTCState>;
-    cy.visit('/examples/list-columns-toggle')
-      .wait(500)
+    cy.load('/examples/list-columns-toggle')
       .window()
       .then((win) => {
         // @ts-ignore

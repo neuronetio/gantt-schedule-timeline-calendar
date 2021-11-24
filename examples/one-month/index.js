@@ -21,7 +21,7 @@ function getRandomColor() {
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
-const startDate = GSTC.api.date().startOf('month');
+const startDate = GSTC.api.date('2020-01-01').startOf('month');
 const endDate = startDate.clone().endOf('month');
 const startTime = startDate.valueOf();
 
@@ -131,22 +131,22 @@ const columns = {
 };
 
 const bookmarks = {
-  now: {
-    time: GSTC.api.date().valueOf(),
+  '1-st': {
+    time: GSTC.api.date(startTime).add(2, 'day').startOf('day').valueOf(),
     color: '#3498DB',
-    label: 'Now',
+    label: '1-st',
   },
 };
 
-for (let i = 0; i < 50; i++) {
-  const id = `Bookmark ${i}`;
+for (let i = 1; i < 10; i++) {
+  const id = `bookmark-${i}`;
+  const time = GSTC.api
+    .date(startTime)
+    .add(i * 4, 'day')
+    .startOf('day');
   bookmarks[id] = {
-    time: GSTC.api
-      .date()
-      .add(Math.round(Math.random() * 600) - 300, 'day')
-      .startOf('day')
-      .valueOf(),
-    label: id,
+    time: time.valueOf(),
+    label: `Bookmark ${time.format('YYYY-MM-DD')}`,
   };
 }
 
@@ -211,8 +211,8 @@ function mainOuterSlot(vido, props) {
     props = changedProps;
   });
 
-  let year = api.time.date().year();
-  let month = api.time.date().month();
+  let year = api.time.date(startTime).year();
+  let month = api.time.date(startTime).month();
   const months = [
     'January',
     'February',
@@ -309,11 +309,11 @@ function mainOuterSlot(vido, props) {
   return (content) =>
     html`<div class="tool-shelf" style="margin:20px;">
       Year: <button style="margin-left:20px;" @click=${setPrevYear}><</button><input type="number" .value=${year}><button style="margin-right:20px;" @click=${setNextYear}>></button>
-      Month: <button style="margin-left:20px;" @click=${setPrevMonth}><</button><select get-element=${getElement(
+      Month: <button id="btn-prev-month" style="margin-left:20px;" @click=${setPrevMonth}><</button><select get-element=${getElement(
       getEl
     )}>${months.map(
       (monthText, index) => html`<option value=${index} ?selected=${index === month}>${monthText}</option>`
-    )}</option></select><button style="margin-right:20px;" @click=${setNextMonth}>></button>
+    )}</option></select><button id="btn-next-month" style="margin-right:20px;" @click=${setNextMonth}>></button>
     </div>${content}<div class=${overlay}>${loading}</div>`;
 }
 

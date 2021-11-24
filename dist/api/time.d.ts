@@ -25,6 +25,7 @@ export declare class Time {
     private addAdditionalSpace;
     recalculateFromTo(time: DataChartTime): DataChartTime;
     getCenter(time: DataChartTime): number;
+    isInCurrentView(date: Dayjs, time?: DataChartTime): boolean;
     getGlobalOffsetPxFromDates(date: Dayjs, time?: DataChartTime): number;
     getViewOffsetPxFromDates(date: Dayjs, limitToView?: boolean, time?: DataChartTime): number;
     limitOffsetPxToView(x: number, time?: DataChartTime): number;

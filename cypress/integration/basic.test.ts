@@ -3,10 +3,9 @@ import { GSTCState } from '../../dist/gstc';
 
 describe('Basic', () => {
   function basicTest(path) {
-    return it('Simple ESM', () => {
+    return it(`Simple (${path})`, () => {
       let state: DeepState<GSTCState>, gstc;
-      cy.visit(path)
-        .wait(500)
+      cy.load(path)
         .get('.gstc__chart-timeline-items-row-item[data-gstcid="gstcid-1"] .gstc__chart-timeline-items-row-item-label')
         .should(($el) => {
           expect($el.text()).to.eq('Item 1');

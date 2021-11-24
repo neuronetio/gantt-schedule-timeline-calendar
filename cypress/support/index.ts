@@ -21,6 +21,7 @@ import './commands';
 declare global {
   namespace Cypress {
     interface Chainable<Subject> {
+      load(url: string): Chainable<any>;
       scrollH(movementX: number): Chainable<any>;
       scrollV(movementY: number): Chainable<any>;
       move(selector: string, movementX: number, movementY: number): Chainable<any>;

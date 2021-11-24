@@ -140,9 +140,14 @@ const state = GSTC.api.stateFromConfig(config);
 // @ts-ignore
 window.state = state;
 
+const element = document.getElementById('gstc');
+element.addEventListener('gstc-loaded', () => {
+  console.log('loaded');
+});
+
 // Mount the component
 const app = GSTC({
-  element: document.getElementById('gstc'),
+  element,
   state,
 });
 
