@@ -627,3 +627,7 @@
 
 - added timezone to travis
 - do not upload videos if test is successful (cypress option added)
+
+[3.14.45]
+
+- added before_script to travis to set timezone properly
