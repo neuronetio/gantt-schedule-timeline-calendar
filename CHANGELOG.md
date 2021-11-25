@@ -631,3 +631,7 @@
 [3.14.45]
 
 - added before_script to travis to set timezone properly
+
+[3.14.46]
+
+- updated `@cypress/request` to `2.88.9`
