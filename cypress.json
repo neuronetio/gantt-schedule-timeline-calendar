@@ -3,6 +3,7 @@
   "viewportHeight":1000,
   "baseUrl":"http://localhost:8080",
   "video": true,
+  "videoUploadOnPasses":	false,
   "projectId": "qdqmtw",
   "env":{
     "wait": 1,

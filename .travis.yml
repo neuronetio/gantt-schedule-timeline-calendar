@@ -4,6 +4,8 @@ node_js:
 cache:
   directories:
     - node_modules
+before_install:
+  - export TZ=Europe/Warsaw
 script:
   - npm test
   - npm run build
