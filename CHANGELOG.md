@@ -635,3 +635,7 @@
 [3.14.46]
 
 - updated `@cypress/request` to `2.88.9`
+
+[3.14.47]
+
+- fixed travis yml file needed to run tests in CI

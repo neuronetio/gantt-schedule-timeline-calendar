@@ -6,9 +6,9 @@ cache:
     - node_modules
 before_install:
   - export TZ=Europe/Warsaw
- before_script:
-      - echo 'Europe/Warsaw' | sudo tee /etc/timezone
-      - sudo dpkg-reconfigure --frontend noninteractive tzdata
+before_script:
+  - echo 'Europe/Warsaw' | sudo tee /etc/timezone
+  - sudo dpkg-reconfigure --frontend noninteractive tzdata
 script:
   - npm test
   - npm run build
