@@ -616,3 +616,9 @@
 [3.14.42]
 
 - csstype junk removed
+
+[3.14.43]
+
+- utc mode bugfix #321
+- utc mode tests added
+- added `"@cypress/request": "2.88.7"` to `package.json` because of [this cypress bug](https://github.com/cypress-io/cypress/issues/19097)

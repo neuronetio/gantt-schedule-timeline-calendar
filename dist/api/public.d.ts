@@ -21,7 +21,7 @@ export declare const publicApi: {
     lithtml: typeof lithtml;
     html: typeof lithtml;
     vido: typeof vido;
-    date(time?: any): dayjs.Dayjs;
+    date(time?: any, utcMode?: boolean): dayjs.Dayjs;
     setPeriod(period: Period): number;
     dayjs: typeof dayjs;
 };

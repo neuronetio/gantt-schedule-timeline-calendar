@@ -1,10 +1,9 @@
-import DeepState from 'deep-state-observer';
 import { Time } from '../../dist/api/time';
-import { DataChartTime, GSTCState } from '../../dist/gstc';
+import { DataChartTime } from '../../dist/gstc';
 import { fixed } from '../helpers';
 
 describe('Time bookmarks', () => {
-  it('should display the bookmarks at the right posisions', () => {
+  it('should display the bookmarks at the right positions', () => {
     let gstc, state;
     cy.load('/examples/one-month')
       .window()

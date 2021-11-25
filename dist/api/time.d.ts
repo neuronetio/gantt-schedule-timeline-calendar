@@ -17,9 +17,11 @@ export declare class Time {
     private utcMode;
     private state;
     private api;
-    dayjs: typeof dayjs;
+    dayjs: (date?: dayjs.ConfigType, format?: dayjs.OptionType, strict?: boolean) => dayjs.Dayjs;
     currentDate: CurrentDate;
+    unsubs: (() => void)[];
     constructor(state: DeepState, api: Api);
+    destroy(): void;
     private resetCurrentDate;
     date(time?: number | string | Date | undefined): dayjs.Dayjs;
     private addAdditionalSpace;

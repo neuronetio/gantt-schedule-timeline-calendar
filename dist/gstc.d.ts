@@ -651,7 +651,7 @@ declare namespace GSTC {
         lithtml: typeof lithtml;
         html: typeof lithtml;
         vido: typeof import("@neuronet.io/vido");
-        date(time?: any): Dayjs;
+        date(time?: any, utcMode?: boolean): Dayjs;
         setPeriod(period: Period): number;
         dayjs: typeof import("dayjs");
     };

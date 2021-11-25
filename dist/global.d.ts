@@ -18,9 +18,11 @@ declare module "api/time" {
         private utcMode;
         private state;
         private api;
-        dayjs: typeof dayjs;
+        dayjs: (date?: dayjs.ConfigType, format?: dayjs.OptionType, strict?: boolean) => dayjs.Dayjs;
         currentDate: CurrentDate;
+        unsubs: (() => void)[];
         constructor(state: DeepState, api: Api);
+        destroy(): void;
         private resetCurrentDate;
         date(time?: number | string | Date | undefined): dayjs.Dayjs;
         private addAdditionalSpace;
@@ -267,7 +269,7 @@ declare module "api/public" {
         lithtml: typeof lithtml;
         html: typeof lithtml;
         vido: typeof vido;
-        date(time?: any): dayjs.Dayjs;
+        date(time?: any, utcMode?: boolean): dayjs.Dayjs;
         setPeriod(period: Period): number;
         dayjs: typeof dayjs;
     };
@@ -967,7 +969,7 @@ declare module "gstc" {
             lithtml: typeof lithtml;
             html: typeof lithtml;
             vido: typeof import("@neuronet.io/vido");
-            date(time?: any): Dayjs;
+            date(time?: any, utcMode?: boolean): Dayjs;
             setPeriod(period: Period): number;
             dayjs: typeof import("dayjs");
         };
