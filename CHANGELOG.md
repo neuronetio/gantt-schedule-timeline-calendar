@@ -639,3 +639,9 @@
 [3.14.47]
 
 - fixed travis yml file needed to run tests in CI
+
+[3.14.48]
+
+- grid cells cache bugfix
+- dependency lines bugfix
+- fixed issue with `calculatedZoomMode` change (#316)

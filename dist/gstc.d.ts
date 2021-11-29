@@ -277,6 +277,7 @@ export interface DataScrollValues {
     scrollSize: number;
     innerHandleSize: number;
     dataIndex: number;
+    visible: boolean;
 }
 export interface DataScrollHorizontal extends DataScrollValues {
     data: ChartTimeDate;

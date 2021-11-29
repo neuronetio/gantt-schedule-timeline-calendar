@@ -130,6 +130,7 @@ export declare class Api {
     getVisibleRows(): string[];
     normalizeMouseWheelEvent(event: WheelEvent): WheelResult;
     scrollToTime(toTime: number, centered?: boolean): number;
+    resetHorizontalScroll(): void;
     setScrollLeft(dataIndex: number | undefined, offset?: number): number;
     getScrollLeft(): DataScrollHorizontal;
     getScrollSize(type: 'horizontal' | 'vertical'): number;

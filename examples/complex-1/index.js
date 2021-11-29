@@ -11,6 +11,9 @@ import { Plugin as DependencyLines } from '../../dist/plugins/dependency-lines.e
 import { Plugin as ExportImage } from '../../dist/plugins/export-image.esm.min.js';
 import { Plugin as ExportPDF } from '../../dist/plugins/export-pdf.esm.min.js';
 
+// @ts-ignore
+window.GSTC = GSTC;
+
 const iterations = 100;
 const GSTCID = GSTC.api.GSTCID;
 const addDays = 30;

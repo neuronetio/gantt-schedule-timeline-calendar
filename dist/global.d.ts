@@ -214,6 +214,7 @@ declare module "api/api" {
         getVisibleRows(): string[];
         normalizeMouseWheelEvent(event: WheelEvent): WheelResult;
         scrollToTime(toTime: number, centered?: boolean): number;
+        resetHorizontalScroll(): void;
         setScrollLeft(dataIndex: number | undefined, offset?: number): number;
         getScrollLeft(): DataScrollHorizontal;
         getScrollSize(type: 'horizontal' | 'vertical'): number;
@@ -595,6 +596,7 @@ declare module "gstc" {
         scrollSize: number;
         innerHandleSize: number;
         dataIndex: number;
+        visible: boolean;
     }
     export interface DataScrollHorizontal extends DataScrollValues {
         data: ChartTimeDate;
