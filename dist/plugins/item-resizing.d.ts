@@ -1,6 +1,14 @@
-import { Vido, htmlResult, Item, DataChartTime, DataItems } from '../gstc';
-import DeepState from 'deep-state-observer';
-import { Dayjs } from 'dayjs';
+/**
+ * ItemResizing plugin
+ *
+ * @copyright Rafal Pospiech <https://neuronet.io>
+ * @author    Rafal Pospiech <neuronet.io@gmail.com>
+ * @package   gantt-schedule-timeline-calendar
+ * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
+ */
+import type { Vido, htmlResult, Item, DataChartTime, DataItems } from '../gstc';
+import type DeepState from 'deep-state-observer';
+import type { Dayjs } from 'dayjs';
 export interface Handle {
     width?: number;
     outsideWidth?: number;

@@ -1,4 +1,4 @@
-import { Vido } from '../gstc';
+import type { Vido } from '../gstc';
 export interface Options {
     weekdays?: number[];
     className?: string;

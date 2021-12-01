@@ -1,4 +1,4 @@
-import { Vido } from '../gstc';
+import type { Vido } from '../gstc';
 export declare const pluginPath = "config.plugin.ProgressBar";
 export interface Options {
     enabled?: boolean;

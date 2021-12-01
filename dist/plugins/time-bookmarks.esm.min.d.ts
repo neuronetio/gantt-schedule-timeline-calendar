@@ -1,6 +1,6 @@
-import { Vido } from '../gstc';
-import { Dayjs } from 'dayjs';
-import { StyleInfo, StyleMap } from '@neuronet.io/vido';
+import type { Vido } from '../gstc';
+import type { Dayjs } from 'dayjs';
+import type { StyleInfo, StyleMap } from '@neuronet.io/vido';
 export declare const pluginPath = "config.plugin.TimeBookmarks";
 export declare const slotPath = "config.slots.chart-timeline-items.outer";
 export interface Bookmark {

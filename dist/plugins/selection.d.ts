@@ -1,5 +1,13 @@
+/**
+ * Selection plugin
+ *
+ * @copyright Rafal Pospiech <https://neuronet.io>
+ * @author    Rafal Pospiech <neuronet.io@gmail.com>
+ * @package   gantt-schedule-timeline-calendar
+ * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
+ */
 import { ITEM, ITEM_TYPE, CELL, CELL_TYPE, Point, PointerState } from './timeline-pointer';
-import { Item, GridCell, Vido } from '../gstc';
+import type { Item, GridCell, Vido } from '../gstc';
 export declare type ModKey = 'shift' | 'ctrl' | 'alt' | '';
 export interface SelectionItems {
     [key: string]: Item[];
@@ -28,8 +36,17 @@ export interface Options {
     bodySelectingClassName?: string;
     events?: Events;
     pointerEvents?: PointerEvents;
+    /**
+     * @deprecated use `events.onStart`
+     */
     onStart?: (lastSelected: EventSelection) => void;
+    /**
+     * @deprecated use `events.onSelecting`
+     */
     onSelecting?: (selecting: EventSelection, last: EventSelection) => EventSelection;
+    /**
+     * @deprecated use `events.onEnd`
+     */
     onSelected?: (selected: EventSelection, last: EventSelection) => EventSelection;
 }
 export interface Area {

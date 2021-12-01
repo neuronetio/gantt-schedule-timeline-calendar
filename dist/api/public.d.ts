@@ -1,6 +1,6 @@
 import DeepState from 'deep-state-observer';
 import dayjs from 'dayjs';
-import { Config, Period } from '../gstc';
+import type { Config, Period } from '../gstc';
 import { lithtml } from '@neuronet.io/vido';
 import * as vido from '@neuronet.io/vido';
 export declare const mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;

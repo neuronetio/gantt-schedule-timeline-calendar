@@ -1,8 +1,8 @@
 declare module "api/time" {
     import dayjs, { Dayjs } from 'dayjs';
-    import { DataChartTime, DataChartTimeLevelDate, ChartTimeDate, Period, ChartCalendarLevel, ChartCalendarLevelFormat } from "gstc";
-    import DeepState from 'deep-state-observer';
-    import { Api } from "api/api";
+    import type { DataChartTime, DataChartTimeLevelDate, ChartTimeDate, Period, ChartCalendarLevel, ChartCalendarLevelFormat } from "gstc";
+    import type DeepState from 'deep-state-observer';
+    import type { Api } from "api/api";
     export interface CurrentDate {
         timestamp: number;
         second: Dayjs;
@@ -33,7 +33,8 @@ declare module "api/time" {
         getViewOffsetPxFromDates(date: Dayjs, limitToView?: boolean, time?: DataChartTime): number;
         limitOffsetPxToView(x: number, time?: DataChartTime): number;
         findDateAtViewOffsetPx(offsetPx: number, allPeriodDates: ChartTimeDate[]): ChartTimeDate | undefined;
-        findDateAtTime(milliseconds: number, allPeriodDates: ChartTimeDate[]): ChartTimeDate | undefined;
+        findDateAtTime(milliseconds: number, allPeriodDates?: ChartTimeDate[]): ChartTimeDate | undefined;
+        getMainDateFromRelativePosition(fromDate: ChartTimeDate, relativePosPx: number): ChartTimeDate | undefined;
         getTimeFromOffsetPx(offsetPx: number, isViewOffset?: boolean, time?: DataChartTime): number;
         getCurrentFormatForLevel(level: ChartCalendarLevel, time: DataChartTime): ChartCalendarLevelFormat;
         generatePeriodDates({ leftDate, rightDate, period, level, levelIndex, time, callOnDate, callOnLevelDates, }: {
@@ -81,14 +82,17 @@ declare module "api/slots" {
     }
     export function generateSlots(name: string, vido: Vido, props: unknown): Slots;
 }
-declare module "api/api" {
-    import { Time } from "api/time";
-    import DeepState from 'deep-state-observer';
-    import { DataChartTime, Row, Item, Vido, Items, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, DataScrollVertical, DataScrollHorizontal, ItemRowMap, ChartTimeDates } from "gstc";
-    import { generateSlots } from "api/slots";
-    export const mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
+declare module "api/helpers" {
+    export const lib = "gstc";
     export function getClass(name: string, appendix?: string): string;
     export function getId(name: string, id: string): string;
+}
+declare module "api/api" {
+    import { Time } from "api/time";
+    import type DeepState from 'deep-state-observer';
+    import type { DataChartTime, Row, Item, Vido, Items, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, DataScrollVertical, DataScrollHorizontal, ItemRowMap, ChartTimeDates } from "gstc";
+    import { generateSlots } from "api/slots";
+    import { getClass, getId } from "api/helpers";
     export interface WheelResult {
         x: number;
         y: number;
@@ -129,8 +133,8 @@ declare module "api/api" {
         iconsCache: IconsCache;
         unsubscribes: Unsubscribes;
         private mutedMethods;
+        mergeDeep: any;
         generateSlots: typeof generateSlots;
-        mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
         getClass: typeof getClass;
         getId: typeof getId;
         GSTCID: (originalId: string) => string;
@@ -142,6 +146,7 @@ declare module "api/api" {
         render(): Promise<unknown>;
         getListenerPosition(callback: any): string | number;
         setVido(Vido: Vido): void;
+        setMergeDeep(mergeDeep: any): void;
         log(...args: any[]): void;
         pluginInitialized(pluginName: string): void;
         pluginDestroyed(pluginName: string): void;
@@ -213,9 +218,9 @@ declare module "api/api" {
         measureRows(): number | any[];
         getVisibleRows(): string[];
         normalizeMouseWheelEvent(event: WheelEvent): WheelResult;
-        scrollToTime(toTime: number, centered?: boolean): number;
         resetHorizontalScroll(): void;
         setScrollLeft(dataIndex: number | undefined, offset?: number): number;
+        scrollToTime(toTime: number, centered?: boolean): number;
         getScrollLeft(): DataScrollHorizontal;
         getScrollSize(type: 'horizontal' | 'vertical'): number;
         getLastPageDatesWidth(chartWidth: number, allDates: ChartTimeDates): {
@@ -249,7 +254,7 @@ declare module "api/api" {
 declare module "api/public" {
     import DeepState from 'deep-state-observer';
     import dayjs from 'dayjs';
-    import { Config, Period } from "gstc";
+    import type { Config, Period } from "gstc";
     import { lithtml } from '@neuronet.io/vido';
     import * as vido from '@neuronet.io/vido';
     export const mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
@@ -278,7 +283,7 @@ declare module "api/public" {
 declare module "api/main" {
     import { Dayjs } from 'dayjs';
     import { DataChartTime, DataChartTimeLevel, DataChartTimeLevelDate, ChartCalendarLevel, ChartTimeDate, ChartTimeDates, ChartCalendarLevelFormat, Vido, Reason } from "gstc";
-    export default function main(vido: Vido): {
+    export default function main(vido: Vido, mergeDeep: any): {
         className: string;
         styleMap: import("@neuronet.io/vido").StyleMap;
         initializePlugins(): void;
@@ -317,7 +322,7 @@ declare module "components/main" {
     export default function Main(vido: Vido, props?: {}): () => any;
 }
 declare module "gstc" {
-    import { vido, lithtml } from '@neuronet.io/vido';
+    import type { vido, lithtml } from '@neuronet.io/vido';
     import { StyleInfo, ComponentInstance } from '@neuronet.io/vido';
     import { Api } from "api/api";
     import { Dayjs, OpUnitType } from 'dayjs';
@@ -1118,7 +1123,7 @@ declare module "plugins/calendar-scroll" {
     export function Plugin(options?: Options): (vidoInstance: any) => () => void;
 }
 declare module "plugins/dependency-lines" {
-    import { htmlResult, Item, ItemData, RowData, Vido } from "gstc";
+    import type { htmlResult, Item, ItemData, RowData, Vido } from "gstc";
     export type LineType = 'straight' | 'square' | 'square-alt' | 'smooth';
     export interface DefaultPoint {
         content: htmlResult;
@@ -1177,7 +1182,7 @@ declare module "plugins/export-pdf" {
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
 declare module "plugins/grab-scroll" {
-    import { Vido } from "gstc";
+    import type { Vido } from "gstc";
     export const pluginPath = "config.plugin.ItemTypes";
     export const templatePath = "config.templates.chart-timeline-items-row-item";
     export interface Options {
@@ -1185,7 +1190,7 @@ declare module "plugins/grab-scroll" {
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
 declare module "plugins/highlight-weekends" {
-    import { Vido } from "gstc";
+    import type { Vido } from "gstc";
     export interface Options {
         weekdays?: number[];
         className?: string;
@@ -1193,7 +1198,7 @@ declare module "plugins/highlight-weekends" {
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
 declare module "plugins/timeline-pointer" {
-    import { Vido } from "gstc";
+    import type { Vido } from "gstc";
     export const CELL = "chart-timeline-grid-row-cell";
     export type CELL_TYPE = 'chart-timeline-grid-row-cell';
     export const ITEM = "chart-timeline-items-row-item";
@@ -1246,9 +1251,9 @@ declare module "plugins/timeline-pointer" {
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
 declare module "plugins/item-movement" {
-    import { Vido, Item, DataChartTime, ItemData, DataItems, DataScrollVertical, DataScrollHorizontal } from "gstc";
-    import DeepState from 'deep-state-observer';
-    import { Dayjs } from 'dayjs';
+    import type { Vido, Item, DataChartTime, ItemData, DataItems, DataScrollVertical, DataScrollHorizontal } from "gstc";
+    import type DeepState from 'deep-state-observer';
+    import type { Dayjs } from 'dayjs';
     export interface SnapArg {
         time: DataChartTime;
         movement: Movement;
@@ -1326,9 +1331,9 @@ declare module "plugins/item-movement" {
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
 declare module "plugins/item-resizing" {
-    import { Vido, htmlResult, Item, DataChartTime, DataItems } from "gstc";
-    import DeepState from 'deep-state-observer';
-    import { Dayjs } from 'dayjs';
+    import type { Vido, htmlResult, Item, DataChartTime, DataItems } from "gstc";
+    import type DeepState from 'deep-state-observer';
+    import type { Dayjs } from 'dayjs';
     export interface Handle {
         width?: number;
         outsideWidth?: number;
@@ -1416,7 +1421,7 @@ declare module "plugins/item-resizing" {
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
 declare module "plugins/item-types" {
-    import { Template, Vido } from "gstc";
+    import type { Template, Vido } from "gstc";
     export const pluginPath = "config.plugin.ItemTypes";
     export const templatePath = "config.templates.chart-timeline-items-row-item";
     export interface Options {
@@ -1425,7 +1430,7 @@ declare module "plugins/item-types" {
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
 declare module "plugins/progress-bar" {
-    import { Vido } from "gstc";
+    import type { Vido } from "gstc";
     export const pluginPath = "config.plugin.ProgressBar";
     export interface Options {
         enabled?: boolean;
@@ -1435,7 +1440,7 @@ declare module "plugins/progress-bar" {
 }
 declare module "plugins/selection" {
     import { ITEM, ITEM_TYPE, CELL, CELL_TYPE, Point, PointerState } from "plugins/timeline-pointer";
-    import { Item, GridCell, Vido } from "gstc";
+    import type { Item, GridCell, Vido } from "gstc";
     export type ModKey = 'shift' | 'ctrl' | 'alt' | '';
     export interface SelectionItems {
         [key: string]: Item[];
@@ -1515,9 +1520,9 @@ declare module "plugins/selection" {
     export function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 }
 declare module "plugins/time-bookmarks" {
-    import { Vido } from "gstc";
-    import { Dayjs } from 'dayjs';
-    import { StyleInfo, StyleMap } from '@neuronet.io/vido';
+    import type { Vido } from "gstc";
+    import type { Dayjs } from 'dayjs';
+    import type { StyleInfo, StyleMap } from '@neuronet.io/vido';
     export const pluginPath = "config.plugin.TimeBookmarks";
     export const slotPath = "config.slots.chart-timeline-items.outer";
     export interface Bookmark {

@@ -1,6 +1,6 @@
-import { Vido, htmlResult, Item, DataChartTime, DataItems } from '../gstc';
-import DeepState from 'deep-state-observer';
-import { Dayjs } from 'dayjs';
+import type { Vido, htmlResult, Item, DataChartTime, DataItems } from '../gstc';
+import type DeepState from 'deep-state-observer';
+import type { Dayjs } from 'dayjs';
 export interface Handle {
     width?: number;
     outsideWidth?: number;

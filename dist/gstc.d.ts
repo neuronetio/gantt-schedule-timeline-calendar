@@ -1,4 +1,11 @@
-import { vido, lithtml } from '@neuronet.io/vido';
+/**
+ * Gantt-Schedule-Timeline-Calendar
+ *
+ * @copyright Rafal Pospiech <https://neuronet.io>
+ * @author    Rafal Pospiech <neuronet.io@gmail.com>
+ * @package   gantt-schedule-timeline-calendar
+ */
+import type { vido, lithtml } from '@neuronet.io/vido';
 import { StyleInfo, ComponentInstance } from '@neuronet.io/vido';
 import { Api } from './api/api';
 import { Dayjs, OpUnitType } from 'dayjs';
@@ -581,7 +588,13 @@ export interface Dimensions {
     height: number;
 }
 export interface DataChartDimensions extends Dimensions {
+    /**
+     * config.innerHeight (whole height - calendar height) minus scroll bar height
+     */
     heightWithoutScrollBar: number;
+    /**
+     * From config.innerHeight
+     */
     innerHeight: number;
     widthWithoutScrollBar: number;
 }

@@ -1,12 +1,23 @@
-import { Vido } from '../gstc';
-import { Dayjs } from 'dayjs';
-import { StyleInfo, StyleMap } from '@neuronet.io/vido';
+/**
+ * TimeBookmarks plugin
+ *
+ * @copyright Rafal Pospiech <https://neuronet.io>
+ * @author    Rafal Pospiech <neuronet.io@gmail.com>
+ * @package   gantt-schedule-timeline-calendar
+ * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
+ */
+import type { Vido } from '../gstc';
+import type { Dayjs } from 'dayjs';
+import type { StyleInfo, StyleMap } from '@neuronet.io/vido';
 export declare const pluginPath = "config.plugin.TimeBookmarks";
 export declare const slotPath = "config.slots.chart-timeline-items.outer";
 export interface Bookmark {
     time: string | number;
     label: string;
     className?: string;
+    /**
+     * @deprecated Use style instead of color
+     */
     color?: string;
     style?: StyleInfo;
 }

@@ -1,5 +1,5 @@
 import { ITEM, ITEM_TYPE, CELL, CELL_TYPE, Point, PointerState } from './timeline-pointer';
-import { Item, GridCell, Vido } from '../gstc';
+import type { Item, GridCell, Vido } from '../gstc';
 export declare type ModKey = 'shift' | 'ctrl' | 'alt' | '';
 export interface SelectionItems {
     [key: string]: Item[];

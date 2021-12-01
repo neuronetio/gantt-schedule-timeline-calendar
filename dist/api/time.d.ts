@@ -1,7 +1,14 @@
+/**
+ * Gantt-Schedule-Timeline-Calendar
+ *
+ * @copyright Rafal Pospiech <https://neuronet.io>
+ * @author    Rafal Pospiech <neuronet.io@gmail.com>
+ * @package   gantt-schedule-timeline-calendar
+ */
 import dayjs, { Dayjs } from 'dayjs';
-import { DataChartTime, DataChartTimeLevelDate, ChartTimeDate, Period, ChartCalendarLevel, ChartCalendarLevelFormat } from '../gstc';
-import DeepState from 'deep-state-observer';
-import { Api } from './api';
+import type { DataChartTime, DataChartTimeLevelDate, ChartTimeDate, Period, ChartCalendarLevel, ChartCalendarLevelFormat } from '../gstc';
+import type DeepState from 'deep-state-observer';
+import type { Api } from './api';
 export interface CurrentDate {
     timestamp: number;
     second: Dayjs;
@@ -32,7 +39,8 @@ export declare class Time {
     getViewOffsetPxFromDates(date: Dayjs, limitToView?: boolean, time?: DataChartTime): number;
     limitOffsetPxToView(x: number, time?: DataChartTime): number;
     findDateAtViewOffsetPx(offsetPx: number, allPeriodDates: ChartTimeDate[]): ChartTimeDate | undefined;
-    findDateAtTime(milliseconds: number, allPeriodDates: ChartTimeDate[]): ChartTimeDate | undefined;
+    findDateAtTime(milliseconds: number, allPeriodDates?: ChartTimeDate[]): ChartTimeDate | undefined;
+    getMainDateFromRelativePosition(fromDate: ChartTimeDate, relativePosPx: number): ChartTimeDate | undefined;
     getTimeFromOffsetPx(offsetPx: number, isViewOffset?: boolean, time?: DataChartTime): number;
     getCurrentFormatForLevel(level: ChartCalendarLevel, time: DataChartTime): ChartCalendarLevelFormat;
     generatePeriodDates({ leftDate, rightDate, period, level, levelIndex, time, callOnDate, callOnLevelDates, }: {

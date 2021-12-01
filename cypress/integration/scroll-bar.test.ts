@@ -180,4 +180,33 @@ describe('Scroll bar', () => {
         expect(scrollData.preciseOffset).to.be.lessThan(0);
       });
   });
+
+  it('should scroll with api', () => {
+    let gstc, scrollTo;
+    cy.load('/examples/complex-1')
+      .window()
+      .then((win) => {
+        // @ts-ignore
+        gstc = win.gstc;
+        scrollTo = gstc.api.time.date('2020-02-20');
+        gstc.api.scrollToTime(scrollTo.valueOf());
+      })
+      .wait(Cypress.env('wait'))
+      .get('.gstc__chart-timeline-items-row-item[data-gstcid="gstcid-5"]')
+      .should('be.visible')
+      .then(($el) => {
+        const date = gstc.api.time.findDateAtTime(scrollTo.valueOf());
+        expect(fixed($el.position().left)).to.eq(fixed(date.currentView.leftPx));
+      })
+      .then(() => {
+        gstc.api.scrollToTime(scrollTo.valueOf(), false);
+      })
+      .wait(Cypress.env('wait'))
+      .get('.gstc__chart-timeline-items-row-item[data-gstcid="gstcid-5"]')
+      .should('be.visible')
+      .then(($el) => {
+        const date = gstc.api.time.findDateAtTime(scrollTo.valueOf());
+        expect(fixed($el.position().left)).to.eq(fixed(date.currentView.leftPx));
+      });
+  });
 });

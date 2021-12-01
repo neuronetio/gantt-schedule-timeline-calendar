@@ -1,10 +1,15 @@
+/**
+ * Api functions
+ *
+ * @copyright Rafal Pospiech <https://neuronet.io>
+ * @author    Rafal Pospiech <neuronet.io@gmail.com>
+ * @package   gantt-schedule-timeline-calendar
+ */
 import { Time } from './time';
-import DeepState from 'deep-state-observer';
-import { DataChartTime, Row, Item, Vido, Items, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, DataScrollVertical, DataScrollHorizontal, ItemRowMap, ChartTimeDates } from '../gstc';
+import type DeepState from 'deep-state-observer';
+import type { DataChartTime, Row, Item, Vido, Items, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, DataScrollVertical, DataScrollHorizontal, ItemRowMap, ChartTimeDates } from '../gstc';
 import { generateSlots } from './slots';
-export declare const mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
-export declare function getClass(name: string, appendix?: string): string;
-export declare function getId(name: string, id: string): string;
+import { getClass, getId } from './helpers';
 export interface WheelResult {
     x: number;
     y: number;
@@ -45,8 +50,8 @@ export declare class Api {
     iconsCache: IconsCache;
     unsubscribes: Unsubscribes;
     private mutedMethods;
+    mergeDeep: any;
     generateSlots: typeof generateSlots;
-    mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
     getClass: typeof getClass;
     getId: typeof getId;
     GSTCID: (originalId: string) => string;
@@ -58,6 +63,7 @@ export declare class Api {
     render(): Promise<unknown>;
     getListenerPosition(callback: any): string | number;
     setVido(Vido: Vido): void;
+    setMergeDeep(mergeDeep: any): void;
     log(...args: any[]): void;
     pluginInitialized(pluginName: string): void;
     pluginDestroyed(pluginName: string): void;
@@ -129,9 +135,9 @@ export declare class Api {
     measureRows(): number | any[];
     getVisibleRows(): string[];
     normalizeMouseWheelEvent(event: WheelEvent): WheelResult;
-    scrollToTime(toTime: number, centered?: boolean): number;
     resetHorizontalScroll(): void;
     setScrollLeft(dataIndex: number | undefined, offset?: number): number;
+    scrollToTime(toTime: number, centered?: boolean): number;
     getScrollLeft(): DataScrollHorizontal;
     getScrollSize(type: 'horizontal' | 'vertical'): number;
     getLastPageDatesWidth(chartWidth: number, allDates: ChartTimeDates): {
@@ -159,6 +165,9 @@ export declare class Api {
     unmuteMethod(methodName: string): void;
     isMutedMethod(methodName: string): boolean;
     getSVGIconSrc(svg: any): string;
+    /**
+     * Destroy things to release memory
+     */
     destroy(): void;
 }
 //# sourceMappingURL=api.d.ts.map

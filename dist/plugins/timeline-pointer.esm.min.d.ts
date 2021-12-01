@@ -1,4 +1,4 @@
-import { Vido } from '../gstc';
+import type { Vido } from '../gstc';
 export declare const CELL = "chart-timeline-grid-row-cell";
 export declare type CELL_TYPE = 'chart-timeline-grid-row-cell';
 export declare const ITEM = "chart-timeline-items-row-item";

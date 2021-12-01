@@ -1,4 +1,12 @@
-import { htmlResult, Item, ItemData, RowData, Vido } from '../gstc';
+/**
+ * DependencyLines plugin
+ *
+ * @copyright Rafal Pospiech <https://neuronet.io>
+ * @author    Rafal Pospiech <neuronet.io@gmail.com>
+ * @package   gantt-schedule-timeline-calendar
+ * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
+ */
+import type { htmlResult, Item, ItemData, RowData, Vido } from '../gstc';
 export declare type LineType = 'straight' | 'square' | 'square-alt' | 'smooth';
 export interface DefaultPoint {
     content: htmlResult;

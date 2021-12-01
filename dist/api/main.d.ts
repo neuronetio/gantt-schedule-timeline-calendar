@@ -1,6 +1,13 @@
+/**
+ * Main component functions
+ *
+ * @copyright Rafal Pospiech <https://neuronet.io>
+ * @author    Rafal Pospiech <neuronet.io@gmail.com>
+ * @package   gantt-schedule-timeline-calendar
+ */
 import { Dayjs } from 'dayjs';
 import { DataChartTime, DataChartTimeLevel, DataChartTimeLevelDate, ChartCalendarLevel, ChartTimeDate, ChartTimeDates, ChartCalendarLevelFormat, Vido, Reason } from '../gstc';
-export default function main(vido: Vido): {
+export default function main(vido: Vido, mergeDeep: any): {
     className: string;
     styleMap: import("@neuronet.io/vido").StyleMap;
     initializePlugins(): void;
@@ -22,7 +29,7 @@ export default function main(vido: Vido): {
         levelIndex: number;
         format: ChartCalendarLevelFormat;
     };
-    generateAllDates(time: DataChartTime, levels: ChartCalendarLevel[]): 0 | ChartTimeDates[];
+    generateAllDates(time: DataChartTime, levels: ChartCalendarLevel[]): ChartTimeDates[] | 0;
     getPeriodDates(allLevelDates: ChartTimeDates, time: DataChartTime): ChartTimeDate[];
     updateLevels(time: DataChartTime, levels: ChartCalendarLevel[]): void;
     calculateTotalViewDuration(time: DataChartTime): void;

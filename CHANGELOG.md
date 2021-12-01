@@ -645,3 +645,7 @@
 - grid cells cache bugfix
 - dependency lines bugfix
 - fixed issue with `calculatedZoomMode` change (#316)
+
+[3.14.49]
+
+- `scrollToTime` centered bugfix

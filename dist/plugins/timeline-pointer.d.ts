@@ -1,4 +1,12 @@
-import { Vido } from '../gstc';
+/**
+ * TimelinePointer plugin
+ *
+ * @copyright Rafal Pospiech <https://neuronet.io>
+ * @author    Rafal Pospiech <neuronet.io@gmail.com>
+ * @package   gantt-schedule-timeline-calendar
+ * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
+ */
+import type { Vido } from '../gstc';
 export declare const CELL = "chart-timeline-grid-row-cell";
 export declare type CELL_TYPE = 'chart-timeline-grid-row-cell';
 export declare const ITEM = "chart-timeline-items-row-item";

@@ -1,6 +1,14 @@
-import { Vido, Item, DataChartTime, ItemData, DataItems, DataScrollVertical, DataScrollHorizontal } from '../gstc';
-import DeepState from 'deep-state-observer';
-import { Dayjs } from 'dayjs';
+/**
+ * ItemMovement plugin
+ *
+ * @copyright Rafal Pospiech <https://neuronet.io>
+ * @author    Rafal Pospiech <neuronet.io@gmail.com>
+ * @package   gantt-schedule-timeline-calendar
+ * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
+ */
+import type { Vido, Item, DataChartTime, ItemData, DataItems, DataScrollVertical, DataScrollHorizontal } from '../gstc';
+import type DeepState from 'deep-state-observer';
+import type { Dayjs } from 'dayjs';
 export interface SnapArg {
     time: DataChartTime;
     movement: Movement;
