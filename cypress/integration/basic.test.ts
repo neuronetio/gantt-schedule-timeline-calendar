@@ -1,10 +1,9 @@
 import DeepState from 'deep-state-observer';
-import { GSTCState } from '../../dist/gstc';
 
 describe('Basic', () => {
   function basicTest(path) {
     return it(`Simple (${path})`, () => {
-      let state: DeepState<GSTCState>, gstc;
+      let state: DeepState, gstc;
       cy.load(path)
         .get('.gstc__chart-timeline-items-row-item[data-gstcid="gstcid-1"] .gstc__chart-timeline-items-row-item-label')
         .should(($el) => {

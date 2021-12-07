@@ -1,8 +1,10 @@
 const path = require('path');
 const Polonez = require('polonez');
 const ServeStatic = require('serve-static');
+const compression = require('compression');
 
 const polonez = Polonez();
+polonez.use(compression());
 polonez.use(ServeStatic(path.resolve('./')));
 
 let port = 8080;

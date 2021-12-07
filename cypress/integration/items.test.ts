@@ -1,6 +1,6 @@
 import DeepState from 'deep-state-observer';
 import { Api } from '../../dist/api/api';
-import { DataChartTime, GSTCState, ItemData } from '../../dist/gstc';
+import { DataChartTime, ItemData } from '../../dist/gstc';
 import { fixed, examples } from '../helpers';
 
 describe('Items', () => {
@@ -9,7 +9,7 @@ describe('Items', () => {
       const rightResizerSelector =
         '.gstc__chart-timeline-items-row-item[data-gstcid="gstcid-3"] .gstc__chart-timeline-items-row-item-resizing-handle--right';
       let api: Api;
-      let state: DeepState<GSTCState>;
+      let state: DeepState;
       cy.load(url)
         .window()
         .then((win) => {

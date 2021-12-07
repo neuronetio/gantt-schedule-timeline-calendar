@@ -1,9 +1,8 @@
 import DeepState from 'deep-state-observer';
-import { GSTCState } from '../../dist/gstc';
 
 describe('Complex', () => {
   it('should change calculatedZoomMode', () => {
-    let state: DeepState<GSTCState>, gstc, initialFrom, initialTo, from, to;
+    let state: DeepState, gstc, initialFrom, initialTo, from, to;
     cy.load('/examples/complex-1')
       .window()
       .then((win) => {

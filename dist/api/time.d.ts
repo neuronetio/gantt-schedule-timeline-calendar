@@ -5,7 +5,7 @@
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
  * @package   gantt-schedule-timeline-calendar
  */
-import dayjs, { Dayjs } from 'dayjs';
+import type { Dayjs } from 'dayjs';
 import type { DataChartTime, DataChartTimeLevelDate, ChartTimeDate, Period, ChartCalendarLevel, ChartCalendarLevelFormat } from '../gstc';
 import type DeepState from 'deep-state-observer';
 import type { Api } from './api';
@@ -24,13 +24,13 @@ export declare class Time {
     private utcMode;
     private state;
     private api;
-    dayjs: (date?: dayjs.ConfigType, format?: dayjs.OptionType, strict?: boolean) => dayjs.Dayjs;
+    dayjs: any;
     currentDate: CurrentDate;
     unsubs: (() => void)[];
     constructor(state: DeepState, api: Api);
     destroy(): void;
     private resetCurrentDate;
-    date(time?: number | string | Date | undefined): dayjs.Dayjs;
+    date(time?: number | string | Date | undefined): any;
     private addAdditionalSpace;
     recalculateFromTo(time: DataChartTime): DataChartTime;
     getCenter(time: DataChartTime): number;

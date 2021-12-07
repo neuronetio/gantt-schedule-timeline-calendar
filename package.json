@@ -135,10 +135,11 @@
     "component timeline editor"
   ],
   "devDependencies": {
+    "@cypress/request": "2.88.9",
     "@typescript-eslint/eslint-plugin": "^4.9.1",
     "@typescript-eslint/parser": "^4.9.1",
-    "cypress": "^9.1.0",
-    "@cypress/request": "2.88.9",
+    "compression": "^1.7.4",
+    "cypress": "^9.1.1",
     "cypress-repeat": "^2.3.0",
     "eslint": "^7.15.0",
     "eslint-config-prettier": "^6.15.0",
@@ -155,8 +156,8 @@
     "typescript": "^4.1.2"
   },
   "dependencies": {
-    "@neuronet.io/vido": "^3.2.7",
-    "dayjs": "^1.9.7",
-    "deep-state-observer": "^3.22.9"
+    "@neuronet.io/vido": "^4.1.12",
+    "dayjs": "^1.10.7",
+    "deep-state-observer": "^5.5.9"
   }
 }

@@ -1,12 +1,12 @@
 import DeepState from 'deep-state-observer';
-import { Data, DataChartDimensions, GSTCState } from '../../dist/gstc';
+import { Data, DataChartDimensions } from '../../dist/gstc';
 import { fixed } from '../helpers';
 
 describe('Scroll bar', () => {
   it('Movement (not precise)', () => {
     const horizontalScrollBarSelector = '.gstc__scroll-bar-inner--horizontal';
     const verticalScrollBarSelector = '.gstc__scroll-bar-inner--vertical';
-    let state: DeepState<GSTCState>;
+    let state: DeepState;
     let merge;
 
     cy.load('/examples/simple/simple.esm.html')
@@ -84,7 +84,7 @@ describe('Scroll bar', () => {
   it('Movement (precise)', () => {
     const horizontalScrollBarSelector = '.gstc__scroll-bar-inner--horizontal';
     const verticalScrollBarSelector = '.gstc__scroll-bar-inner--vertical';
-    let state: DeepState<GSTCState>;
+    let state: DeepState;
     let merge;
 
     cy.load('/examples/simple/simple.esm.html')

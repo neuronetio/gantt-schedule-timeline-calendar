@@ -1,5 +1,4 @@
 import DeepState from 'deep-state-observer';
-import { GSTCState } from '../../dist/gstc';
 import { fixed } from '../helpers';
 
 function getColumns(state) {
@@ -12,7 +11,7 @@ function getColumns(state) {
 
 describe('List columns toggle', () => {
   it('should toggle columns', () => {
-    let state: DeepState<GSTCState>;
+    let state: DeepState;
     cy.load('/examples/list-columns-toggle')
       .window()
       .then((win) => {

@@ -649,3 +649,7 @@
 [3.14.49]
 
 - `scrollToTime` centered bugfix
+
+[3.15.0]
+
+- license key checking mechanism updated to v3

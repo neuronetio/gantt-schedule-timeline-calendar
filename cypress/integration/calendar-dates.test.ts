@@ -1,12 +1,12 @@
 /// <reference types="Cypress" />
 
 import DeepState from 'deep-state-observer';
-import { DataChartTime, GSTCState } from '../../dist/gstc';
+import { DataChartTime } from '../../dist/gstc';
 import { fixed } from '../helpers';
 
 describe('Calendar dates', () => {
   it('should generate all dates (complex-1)', () => {
-    let window, merge, state: DeepState<GSTCState>;
+    let window, merge, state: DeepState;
     cy.load('/examples/complex-1')
       .window()
       .then((win) => {
@@ -107,7 +107,7 @@ describe('Calendar dates', () => {
   });
 
   it('should generate all dates (custom-period-advanced)', () => {
-    let window, merge, state: DeepState<GSTCState>;
+    let window, merge, state: DeepState;
     cy.load('/examples/custom-period-advanced')
       .window()
       .then((win) => {
