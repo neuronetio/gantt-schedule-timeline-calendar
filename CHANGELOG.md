@@ -653,3 +653,11 @@
 [3.15.0]
 
 - license key checking mechanism updated to v3
+
+[3.15.1]
+
+- package.json updated
+
+[3.15.2]
+
+- package.json updated

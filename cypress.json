@@ -8,5 +8,6 @@
   "env":{
     "wait": 1,
     "wait_load": 1
-  }
+  },
+  "pluginsFile":false
 }

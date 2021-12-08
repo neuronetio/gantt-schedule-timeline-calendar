@@ -1,7 +1,7 @@
-const path = require('path');
-const Polonez = require('polonez');
-const ServeStatic = require('serve-static');
-const compression = require('compression');
+import path from 'path';
+import Polonez from 'polonez';
+import ServeStatic from 'serve-static';
+import compression from 'compression';
 
 const polonez = Polonez();
 polonez.use(compression());
