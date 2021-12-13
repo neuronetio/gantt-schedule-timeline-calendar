@@ -110,7 +110,8 @@ You can checkout [examples folder](https://github.com/neuronetio/gantt-schedule-
 
 or
 
-`<script src="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar"></script>`
+`<script src="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar/dist/gstc.wasm.umd.min.js"></script>`
+
 
 <h2 align="center">DOCUMENTATION</h2>
 
