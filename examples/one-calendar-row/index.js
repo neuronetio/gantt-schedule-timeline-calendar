@@ -1,4 +1,6 @@
 import GSTC from '../../dist/gstc.esm.min.js';
+// or when you encounter problems with wasm loader
+// import GSTC from '../../dist/gstc.wasm.esm.min.js';
 
 const rowsFromDB = [
   {
@@ -290,16 +292,15 @@ const config = {
 const state = GSTC.api.stateFromConfig(config);
 
 // for testing
-// @ts-ignore
-window.state = state;
+globalThis.state = state;
 
 const element = document.getElementById('gstc');
 element.addEventListener('gstc-loaded', (ev) => {
-  window.dispatchEvent(new Event('gstc-loaded', ev.target));
+  globalThis.dispatchEvent(new Event('gstc-loaded', ev.target));
 });
 
 // Mount the component
-const app = (window.gstc = GSTC({
+const app = (globalThis.gstc = GSTC({
   element,
   state,
 }));

@@ -1,8 +1,11 @@
 import GSTC from '../../dist/gstc.esm.min.js';
+// or when you encounter problems with wasm loader
+// import GSTC from '../../dist/gstc.wasm.esm.min.js';
+
 // @ts-ignore
-GSTC.api.dayjs.extend(window.dayjs_plugin_weekOfYear);
+GSTC.api.dayjs.extend(globalThis.dayjs_plugin_weekOfYear);
 //@ts-ignore
-GSTC.api.dayjs.extend(window.dayjs_plugin_advancedFormat);
+GSTC.api.dayjs.extend(globalThis.dayjs_plugin_advancedFormat);
 
 const rowsFromDB = [
   {
@@ -111,8 +114,7 @@ const config = {
 const state = GSTC.api.stateFromConfig(config);
 
 // for testing
-// @ts-ignore
-window.state = state;
+globalThis.state = state;
 
 // Mount the component
 const app = GSTC({
@@ -121,5 +123,4 @@ const app = GSTC({
 });
 
 //for testing
-// @ts-ignore
-window.gstc = app;
+globalThis.gstc = app;

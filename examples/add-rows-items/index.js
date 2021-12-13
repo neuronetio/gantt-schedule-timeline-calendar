@@ -1,4 +1,6 @@
 import GSTC from '../../dist/gstc.esm.min.js';
+// or when you encounter problems with wasm loader
+// import GSTC from '../../dist/gstc.wasm.esm.min.js';
 import { Plugin as TimelinePointer } from '../../dist/plugins/timeline-pointer.esm.min.js';
 import { Plugin as Selection } from '../../dist/plugins/selection.esm.min.js';
 import { Plugin as ItemMovement } from '../../dist/plugins/item-movement.esm.min.js';
@@ -152,15 +154,13 @@ function setNewItems() {
     return generateNewItems();
   });
 }
-// @ts-ignore
-window.setNewItems = setNewItems;
+globalThis.setNewItems = setNewItems;
 
 function addNewItem() {
   const item = generateNewItem();
   state.update(`config.chart.items.${item.id}`, item);
 }
-// @ts-ignore
-window.addNewItem = addNewItem;
+globalThis.addNewItem = addNewItem;
 
 function setNewRows() {
   // you cannot create new rows if existing items are assigned to current ones
@@ -169,19 +169,18 @@ function setNewRows() {
   state.update('config.list.rows', () => {
     return generateNewRows();
   });
+  console.log('rows updated');
   // you can also update whole config like state.update('config',(config)=>{ config.list.rows = newRows; config.chart.items=newItems; return config; })
 }
 
-// @ts-ignore
-window.setNewRows = setNewRows;
+globalThis.setNewRows = setNewRows;
 
 function addNewRow() {
   const row = generateNewRow();
   state.update(`config.list.rows.${row.id}`, row);
 }
 
-// @ts-ignore
-window.addNewRow = addNewRow;
+globalThis.addNewRow = addNewRow;
 
 document.getElementById('add-items').addEventListener('click', setNewItems);
 document.getElementById('add-item').addEventListener('click', addNewItem);
@@ -189,6 +188,6 @@ document.getElementById('add-rows').addEventListener('click', setNewRows);
 document.getElementById('add-row').addEventListener('click', addNewRow);
 
 //@ts-ignore
-window.state = state;
+globalThis.state = state;
 //@ts-ignore
-window.gstc = gstc;
+globalThis.gstc = gstc;

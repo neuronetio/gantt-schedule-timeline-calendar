@@ -1,4 +1,6 @@
 import GSTC from '../../dist/gstc.esm.min.js';
+// or when you encounter problems with wasm loader
+// import GSTC from '../../dist/gstc.wasm.esm.min.js';
 import { Plugin as TimelinePointer } from '../../dist/plugins/timeline-pointer.esm.min.js';
 import { Plugin as Selection } from '../../dist/plugins/selection.esm.min.js';
 
@@ -164,21 +166,24 @@ const config = {
 const state = GSTC.api.stateFromConfig(config);
 
 document.getElementById('cells').addEventListener('change', function (el) {
+  // @ts-ignore
   state.update('config.plugin.Selection.cells', el.target.checked);
 });
 document.getElementById('items').addEventListener('change', function (el) {
+  // @ts-ignore
   state.update('config.plugin.Selection.items', el.target.checked);
 });
 document.getElementById('overlay').addEventListener('change', function (el) {
+  // @ts-ignore
   state.update('config.plugin.Selection.showOverlay', el.target.checked);
 });
 document.getElementById('multiple').addEventListener('change', function (el) {
+  // @ts-ignore
   state.update('config.plugin.Selection.multipleSelection', el.target.checked);
 });
 
 // for testing
-// @ts-ignore
-window.state = state;
+globalThis.state = state;
 
 // Mount the component
 const app = GSTC({
@@ -208,11 +213,9 @@ document.getElementById('clear').addEventListener('click', function (el) {
 function scrollToCell() {
   app.api.scrollToTime(app.api.time.date('2020-01-10').valueOf(), false);
 }
-// @ts-ignore
-window.scrollToCell = scrollToCell;
+globalThis.scrollToCell = scrollToCell;
 
 document.getElementById('scroll-to-cell').addEventListener('click', scrollToCell);
 
 //for testing
-// @ts-ignore
-window.gstc = app;
+globalThis.gstc = app;

@@ -1,4 +1,7 @@
 import GSTC from '../../dist/gstc.esm.min.js';
+// or when you encounter problems with wasm loader
+// import GSTC from '../../dist/gstc.wasm.esm.min.js';
+
 const iterations = 100;
 const GSTCID = GSTC.api.GSTCID;
 
@@ -141,8 +144,7 @@ const config = {
 const state = GSTC.api.stateFromConfig(config);
 
 // for testing
-// @ts-ignore
-window.state = state;
+globalThis.state = state;
 
 // Mount the component
 const app = GSTC({
@@ -151,5 +153,4 @@ const app = GSTC({
 });
 
 //for testing
-// @ts-ignore
-window.gstc = app;
+globalThis.gstc = app;

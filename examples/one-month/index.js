@@ -1,4 +1,6 @@
 import GSTC from '../../dist/gstc.esm.min.js';
+// or when you encounter problems with wasm loader
+// import GSTC from '../../dist/gstc.wasm.esm.min.js';
 import { Plugin as TimelinePointer } from '../../dist/plugins/timeline-pointer.esm.min.js';
 import { Plugin as Selection } from '../../dist/plugins/selection.esm.min.js';
 import { Plugin as ItemMovement } from '../../dist/plugins/item-movement.esm.min.js';
@@ -20,8 +22,7 @@ const colors = ['#E74C3C', '#DA3C78', '#7E349D', '#0077C0', '#07ABA0', '#0EAC51'
 function getRandomColor() {
   return colors[Math.floor(Math.random() * colors.length)];
 }
-// @ts-ignore
-window.GSTC = GSTC;
+globalThis.GSTC = GSTC;
 
 const startDate = GSTC.api.date('2020-01-01').startOf('month');
 const endDate = startDate.clone().endOf('month');
@@ -383,7 +384,7 @@ let state = GSTC.api.stateFromConfig(config);
   });
 
   //@ts-ignore
-  window.state = state;
+  globalThis.state = state;
   //@ts-ignore
-  window.gstc = gstc;
+  globalThis.gstc = gstc;
 })();

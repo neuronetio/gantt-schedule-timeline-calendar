@@ -1,4 +1,6 @@
 import GSTC from '../../dist/gstc.esm.min.js';
+// or when you encounter problems with wasm loader
+// import GSTC from '../../dist/gstc.wasm.esm.min.js';
 
 const rows = [
   {
@@ -88,6 +90,7 @@ function setTippyContent(element, data) {
   const itemData = gstc.api.getItemData(data.item.id);
   if (!itemData) return element._tippy.destroy();
   if (itemData.detached && element._tippy) return element._tippy.destroy();
+  // @ts-ignore
   if (!itemData.detached && !element._tippy) tippy(element, { trigger: 'mouseenter click' });
   if (!element._tippy) return;
   const startDate = itemData.time.startDate;

@@ -106,7 +106,7 @@
 
       // Generate GSTC state from configuration object
       const state = GSTC.api.stateFromConfig(config);
-      window.state = state;
+      globalThis.state = state;
 
       // Mount the component
       const app = GSTC({
@@ -114,7 +114,7 @@
         state,
       });
 
-      window.gstc = app;
+      globalThis.gstc = app;
     </script>
   </body>
 </html>

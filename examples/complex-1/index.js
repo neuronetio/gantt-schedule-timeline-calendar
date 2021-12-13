@@ -1,4 +1,6 @@
 import GSTC from '../../dist/gstc.esm.min.js';
+// or when you encounter problems with wasm loader
+// import GSTC from '../../dist/gstc.wasm.esm.min.js';
 import { Plugin as TimelinePointer } from '../../dist/plugins/timeline-pointer.esm.min.js';
 import { Plugin as Selection } from '../../dist/plugins/selection.esm.min.js';
 import { Plugin as ItemMovement } from '../../dist/plugins/item-movement.esm.min.js';
@@ -11,8 +13,7 @@ import { Plugin as DependencyLines } from '../../dist/plugins/dependency-lines.e
 import { Plugin as ExportImage } from '../../dist/plugins/export-image.esm.min.js';
 import { Plugin as ExportPDF } from '../../dist/plugins/export-pdf.esm.min.js';
 
-// @ts-ignore
-window.GSTC = GSTC;
+globalThis.GSTC = GSTC;
 
 const iterations = 100;
 const GSTCID = GSTC.api.GSTCID;
@@ -373,9 +374,9 @@ let state = GSTC.api.stateFromConfig(config);
   });
 
   //@ts-ignore
-  window.state = state;
+  globalThis.state = state;
   //@ts-ignore
-  window.gstc = gstc;
+  globalThis.gstc = gstc;
 })();
 
 // Select first two cells
@@ -415,8 +416,7 @@ document.getElementById('one-month').addEventListener('click', () => {
   });
 });
 
-// @ts-ignore
-window.scrollToFirstItem = scrollToFirstItem;
+globalThis.scrollToFirstItem = scrollToFirstItem;
 
 function downloadImage() {
   gstc.api.plugins.ExportImage.download();
