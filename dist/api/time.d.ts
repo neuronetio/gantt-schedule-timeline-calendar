@@ -1,9 +1,7 @@
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * Gantt-Schedule-Timeline-Calendar Time api
  *
- * @copyright Rafal Pospiech <https://neuronet.io>
- * @author    Rafal Pospiech <neuronet.io@gmail.com>
- * @package   gantt-schedule-timeline-calendar
+ * @header  --gstc--header--
  */
 import type { Dayjs } from 'dayjs';
 import type { DataChartTime, DataChartTimeLevelDate, ChartTimeDate, Period, ChartCalendarLevel, ChartCalendarLevelFormat } from '../gstc';

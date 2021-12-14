@@ -1,3 +1,8 @@
+/**
+ * Gantt-Schedule-Timeline-Calendar IDApi
+ *
+ * @header  --gstc--header--
+ */
 declare class IDApi {
     constructor();
     GSTCID(originalId: string): string;

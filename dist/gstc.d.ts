@@ -1,9 +1,7 @@
 /**
  * Gantt-Schedule-Timeline-Calendar
  *
- * @copyright Rafal Pospiech <https://neuronet.io>
- * @author    Rafal Pospiech <neuronet.io@gmail.com>
- * @package   gantt-schedule-timeline-calendar
+ * @header  --gstc--header--
  */
 import type { vido, lithtml } from '@neuronet.io/vido';
 import { StyleInfo, ComponentInstance } from '@neuronet.io/vido';

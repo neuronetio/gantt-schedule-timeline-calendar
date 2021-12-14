@@ -4,6 +4,7 @@
  * @copyright Rafal Pospiech <https://neuronet.io>
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
  * @package   gantt-schedule-timeline-calendar
+ * @license   SEE LICENSE IN LICENSE FILE
  */
 import { Config, SlotName } from './gstc';
 export declare const actionNames: SlotName[];

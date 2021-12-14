@@ -5,6 +5,7 @@
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
  * @package   gantt-schedule-timeline-calendar
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
+ * @license   SEE LICENSE IN LICENSE FILE
  */
 import type { Vido, htmlResult, Item, DataChartTime, DataItems } from '../gstc';
 import type DeepState from 'deep-state-observer';

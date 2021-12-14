@@ -1,9 +1,7 @@
 /**
  * Api functions
  *
- * @copyright Rafal Pospiech <https://neuronet.io>
- * @author    Rafal Pospiech <neuronet.io@gmail.com>
- * @package   gantt-schedule-timeline-calendar
+ * @header  --gstc--header--
  */
 import { Time } from './time';
 import type DeepState from 'deep-state-observer';

@@ -5,6 +5,7 @@
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
  * @package   gantt-schedule-timeline-calendar
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
+ * @license   SEE LICENSE IN LICENSE FILE
  */
 import type { htmlResult, Item, ItemData, RowData, Vido } from '../gstc';
 export declare type LineType = 'straight' | 'square' | 'square-alt' | 'smooth';

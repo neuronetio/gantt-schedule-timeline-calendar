@@ -1,3 +1,12 @@
+/**
+ * Gantt-Schedule-Timeline-Calendar Slots
+ *
+ * @copyright Rafal Pospiech <https://neuronet.io>
+ * @author    Rafal Pospiech <neuronet.io@gmail.com>
+ * @package   gantt-schedule-timeline-calendar
+ * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
+ * @license   SEE LICENSE IN LICENSE FILE
+ */
 import { Vido } from '../gstc';
 import { Slots as VidoSlots, ComponentInstance, Component } from '@neuronet.io/vido';
 export declare type SlotInstances = {

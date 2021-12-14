@@ -169,7 +169,6 @@ function setNewRows() {
   state.update('config.list.rows', () => {
     return generateNewRows();
   });
-  console.log('rows updated');
   // you can also update whole config like state.update('config',(config)=>{ config.list.rows = newRows; config.chart.items=newItems; return config; })
 }
 

@@ -5,6 +5,7 @@
  * @author    Rafal Pospiech <neuronet.io@gmail.com>
  * @package   gantt-schedule-timeline-calendar
  * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
+ * @license   SEE LICENSE IN LICENSE FILE
  */
 export interface Point {
     x: number;

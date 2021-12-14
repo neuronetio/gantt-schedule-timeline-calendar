@@ -661,3 +661,7 @@
 [3.15.2]
 
 - package.json updated
+
+[3.15.3]
+
+- empty chart after updating rows bugfix

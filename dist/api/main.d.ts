@@ -1,9 +1,7 @@
 /**
  * Main component functions
  *
- * @copyright Rafal Pospiech <https://neuronet.io>
- * @author    Rafal Pospiech <neuronet.io@gmail.com>
- * @package   gantt-schedule-timeline-calendar
+ * @header  --gstc--header--
  */
 import { Dayjs } from 'dayjs';
 import { DataChartTime, DataChartTimeLevel, DataChartTimeLevelDate, ChartCalendarLevel, ChartTimeDate, ChartTimeDates, ChartCalendarLevelFormat, Vido, Reason } from '../gstc';

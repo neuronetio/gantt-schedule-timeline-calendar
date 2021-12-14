@@ -140,7 +140,7 @@ body.gstc-scrolling * {
 .gstc__list-column-row-expander-toggle img {
   width: 16px;
   height: 16px;
-  vertical-align: text-bottom;
+  vertical-align: middle;
 }
 .gstc__list-column-row-expander-toggle-child {
   cursor: default;
