@@ -219,6 +219,7 @@ declare module "api/api" {
         getVisibleRows(): string[];
         normalizeMouseWheelEvent(event: WheelEvent): WheelResult;
         resetHorizontalScroll(): void;
+        updateHorizontalScroll(): void;
         setScrollLeft(dataIndex: number | undefined, offset?: number): number;
         scrollToTime(toTime: number, centered?: boolean): number;
         getScrollLeft(): DataScrollHorizontal;

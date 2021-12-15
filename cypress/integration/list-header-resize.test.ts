@@ -8,15 +8,16 @@ describe('List header', () => {
         state = win.state;
       })
       .wait(200) // wait for scroll event on gstc-loaded
+      .get('.gstc__chart-timeline-grid-row-cell.current').should('be.visible')
       .then(() => {
         initialDataIndex = state.get('$data.scroll.horizontal.dataIndex');
         timeFrom = state.get('$data.chart.time.fromDate');
         state.update('config.list.columns.data.gstcid-label.width',100);
-      }).then(()=>{
+      }).wait(100).then(()=>{
         const currentDataIndex = state.get('$data.scroll.horizontal.dataIndex');
         const currentTimeFrom = state.get('$data.chart.time.fromDate');
         expect(initialDataIndex).to.eq(currentDataIndex);
         expect(timeFrom.format('YYYY-MM-DD')).to.eq(currentTimeFrom.format('YYYY-MM-DD'));
-      });
+      }).get('.gstc__chart-timeline-grid-row-cell.current').should('be.visible');
   });
 });

@@ -665,3 +665,8 @@
 [3.15.3]
 
 - empty chart after updating rows bugfix
+
+[3.15.4]
+
+- bad scroll position after changing chart width bugfix
+- moving item outside of the current time resets scroll position bugfix
