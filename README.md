@@ -47,7 +47,7 @@ Keywords: [ gantt, javascript gantt, typescript gantt, project manager, js gantt
 - plugins support
 - attractive visually
 - written in typescript
-- offline license key
+- offline license key (after purchase)
 
 <p>
 You can use it in <strong>react</strong>, <strong>vue</strong>, <strong>angular</strong>, <strong>svelte</strong> or any other projects.
@@ -111,7 +111,6 @@ You can checkout [examples folder](https://github.com/neuronetio/gantt-schedule-
 or
 
 `<script src="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar/dist/gstc.wasm.umd.min.js"></script>`
-
 
 <h2 align="center">DOCUMENTATION</h2>
 
