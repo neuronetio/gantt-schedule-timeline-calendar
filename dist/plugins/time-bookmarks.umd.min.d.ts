@@ -1,0 +1,42 @@
+/**
+ * TimeBookmarks plugin
+ *
+ * @copyright Rafal Pospiech <https://neuronet.io>
+ * @author    Rafal Pospiech <neuronet.io@gmail.com>
+ * @package   gantt-schedule-timeline-calendar
+ * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
+ * @license   SEE LICENSE IN LICENSE FILE
+ */
+import type { Vido } from '../gstc';
+import type { Dayjs } from 'dayjs';
+import type { StyleInfo, StyleMap } from '@neuronet.io/vido';
+export declare const pluginPath = "config.plugin.TimeBookmarks";
+export declare const slotPath = "config.slots.chart-timeline-items.outer";
+export interface Bookmark {
+    time: string | number;
+    label: string;
+    className?: string;
+    /**
+     * @deprecated Use style instead of color
+     */
+    color?: string;
+    style?: StyleInfo;
+}
+export interface InternalBookmark extends Bookmark {
+    id: string;
+    leftViewPx: number;
+    absoluteLeftPx: number;
+    visible: boolean;
+    date: Dayjs;
+    styleMap: StyleMap;
+}
+export interface Bookmarks {
+    [key: string]: Bookmark;
+}
+export interface Options {
+    enabled?: boolean;
+    className?: string;
+    bookmarks?: Bookmarks;
+}
+export declare function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
+//# sourceMappingURL=time-bookmarks.d.ts.map

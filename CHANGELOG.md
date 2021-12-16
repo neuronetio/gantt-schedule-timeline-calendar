@@ -670,3 +670,7 @@
 
 - bad scroll position after changing chart width bugfix
 - moving item outside of the current time resets scroll position bugfix
+
+[3.15.5]
+
+- types renamed from `*.d.ts` to `min.d.ts`
