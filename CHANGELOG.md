@@ -674,3 +674,7 @@
 [3.15.5]
 
 - types renamed from `*.d.ts` to `min.d.ts`
+
+[3.15.6]
+
+- fixed missing api types

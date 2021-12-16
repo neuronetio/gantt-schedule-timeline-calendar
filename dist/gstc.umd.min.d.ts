@@ -1,3 +1,8 @@
+/**
+ * Gantt-Schedule-Timeline-Calendar
+ *
+ * @header  --gstc--header--
+ */
 import type { vido, lithtml } from '@neuronet.io/vido';
 import { StyleInfo, ComponentInstance } from '@neuronet.io/vido';
 import { Api } from './api/api';
@@ -581,7 +586,13 @@ export interface Dimensions {
     height: number;
 }
 export interface DataChartDimensions extends Dimensions {
+    /**
+     * config.innerHeight (whole height - calendar height) minus scroll bar height
+     */
     heightWithoutScrollBar: number;
+    /**
+     * From config.innerHeight
+     */
     innerHeight: number;
     widthWithoutScrollBar: number;
 }
@@ -658,3 +669,4 @@ declare namespace GSTC {
     };
 }
 export default GSTC;
+//# sourceMappingURL=gstc.d.ts.map
