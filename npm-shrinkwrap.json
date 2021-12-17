@@ -1242,9 +1242,9 @@
       "dev": true
     },
     "node_modules/@types/node": {
-      "version": "14.18.0",
-      "resolved": "https://registry.npmjs.org/@types/node/-/node-14.18.0.tgz",
-      "integrity": "sha512-0GeIl2kmVMXEnx8tg1SlG6Gg8vkqirrW752KqolYo1PHevhhZN3bhJ67qHj+bQaINhX0Ra3TlWwRvMCd9iEfNQ==",
+      "version": "14.18.1",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-14.18.1.tgz",
+      "integrity": "sha512-fTFWOFrgAkj737w1o0HLTIgisgYHnsZfeiqhG1Ltrf/iJjudEbUwetQAsfrtVE49JGwvpEzQR+EbMkIqG4227g==",
       "dev": true
     },
     "node_modules/@types/prettier": {
@@ -2737,9 +2737,9 @@
       "dev": true
     },
     "node_modules/electron-to-chromium": {
-      "version": "1.4.21",
-      "resolved": "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.4.21.tgz",
-      "integrity": "sha512-T04U2ciApGbm+dESFEBbewi2Xt0Dgyww8M4n4sOt9lnmFuYbaHEDWCROkx4jvAZDUWWry9YOdnAs+7468q80Qg==",
+      "version": "1.4.23",
+      "resolved": "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.4.23.tgz",
+      "integrity": "sha512-q3tB59Api3+DMbLnDPkW/UBHBO7KTGcF+rDCeb0GAGyqFj562s6y+c/2tDKTS/y5lbC+JOvT4MSUALJLPqlcSA==",
       "dev": true
     },
     "node_modules/emittery": {
@@ -8606,9 +8606,9 @@
       "dev": true
     },
     "@types/node": {
-      "version": "14.18.0",
-      "resolved": "https://registry.npmjs.org/@types/node/-/node-14.18.0.tgz",
-      "integrity": "sha512-0GeIl2kmVMXEnx8tg1SlG6Gg8vkqirrW752KqolYo1PHevhhZN3bhJ67qHj+bQaINhX0Ra3TlWwRvMCd9iEfNQ==",
+      "version": "14.18.1",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-14.18.1.tgz",
+      "integrity": "sha512-fTFWOFrgAkj737w1o0HLTIgisgYHnsZfeiqhG1Ltrf/iJjudEbUwetQAsfrtVE49JGwvpEzQR+EbMkIqG4227g==",
       "dev": true
     },
     "@types/prettier": {
@@ -9744,9 +9744,9 @@
       "dev": true
     },
     "electron-to-chromium": {
-      "version": "1.4.21",
-      "resolved": "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.4.21.tgz",
-      "integrity": "sha512-T04U2ciApGbm+dESFEBbewi2Xt0Dgyww8M4n4sOt9lnmFuYbaHEDWCROkx4jvAZDUWWry9YOdnAs+7468q80Qg==",
+      "version": "1.4.23",
+      "resolved": "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.4.23.tgz",
+      "integrity": "sha512-q3tB59Api3+DMbLnDPkW/UBHBO7KTGcF+rDCeb0GAGyqFj562s6y+c/2tDKTS/y5lbC+JOvT4MSUALJLPqlcSA==",
       "dev": true
     },
     "emittery": {

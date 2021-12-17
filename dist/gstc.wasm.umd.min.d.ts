@@ -321,7 +321,7 @@ export interface ChartTime {
     readonly toDate?: Dayjs;
     zoom?: number;
     level?: number;
-    leftGlobal: number;
+    leftGlobal?: number;
     readonly leftGlobalDate?: Dayjs;
     centerGlobal?: number;
     readonly centerGlobalDate?: Dayjs;
@@ -334,7 +334,7 @@ export interface ChartTime {
     onCurrentViewLevelDates?: ChartTimeOnLevelDates[];
     onDate?: ChartTimeOnDate[];
     readonly allDates?: ChartTimeDates[];
-    forceUpdate?: boolean;
+    readonly forceUpdate?: boolean;
     readonly additionalSpaceAdded?: boolean;
 }
 export interface DataChartTimeLevelDateCurrentView {

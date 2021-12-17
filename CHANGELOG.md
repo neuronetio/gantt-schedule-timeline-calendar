@@ -678,3 +678,7 @@
 [3.15.6]
 
 - fixed missing api types
+
+[3.15.7]
+
+- fixed column header resizing dots disappearing when width was smaller than text (#322)

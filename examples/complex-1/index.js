@@ -32,6 +32,9 @@ const startDate = GSTC.api.date('2020-02-01');
 const startTime = startDate.valueOf();
 const endDate = GSTC.api.date('2020-03-31').endOf('day');
 
+/**
+ * @type {import("../../dist/gstc").Rows}
+ */
 const rows = {};
 for (let i = 0; i < iterations; i++) {
   const withParent = i > 0 && i % 2 === 0;
@@ -61,8 +64,8 @@ rows[GSTCID('7')].birthday = startDate.add(3, 'day').startOf('day').format('YYYY
 
 const items = {};
 for (let i = 0; i < iterations; i++) {
-  let rowId = GSTCID(i);
-  let id = GSTCID(i);
+  let rowId = GSTCID(i.toString());
+  let id = GSTCID(i.toString());
   let startDayjs = GSTC.api
     .date(startTime)
     .startOf('day')

@@ -145,3 +145,31 @@ Cypress.Commands.add('move', (selector, movementX, movementY) => {
       cy.log('move finished');
     });
 });
+
+Cypress.Commands.add('moveDirect', (selector, movementX, movementY) => {
+  const coordinates = {
+    x: 0,
+    y: 0,
+  };
+  return cy
+    .get(selector)
+    .then(($el) => {
+      const width = $el.width();
+      const height = $el.height();
+      coordinates.x += Math.floor(width / 2);
+      coordinates.y += Math.floor(height / 2);
+    })
+    .get(selector)
+    .trigger('pointerdown', coordinates)
+    .trigger('pointermove', coordinates)
+    .then(() => {
+      coordinates.x += movementX;
+      coordinates.y += movementY;
+    })
+    .trigger('pointermove', coordinates)
+    .trigger('pointerup', coordinates)
+    .wait(Cypress.env('wait'))
+    .then(() => {
+      cy.log('move finished');
+    });
+});

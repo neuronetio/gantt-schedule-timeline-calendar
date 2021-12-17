@@ -212,10 +212,15 @@ body.gstc-scrolling * {
 .gstc__list-column-header-resizer {
   display: flex;
   flex-grow: 1;
-  flex-shrink: 0;
   background: transparent;
   vertical-align: middle;
   height: var(--height);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gstc__list-column-header-resizer-container {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .gstc__list-column-header-resizer-container,
 .gstc__list-column-header-resizer-dots {
