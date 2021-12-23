@@ -1,11 +1,7 @@
 /**
  * Selection plugin
  *
- * @copyright Rafal Pospiech <https://neuronet.io>
- * @author    Rafal Pospiech <neuronet.io@gmail.com>
- * @package   gantt-schedule-timeline-calendar
- * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- * @license   SEE LICENSE IN LICENSE FILE
+ * @header  --gstc--header--
  */
 import { ITEM, ITEM_TYPE, CELL, CELL_TYPE, Point, PointerState } from './timeline-pointer';
 import type { Item, GridCell, Vido } from '../gstc';

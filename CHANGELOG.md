@@ -682,3 +682,8 @@
 [3.15.7]
 
 - fixed column header resizing dots disappearing when width was smaller than text (#322)
+
+[3.15.8]
+
+- cypress updated to 9.2.0
+- updating locale bugfix (#230)

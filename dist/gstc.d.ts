@@ -1,5 +1,5 @@
 /**
- * Gantt-Schedule-Timeline-Calendar
+ * Gantt-Schedule-Timeline-Calendar component
  *
  * @header  --gstc--header--
  */
@@ -343,6 +343,7 @@ export interface DataChartTimeLevelDateCurrentView {
     width: number;
 }
 export interface DataChartTimeLevelDate {
+    id: string;
     leftGlobal: number;
     leftGlobalDate: Dayjs;
     rightGlobal: number;
@@ -383,6 +384,7 @@ export interface DataChartTime extends ChartTime {
     format: ChartCalendarLevelFormat;
     level: number;
     levels: DataChartTimeLevels;
+    currentZoomLevelFormatting: ChartCalendarLevelFormat[];
     additionalSpaces?: ChartCalendarAdditionalSpaces;
     calculatedZoomMode?: boolean;
     onLevelDates?: ChartTimeOnLevelDates[];

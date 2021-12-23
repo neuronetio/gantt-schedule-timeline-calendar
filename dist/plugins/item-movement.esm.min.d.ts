@@ -1,11 +1,7 @@
 /**
  * ItemMovement plugin
  *
- * @copyright Rafal Pospiech <https://neuronet.io>
- * @author    Rafal Pospiech <neuronet.io@gmail.com>
- * @package   gantt-schedule-timeline-calendar
- * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- * @license   SEE LICENSE IN LICENSE FILE
+ * @header  --gstc--header--
  */
 import type { Vido, Item, DataChartTime, ItemData, DataItems, DataScrollVertical, DataScrollHorizontal } from '../gstc';
 import type DeepState from 'deep-state-observer';

@@ -1,11 +1,7 @@
 /**
  * TimeBookmarks plugin
  *
- * @copyright Rafal Pospiech <https://neuronet.io>
- * @author    Rafal Pospiech <neuronet.io@gmail.com>
- * @package   gantt-schedule-timeline-calendar
- * @link      https://github.com/neuronetio/gantt-schedule-timeline-calendar
- * @license   SEE LICENSE IN LICENSE FILE
+ * @header  --gstc--header--
  */
 import type { Vido } from '../gstc';
 import type { Dayjs } from 'dayjs';
