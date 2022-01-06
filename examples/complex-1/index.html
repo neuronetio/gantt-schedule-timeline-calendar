@@ -12,14 +12,27 @@
       .gstc__chart-timeline-items-row-item {
         border-radius: 4px;
       }
+      body.gstc--dark {
+        background: #323743;
+        color: #ffffffbf;
+      }
+      #toolbox {
+        margin: 20px;
+      }
+      .gstc--dark button {
+        background-color: #1e2128;
+        border: 1px solid #1e2128;
+        border-radius: 5px;
+        color: #ffffffa8;
+      }
+      #toolbox * {
+        user-select: none;
+      }
+      #toolbox label {
+        cursor: pointer;
+      }
     </style>
-    <div>
-      <button id="select-cells">Select first cells</button>
-      <button id="scroll-to-item">Scroll to first item</button>
-      <button id="download-image">Download image</button>
-      <button id="download-pdf">Download PDF</button>
-      <button id="one-month">Show one month</button>
-    </div>
+    <div id="toolbox"></div>
     <div id="gstc"></div>
     <script type="module" src="index.js"></script>
     <!-- replace this path  -->

@@ -1,6 +1,6 @@
 import DeepState from 'deep-state-observer';
 
-describe('Complex', () => {
+describe('Calculated zoom mode', () => {
   it('should change calculatedZoomMode', () => {
     let state: DeepState, gstc, initialFrom, initialTo, from, to;
     cy.load('/examples/complex-1')

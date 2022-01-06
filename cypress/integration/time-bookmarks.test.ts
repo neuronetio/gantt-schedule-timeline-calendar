@@ -60,7 +60,7 @@ describe('Time bookmarks', () => {
       .should('be.visible')
       .get('.gstc__chart-time-bookmark-label')
       .then(($labels) => {
-        expect($labels.length).to.eq(9);
+        expect($labels.length).to.eq(8);
       })
       .get('#btn-next-month')
       .click()

@@ -382,6 +382,8 @@ let state = GSTC.api.stateFromConfig(config);
   globalThis.gstc = gstc;
 })();
 
+// TOOLBOX BUTTONS
+
 // Select first two cells
 function selectCells() {
   const api = gstc.api;
@@ -389,7 +391,6 @@ function selectCells() {
   api.plugins.Selection.selectCells([allCells[0].id, allCells[1].id]);
   console.log(api.plugins.Selection.getSelection());
 }
-document.getElementById('select-cells').addEventListener('click', selectCells);
 
 // scroll to first item
 function scrollToFirstItem() {
@@ -397,7 +398,6 @@ function scrollToFirstItem() {
   const firstItem = gstc.state.get(`config.chart.items.${api.GSTCID('1')}`);
   api.scrollToTime(firstItem.time.start, false);
 }
-document.getElementById('scroll-to-item').addEventListener('click', scrollToFirstItem);
 
 function makeSelectedItemsDependent() {
   const ITEM = 'chart-timeline-items-row-item';
@@ -410,14 +410,14 @@ function makeSelectedItemsDependent() {
   });
 }
 
-document.getElementById('one-month').addEventListener('click', () => {
+function oneMonth() {
   state.update('config.chart.time', (time) => {
     time.calculatedZoomMode = true;
     time.from = startDate.valueOf();
     time.to = startDate.endOf('month').valueOf();
     return time;
   });
-});
+}
 
 globalThis.scrollToFirstItem = scrollToFirstItem;
 
@@ -425,7 +425,30 @@ function downloadImage() {
   gstc.api.plugins.ExportImage.download();
 }
 
-document.getElementById('download-image').addEventListener('click', downloadImage);
-document.getElementById('download-pdf').addEventListener('click', () => {
+function downloadPdf() {
   gstc.api.plugins.ExportPDF.download('timeline.pdf');
-});
+}
+
+let darkModeEnabled = false;
+function toggleDarkMode(ev) {
+  darkModeEnabled = ev.target.checked;
+  const el = document.getElementById('gstc');
+  if (darkModeEnabled) {
+    el.classList.add('gstc--dark');
+    document.body.classList.add('gstc--dark');
+  } else {
+    el.classList.remove('gstc--dark');
+    document.body.classList.remove('gstc--dark');
+  }
+}
+
+const lithtml = GSTC.lithtml;
+
+const toolboxButtons = lithtml.html`<button @click=${selectCells}>Select first cells</button>
+      <button @click=${scrollToFirstItem}>Scroll to first item</button>
+      <button @click=${downloadImage}>Download image</button>
+      <button @click=${downloadPdf}>Download PDF</button>
+      <button id="one-month" @click=${oneMonth}>Show one month</button>
+      <input type="checkbox" id="dark-mode" @change=${toggleDarkMode} /> <label for="dark-mode">Dark mode</label>`;
+
+lithtml.render(toolboxButtons, document.getElementById('toolbox'));

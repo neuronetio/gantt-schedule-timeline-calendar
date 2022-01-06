@@ -687,3 +687,9 @@
 
 - cypress updated to 9.2.0
 - updating locale bugfix (#230)
+
+[3.16.0]
+
+- removed junk dev dependencies
+- added dark theme support
+- fixed calculatedZoomMode initial render

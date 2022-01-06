@@ -39,7 +39,7 @@ body.gstc-scrolling * {
   overflow: hidden;
   color: #606060;
   font-size: 14px;
-  background-color: #fdfdfd;
+  background: #fdfdfd;
   line-height: 1.2;
   box-sizing: border-box;
   position: relative;
@@ -688,6 +688,46 @@ body.gstc-scrolling * {
 }
 .gstc__item-type-content {
   display: flex;
+}
+.gstc--dark .gstc {
+  background: #323743;
+  color: rgba(255,255,255,0.749);
+}
+.gstc--dark .gstc__chart-calendar {
+  background: rgba(31,32,41,0.51);
+  color: rgba(255,255,255,0.749);
+}
+.gstc--dark .gstc__chart-calendar-date {
+  border-right: 1px solid rgba(255,255,255,0.102);
+  color: rgba(255,255,255,0.631);
+}
+.gstc--dark .gstc__list-column-header-resizer-dots-dot {
+  background: rgba(255,255,255,0.102);
+}
+.gstc--dark .gstc__list-column-header {
+  background: rgba(31,32,41,0.51);
+  color: rgba(255,255,255,0.871);
+}
+.gstc--dark .gstc__list-column-row {
+  border-bottom: 1px solid rgba(30,30,30,0.314);
+  border-right: 1px solid rgba(30,30,30,0.314);
+  color: #ababb1;
+}
+.gstc--dark .gstc__chart-timeline-grid-row-cell {
+  border-bottom: 1px solid rgba(30,30,30,0.314);
+  border-right: 1px solid rgba(30,30,30,0.314);
+}
+.gstc--dark .gstc__chart-timeline-grid-row-cell--weekend {
+  background: rgba(31,32,41,0.141);
+}
+.gstc--dark .gstc__list-toggle {
+  background: rgba(31,32,41,0.188);
+}
+.gstc--dark .gstc__scroll-bar {
+  background: transparent;
+}
+.gstc--dark .gstc__scroll-bar-inner {
+  background: rgba(0,0,0,0.129);
 }
 @-moz-keyframes selected-animation {
   0% {

@@ -3,8 +3,8 @@
  *
  * @header  --gstc--header--
  */
-import type { vido, lithtml } from '@neuronet.io/vido';
-import { StyleInfo, ComponentInstance } from '@neuronet.io/vido';
+import type { vido } from '@neuronet.io/vido';
+import { StyleInfo, ComponentInstance, lithtml } from '@neuronet.io/vido';
 import { Api } from './api/api';
 import { Dayjs, OpUnitType } from 'dayjs';
 import DeepState from 'deep-state-observer';
@@ -650,6 +650,7 @@ export interface GSTCResult {
     component: ComponentInstance;
     destroy: () => void;
     reload: () => void;
+    lithtml: typeof lithtml;
 }
 declare function GSTC(options: GSTCOptions): GSTCResult;
 declare namespace GSTC {
@@ -662,13 +663,14 @@ declare namespace GSTC {
         stateFromConfig: typeof import("./api/public").stateFromConfig;
         wasmStateFromConfig: typeof import("./api/public").wasmStateFromConfig;
         merge: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
-        lithtml: typeof lithtml;
-        html: typeof lithtml;
+        lithtml: typeof import("lit-html");
+        html: typeof import("lit-html");
         vido: typeof import("@neuronet.io/vido");
         date(time?: any, utcMode?: boolean): Dayjs;
         setPeriod(period: Period): number;
         dayjs: typeof import("dayjs");
     };
+    var lithtml: typeof import("lit-html");
 }
 export default GSTC;
 //# sourceMappingURL=gstc.d.ts.map

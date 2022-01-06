@@ -6,6 +6,15 @@ import { Plugin as Selection } from '../../dist/plugins/selection.esm.min.js';
 import { Plugin as ItemMovement } from '../../dist/plugins/item-movement.esm.min.js';
 import { Plugin as ItemResizing } from '../../dist/plugins/item-resizing.esm.min.js';
 
+import detectAdBlock from './prebid-ads.js';
+detectAdBlock().then((enabled) => {
+  if (globalThis.gstc && enabled) {
+    const lithtml = globalThis.gstc.lithtml;
+    const warning = lithtml.html`<div style="color:red;font-weight:bold;margin:10px;">You should disable the ad-blocking extension on this page as it can significantly slow down the DOM updates.</div>`;
+    lithtml.render(warning, document.getElementById('warning'));
+  }
+});
+
 let iterations = 1000;
 
 let gstc, state;
