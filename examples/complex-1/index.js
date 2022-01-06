@@ -413,8 +413,9 @@ function makeSelectedItemsDependent() {
 function oneMonth() {
   state.update('config.chart.time', (time) => {
     time.calculatedZoomMode = true;
-    time.from = startDate.valueOf();
+    time.from = startDate.startOf('month').valueOf();
     time.to = startDate.endOf('month').valueOf();
+    console.log('to', gstc.api.time.date(time.to).format('YYYY-MM-DD'));
     return time;
   });
 }

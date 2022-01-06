@@ -693,3 +693,8 @@
 - removed junk dev dependencies
 - added dark theme support
 - fixed calculatedZoomMode initial render
+
+[3.16.1]
+
+- scroll bar handle more visible in dark mode
+- main import file with wasm file included

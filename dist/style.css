@@ -689,6 +689,7 @@ body.gstc-scrolling * {
 .gstc__item-type-content {
   display: flex;
 }
+/* DARK MODE */
 .gstc--dark .gstc {
   background: #323743;
   color: rgba(255,255,255,0.749);
@@ -727,7 +728,7 @@ body.gstc-scrolling * {
   background: transparent;
 }
 .gstc--dark .gstc__scroll-bar-inner {
-  background: rgba(0,0,0,0.129);
+  background: rgba(26,27,30,0.741);
 }
 @-moz-keyframes selected-animation {
   0% {
