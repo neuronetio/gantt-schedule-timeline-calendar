@@ -69,7 +69,7 @@ You can control almost everything. You can change html structure, stylize every 
 
 You can checkout [examples folder](https://github.com/neuronetio/gantt-schedule-timeline-calendar/tree/master/examples) too.
 
-<h2 align="center">REACT, ANGULAR AND VUE EXAMPLES</h2>
+<h2 align="center">REACT, ANGULAR, SVELTE AND VUE EXAMPLES</h2>
 
 - [react gantt-schedule-timeline-calendar usage example](https://github.com/neuronetio/react-gantt-schedule-timeline-calendar-example)
 - [angular gantt-schedule-timeline-calendar usage example](https://github.com/neuronetio/angular-gantt-schedule-timeline-calendar-example)
