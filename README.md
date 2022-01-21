@@ -18,7 +18,7 @@ Keywords: [ gantt, javascript gantt, typescript gantt, project manager, js gantt
   <img src="https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/qdqmtw/master&style=flat&logo=cypress">
   <img src="https://api.travis-ci.com/neuronetio/gantt-schedule-timeline-calendar.svg?branch=master">
   <img src="https://img.shields.io/npm/dm/gantt-schedule-timeline-calendar.svg">
-  <img src="https://img.badgesize.io/neuronetio/gantt-schedule-timeline-calendar/master/dist/gstc.esm.min.js?compression=gzip">
+  <!--<img src="https://img.badgesize.io/neuronetio/gantt-schedule-timeline-calendar/master/dist/gstc.esm.min.js?compression=gzip">-->
 </p>
 <br>
 <br />
@@ -66,15 +66,6 @@ You can control almost everything. You can change html structure, stylize every 
 <h2 align="center">EXAMPLES</h2>
 
 <a href="https://gantt-schedule-timeline-calendar.neuronet.io/examples" target="_blank">Online examples</a>
-
-To run examples on your machine type
-
-```bash
-git clone https://github.com/neuronetio/gantt-schedule-timeline-calendar.git
-cd gantt-schedule-timeline-calendar
-npm i
-npm run examples
-```
 
 You can checkout [examples folder](https://github.com/neuronetio/gantt-schedule-timeline-calendar/tree/master/examples) too.
 
