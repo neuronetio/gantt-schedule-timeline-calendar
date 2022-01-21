@@ -75,6 +75,7 @@ You can checkout [examples folder](https://github.com/neuronetio/gantt-schedule-
 - [angular gantt-schedule-timeline-calendar usage example](https://github.com/neuronetio/angular-gantt-schedule-timeline-calendar-example)
 - [vue gantt-schedule-timeline-calendar usage example](https://github.com/neuronetio/vue-gantt-schedule-timeline-calendar-example)
 - [vue3 composition api with vite gantt-schedule-timeline-calendar example](https://github.com/neuronetio/vue3-vite-gantt-schedule-timeline-calendar-example)
+- [svelte gantt-schedule-timeline-calendar usage example](https://github.com/neuronetio/svelte-gantt-schedule-timeline-calendar-example)
 
 <h2 align="center">SCREENSHOTS</h2>
 
