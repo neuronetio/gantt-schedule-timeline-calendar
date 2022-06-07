@@ -80,16 +80,23 @@ const columnsFromDB = [
   },
 ];
 
+/**
+ * @type {import("../../dist/gstc").ChartCalendarLevel}
+ */
 const months = [
   {
     zoomTo: 100, // we want to display this format for all zoom levels until 100
     period: 'month',
+    periodIncrement: 1,
     format({ timeStart }) {
       return timeStart.format('MMMM YYYY'); // full list of formats: https://day.js.org/docs/en/display/format
     },
   },
 ];
 
+/**
+ * @type {import("../../dist/gstc").ChartCalendarLevel}
+ */
 const days = [
   {
     zoomTo: 100, // we want to display this format for all zoom levels until 100
@@ -112,6 +119,9 @@ const days = [
 ];
 
 // Configuration object
+/**
+ * @type {import("../../dist/gstc").Config}
+ */
 const config = {
   // for free key for your domain please visit https://gstc.neuronet.io/free-key
   // if you need commercial license please visit https://gantt-schedule-timeline-calendar.neuronet.io/pricing

@@ -698,3 +698,9 @@
 
 - scroll bar handle more visible in dark mode
 - main import file with wasm file included
+
+[3.16.2]
+
+- #325 bugfix (dayjs.locale is not a function)
+- ability to use component on external servers on premise with domain keywords like app-name.\*
+- fixed bug when moving items outside a view

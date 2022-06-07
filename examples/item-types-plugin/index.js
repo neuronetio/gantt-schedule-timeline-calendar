@@ -24,6 +24,9 @@ function getRandomItemType() {
   return itemTypes[Math.floor(Math.random() * itemTypes.length)];
 }
 
+/**
+ * @type {import("../../dist/gstc").Rows}
+ */
 const rows = {};
 for (let i = 0; i < iterations; i++) {
   const withParent = i > 0 && i % 2 === 0;
@@ -31,7 +34,7 @@ for (let i = 0; i < iterations; i++) {
   rows[id] = {
     id,
     label: `Row ${i}`,
-    parentId: withParent ? GSTCID(i - 1) : undefined,
+    parentId: withParent ? GSTCID(String(i - 1)) : undefined,
     expanded: false,
   };
 }
@@ -43,10 +46,14 @@ rows[GSTCID('14')].parentId = GSTCID('13');
 
 const startDate = GSTC.api.date().subtract(2, 'month').valueOf();
 
+/**
+ * @type {import("../../dist/gstc").Items}
+ */
 const items = {};
 for (let i = 0; i < iterations; i++) {
-  let rowId = GSTCID(i);
-  let id = GSTCID(i);
+  const si = String(i);
+  let rowId = GSTCID(si);
+  let id = GSTCID(si);
   let startDayjs = GSTC.api
     .date(startDate)
     .startOf('day')
@@ -92,6 +99,9 @@ items[GSTCID('7')].time.end = GSTC.api.date(items[GSTCID('7')].time.start).endOf
 items[GSTCID('9')].time.start = GSTC.api.date(items[GSTCID('5')].time.end).startOf('day').add(2, 'day').valueOf();
 items[GSTCID('9')].time.end = GSTC.api.date(items[GSTCID('9')].time.start).endOf('day').add(3, 'day').valueOf();
 
+/**
+ * @type {import("../../dist/gstc").Columns}
+ */
 const columns = {
   data: {
     [GSTCID('id')]: {
@@ -118,8 +128,10 @@ const columns = {
   },
 };
 
+/**
+ * @type {import("../../dist/gstc").Config}
+ */
 const config = {
-  //debug: true,
   licenseKey:
     '====BEGIN LICENSE KEY====\nXOfH/lnVASM6et4Co473t9jPIvhmQ/l0X3Ewog30VudX6GVkOB0n3oDx42NtADJ8HjYrhfXKSNu5EMRb5KzCLvMt/pu7xugjbvpyI1glE7Ha6E5VZwRpb4AC8T1KBF67FKAgaI7YFeOtPFROSCKrW5la38jbE5fo+q2N6wAfEti8la2ie6/7U2V+SdJPqkm/mLY/JBHdvDHoUduwe4zgqBUYLTNUgX6aKdlhpZPuHfj2SMeB/tcTJfH48rN1mgGkNkAT9ovROwI7ReLrdlHrHmJ1UwZZnAfxAC3ftIjgTEHsd/f+JrjW6t+kL6Ef1tT1eQ2DPFLJlhluTD91AsZMUg==||U2FsdGVkX1/SWWqU9YmxtM0T6Nm5mClKwqTaoF9wgZd9rNw2xs4hnY8Ilv8DZtFyNt92xym3eB6WA605N5llLm0D68EQtU9ci1rTEDopZ1ODzcqtTVSoFEloNPFSfW6LTIC9+2LSVBeeHXoLEQiLYHWihHu10Xll3KsH9iBObDACDm1PT7IV4uWvNpNeuKJc\npY3C5SG+3sHRX1aeMnHlKLhaIsOdw2IexjvMqocVpfRpX4wnsabNA0VJ3k95zUPS3vTtSegeDhwbl6j+/FZcGk9i+gAy6LuetlKuARjPYn2LH5Be3Ah+ggSBPlxf3JW9rtWNdUoFByHTcFlhzlU9HnpnBUrgcVMhCQ7SAjN9h2NMGmCr10Rn4OE0WtelNqYVig7KmENaPvFT+k2I0cYZ4KWwxxsQNKbjEAxJxrzK4HkaczCvyQbzj4Ppxx/0q+Cns44OeyWcwYD/vSaJm4Kptwpr+L4y5BoSO/WeqhSUQQ85nvOhtE0pSH/ZXYo3pqjPdQRfNm6NFeBl2lwTmZUEuw==\n====END LICENSE KEY====',
   innerHeight: 500,

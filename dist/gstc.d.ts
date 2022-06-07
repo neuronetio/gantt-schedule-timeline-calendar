@@ -6,7 +6,7 @@
 import type { vido } from '@neuronet.io/vido';
 import { StyleInfo, ComponentInstance, lithtml } from '@neuronet.io/vido';
 import { Api } from './api/api';
-import { Dayjs, OpUnitType } from 'dayjs';
+import { Dayjs } from 'dayjs';
 import DeepState from 'deep-state-observer';
 export declare type Vido = vido<DeepState, Api>;
 export interface RowDataPosition {
@@ -400,8 +400,7 @@ export interface ChartCalendarFormatArguments {
     props: any;
     vido: any;
 }
-export declare type PeriodString = 'year' | 'month' | 'week' | 'day' | 'hour' | 'minute' | 'second' | 'millisecond';
-export declare type Period = PeriodString | OpUnitType;
+export declare type Period = 'year' | 'month' | 'week' | 'day' | 'hour' | 'minute' | 'second' | 'millisecond';
 export declare type CharCalendarLevelFormatFunction = ({ currentDates, date, leftDate, rightDate, period, level, levelIndex, time, vido, api, }: {
     currentDates: DataChartTimeLevelDate[];
     date: Dayjs;
@@ -417,7 +416,7 @@ export declare type CharCalendarLevelFormatFunction = ({ currentDates, date, lef
 export interface ChartCalendarLevelFormat {
     zoomTo: number;
     period: Period;
-    periodIncrement: number | CharCalendarLevelFormatFunction;
+    periodIncrement?: number | CharCalendarLevelFormatFunction;
     main?: boolean;
     classNames?: string[];
     format: (args: ChartCalendarFormatArguments) => string | htmlResult;

@@ -3,6 +3,7 @@
  *
  * @header  --gstc--header--
  */
+import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
 import type { DataChartTime, DataChartTimeLevelDate, ChartTimeDate, Period, ChartCalendarLevel, ChartCalendarLevelFormat } from '../gstc';
 import type DeepState from 'deep-state-observer';
@@ -22,15 +23,15 @@ export declare class Time {
     private utcMode;
     private state;
     private api;
-    dayjs: any;
+    private dayjs;
     currentDate: CurrentDate;
     unsubs: (() => void)[];
     constructor(state: DeepState, api: Api);
     destroy(): void;
     private resetCurrentDate;
-    date(time?: number | string | Date | undefined): any;
+    date(time?: number | string | Date | undefined): dayjs.Dayjs;
     private addAdditionalSpace;
-    recalculateFromTo(time: DataChartTime): DataChartTime;
+    recalculateFromTo(time: DataChartTime, force?: boolean): DataChartTime;
     getCenter(time: DataChartTime): number;
     isInCurrentView(date: Dayjs, time?: DataChartTime): boolean;
     getGlobalOffsetPxFromDates(date: Dayjs, time?: DataChartTime): number;

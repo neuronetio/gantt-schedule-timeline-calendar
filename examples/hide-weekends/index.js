@@ -1,6 +1,10 @@
 import GSTC from '../../dist/gstc.esm.min.js';
 // or when you encounter problems with wasm loader
 // import GSTC from '../../dist/gstc.wasm.esm.min.js';
+import { Plugin as TimelinePointer } from '../../dist/plugins/timeline-pointer.esm.min.js';
+import { Plugin as Selection } from '../../dist/plugins/selection.esm.min.js';
+import { Plugin as ItemMovement } from '../../dist/plugins/item-movement.esm.min.js';
+import { Plugin as ItemResizing } from '../../dist/plugins/item-resizing.esm.min.js';
 
 const rowsFromDB = [
   {
@@ -72,6 +76,9 @@ function onLevelDates({ dates, format }) {
 }
 
 // Configuration object
+/**
+ * @type {import("../../dist/gstc").Config}
+ */
 const config = {
   // for free key for your domain please visit https://gstc.neuronet.io/free-key
   // if you need commercial license please visit https://gantt-schedule-timeline-calendar.neuronet.io/pricing
@@ -91,9 +98,7 @@ const config = {
       onLevelDates: [onLevelDates],
     },
   },
-  locale: {
-    weekStart: 0, // 0 = sunday - it may be 1 for monday for example
-  },
+  //plugins: [TimelinePointer(), Selection(), ItemResizing(), ItemMovement()],
 };
 
 // Generate GSTC state from configuration object

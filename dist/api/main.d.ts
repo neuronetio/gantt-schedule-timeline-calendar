@@ -28,14 +28,14 @@ export default function main(vido: Vido, mergeDeep: any): {
         levelIndex: number;
         format: ChartCalendarLevelFormat;
     };
-    generateAllDates(time: DataChartTime, levels: ChartCalendarLevel[]): ChartTimeDates[] | 0;
+    generateAllDates(time: DataChartTime, levels: ChartCalendarLevel[]): ChartTimeDates[];
     getPeriodDates(allLevelDates: ChartTimeDates, time: DataChartTime): ChartTimeDate[];
     updateLevels(time: DataChartTime, levels: ChartCalendarLevel[]): void;
     updateLocale(): void;
     calculateTotalViewDuration(time: DataChartTime): void;
     calculateRightGlobal(leftGlobalDate: Dayjs, chartWidth: number, allMainDates: DataChartTimeLevelDate[], offsetPx: any, offsetMs: any): number;
     updateVisibleItems(time?: DataChartTime, multi?: import("deep-state-observer").Multi): import("deep-state-observer").Multi;
-    recalculateTimes(reason: Reason): void;
+    recalculateTimes(reasons: Reason[]): void;
     minimalReload(eventInfo: any): void;
     partialReload(fullReload: boolean, eventInfo: any): void;
     fullReload(eventInfo: any): void;

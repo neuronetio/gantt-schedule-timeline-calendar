@@ -1,5 +1,5 @@
 import DeepState from 'deep-state-observer';
-import { Data, DataChartDimensions } from '../../dist/gstc';
+import { Data, DataChartDimensions, DataScrollHorizontal } from '../../dist/gstc';
 import { fixed } from '../helpers';
 
 describe('Scroll bar', () => {
@@ -207,6 +207,37 @@ describe('Scroll bar', () => {
       .then(($el) => {
         const date = gstc.api.time.findDateAtTime(scrollTo.valueOf());
         expect(fixed($el.position().left)).to.eq(fixed(date.currentView.leftPx));
+      });
+  });
+
+  it('should update scroll bar position and size when changing zoom', () => {
+    let gstc, state, innerSize, handlePosPx;
+    cy.load('/examples/complex-1')
+      .window()
+      .then((win) => {
+        // @ts-ignore
+        state = win.state;
+        // @ts-ignore
+        gstc = win.gstc;
+        const horizontal = state.get('$data.scroll.horizontal') as DataScrollHorizontal;
+        innerSize = horizontal.innerHandleSize;
+        expect(innerSize).to.be.greaterThan(0);
+        gstc.api.scrollToTime(gstc.api.time.date('2020-02-20'), false);
+      })
+      .wait(Cypress.env('wait'))
+      .then(() => {
+        handlePosPx = state.get('$data.scroll.horizontal.handlePosPx');
+        state.update('config.chart.time.zoom', 18);
+      })
+      .wait(Cypress.env('wait'))
+      .get('.gstc__scroll-bar-inner--horizontal')
+      .then(($scrollBarInner) => {
+        const horizontal = state.get('$data.scroll.horizontal') as DataScrollHorizontal;
+        const actualSize = horizontal.innerHandleSize;
+        expect(fixed(actualSize)).not.to.eq(fixed(innerSize));
+        expect(fixed(horizontal.handlePosPx)).not.to.eq(fixed(handlePosPx));
+        const pos = fixed($scrollBarInner.css('left'));
+        expect(pos).to.eq(fixed(horizontal.handlePosPx));
       });
   });
 });

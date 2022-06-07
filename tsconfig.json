@@ -1,5 +1,5 @@
 {
-  "include": ["./*.ts", "./cypress/**/*.ts"],
+  "include": ["./*.ts", "./cypress/**/*.ts", "cypress/plugins/index.js", "cypress.config.*"],
   "exclude": ["node_modules/**", "dist/**"],
   "compilerOptions": {
     "moduleResolution": "node",

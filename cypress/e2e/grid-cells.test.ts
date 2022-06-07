@@ -12,6 +12,7 @@ describe('Grid cells', () => {
         // @ts-ignore
         state = win.state;
       })
+      .log('start')
       .then(() => {
         const chartTime: DataChartTime = state.get('$data.chart.time');
         let cell = Cypress.$('.gstc__chart-timeline-grid-row-cell').get(0);
@@ -27,6 +28,7 @@ describe('Grid cells', () => {
         expect(fixed(date.style.left)).to.eq(fixed(cell.offsetLeft));
         expect(fixed(data.currentView.width)).to.eq(fixed(date.style.width));
       })
+      .log('#btn-next-month click')
       .get('#btn-next-month')
       .click()
       .wait(300)
@@ -45,6 +47,7 @@ describe('Grid cells', () => {
         expect(fixed(date.style.left)).to.eq(fixed(cell.offsetLeft));
         expect(fixed(data.currentView.width)).to.eq(fixed(date.style.width));
       })
+      .log('#btn-prev-month click')
       .get('#btn-prev-month')
       .click()
       .wait(300)

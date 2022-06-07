@@ -67,13 +67,7 @@ const columnsFromDB = [
 ];
 
 function onCellClick(row, time) {
-  alert(
-    'Cell for row ' +
-      GSTC.api.sourceID(row.id) +
-      ' ' +
-      time.leftGlobalDate.format('YYYY-MM-DD') +
-      ' clicked!'
-  );
+  alert('Cell for row ' + GSTC.api.sourceID(row.id) + ' ' + time.leftGlobalDate.format('YYYY-MM-DD') + ' clicked!');
 }
 
 function onCellCreate1({ time, row, vido }) {
@@ -89,6 +83,9 @@ function onCellCreate2({ content, vido }) {
 }
 
 // Configuration object
+/**
+ * @type {import("../../dist/gstc").Config}
+ */
 const config = {
   // for free key for your domain please visit https://gstc.neuronet.io/free-key
   // if you need commercial license please visit https://gantt-schedule-timeline-calendar.neuronet.io/pricing

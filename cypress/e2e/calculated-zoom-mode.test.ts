@@ -25,6 +25,7 @@ describe('Calculated zoom mode', () => {
         expect(state.get('$data.chart.time.toDate').valueOf()).to.be.lessThan(initialTo);
         expect(state.get('config.chart.time.calculatedZoomMode')).to.eq(true);
       })
+      .log(`updating from to`)
       .then(() => {
         state.update('config.chart.time', (time) => {
           time.from = from;
@@ -40,6 +41,8 @@ describe('Calculated zoom mode', () => {
         expect(state.get('config.chart.time.to')).to.be.eq(to);
         expect(state.get('$data.chart.time.toDate').valueOf()).to.eq(to);
         expect(state.get('config.chart.time.calculatedZoomMode')).to.eq(false);
-      });
+      })
+      .get('.gstc__chart-timeline-items-row-item')
+      .should('not.exist');
   });
 });

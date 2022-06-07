@@ -134,8 +134,9 @@ export declare class Api {
     getVisibleRows(): string[];
     normalizeMouseWheelEvent(event: WheelEvent): WheelResult;
     resetHorizontalScroll(): void;
-    updateHorizontalScroll(): void;
-    setScrollLeft(dataIndex: number | undefined, offset?: number): number;
+    limitHorizontalScrollToView(time?: DataChartTime): void;
+    private calculateHorizontalScrollPosPx;
+    setScrollLeft(dataIndex: number | undefined, offset?: number, time?: DataChartTime): number;
     scrollToTime(toTime: number, centered?: boolean): number;
     getScrollLeft(): DataScrollHorizontal;
     getScrollSize(type: 'horizontal' | 'vertical'): number;
@@ -145,7 +146,7 @@ export declare class Api {
     };
     calculateInitialChartWidth(withoutScrollBar?: boolean): number;
     getChartWidth(withoutScrollBar?: boolean): any;
-    calculateHorizontalScrollSize(): void;
+    calculateHorizontalScrollSize(totalViewDurationPx: number, time?: DataChartTime): void;
     getLastPageRowsHeight(heightWithoutScrollBar: number, rowsWithParentsExpanded: string[]): {
         lastPageSize: number;
         lastPageCount: number;

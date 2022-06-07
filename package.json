@@ -2,19 +2,19 @@
   "name": "gantt-schedule-timeline-calendar",
   "version": "3.16.1",
   "description": "Gantt, Schedule, Timeline, Calendar components all in one. [gantt, timeline, schedule, scheduler, calendar, booking, gantt chart, reservation, javascript gantt, javascript timeline, javascript schedule, javascript scheduler, javascript calendar, javascript booking, javascript gantt chart, javascript reservation, js gantt, js timeline, js schedule, js scheduler, js calendar, js booking, js gantt chart, js reservation, typescript gantt, typescript timeline, typescript schedule, typescript scheduler, typescript calendar, typescript booking, typescript gantt chart, typescript reservation, vue gantt, vue timeline, vue schedule, vue scheduler, vue calendar, vue booking, vue gantt chart, vue reservation, react gantt, react timeline, react schedule, react scheduler, react calendar, react booking, react gantt chart, react reservation, angular gantt, angular timeline, angular schedule, angular scheduler, angular calendar, angular booking, angular gantt chart, angular reservation, svelte gantt, svelte timeline, svelte schedule, svelte scheduler, svelte calendar, svelte booking, svelte gantt chart, svelte reservation, jQuery gantt, jQuery timeline, jQuery schedule, jQuery scheduler, jQuery calendar, jQuery booking, jQuery gantt chart, jQuery reservation, component gantt, component timeline, component schedule, component scheduler, component calendar, component booking, component gantt chart, component reservation, javascript horizontal timeline, javascript multimedia editor, javascript timeline editor, js horizontal timeline, js multimedia editor, js timeline editor, typescript horizontal timeline, typescript multimedia editor, typescript timeline editor, vue horizontal timeline, vue multimedia editor, vue timeline editor, react horizontal timeline, react multimedia editor, react timeline editor, angular horizontal timeline, angular multimedia editor, angular timeline editor, svelte horizontal timeline, svelte multimedia editor, svelte timeline editor, jQuery horizontal timeline, jQuery multimedia editor, jQuery timeline editor, component horizontal timeline, component multimedia editor, component timeline editor]",
-  "main": "dist/gstc.esm.min.js",
-  "module": "dist/gstc.esm.min.js",
+  "main": "dist/gstc.wasm.esm.min.js",
+  "module": "dist/gstc.wasm.esm.min.js",
   "type": "module",
   "types": "dist/gstc.d.ts",
   "scripts": {
     "examples": "node ./examples/server.js",
     "lint": "eslint --fix --ext .ts .",
     "build": "echo 'nothing to build here ;)'",
-    "test": "if ! pgrep -a -f -x 'node ./examples/server.js'  && ! pgrep -a -f -x 'node ./tests/server.js 8080'; then node ./examples/server.js; fi & export NODE_OPTIONS=--openssl-legacy-provider; cypress run --record --key 70a72be1-45d1-487f-8c76-9b7df228e0e6 && { pkill -e -f -x 'node ./examples/server.js'; echo 'ok'; exit 0; } || { pkill -e -f -x 'node ./examples/server.js'; echo 'not ok'; exit 1; }",
-    "test:dev": "if ! pgrep -a -f -x 'node ./examples/server.js'  && ! pgrep -a -f -x 'node ./tests/server.js 8080'; then node ./examples/server.js; fi & export NODE_OPTIONS=--openssl-legacy-provider; cypress run --config video=false --browser chrome --headed && { pkill -e -f -x 'node ./examples/server.js'; echo 'ok'; exit 0; } || { pkill -e -f -x 'node ./examples/server.js'; echo 'not ok'; exit 1; }",
-    "test:browsers": "if ! pgrep -a -f -x 'node ./examples/server.js'  && ! pgrep -a -f -x 'node ./tests/server.js 8080'; then node ./examples/server.js; fi & export NODE_OPTIONS=--openssl-legacy-provider; cypress run --browser chrome && cypress run --browser firefox && { pkill -e -f -x 'node ./examples/server.js'; echo 'ok'; exit 0; } || { pkill -e -f -x 'node ./examples/server.js'; echo 'not ok'; exit 1; }",
+    "test": "if ! pgrep -a -f -x 'node ./examples/server.js'  && ! pgrep -a -f -x 'node ./tests/server.js 8080'; then node ./examples/server.js; fi & export NODE_OPTIONS=--openssl-legacy-provider; ./node_modules/.bin/cypress run --record --key 70a72be1-45d1-487f-8c76-9b7df228e0e6 && { pkill -e -f -x 'node ./examples/server.js'; echo 'ok'; exit 0; } || { pkill -e -f -x 'node ./examples/server.js'; echo 'not ok'; exit 1; }",
+    "test:dev": "if ! pgrep -a -f -x 'node ./examples/server.js'  && ! pgrep -a -f -x 'node ./tests/server.js 8080'; then node ./examples/server.js; fi & export NODE_OPTIONS=--openssl-legacy-provider; ./node_modules/.bin/cypress run --config video=false --browser chrome && { pkill -e -f -x 'node ./examples/server.js'; echo 'ok'; exit 0; } || { pkill -e -f -x 'node ./examples/server.js'; echo 'not ok'; exit 1; }",
+    "test:browsers": "if ! pgrep -a -f -x 'node ./examples/server.js'  && ! pgrep -a -f -x 'node ./tests/server.js 8080'; then node ./examples/server.js; fi & export NODE_OPTIONS=--openssl-legacy-provider; cypress run --browser chrome && ./node_modules/.bin/cypress run --browser firefox && { pkill -e -f -x 'node ./examples/server.js'; echo 'ok'; exit 0; } || { pkill -e -f -x 'node ./examples/server.js'; echo 'not ok'; exit 1; }",
     "test:repeat": "if ! pgrep -a -f -x 'node ./examples/server.js'  && ! pgrep -a -f -x 'node ./tests/server.js 8080'; then node ./examples/server.js; fi & export NODE_OPTIONS=--openssl-legacy-provider; npx cypress-repeat run -n 6 && { pkill -e -f -x 'node ./examples/server.js'; echo 'ok'; exit 0; } || { pkill -e -f -x 'node ./examples/server.js'; echo 'not ok'; exit 1; }",
-    "cypress:open": "export NODE_OPTIONS=--openssl-legacy-provider; cypress open --config video=false"
+    "cypress:open": "export NODE_OPTIONS=--openssl-legacy-provider; ./node_modules/.bin/cypress open --config video=false"
   },
   "repository": {
     "type": "git",
@@ -137,10 +137,10 @@
   ],
   "devDependencies": {
     "@cypress/request": "2.88.9",
-    "@typescript-eslint/eslint-plugin": "^4.9.1",
-    "@typescript-eslint/parser": "^4.9.1",
+    "@typescript-eslint/eslint-plugin": "^5.27.0",
+    "@typescript-eslint/parser": "^5.27.0",
     "compression": "^1.7.4",
-    "cypress": "^9.2.0",
+    "cypress": "^10.0.2",
     "cypress-repeat": "^2.3.0",
     "eslint": "^7.15.0",
     "eslint-config-prettier": "^6.15.0",
@@ -150,8 +150,8 @@
     "prettier": "^2.2.1",
     "serve-static": "^1.14.1",
     "tippy.js": "^6.2.7",
-    "tslib": "^2.0.3",
-    "typescript": "^4.1.2"
+    "tslib": "^2.4.0",
+    "typescript": "^4.7.3"
   },
   "dependencies": {
     "@neuronet.io/vido": "^4.1.12",
