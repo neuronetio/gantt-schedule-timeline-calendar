@@ -704,3 +704,7 @@
 - #325 bugfix (dayjs.locale is not a function)
 - ability to use component on external servers on premise with domain keywords like app-name.\*
 - fixed bug when moving items outside a view
+
+[3.16.3]
+
+- fixed bug 'Cannot read properties of undefined (reading leftPx)' when moving item outside view with autoscrolling enabled
