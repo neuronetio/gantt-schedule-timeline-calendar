@@ -65,6 +65,7 @@ export interface Options {
     snapToTime?: SnapToTime;
     threshold?: Threshold;
     autoScroll?: AutoScroll;
+    ignoreMissingDates?: boolean;
 }
 export declare type State = 'start' | 'move' | 'end' | '';
 export interface PluginData extends Options {

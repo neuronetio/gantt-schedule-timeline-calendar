@@ -23,8 +23,8 @@ const itemsFromDB = [
     label: 'Item 1',
     rowId: '1',
     time: {
-      start: GSTC.api.date('2020-01-01').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-01-02').endOf('day').valueOf(),
+      start: GSTC.api.date('2021-01-01').startOf('day').valueOf(),
+      end: GSTC.api.date('2021-01-04').endOf('day').valueOf(),
     },
   },
   {
@@ -32,8 +32,8 @@ const itemsFromDB = [
     label: 'Item 2',
     rowId: '1',
     time: {
-      start: GSTC.api.date('2020-02-01').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-02-02').endOf('day').valueOf(),
+      start: GSTC.api.date('2021-02-01').startOf('day').valueOf(),
+      end: GSTC.api.date('2021-02-02').endOf('day').valueOf(),
     },
   },
   {
@@ -41,8 +41,8 @@ const itemsFromDB = [
     label: 'Item 3',
     rowId: '2',
     time: {
-      start: GSTC.api.date('2020-01-15').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-01-20').endOf('day').valueOf(),
+      start: GSTC.api.date('2021-01-15').startOf('day').valueOf(),
+      end: GSTC.api.date('2021-01-20').endOf('day').valueOf(),
     },
   },
 ];
@@ -98,7 +98,7 @@ const config = {
       onLevelDates: [onLevelDates],
     },
   },
-  //plugins: [TimelinePointer(), Selection(), ItemResizing(), ItemMovement()],
+  plugins: [TimelinePointer(), Selection(), ItemResizing(), ItemMovement({ ignoreMissingDates: true })],
 };
 
 // Generate GSTC state from configuration object

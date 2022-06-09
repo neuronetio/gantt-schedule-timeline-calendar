@@ -708,3 +708,8 @@
 [3.16.3]
 
 - fixed bug 'Cannot read properties of undefined (reading leftPx)' when moving item outside view with autoscrolling enabled
+
+[3.16.4]
+
+- itemMovement `ignoreMissingDates` option added
+- itemMovement wrong item width bug fixed

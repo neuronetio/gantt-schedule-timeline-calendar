@@ -282,6 +282,7 @@ export interface DataScrollValues {
     scrollSize: number;
     innerHandleSize: number;
     dataIndex: number;
+    dataId: string;
     visible: boolean;
 }
 export interface DataScrollHorizontal extends DataScrollValues {
