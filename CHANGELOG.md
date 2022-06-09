@@ -713,3 +713,7 @@
 
 - itemMovement `ignoreMissingDates` option added
 - itemMovement wrong item width bug fixed
+
+[3.16.5]
+
+- itemMovement plugin - item jumps over one cell when dragging bugfix
