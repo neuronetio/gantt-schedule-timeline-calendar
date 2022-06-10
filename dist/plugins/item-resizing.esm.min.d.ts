@@ -86,7 +86,6 @@ export interface PluginData extends Options {
     initialDependant: Item[];
     initialItemsData: DataItems;
     initialDependantData: DataItems;
-    initialLeftPx: number;
     state: State;
     movement: Movement;
 }

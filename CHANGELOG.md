@@ -717,3 +717,7 @@
 [3.16.5]
 
 - itemMovement plugin - item jumps over one cell when dragging bugfix
+
+[3.16.6]
+
+- itemResizing plugin - item resizing wrong width calculation bugfix
