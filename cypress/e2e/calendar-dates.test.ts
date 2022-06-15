@@ -149,7 +149,6 @@ describe('Calendar dates', () => {
         const firstDate = time.levels[1][0];
         expect(cell.textContent).to.eq('01 - 16');
         expect(time.levels.length).to.eq(2);
-        expect(time.leftInner).to.eq(0); // initial scroll position
         expect(time.levels[0].length).to.eq(8); // only visible
         expect(time.allDates[0].length).to.eq(12); // all dates
         cy.log('firstDate', firstDate);

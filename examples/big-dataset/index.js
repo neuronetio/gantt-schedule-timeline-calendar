@@ -20,6 +20,7 @@ let iterations = 1000;
 let gstc, state;
 
 const fromDate = GSTC.api.date().startOf('month');
+let toDate = fromDate.add(30, 'day');
 
 /**
  * @type {import("../../dist/gstc").Rows}
@@ -150,6 +151,8 @@ function update(count) {
     state.update('config', (config) => {
       config.list.rows = rows;
       config.chart.items = items;
+      // config.chart.time.from = fromDate.valueOf();
+      // config.chart.time.to = toDate.valueOf();
       return config;
     });
     hideLoadingScreen();

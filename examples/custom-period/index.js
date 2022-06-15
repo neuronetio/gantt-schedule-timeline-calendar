@@ -80,6 +80,9 @@ const columnsFromDB = [
   },
 ];
 
+/**
+ * @type {import("../../dist/gstc").ChartCalendarLevel}
+ */
 const months = [
   {
     zoomTo: 100, // we want to display this format for all zoom levels until 100
@@ -91,6 +94,9 @@ const months = [
   },
 ];
 
+/**
+ * @type {import("../../dist/gstc").ChartCalendarLevel}
+ */
 const customPeriod = [
   {
     zoomTo: 100, // we want to display this format for all zoom levels until 100
@@ -124,6 +130,8 @@ const config = {
     calendarLevels: [months, customPeriod],
     time: {
       zoom: 22,
+      from: GSTC.api.date('2020-01-27').valueOf(),
+      to: GSTC.api.date('2020-05-01').valueOf(),
     },
   },
 };

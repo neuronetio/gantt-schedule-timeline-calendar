@@ -51,8 +51,8 @@ for (let i = 0; i < iterations; i++) {
 }
 
 rows[GSTCID('3')].vacations = [
-  startDate.add(5, 'days').startOf('day').format('YYYY-MM-DD'),
-  startDate.add(6, 'days').startOf('day').format('YYYY-MM-DD'),
+  startDate.add(5, 'days').startOf('day').valueOf(),
+  startDate.add(6, 'days').startOf('day').valueOf(),
 ];
 
 rows[GSTCID('11')].label = 'NESTED TREE HERE';
@@ -60,7 +60,7 @@ rows[GSTCID('12')].parentId = GSTCID('11');
 rows[GSTCID('13')].parentId = GSTCID('12');
 rows[GSTCID('14')].parentId = GSTCID('13');
 
-rows[GSTCID('7')].birthday = startDate.add(3, 'day').startOf('day').format('YYYY-MM-DD');
+rows[GSTCID('7')].birthday = startDate.add(3, 'day').startOf('day').valueOf();
 
 /**
  * @type {import("../../dist/gstc").Items}
@@ -229,23 +229,37 @@ function rowSlot(vido, props) {
 }
 
 function onCellCreateVacation({ time, row, vido, content }) {
-  if (row.vacations.includes(time.leftGlobalDate.format('YYYY-MM-DD'))) {
+  if (row.vacations.includes(time.leftGlobal)) {
     return vido.html`<div title="🏖️ VACATION" style="height:100%"><div style="font-size:11px;background:#A0A0A0;color:white;">Vacation</div></div>${content}`;
   }
   return content;
 }
 
 function onCellCreateBirthday({ time, row, vido, content }) {
-  if (row.birthday === time.leftGlobalDate.format('YYYY-MM-DD')) {
+  if (row.birthday === time.leftGlobal) {
     return vido.html`${content}<div title="🎁 BIRTHDAY" style="height:100%;font-size:18px;"><div style="height:14px;white-space: nowrap;text-overflow:ellipsis;overflow:hidden;font-size:11px;background:#F9B32F;color:white;margin-bottom:10px;">🎁 Birthday</div></div>`;
   }
   return content;
+}
+
+let snapTime = true;
+function snapStart({ startTime }) {
+  if (snapTime) return startTime.startOf('day');
+  return startTime;
+}
+function snapEnd({ endTime }) {
+  if (snapTime) return endTime.endOf('day');
+  return endTime;
 }
 
 /**
  * @type {import('../../dist/plugins/item-movement').Options}
  */
 const itemMovementOptions = {
+  snapToTime: {
+    start: snapStart,
+    end: snapEnd,
+  },
   events: {
     onMove({ items }) {
       for (let i = 0, len = items.after.length; i < len; i++) {
@@ -281,6 +295,10 @@ const itemMovementOptions = {
  * @type {import('../../dist/plugins/item-resizing').Options}
  */
 const itemResizeOptions = {
+  snapToTime: {
+    start: snapStart,
+    end: snapEnd,
+  },
   events: {
     onResize({ items }) {
       for (const item of items.after) {
@@ -310,6 +328,13 @@ const itemResizeOptions = {
     },
   },
 };
+
+let hideWeekends = false;
+function onLevelDates({ dates, level, format }) {
+  if (format.period !== 'day') return dates;
+  if (!hideWeekends) return dates;
+  return dates.filter((date) => date.leftGlobalDate.day() !== 0 && date.leftGlobalDate.day() !== 6);
+}
 
 /**
  * @type {import('../../dist/gstc').Config}
@@ -352,6 +377,7 @@ const config = {
     time: {
       from: startDate.valueOf(),
       to: endDate.valueOf(),
+      onLevelDates: [onLevelDates],
     },
     item: {
       height: 50,
@@ -454,6 +480,15 @@ function toggleDarkMode(ev) {
   }
 }
 
+function toggleHideWeekends(ev) {
+  hideWeekends = ev.target.checked;
+  gstc.reload();
+}
+
+function toggleSnapTime(ev) {
+  snapTime = ev.target.checked;
+}
+
 const lithtml = GSTC.lithtml;
 
 const toolboxButtons = lithtml.html`<button @click=${selectCells}>Select first cells</button>
@@ -461,6 +496,8 @@ const toolboxButtons = lithtml.html`<button @click=${selectCells}>Select first c
       <button @click=${downloadImage}>Download image</button>
       <button @click=${downloadPdf}>Download PDF</button>
       <button id="one-month" @click=${oneMonth}>Show one month</button>
-      <input type="checkbox" id="dark-mode" @change=${toggleDarkMode} /> <label for="dark-mode">Dark mode</label>`;
+      <input type="checkbox" id="dark-mode" @change=${toggleDarkMode} /> <label for="dark-mode">Dark mode</label>
+      <input type="checkbox" id="snap-time" @change=${toggleSnapTime} checked/> <label for="snap-time">Snap time (item movement)</label>`;
+//  <input type="checkbox" id="hide-weekends" @change=${toggleHideWeekends} /> <label for="hide-weekends">Hide weekends</label>
 
 lithtml.render(toolboxButtons, document.getElementById('toolbox'));

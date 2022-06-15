@@ -19,13 +19,13 @@ describe('Grid cells', () => {
         let date = Cypress.$('.gstc__chart-calendar-date--day').get(0);
         let data = chartTime.levels[chartTime.level][0];
         expect(fixed(date.style.width)).to.eq(fixed(cell.style.width));
-        expect(fixed(date.style.left)).to.eq(fixed(cell.offsetLeft));
+        expect(fixed(date.offsetLeft)).to.eq(fixed(cell.offsetLeft));
         expect(fixed(data.currentView.width)).to.eq(fixed(date.style.width));
         cell = Cypress.$('.gstc__chart-timeline-grid-row-cell').get(20);
         date = Cypress.$('.gstc__chart-calendar-date--day').get(20);
         data = chartTime.levels[chartTime.level][20];
         expect(fixed(date.style.width)).to.eq(fixed(cell.style.width));
-        expect(fixed(date.style.left)).to.eq(fixed(cell.offsetLeft));
+        expect(fixed(date.offsetLeft)).to.eq(fixed(cell.offsetLeft));
         expect(fixed(data.currentView.width)).to.eq(fixed(date.style.width));
       })
       .log('#btn-next-month click')
@@ -38,13 +38,13 @@ describe('Grid cells', () => {
         let date = Cypress.$('.gstc__chart-calendar-date--day').get(0);
         let data = chartTime.levels[chartTime.level][0];
         expect(fixed(date.style.width)).to.eq(fixed(cell.style.width));
-        expect(fixed(date.style.left)).to.eq(fixed(cell.offsetLeft));
+        expect(fixed(date.offsetLeft)).to.eq(fixed(cell.offsetLeft));
         expect(fixed(data.currentView.width)).to.eq(fixed(date.style.width));
         cell = Cypress.$('.gstc__chart-timeline-grid-row-cell').get(20);
         date = Cypress.$('.gstc__chart-calendar-date--day').get(20);
         data = chartTime.levels[chartTime.level][20];
         expect(fixed(date.style.width)).to.eq(fixed(cell.style.width));
-        expect(fixed(date.style.left)).to.eq(fixed(cell.offsetLeft));
+        expect(fixed(date.offsetLeft)).to.eq(fixed(cell.offsetLeft));
         expect(fixed(data.currentView.width)).to.eq(fixed(date.style.width));
       })
       .log('#btn-prev-month click')
@@ -59,13 +59,13 @@ describe('Grid cells', () => {
         let date = Cypress.$('.gstc__chart-calendar-date--day').get(0);
         let data = chartTime.levels[chartTime.level][0];
         expect(fixed(date.style.width)).to.eq(fixed(cell.style.width));
-        expect(fixed(date.style.left)).to.eq(fixed(cell.offsetLeft));
+        expect(fixed(date.offsetLeft)).to.eq(fixed(cell.offsetLeft));
         expect(fixed(data.currentView.width)).to.eq(fixed(date.style.width));
         cell = Cypress.$('.gstc__chart-timeline-grid-row-cell').get(20);
         date = Cypress.$('.gstc__chart-calendar-date--day').get(20);
         data = chartTime.levels[chartTime.level][20];
         expect(fixed(date.style.width)).to.eq(fixed(cell.style.width));
-        expect(fixed(date.style.left)).to.eq(fixed(cell.offsetLeft));
+        expect(fixed(date.offsetLeft)).to.eq(fixed(cell.offsetLeft));
         expect(fixed(data.currentView.width)).to.eq(fixed(date.style.width));
       });
   });

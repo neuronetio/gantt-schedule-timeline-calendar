@@ -1,5 +1,5 @@
 export function fixed(nr: string | number) {
-  return parseFloat(parseFloat(nr.toString()).toPrecision(2));
+  return parseFloat(parseFloat(nr.toString()).toFixed(2));
 }
 
 export const examples = [

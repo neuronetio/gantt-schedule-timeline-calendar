@@ -240,4 +240,83 @@ describe('Scroll bar', () => {
         expect(pos).to.eq(fixed(horizontal.handlePosPx));
       });
   });
+
+  it('should hide scroll bar when calculatedZooMode is enabled', () => {
+    let gstc, state;
+    cy.load('/examples/complex-1')
+      .window()
+      .then((win) => {
+        gstc = win.gstc;
+        state = win.state;
+      })
+      .then(() => {
+        state.update('config.chart.time', (time) => {
+          time.calculatedZoomMode = true;
+          time.from = gstc.api.time.date('2020-01-01').valueOf();
+          time.to = gstc.api.time.date('2020-01-31').valueOf();
+          return time;
+        });
+      })
+      .wait(Cypress.env('wait'))
+      .get('.gstc__scroll-bar--horizontal')
+      .should('not.exist');
+  });
+
+  it('should hide scroll bar when calculatedZooMode is enabled and switching back and forth', () => {
+    let gstc, state;
+    cy.load('/examples/complex-1')
+      .window()
+      .then((win) => {
+        gstc = win.gstc;
+        state = win.state;
+      })
+      .then(() => {
+        state.update('config.chart.time', (time) => {
+          time.calculatedZoomMode = true;
+          time.from = gstc.api.time.date('2020-01-01').valueOf();
+          time.to = gstc.api.time.date('2020-01-31').valueOf();
+          time.zoom = 20;
+          return time;
+        });
+      })
+      .wait(Cypress.env('wait'))
+      .get('.gstc__scroll-bar--horizontal')
+      .should('not.exist')
+      .then(() => {
+        state.update('config.chart.time', (time) => {
+          time.calculatedZoomMode = false;
+          time.from = gstc.api.time.date('2020-01-01').valueOf();
+          time.to = gstc.api.time.date('2020-01-31').valueOf();
+          time.zoom = 20;
+          return time;
+        });
+      })
+      .wait(Cypress.env('wait'))
+      .get('.gstc__scroll-bar--horizontal')
+      .should('exist')
+      .then(() => {
+        state.update('config.chart.time', (time) => {
+          time.calculatedZoomMode = false;
+          time.from = gstc.api.time.date('2020-01-01').valueOf();
+          time.to = gstc.api.time.date('2020-03-31').valueOf();
+          time.zoom = 20;
+          return time;
+        });
+      })
+      .wait(Cypress.env('wait'))
+      .get('.gstc__scroll-bar--horizontal')
+      .should('exist')
+      .then(() => {
+        state.update('config.chart.time', (time) => {
+          time.calculatedZoomMode = true;
+          time.from = gstc.api.time.date('2020-01-01').valueOf();
+          time.to = gstc.api.time.date('2020-01-31').valueOf();
+          time.zoom = 20;
+          return time;
+        });
+      })
+      .wait(Cypress.env('wait'))
+      .get('.gstc__scroll-bar--horizontal')
+      .should('not.exist');
+  });
 });

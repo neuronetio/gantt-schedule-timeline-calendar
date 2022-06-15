@@ -76,9 +76,9 @@ export declare class Api {
     collectAllLinkedItems(items: Items, itemsData: DataItems): void;
     getChildrenDependantItemsIds(item: Item, items: Items, allDependant?: string[]): string[];
     calculateItemVerticalPosition(itemId: string, itemData?: ItemData, rowData?: RowData, item?: Item): ItemDataPosition;
-    calculateItemHorizontalPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, spacing?: number, item?: Item): ItemDataPosition;
-    calculateItemPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, spacing?: number, item?: Item): ItemDataPosition;
-    getItemPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, spacing?: number, item?: Item): ItemDataPosition;
+    calculateItemHorizontalPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, item?: Item): ItemDataPosition;
+    calculateItemPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, item?: Item): ItemDataPosition;
+    getItemPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, item?: Item): ItemDataPosition;
     getRow(rowId: string): Row;
     getRows(rowsId: string[]): Row[];
     getAllRows(): Rows;
@@ -135,8 +135,8 @@ export declare class Api {
     normalizeMouseWheelEvent(event: WheelEvent): WheelResult;
     resetHorizontalScroll(): void;
     limitHorizontalScrollToView(time?: DataChartTime): void;
-    private calculateHorizontalScrollPosPx;
-    setScrollLeft(dataIndex: number | undefined, offset?: number, time?: DataChartTime): number;
+    private calculateHorizontalScrollPosPxFromDates;
+    setScrollLeft(dataIndexOrDateId: number | string | undefined, offset?: number, time?: DataChartTime): number;
     scrollToTime(toTime: number, centered?: boolean): number;
     getScrollLeft(): DataScrollHorizontal;
     getScrollSize(type: 'horizontal' | 'vertical'): number;
@@ -146,7 +146,7 @@ export declare class Api {
     };
     calculateInitialChartWidth(withoutScrollBar?: boolean): number;
     getChartWidth(withoutScrollBar?: boolean): any;
-    calculateHorizontalScrollSize(totalViewDurationPx: number, time?: DataChartTime, scrollHorizontal?: DataScrollHorizontal, shouldUpdate?: boolean): DataScrollHorizontal;
+    calculateHorizontalScrollSizeAndPosFromDates(totalViewDurationPx: number, time?: DataChartTime, scrollHorizontal?: DataScrollHorizontal, shouldUpdate?: boolean): DataScrollHorizontal;
     getLastPageRowsHeight(heightWithoutScrollBar: number, rowsWithParentsExpanded: string[]): {
         lastPageSize: number;
         lastPageCount: number;

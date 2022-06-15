@@ -78,6 +78,7 @@ export interface PluginData extends Options {
     clickedItemData: ItemData;
     initialVerticalScroll: DataScrollVertical;
     initialHorizontalScroll: DataScrollHorizontal;
+    initialPointerTime: Dayjs | null;
     state: State;
     movement: Movement;
 }

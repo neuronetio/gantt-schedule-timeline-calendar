@@ -98,7 +98,7 @@ const config = {
       onLevelDates: [onLevelDates],
     },
   },
-  plugins: [TimelinePointer(), Selection(), ItemResizing(), ItemMovement({ ignoreMissingDates: true })],
+  //plugins: [TimelinePointer(), Selection(), ItemResizing(), ItemMovement({ ignoreMissingDates: true })],
 };
 
 // Generate GSTC state from configuration object

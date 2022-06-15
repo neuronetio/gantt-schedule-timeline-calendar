@@ -10,6 +10,8 @@ describe('Items', () => {
         '.gstc__chart-timeline-items-row-item[data-gstcid="gstcid-3"] .gstc__chart-timeline-items-row-item-resizing-handle--right';
       let api: Api;
       let state: DeepState;
+      let spacing: number = 4;
+
       cy.load(url)
         .window()
         .then((win) => {
@@ -19,6 +21,7 @@ describe('Items', () => {
           state = win.state;
           const item = api.getItem('gstcid-3');
           api.scrollToTime(item.time.start, false);
+          spacing = state.get('config.chart.spacing');
         })
         .wait(Cypress.env('wait'))
         .then(() => {
@@ -31,8 +34,8 @@ describe('Items', () => {
         .get('.gstc__chart-timeline-items-row-item[data-gstcid="gstcid-3"]')
         .then(($el) => {
           const itemData: ItemData = api.getItemData('gstcid-3');
-          const itemDataWidth = fixed(itemData.actualWidth);
-          const elementWidth = fixed($el.css('width'));
+          const itemDataWidth = Math.round(itemData.actualWidth - spacing);
+          const elementWidth = Math.round(parseFloat($el.css('width')));
           expect(itemDataWidth).to.eq(elementWidth);
           expect(itemDataWidth).to.be.greaterThan(0);
           expect(itemData.position.right);
@@ -74,4 +77,104 @@ describe('Items', () => {
   }
 
   examples.forEach((example) => resizing(example));
+
+  it('should change item position programmatically in normal mode by changing item', () => {
+    let state, gstc;
+    cy.load('/examples/complex-1')
+      .window()
+      .then((win) => {
+        // @ts-ignore
+        state = win.state;
+        // @ts-ignore
+        gstc = win.gstc;
+      })
+      .then(() => {
+        state.update('config.chart.items.gstcid-15', (item) => {
+          item.time.start = gstc.api.time.date('2020-01-20').valueOf();
+          item.time.end = gstc.api.time.date('2020-01-24').endOf('day').valueOf();
+          return item;
+        });
+      })
+      .wait(Cypress.env('wait'))
+      .then(() => {
+        const item15 = state.get('$data.chart.items.gstcid-15');
+        expect(item15.time.startDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-20 00:00:00');
+        expect(item15.time.endDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-24 23:59:59');
+      });
+  });
+
+  it('should change item position programmatically in calculatedZoom mode by changing item', () => {
+    let state, gstc;
+    cy.load('/examples/one-month')
+      .window()
+      .then((win) => {
+        // @ts-ignore
+        state = win.state;
+        // @ts-ignore
+        gstc = win.gstc;
+      })
+      .then(() => {
+        state.update('config.chart.items.gstcid-15', (item) => {
+          item.time.start = gstc.api.time.date('2020-01-20').valueOf();
+          item.time.end = gstc.api.time.date('2020-01-24').endOf('day').valueOf();
+          return item;
+        });
+      })
+      .wait(Cypress.env('wait'))
+      .then(() => {
+        const item15 = state.get('$data.chart.items.gstcid-15');
+        expect(item15.time.startDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-20 00:00:00');
+        expect(item15.time.endDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-24 23:59:59');
+      });
+  });
+
+  // it('should change item position programmatically in normal mode by changing item.time', () => {
+  //   let state, gstc;
+  //   cy.load('/examples/complex-1')
+  //     .window()
+  //     .then((win) => {
+  //       // @ts-ignore
+  //       state = win.state;
+  //       // @ts-ignore
+  //       gstc = win.gstc;
+  //     })
+  //     .then(() => {
+  //       state.update('config.chart.items.gstcid-15.time', (itemTime) => {
+  //         itemTime.start = gstc.api.time.date('2020-01-20').valueOf();
+  //         itemTime.end = gstc.api.time.date('2020-01-24').endOf('day').valueOf();
+  //         return itemTime;
+  //       });
+  //     })
+  //     .wait(Cypress.env('wait'))
+  //     .then(() => {
+  //       const item15 = state.get('$data.chart.items.gstcid-15');
+  //       expect(item15.time.startDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-20 00:00:00');
+  //       expect(item15.time.endDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-24 23:59:59');
+  //     });
+  // });
+
+  // it('should change item position programmatically in calculatedZoom mode by changing item.time', () => {
+  //   let state, gstc;
+  //   cy.load('/examples/one-month')
+  //     .window()
+  //     .then((win) => {
+  //       // @ts-ignore
+  //       state = win.state;
+  //       // @ts-ignore
+  //       gstc = win.gstc;
+  //     })
+  //     .then(() => {
+  //       state.update('config.chart.items.gstcid-15.time', (itemTime) => {
+  //         itemTime.start = gstc.api.time.date('2020-01-20').valueOf();
+  //         itemTime.end = gstc.api.time.date('2020-01-24').endOf('day').valueOf();
+  //         return itemTime;
+  //       });
+  //     })
+  //     .wait(Cypress.env('wait'))
+  //     .then(() => {
+  //       const item15 = state.get('$data.chart.items.gstcid-15');
+  //       expect(item15.time.startDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-20 00:00:00');
+  //       expect(item15.time.endDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-24 23:59:59');
+  //     });
+  // });
 });

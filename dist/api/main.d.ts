@@ -4,7 +4,7 @@
  * @header  --gstc--header--
  */
 import { Dayjs } from 'dayjs';
-import { DataChartTime, DataChartTimeLevel, DataChartTimeLevelDate, ChartCalendarLevel, ChartTimeDate, ChartTimeDates, ChartCalendarLevelFormat, Vido, Reason } from '../gstc';
+import { DataChartTime, DataChartTimeLevel, DataChartTimeLevelDate, ChartCalendarLevel, ChartTimeDate, ChartTimeDates, ChartCalendarLevelFormat, Vido, Reason, DataScrollHorizontal } from '../gstc';
 export default function main(vido: Vido, mergeDeep: any): {
     className: string;
     styleMap: import("@neuronet.io/vido").StyleMap;
@@ -21,7 +21,7 @@ export default function main(vido: Vido, mergeDeep: any): {
     getLastPageDatesWidth(chartWidth: number, allDates: DataChartTimeLevelDate[]): number;
     formatDate(formatting: ChartCalendarLevelFormat, date: DataChartTimeLevelDate, localeName: string): import("../gstc").htmlResult;
     generatePeriodDates(formatting: ChartCalendarLevelFormat, time: DataChartTime, level: ChartCalendarLevel, levelIndex: number): DataChartTimeLevel;
-    limitGlobal(time: DataChartTime, oldTime: DataChartTime): DataChartTime;
+    limitGlobal(time: DataChartTime): DataChartTime;
     setCenter(time: DataChartTime): void;
     guessPeriod(time: DataChartTime, levels: ChartCalendarLevel[]): DataChartTime;
     getFormatAndLevelIndexForZoom(zoom: number, levels?: ChartCalendarLevel[]): {
@@ -29,12 +29,14 @@ export default function main(vido: Vido, mergeDeep: any): {
         format: ChartCalendarLevelFormat;
     };
     generateAllDates(time: DataChartTime, levels: ChartCalendarLevel[]): ChartTimeDates[];
-    getPeriodDates(allLevelDates: ChartTimeDates, time: DataChartTime): ChartTimeDate[];
+    getPeriodDatesAndCalculateViewOffsetFromAllDates(allLevelDates: ChartTimeDates, time: DataChartTime): ChartTimeDate[];
     updateLevels(time: DataChartTime, levels: ChartCalendarLevel[]): void;
     updateLocale(): void;
     calculateTotalViewDuration(time: DataChartTime): void;
     calculateRightGlobal(leftGlobalDate: Dayjs, chartWidth: number, allMainDates: DataChartTimeLevelDate[], offsetPx: any, offsetMs: any): number;
     updateVisibleItems(time?: DataChartTime, multi?: import("deep-state-observer").Multi): import("deep-state-observer").Multi;
+    calculateLeftAndRightGlobalNormally(time: DataChartTime, horizontalScroll: DataScrollHorizontal): void;
+    calculateLeftAndRightGlobalFromCenter(time: DataChartTime, oldDataTime: DataChartTime, horizontalScroll: DataScrollHorizontal): DataChartTime;
     recalculateTimes(reasons: Reason[]): void;
     minimalReload(eventInfo: any): void;
     partialReload(fullReload: boolean, eventInfo: any): void;

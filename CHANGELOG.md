@@ -721,3 +721,12 @@
 [3.16.6]
 
 - itemResizing plugin - item resizing wrong width calculation bugfix
+
+[3.17.0]
+
+- itemResizing and itemMovement - item time calculation bugfix
+- config.chart.time.additionalChartSpaces removed (was not documented)
+- time calculation now works better with removed dates by the user (onLevelDates event)
+- added duration dayjs plugin loaded by default
+- spacing is no longer taking into account with item.width - now it is full width without subtracting spacing (1px) for itemData.width and itemData.actualWidth
+- default spacing is set to 4 instead of 1 (looks better) `config.chart.spacing`

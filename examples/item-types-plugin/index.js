@@ -176,6 +176,7 @@ const config = {
   },
   chart: {
     items,
+    spacing: 0,
   },
   scroll: {
     horizontal: {

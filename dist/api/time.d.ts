@@ -30,18 +30,26 @@ export declare class Time {
     destroy(): void;
     private resetCurrentDate;
     date(time?: number | string | Date | undefined): dayjs.Dayjs;
-    private addAdditionalSpace;
     recalculateFromTo(time: DataChartTime, force?: boolean): DataChartTime;
     getCenter(time: DataChartTime): number;
     isInCurrentView(date: Dayjs, time?: DataChartTime): boolean;
-    getGlobalOffsetPxFromDates(date: Dayjs, time?: DataChartTime): number;
-    getViewOffsetPxFromDates(date: Dayjs, limitToView?: boolean, time?: DataChartTime): number;
+    recalculateDatesPositions(dates: DataChartTimeLevelDate[], time?: DataChartTime, relativeToTime?: boolean, cloneDates?: boolean): DataChartTimeLevelDate[];
+    addMissingDates(dates: DataChartTimeLevelDate[], date: Dayjs, time?: DataChartTime): DataChartTimeLevelDate[];
+    /**
+     * returns offset in pixels relative to time.from which is the first date in whole timeline
+     */
+    getGlobalOffsetPxFromDates(date: Dayjs, addMissingDates?: boolean, time?: DataChartTime, dates?: DataChartTimeLevelDate[]): number;
+    /**
+     * returns offset in pixels relative to time.leftGlobal which is left edge of what we see
+     */
+    getViewOffsetPxFromDates(date: Dayjs, limitToView?: boolean, time?: DataChartTime, dates?: DataChartTimeLevelDate[], addMissingDates?: boolean): number;
     limitOffsetPxToView(x: number, time?: DataChartTime): number;
     findDateAtViewOffsetPx(offsetPx: number, allPeriodDates: ChartTimeDate[]): ChartTimeDate | undefined;
     findDateAtTime(milliseconds: number, allPeriodDates?: ChartTimeDate[]): ChartTimeDate | undefined;
     getMainDateFromRelativePosition(fromDate: ChartTimeDate, relativePosPx: number): ChartTimeDate | undefined;
-    getTimeFromOffsetPx(offsetPx: number, isViewOffset?: boolean, time?: DataChartTime): number;
+    getTimeFromOffsetPx(offsetPx: number, isViewOffset?: boolean, time?: DataChartTime, dates?: DataChartTimeLevelDate[]): number;
     getCurrentFormatForLevel(level: ChartCalendarLevel, time: DataChartTime): ChartCalendarLevelFormat;
+    private _generatePeriodDates;
     generatePeriodDates({ leftDate, rightDate, period, level, levelIndex, time, callOnDate, callOnLevelDates, }: {
         leftDate: Dayjs;
         rightDate: Dayjs;
@@ -52,7 +60,7 @@ export declare class Time {
         callOnDate: boolean;
         callOnLevelDates: boolean;
     }): DataChartTimeLevelDate[];
-    getDatesDiffPx(fromTime: Dayjs, toTime: Dayjs, time: DataChartTime, accurate?: boolean): number;
+    getDatesDiffPx(fromTime: Dayjs, toTime: Dayjs, time: DataChartTime, accurate?: boolean, dates?: DataChartTimeLevelDate[]): number;
     getLeftViewDate(time?: DataChartTime): ChartTimeDate | null;
     getRightViewDate(time?: DataChartTime): ChartTimeDate | null;
     getLowerPeriod(period: Period): Period;

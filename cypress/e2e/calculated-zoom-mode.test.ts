@@ -25,24 +25,45 @@ describe('Calculated zoom mode', () => {
         expect(state.get('$data.chart.time.toDate').valueOf()).to.be.lessThan(initialTo);
         expect(state.get('config.chart.time.calculatedZoomMode')).to.eq(true);
       })
+      .get('.gstc__scroll-bar--horizontal')
+      .should('not.exist')
       .log(`updating from to`)
       .then(() => {
         state.update('config.chart.time', (time) => {
-          time.from = from;
-          time.to = to;
+          time.from = initialFrom;
+          time.to = initialTo;
           time.calculatedZoomMode = false;
           return time;
         });
       })
       .wait(Cypress.env('wait'))
       .then(() => {
+        expect(state.get('config.chart.time.from')).to.eq(initialFrom);
+        expect(state.get('$data.chart.time.fromDate').valueOf()).to.eq(initialFrom);
+        expect(state.get('config.chart.time.to')).to.be.eq(initialTo);
+        expect(state.get('$data.chart.time.toDate').valueOf()).to.eq(initialTo);
+        expect(state.get('config.chart.time.calculatedZoomMode')).to.eq(false);
+      })
+      .get('.gstc__scroll-bar--horizontal')
+      .should('exist')
+      .get('.gstc__chart-timeline-items-row-item')
+      .should('exist')
+      .then(() => {
+        state.update('config.chart.time', (time) => {
+          time.from = from;
+          time.to = to;
+          return time;
+        });
+      })
+      .wait(Cypress.env('wait'))
+      .get('.gstc__chart-timeline-items-row-item')
+      .should('not.exist')
+      .then(() => {
         expect(state.get('config.chart.time.from')).to.eq(from);
         expect(state.get('$data.chart.time.fromDate').valueOf()).to.eq(from);
         expect(state.get('config.chart.time.to')).to.be.eq(to);
         expect(state.get('$data.chart.time.toDate').valueOf()).to.eq(to);
         expect(state.get('config.chart.time.calculatedZoomMode')).to.eq(false);
-      })
-      .get('.gstc__chart-timeline-items-row-item')
-      .should('not.exist');
+      });
   });
 });

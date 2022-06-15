@@ -329,19 +329,21 @@ export interface ChartTime {
     rightGlobal?: number;
     readonly rightGlobalDate?: Dayjs;
     format?: ChartCalendarLevelFormat;
-    additionalSpaces?: ChartCalendarAdditionalSpaces;
     calculatedZoomMode?: boolean;
     onLevelDates?: ChartTimeOnLevelDates[];
     onCurrentViewLevelDates?: ChartTimeOnLevelDates[];
     onDate?: ChartTimeOnDate[];
     readonly allDates?: ChartTimeDates[];
     readonly forceUpdate?: boolean;
-    readonly additionalSpaceAdded?: boolean;
+    autoExpandTimeFromItems?: boolean;
 }
 export interface DataChartTimeLevelDateCurrentView {
     leftPx: number;
     rightPx: number;
     width: number;
+    leftGlobalDate: Dayjs;
+    rightGlobalDate: Dayjs;
+    durationMs: number;
 }
 export interface DataChartTimeLevelDate {
     id: string;
@@ -376,8 +378,6 @@ export interface DataChartTime extends ChartTime {
     toDate: Dayjs | undefined;
     totalViewDurationMs: number;
     totalViewDurationPx: number;
-    leftInner: number;
-    rightInner: number;
     leftPx: number;
     rightPx: number;
     width?: number;
@@ -386,7 +386,6 @@ export interface DataChartTime extends ChartTime {
     level: number;
     levels: DataChartTimeLevels;
     currentZoomLevelFormatting: ChartCalendarLevelFormat[];
-    additionalSpaces?: ChartCalendarAdditionalSpaces;
     calculatedZoomMode?: boolean;
     onLevelDates?: ChartTimeOnLevelDates[];
     onCurrentViewLevelDates?: ChartTimeOnLevelDates[];
@@ -421,18 +420,6 @@ export interface ChartCalendarLevelFormat {
     main?: boolean;
     classNames?: string[];
     format: (args: ChartCalendarFormatArguments) => string | htmlResult;
-}
-export interface ChartCalendarAdditionalSpace {
-    before: number;
-    after: number;
-    period: Period;
-}
-export interface ChartCalendarAdditionalSpaces {
-    hour?: ChartCalendarAdditionalSpace;
-    day?: ChartCalendarAdditionalSpace;
-    week?: ChartCalendarAdditionalSpace;
-    month?: ChartCalendarAdditionalSpace;
-    year?: ChartCalendarAdditionalSpace;
 }
 export declare type ChartCalendarLevel = ChartCalendarLevelFormat[];
 export interface GridCellOnCreateArgument extends GridCell {
