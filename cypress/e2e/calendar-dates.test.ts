@@ -91,7 +91,7 @@ describe('Calendar dates', () => {
       //
       // Move horizontal scroll bar a little bit from the end
       //
-      .scrollH(-10)
+      .scrollH(-14)
       .get('.gstc__chart-calendar-date--level-1')
       .then(($el) => {
         const time = merge({}, window.state.get('$data.chart.time'));
@@ -103,6 +103,67 @@ describe('Calendar dates', () => {
         expect(elementWidth).to.be.lessThan(fixed(lastDate.width));
         const day = Cypress.$(last).find('.gstc__chart-calendar-date-content.gstc-date-top').get(0);
         expect(day.textContent).to.eq('31');
+      });
+  });
+
+  it('should calculate proper left/right global dates when changing the zoom', () => {
+    let state;
+    cy.load('/examples/complex-1')
+      .window()
+      .then((win) => {
+        // @ts-ignore
+        state = win.state;
+        state.update('config.chart.time.zoom', 21);
+      })
+      .wait(Cypress.env('wait'))
+      .then(() => {
+        const time: DataChartTime = state.get('$data.chart.time');
+        expect(time.leftGlobalDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-02-01 00:00:00');
+        expect(time.rightGlobalDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-02-27 19:42:32');
+      })
+      .get('.gstc__chart-calendar-date--day .gstc-date-top')
+      .then(($daysTop) => {
+        expect($daysTop.length).to.eq(27);
+        const first = $daysTop.get(0);
+        expect(first.textContent).to.eq('01');
+        expect(first.offsetWidth).to.eq(40);
+        const last = $daysTop.get($daysTop.length - 1);
+        expect(last.textContent).to.eq('27');
+        expect(last.offsetWidth).to.eq(33);
+      })
+      .get('.gstc__chart-timeline-grid-row[data-gstcid="gstcid-0"] .gstc__chart-timeline-grid-row-cell')
+      .then(($cells) => {
+        expect($cells.length).to.eq(27);
+        const first = $cells.get(0);
+        expect(first.offsetWidth).to.eq(41);
+        const last = $cells.get($cells.length - 1);
+        expect(last.offsetWidth).to.eq(34);
+      });
+  });
+
+  it('should align levels to main dates when there are missing main dates', () => {
+    const februaryElSel = '.gstc__chart-calendar-date--month[data-gstcid="gstcid-1580511600000"]';
+    let februaryInitialWidth = 0;
+    cy.load('/examples/complex-1')
+      .window()
+      .then((win) => {
+        // @ts-ignore
+        win.state.update('config.chart.time.zoom', 21);
+      })
+      .wait(Cypress.env('wait'))
+      .get(februaryElSel)
+      .should('be.visible')
+      .then(($feb) => {
+        februaryInitialWidth = fixed($feb.get(0).style.width);
+      })
+      .log(`Initial february width ${februaryInitialWidth}`)
+      .get('#hide-weekends')
+      .click()
+      .wait(Cypress.env('wait'))
+      .get(februaryElSel)
+      .should('be.visible')
+      .then(($feb) => {
+        expect(fixed($feb.get(0).style.width)).to.be.lessThan(februaryInitialWidth);
       });
   });
 

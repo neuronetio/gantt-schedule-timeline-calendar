@@ -3,7 +3,7 @@
  *
  * @header  --gstc--header--
  */
-import type { Vido, htmlResult, Item, DataChartTime, DataItems } from '../gstc';
+import type { Vido, htmlResult, Item, DataChartTime, DataItems, DataScrollHorizontal } from '../gstc';
 import type DeepState from 'deep-state-observer';
 import type { Dayjs } from 'dayjs';
 export interface Handle {
@@ -77,6 +77,7 @@ export interface Options {
     snapToTime?: SnapToTime;
     outsideWidthThreshold?: number;
     autoScroll?: AutoScroll;
+    ignoreMissingDates?: boolean;
 }
 export declare type State = 'start' | 'resize' | 'end' | '';
 export interface PluginData extends Options {
@@ -86,6 +87,7 @@ export interface PluginData extends Options {
     initialDependant: Item[];
     initialItemsData: DataItems;
     initialDependantData: DataItems;
+    initialHorizontalScroll: DataScrollHorizontal;
     state: State;
     movement: Movement;
 }

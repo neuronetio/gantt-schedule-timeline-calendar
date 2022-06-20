@@ -314,6 +314,11 @@ function mainOuterSlot(vido, props) {
     update();
   }
 
+  function toggleHideWeekends(ev) {
+    hideWeekends = ev.target.checked;
+    gstc.reload();
+  }
+
   // return render function
   return (content) =>
     html`<div class="tool-shelf" style="margin:20px;">
@@ -323,6 +328,7 @@ function mainOuterSlot(vido, props) {
     )}>${months.map(
       (monthText, index) => html`<option value=${index} ?selected=${index === month}>${monthText}</option>`
     )}</option></select><button id="btn-next-month" style="margin-right:20px;" @click=${setNextMonth}>></button>
+    <input type="checkbox" id="hide-weekends" @change=${toggleHideWeekends} /> <label for="hide-weekends">Hide weekends</label>
     </div>${content}<div class=${overlay}>${loading}</div>`;
 }
 
@@ -355,6 +361,13 @@ const itemMovementOptions = {
   //   },
   // },
 };
+
+let hideWeekends = false;
+function onLevelDates({ dates, level, format }) {
+  if (format.period !== 'day') return dates;
+  if (!hideWeekends) return dates;
+  return dates.filter((date) => date.leftGlobalDate.day() !== 0 && date.leftGlobalDate.day() !== 6);
+}
 
 const config = {
   licenseKey:
@@ -392,6 +405,7 @@ const config = {
       calculatedZoomMode: true,
       from: startDate.valueOf(),
       to: endDate.valueOf(),
+      onLevelDates: [onLevelDates],
     },
     item: {
       height: 50,

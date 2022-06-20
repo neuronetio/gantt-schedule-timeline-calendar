@@ -336,6 +336,73 @@ function onLevelDates({ dates, level, format }) {
   return dates.filter((date) => date.leftGlobalDate.day() !== 0 && date.leftGlobalDate.day() !== 6);
 }
 
+function onItemClick(ev) {
+  const itemElement = ev.target.closest('.gstc__chart-timeline-items-row-item');
+  const itemId = itemElement.dataset.gstcid;
+  const item = gstc.api.getItem(itemId);
+  console.log('Item click from template', item);
+}
+
+function chartTimelineItemsRowItemTemplate({
+  className,
+  labelClassName,
+  styleMap,
+  cache,
+  shouldDetach,
+  cutterLeft,
+  cutterRight,
+  getContent,
+  actions,
+  slots,
+  html,
+  vido,
+  props,
+}) {
+  const detach = shouldDetach || !props || !props.item;
+  return cache(
+    detach
+      ? null
+      : slots.html(
+          'outer',
+          html`
+            <div
+              class=${className}
+              data-gstcid=${props.item.id}
+              data-actions=${actions()}
+              style=${styleMap.directive()}
+              @click=${onItemClick}
+            >
+              ${slots.html(
+                'inner',
+                html`
+                  ${cutterLeft()}
+                  <div class=${labelClassName}>${slots.html('content', getContent())}</div>
+                  ${cutterRight()}
+                `
+              )}
+            </div>
+          `
+        )
+  );
+}
+
+function myItemSlot(vido, props) {
+  const { onChange } = vido;
+
+  function onClick() {
+    console.log('Item click from slot', props.item);
+  }
+
+  onChange((changedProps) => {
+    // if current element is reused to display other item data just update your data so when you click you will display right alert
+    props = changedProps;
+  });
+
+  // return render function
+  return (content) =>
+    vido.html`<div class="my-item-wrapper" @click=${onClick} style="width:100%;display:flex;overflow:hidden;pointer-events:none;">${content}</div>`;
+}
+
 /**
  * @type {import('../../dist/gstc').Config}
  */
@@ -347,7 +414,14 @@ const config = {
   plugins: [
     HighlightWeekends(),
     TimelinePointer(), // timeline pointer must go first before selection, resizing and movement
-    Selection(),
+    Selection({
+      events: {
+        onEnd(selected) {
+          console.log('Selected', selected);
+          return selected;
+        },
+      },
+    }),
     ItemResizing(itemResizeOptions), // resizing must fo before movement
     ItemMovement(itemMovementOptions),
     CalendarScroll(),
@@ -398,8 +472,11 @@ const config = {
     horizontal: { precise: true },
   },
   slots: {
-    'chart-timeline-items-row-item': { content: [itemSlot] },
+    'chart-timeline-items-row-item': { content: [itemSlot], inner: [myItemSlot] },
     'list-column-row': { content: [rowSlot] },
+  },
+  templates: {
+    'chart-timeline-items-row-item': chartTimelineItemsRowItemTemplate,
   },
   //utcMode: true,
 };
@@ -448,15 +525,6 @@ function makeSelectedItemsDependent() {
   });
 }
 
-function oneMonth() {
-  state.update('config.chart.time', (time) => {
-    time.calculatedZoomMode = true;
-    time.from = startDate.startOf('month').valueOf();
-    time.to = startDate.endOf('month').valueOf();
-    return time;
-  });
-}
-
 globalThis.scrollToFirstItem = scrollToFirstItem;
 
 function downloadImage() {
@@ -489,15 +557,20 @@ function toggleSnapTime(ev) {
   snapTime = ev.target.checked;
 }
 
+function toggleExpandTime(ev) {
+  const expandTime = ev.target.checked;
+  state.update('config.chart.time.autoExpandTimeFromItems', expandTime);
+}
+
 const lithtml = GSTC.lithtml;
 
 const toolboxButtons = lithtml.html`<button @click=${selectCells}>Select first cells</button>
       <button @click=${scrollToFirstItem}>Scroll to first item</button>
       <button @click=${downloadImage}>Download image</button>
       <button @click=${downloadPdf}>Download PDF</button>
-      <button id="one-month" @click=${oneMonth}>Show one month</button>
       <input type="checkbox" id="dark-mode" @change=${toggleDarkMode} /> <label for="dark-mode">Dark mode</label>
-      <input type="checkbox" id="snap-time" @change=${toggleSnapTime} checked/> <label for="snap-time">Snap time (item movement)</label>`;
-//  <input type="checkbox" id="hide-weekends" @change=${toggleHideWeekends} /> <label for="hide-weekends">Hide weekends</label>
+      <input type="checkbox" id="snap-time" @change=${toggleSnapTime} checked/> <label for="snap-time">Snap time (item movement)</label>
+      <input type="checkbox" id="hide-weekends" @change=${toggleHideWeekends} /> <label for="hide-weekends">Hide weekends</label>
+      <input type="checkbox" id="expand-time" @change=${toggleExpandTime} checked /> <label for="expand-time">Expand view when item is outside</label>`;
 
 lithtml.render(toolboxButtons, document.getElementById('toolbox'));

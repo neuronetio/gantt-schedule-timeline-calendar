@@ -130,8 +130,6 @@ const config = {
     calendarLevels: [months, customPeriod],
     time: {
       zoom: 22,
-      from: GSTC.api.date('2020-01-27').valueOf(),
-      to: GSTC.api.date('2020-05-01').valueOf(),
     },
   },
 };

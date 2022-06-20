@@ -23,7 +23,7 @@ export declare class Time {
     private utcMode;
     private state;
     private api;
-    private dayjs;
+    dayjs: any;
     currentDate: CurrentDate;
     unsubs: (() => void)[];
     constructor(state: DeepState, api: Api);
@@ -49,6 +49,7 @@ export declare class Time {
     getMainDateFromRelativePosition(fromDate: ChartTimeDate, relativePosPx: number): ChartTimeDate | undefined;
     getTimeFromOffsetPx(offsetPx: number, isViewOffset?: boolean, time?: DataChartTime, dates?: DataChartTimeLevelDate[]): number;
     getCurrentFormatForLevel(level: ChartCalendarLevel, time: DataChartTime): ChartCalendarLevelFormat;
+    alignLevelToMain(levelIndex: number, currentLevelDates: DataChartTimeLevelDate[], time?: DataChartTime): DataChartTimeLevelDate[];
     private _generatePeriodDates;
     generatePeriodDates({ leftDate, rightDate, period, level, levelIndex, time, callOnDate, callOnLevelDates, }: {
         leftDate: Dayjs;

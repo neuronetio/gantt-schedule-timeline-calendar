@@ -2924,9 +2924,9 @@
       }
     },
     "node_modules/prettier": {
-      "version": "2.7.0",
-      "resolved": "https://registry.npmjs.org/prettier/-/prettier-2.7.0.tgz",
-      "integrity": "sha512-nwoX4GMFgxoPC6diHvSwmK/4yU8FFH3V8XWtLQrbj4IBsK2pkYhG4kf/ljF/haaZ/aii+wNJqISrCDPgxGWDVQ==",
+      "version": "2.7.1",
+      "resolved": "https://registry.npmjs.org/prettier/-/prettier-2.7.1.tgz",
+      "integrity": "sha512-ujppO+MkdPqoVINuDFDRLClm7D78qbDt0/NR+wp5FqEZOoTNAjPHWj17QRhu7geIHJfcNhRk1XVQmF8Bp3ye+g==",
       "dev": true,
       "bin": {
         "prettier": "bin-prettier.js"
@@ -3621,9 +3621,9 @@
       }
     },
     "node_modules/typescript": {
-      "version": "4.7.3",
-      "resolved": "https://registry.npmjs.org/typescript/-/typescript-4.7.3.tgz",
-      "integrity": "sha512-WOkT3XYvrpXx4vMMqlD+8R8R37fZkjyLGlxavMc4iB8lrl8L0DeTcHbYgw/v0N/z9wAFsgBhcsF0ruoySS22mA==",
+      "version": "4.7.4",
+      "resolved": "https://registry.npmjs.org/typescript/-/typescript-4.7.4.tgz",
+      "integrity": "sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==",
       "dev": true,
       "bin": {
         "tsc": "bin/tsc",
@@ -5921,9 +5921,9 @@
       "dev": true
     },
     "prettier": {
-      "version": "2.7.0",
-      "resolved": "https://registry.npmjs.org/prettier/-/prettier-2.7.0.tgz",
-      "integrity": "sha512-nwoX4GMFgxoPC6diHvSwmK/4yU8FFH3V8XWtLQrbj4IBsK2pkYhG4kf/ljF/haaZ/aii+wNJqISrCDPgxGWDVQ==",
+      "version": "2.7.1",
+      "resolved": "https://registry.npmjs.org/prettier/-/prettier-2.7.1.tgz",
+      "integrity": "sha512-ujppO+MkdPqoVINuDFDRLClm7D78qbDt0/NR+wp5FqEZOoTNAjPHWj17QRhu7geIHJfcNhRk1XVQmF8Bp3ye+g==",
       "dev": true
     },
     "prettier-linter-helpers": {
@@ -6427,9 +6427,9 @@
       "dev": true
     },
     "typescript": {
-      "version": "4.7.3",
-      "resolved": "https://registry.npmjs.org/typescript/-/typescript-4.7.3.tgz",
-      "integrity": "sha512-WOkT3XYvrpXx4vMMqlD+8R8R37fZkjyLGlxavMc4iB8lrl8L0DeTcHbYgw/v0N/z9wAFsgBhcsF0ruoySS22mA==",
+      "version": "4.7.4",
+      "resolved": "https://registry.npmjs.org/typescript/-/typescript-4.7.4.tgz",
+      "integrity": "sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==",
       "dev": true
     },
     "universalify": {

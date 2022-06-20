@@ -32,7 +32,7 @@ export default function main(vido: Vido, mergeDeep: any): {
     getPeriodDatesAndCalculateViewOffsetFromAllDates(allLevelDates: ChartTimeDates, time: DataChartTime): ChartTimeDate[];
     updateLevels(time: DataChartTime, levels: ChartCalendarLevel[]): void;
     updateLocale(): void;
-    calculateTotalViewDuration(time: DataChartTime): void;
+    calculateTotalViewDurationFromDates(time: DataChartTime): void;
     calculateRightGlobal(leftGlobalDate: Dayjs, chartWidth: number, allMainDates: DataChartTimeLevelDate[], offsetPx: any, offsetMs: any): number;
     updateVisibleItems(time?: DataChartTime, multi?: import("deep-state-observer").Multi): import("deep-state-observer").Multi;
     calculateLeftAndRightGlobalNormally(time: DataChartTime, horizontalScroll: DataScrollHorizontal): void;

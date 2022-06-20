@@ -336,6 +336,8 @@ export interface ChartTime {
     readonly allDates?: ChartTimeDates[];
     readonly forceUpdate?: boolean;
     autoExpandTimeFromItems?: boolean;
+    alignLevelsToMain?: boolean;
+    readonly timePerPixel?: number;
 }
 export interface DataChartTimeLevelDateCurrentView {
     leftPx: number;
@@ -360,6 +362,7 @@ export interface DataChartTimeLevelDate {
     next: boolean;
     previous: boolean;
     currentView?: DataChartTimeLevelDateCurrentView;
+    periodIncrementedBy: number;
 }
 export declare type DataChartTimeLevel = DataChartTimeLevelDate[];
 export declare type DataChartTimeLevels = DataChartTimeLevel[];

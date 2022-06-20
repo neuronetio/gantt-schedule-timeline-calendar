@@ -725,8 +725,17 @@
 [3.17.0]
 
 - itemResizing and itemMovement - item time calculation bugfix
-- config.chart.time.additionalChartSpaces removed (was not documented)
+- `config.chart.time.additionalChartSpaces` removed (was not documented)
 - time calculation now works better with removed dates by the user (onLevelDates event)
 - added duration dayjs plugin loaded by default
 - spacing is no longer taking into account with item.width - now it is full width without subtracting spacing (1px) for itemData.width and itemData.actualWidth
 - default spacing is set to 4 instead of 1 (looks better) `config.chart.spacing`
+- added `config.chart.time.autoExpandTimeFromItems` option to expand time when item is out of the current view
+
+[3.18.0]
+
+- added a readonly `periodIncrementedBy` value to level dates `DataChartTimeLevelDate` that tells what increment was used to calculate that date
+- added option `config.chart.time.alignLevelsToMain` to automatically scale other levels to main dates when some of main dates are missing (weekends for example)
+- ItemMovement & ItemResizing better handling of dependant items
+- `gstc.api.scrollToTime` centered wrong dates bugfix
+- added `config.chart.time.timePerPixel` readonly property

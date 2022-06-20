@@ -1,5 +1,5 @@
 import DeepState from 'deep-state-observer';
-import { Data, DataChartDimensions, DataScrollHorizontal } from '../../dist/gstc';
+import { Data, DataChartDimensions, DataChartTime, DataScrollHorizontal } from '../../dist/gstc';
 import { fixed } from '../helpers';
 
 describe('Scroll bar', () => {
@@ -236,8 +236,7 @@ describe('Scroll bar', () => {
         const actualSize = horizontal.innerHandleSize;
         expect(fixed(actualSize)).not.to.eq(fixed(innerSize));
         expect(fixed(horizontal.handlePosPx)).not.to.eq(fixed(handlePosPx));
-        const pos = fixed($scrollBarInner.css('left'));
-        expect(pos).to.eq(fixed(horizontal.handlePosPx));
+        expect($scrollBarInner.get(0).offsetLeft).to.eq(Math.round(horizontal.handlePosPx));
       });
   });
 
@@ -246,7 +245,9 @@ describe('Scroll bar', () => {
     cy.load('/examples/complex-1')
       .window()
       .then((win) => {
+        // @ts-ignore
         gstc = win.gstc;
+        // @ts-ignore
         state = win.state;
       })
       .then(() => {
@@ -267,7 +268,9 @@ describe('Scroll bar', () => {
     cy.load('/examples/complex-1')
       .window()
       .then((win) => {
+        // @ts-ignore
         gstc = win.gstc;
+        // @ts-ignore
         state = win.state;
       })
       .then(() => {
@@ -318,5 +321,41 @@ describe('Scroll bar', () => {
       .wait(Cypress.env('wait'))
       .get('.gstc__scroll-bar--horizontal')
       .should('not.exist');
+  });
+
+  it('should update right global date when scroll to time centered happened', () => {
+    let gstc, state;
+    cy.load('/examples/complex-1')
+      .window()
+      .then((win) => {
+        // @ts-ignore
+        gstc = win.gstc;
+        // @ts-ignore
+        state = win.state;
+        gstc.api.scrollToTime(gstc.api.time.date('2020-02-05').valueOf());
+      })
+      .wait(Cypress.env('wait'))
+      .then(() => {
+        const dataTime: DataChartTime = state.get('$data.chart.time');
+        expect(fixed(dataTime.rightPx)).to.eq(fixed(dataTime.width));
+      });
+  });
+
+  it('should scroll to center', () => {
+    let gstc, state;
+    cy.load('/examples/complex-1')
+      .window()
+      .then((win) => {
+        // @ts-ignore
+        gstc = win.gstc;
+        // @ts-ignore
+        state = win.state;
+        gstc.api.scrollToTime(gstc.api.time.date('2020-02-18 12:00:00').valueOf());
+      })
+      .wait(Cypress.env('wait'))
+      .then(() => {
+        const dataTime: DataChartTime = state.get('$data.chart.time');
+        expect(dataTime.centerGlobalDate.format('YYYY-MM-DD')).to.eq('2020-02-18');
+      });
   });
 });
