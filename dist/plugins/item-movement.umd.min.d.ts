@@ -8,6 +8,7 @@ import type DeepState from 'deep-state-observer';
 import type { Dayjs } from 'dayjs';
 export interface SnapArg {
     time: DataChartTime;
+    item: Item | null;
     movement: Movement;
     vido: Vido;
 }
@@ -34,6 +35,8 @@ export interface BeforeAfterInitialItems {
 }
 export interface OnArg {
     items: BeforeAfterInitialItems;
+    addedDependantIds: string[];
+    selectedIds: string[];
     vido: Vido;
     state: DeepState;
     time: DataChartTime;
@@ -58,6 +61,7 @@ export interface AutoScroll {
 export interface Options {
     enabled?: boolean;
     dependant?: boolean;
+    moveDependantVertically?: boolean;
     debug?: boolean;
     bodyClass?: string;
     itemClass?: string;
@@ -71,9 +75,9 @@ export declare type State = 'start' | 'move' | 'end' | '';
 export interface PluginData extends Options {
     isMoving: boolean;
     initialItems: Item[];
-    initialDependant: Item[];
     initialItemsData: DataItems;
-    initialDependantData: DataItems;
+    addedDependantIds: string[];
+    selectedIds: string[];
     clickedItem: Item;
     clickedItemData: ItemData;
     initialVerticalScroll: DataScrollVertical;

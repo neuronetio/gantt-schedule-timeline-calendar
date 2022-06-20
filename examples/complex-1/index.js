@@ -252,6 +252,33 @@ function snapEnd({ endTime }) {
   return endTime;
 }
 
+function canMove(item) {
+  const row = gstc.api.getRow(item.rowId);
+  if (row.vacations) {
+    for (const vacation of row.vacations) {
+      const vacationStart = gstc.api.time.date(vacation).startOf('day').valueOf();
+      const vacationEnd = gstc.api.time.date(vacation).endOf('day').valueOf();
+      // item start time inside vacation
+      if (item.time.start >= vacationStart && item.time.start <= vacationEnd) {
+        return false;
+      }
+      // item end time inside vacation
+      if (item.time.end >= vacationStart && item.time.end <= vacationEnd) {
+        return false;
+      }
+      // vacation is between item start and end
+      if (item.time.start <= vacationStart && item.time.end >= vacationEnd) {
+        return false;
+      }
+      // item start and end time is inside vacation
+      if (item.time.start >= vacationStart && item.time.end <= vacationEnd) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 /**
  * @type {import('../../dist/plugins/item-movement').Options}
  */
@@ -264,27 +291,7 @@ const itemMovementOptions = {
     onMove({ items }) {
       for (let i = 0, len = items.after.length; i < len; i++) {
         const item = items.after[i];
-        const row = gstc.api.getRow(item.rowId);
-        for (const vacation of row.vacations) {
-          const vacationStart = gstc.api.time.date(vacation).startOf('day').valueOf();
-          const vacationEnd = gstc.api.time.date(vacation).endOf('day').valueOf();
-          // item start time inside vacation
-          if (item.time.start >= vacationStart && item.time.start <= vacationEnd) {
-            return items.before;
-          }
-          // item end time inside vacation
-          if (item.time.end >= vacationStart && item.time.end <= vacationEnd) {
-            return items.before;
-          }
-          // vacation is between item start and end
-          if (item.time.start <= vacationStart && item.time.end >= vacationEnd) {
-            return items.before;
-          }
-          // item start and end time is inside vacation
-          if (item.time.start >= vacationStart && item.time.end <= vacationEnd) {
-            return items.before;
-          }
-        }
+        if (!canMove(item)) return items.before;
       }
       return items.after;
     },
@@ -302,27 +309,7 @@ const itemResizeOptions = {
   events: {
     onResize({ items }) {
       for (const item of items.after) {
-        const row = gstc.api.getRow(item.rowId);
-        for (const vacation of row.vacations) {
-          const vacationStart = gstc.api.time.date(vacation).startOf('day').valueOf();
-          const vacationEnd = gstc.api.time.date(vacation).endOf('day').valueOf();
-          // item start time inside vacation
-          if (item.time.start >= vacationStart && item.time.start <= vacationEnd) {
-            return items.before;
-          }
-          // item end time inside vacation
-          if (item.time.end >= vacationStart && item.time.end <= vacationEnd) {
-            return items.before;
-          }
-          // vacation is between item start and end
-          if (item.time.start <= vacationStart && item.time.end >= vacationEnd) {
-            return items.before;
-          }
-          // item start and end time is inside vacation
-          if (item.time.start >= vacationStart && item.time.end <= vacationEnd) {
-            return items.before;
-          }
-        }
+        if (!canMove(item)) return items.before;
       }
       return items.after;
     },

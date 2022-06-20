@@ -42,6 +42,8 @@ export interface BeforeAfterInitialItems {
 }
 export interface OnArg {
     items: BeforeAfterInitialItems;
+    addedDependantIds: string[];
+    selectedIds: string[];
     vido: Vido;
     state: DeepState;
     time: DataChartTime;
@@ -84,9 +86,9 @@ export interface PluginData extends Options {
     leftIsMoving: boolean;
     rightIsMoving: boolean;
     initialItems: Item[];
-    initialDependant: Item[];
     initialItemsData: DataItems;
-    initialDependantData: DataItems;
+    addedDependantIds: string[];
+    selectedIds: string[];
     initialHorizontalScroll: DataScrollHorizontal;
     state: State;
     movement: Movement;

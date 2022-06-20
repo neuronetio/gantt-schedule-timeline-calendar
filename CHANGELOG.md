@@ -739,3 +739,14 @@
 - ItemMovement & ItemResizing better handling of dependant items
 - `gstc.api.scrollToTime` centered wrong dates bugfix
 - added `config.chart.time.timePerPixel` readonly property
+
+[3.19.0]
+
+- ItemMovement & ItemResizing move dependant items wrong time offset bugfix
+- [**breaking***] ItemMovement & ItemResizing dependant items automatically added to `items.initial`,`items.before` & `items.after`
+- added ItemMovement `moveDependantVertically` option to move dependant items vertically along with the selected one
+- added `addedDependantIds` and `selectedIds` to event argument in ItemMovement & ItemResizing
+- added `item` to snap time events (may be null when calculating pointer movement offset)
+- [**breaking***] ItemResizing snap to start time can pass item as `null` now when calculating pointer movement offset
+
+<br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use
