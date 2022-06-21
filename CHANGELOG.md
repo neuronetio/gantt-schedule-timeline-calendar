@@ -754,4 +754,8 @@
 - when the end time of an item is inside a missing date and we move this item by 1px it will change its width bugfix
 - in calculatedZoomMode + hide weekends when date was moved out of the scope wrong right date was calculated bugfix
 
+[3.19.2]
+
+- fixed with wrong width of the item if it was moved outside view with hidden weekends enabled and start of the next month was a weekend
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use

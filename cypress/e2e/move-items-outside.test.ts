@@ -1,4 +1,4 @@
-import { DataChartTime, DataScrollHorizontal } from '../../dist/gstc';
+import { DataChartTime, DataScrollHorizontal, ItemData } from '../../dist/gstc';
 import { fixed } from '../helpers';
 
 describe('Move items outside view', () => {
@@ -357,12 +357,28 @@ describe('Move items outside view', () => {
       .move(itemClass, 50, 0)
       .move(itemClass, 50, 0)
       .then(() => {
+        const itemData: ItemData = state.get('$data.chart.items.gstcid-15');
+        expect(itemData.time.startDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-28 00:00:00');
+        expect(itemData.time.endDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-02-04 23:59:59');
+        const time: DataChartTime = state.get('$data.chart.time');
+        const cellWidth = time.allDates[time.level][0].width;
+        expect(fixed(itemData.width)).to.eq(fixed(6 * cellWidth));
+        expect(fixed(itemData.actualWidth)).to.eq(fixed(4 * cellWidth));
+      })
+      .get(itemClass)
+      .should('be.visible')
+      .get('#btn-next-month')
+      .click()
+      .wait(300)
+      .then(() => {
         const itemData = state.get('$data.chart.items.gstcid-15');
         expect(itemData.time.startDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-28 00:00:00');
         expect(itemData.time.endDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-02-04 23:59:59');
-      })
-      .get(itemClass)
-      .should('be.visible');
+        const time: DataChartTime = state.get('$data.chart.time');
+        const cellWidth = time.allDates[time.level][0].width;
+        expect(fixed(itemData.width)).to.eq(fixed(6 * cellWidth));
+        expect(fixed(itemData.actualWidth)).to.eq(fixed(2 * cellWidth));
+      });
   });
 
   it('should show arrow on hidden dates when scroll is moved to the end of the view', () => {
