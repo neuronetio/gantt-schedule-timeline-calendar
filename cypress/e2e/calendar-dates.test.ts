@@ -142,13 +142,15 @@ describe('Calendar dates', () => {
   });
 
   it('should align levels to main dates when there are missing main dates', () => {
+    let state;
     const februaryElSel = '.gstc__chart-calendar-date--month[data-gstcid="gstcid-1580511600000"]';
     let februaryInitialWidth = 0;
     cy.load('/examples/complex-1')
       .window()
       .then((win) => {
         // @ts-ignore
-        win.state.update('config.chart.time.zoom', 21);
+        state = win.state;
+        state.update('config.chart.time.zoom', 21);
       })
       .wait(Cypress.env('wait'))
       .get(februaryElSel)
@@ -160,6 +162,13 @@ describe('Calendar dates', () => {
       .get('#hide-weekends')
       .click()
       .wait(Cypress.env('wait'))
+      .then(() => {
+        const dataTime: DataChartTime = state.get('$data.chart.time');
+        const mainDates = dataTime.allDates[dataTime.level];
+        const firstMarch = mainDates.find((date) => date.leftGlobalDate.month() === 2);
+        const march = dataTime.allDates[0][1];
+        expect(firstMarch.leftPx).to.eq(march.leftPx);
+      })
       .get(februaryElSel)
       .should('be.visible')
       .then(($feb) => {

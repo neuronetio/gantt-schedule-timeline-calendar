@@ -1,6 +1,6 @@
 import DeepState from 'deep-state-observer';
 import { Api } from '../../dist/api/api';
-import { DataChartTime, ItemData } from '../../dist/gstc';
+import { DataChartTime, DataChartTimeLevelDate, Item, ItemData } from '../../dist/gstc';
 import { fixed, examples } from '../helpers';
 
 describe('Items', () => {
@@ -405,6 +405,48 @@ describe('Items', () => {
         const dep2Data: ItemData = gstc.api.getItemData(dep2Id);
         expect(dep2Data.time.startDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-20 00:00:00');
         expect(dep2Data.time.endDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-22 23:59:59');
+      });
+  });
+
+  it('should not change item width when item ends in missing date', () => {
+    let gstc, state;
+    const itemId = 'gstcid-15';
+    const itemClass = `.gstc__chart-timeline-items-row-item[data-gstcid="${itemId}"]`;
+    let cellWidth;
+    cy.load('/examples/complex-1')
+      .window()
+      .then((win) => {
+        // @ts-ignore
+        gstc = win.gstc;
+        // @ts-ignore
+        state = win.state;
+        state.update(`config.chart.items.${itemId}`, (item: Item) => {
+          item.time.start = gstc.api.time.date('2020-02-07').valueOf();
+          item.time.end = gstc.api.time.date('2020-02-08').endOf('day').valueOf();
+          return item;
+        });
+      })
+      .get('#hide-weekends')
+      .click()
+      .wait(Cypress.env('wait'))
+      .then(() => {
+        const cell: DataChartTimeLevelDate = state.get('$data.chart.time.allDates.1.0');
+        cellWidth = cell.width;
+        const itemData: ItemData = state.get(`$data.chart.items.${itemId}`);
+        expect(itemData.time.startDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-02-07 00:00:00');
+        expect(itemData.time.endDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-02-08 23:59:59');
+        expect(itemData.width).to.eq(itemData.actualWidth);
+        expect(itemData.width).to.eq(cellWidth);
+        expect(itemData.position.right).to.eq(cellWidth * 5);
+      })
+      .move(itemClass, 2, 0)
+      .then(() => {
+        const itemData: ItemData = state.get(`$data.chart.items.${itemId}`);
+        expect(itemData.time.startDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-02-07 00:00:00');
+        expect(itemData.time.endDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-02-07 23:59:59');
+        expect(itemData.width).to.eq(itemData.actualWidth);
+        expect(itemData.width).to.eq(cellWidth);
+        expect(itemData.position.right).to.eq(cellWidth * 5);
       });
   });
 

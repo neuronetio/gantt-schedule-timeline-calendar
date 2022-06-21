@@ -33,6 +33,7 @@ export declare class Time {
     recalculateFromTo(time: DataChartTime, force?: boolean): DataChartTime;
     getCenter(time: DataChartTime): number;
     isInCurrentView(date: Dayjs, time?: DataChartTime): boolean;
+    recalculateDatesWidths(dates: DataChartTimeLevelDate[], time?: DataChartTime): DataChartTimeLevelDate[];
     recalculateDatesPositions(dates: DataChartTimeLevelDate[], time?: DataChartTime, relativeToTime?: boolean, cloneDates?: boolean): DataChartTimeLevelDate[];
     addMissingDates(dates: DataChartTimeLevelDate[], date: Dayjs, time?: DataChartTime): DataChartTimeLevelDate[];
     /**
@@ -51,7 +52,7 @@ export declare class Time {
     getCurrentFormatForLevel(level: ChartCalendarLevel, time: DataChartTime): ChartCalendarLevelFormat;
     alignLevelToMain(levelIndex: number, currentLevelDates: DataChartTimeLevelDate[], time?: DataChartTime): DataChartTimeLevelDate[];
     private _generatePeriodDates;
-    generatePeriodDates({ leftDate, rightDate, period, level, levelIndex, time, callOnDate, callOnLevelDates, }: {
+    generatePeriodDates({ leftDate, rightDate, period, level, levelIndex, time, callOnDate, callOnLevelDates, expandIfMissing, }: {
         leftDate: Dayjs;
         rightDate: Dayjs;
         period: Period;
@@ -60,6 +61,7 @@ export declare class Time {
         time: DataChartTime;
         callOnDate: boolean;
         callOnLevelDates: boolean;
+        expandIfMissing?: boolean;
     }): DataChartTimeLevelDate[];
     getDatesDiffPx(fromTime: Dayjs, toTime: Dayjs, time: DataChartTime, accurate?: boolean, dates?: DataChartTimeLevelDate[]): number;
     getLeftViewDate(time?: DataChartTime): ChartTimeDate | null;

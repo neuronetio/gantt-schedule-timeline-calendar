@@ -72,6 +72,7 @@ export interface ItemData {
     position: ItemDataPosition;
     width: number;
     actualWidth: number;
+    timeWidth: number;
     detached: boolean;
     linkedWith?: string[];
     dependant?: string[];
@@ -87,6 +88,7 @@ export interface ItemDataUpdate {
     position?: ItemDataPosition;
     width?: number;
     actualWidth?: number;
+    timeWidth?: number;
     detached?: boolean;
     linkedWith?: string[];
     dependant?: string[];

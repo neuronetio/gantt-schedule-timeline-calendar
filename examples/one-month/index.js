@@ -205,7 +205,7 @@ function rowSlot(vido, props) {
           <div class="row-content" style="flex-grow:1;">${content}</div>
           <div
             class="row-image"
-            style="background:url(${img}),transparent;border-radius:100%;width:34px;height:34px;vertical-align: middle;background-size: 100%;margin: 11px 11px 0px 0px;"
+            style="background:url(${img}),transparent;border-radius:100%;width:34px;height:34px;vertical-align: middle;background-size: 100%;margin: auto 10px;flex-shrink:0;"
           ></div>
         </div>`
       : content;

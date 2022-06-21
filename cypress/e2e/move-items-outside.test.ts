@@ -254,12 +254,13 @@ describe('Move items outside view', () => {
       .move(itemClass, 50, 0)
       .move(itemClass, 80, 0)
       .move(itemClass, 80, 0)
+      .scrollH(100)
       .get(itemClass)
       .should('be.visible')
       .then(() => {
         const itemData = state.get('$data.chart.items.gstcid-15');
         expect(itemData.time.startDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-03-31 00:00:00');
-        expect(itemData.time.endDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-04-04 23:59:59');
+        expect(itemData.time.endDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-04-06 23:59:59');
         expect(fixed(itemData.position.left)).to.be.greaterThan(fixed(secondaryItemData.position.left));
         expect(fixed(itemData.position.right)).to.be.greaterThan(fixed(secondaryItemData.position.right));
         expect(fixed(itemData.position.left)).to.eq(fixed(itemData.position.actualLeft));
@@ -321,6 +322,47 @@ describe('Move items outside view', () => {
         expect(item.time.start).to.be.greaterThan(secondaryItem.time.start);
         expect(item.time.end).to.be.greaterThan(secondaryItem.time.end);
       });
+  });
+
+  it('should calculate right item position in calculatedZoomMode with hidden weekends', () => {
+    const itemClass = '.gstc__chart-timeline-items-row-item[data-gstcid="gstcid-15"]';
+    let state, gstc;
+    cy.load('/examples/one-month')
+      .window()
+      .then((win) => {
+        // @ts-ignore
+        state = win.state;
+        // @ts-ignore
+        gstc = win.gstc;
+      })
+      .get('#hide-weekends')
+      .click()
+      .wait(Cypress.env('wait'))
+      .then(() => {
+        state.update('config.chart.items.gstcid-15', (item) => {
+          item.time.start = gstc.api.time.date('2020-01-24').valueOf();
+          item.time.end = gstc.api.time.date('2020-01-31').endOf('day').valueOf();
+          return item;
+        });
+      })
+      .wait(Cypress.env('wait'))
+      .then(() => {
+        const itemData = state.get('$data.chart.items.gstcid-15');
+        expect(itemData.time.startDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-24 00:00:00');
+        expect(itemData.time.endDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-31 23:59:59');
+        expect(fixed(itemData.width)).to.eq(fixed(itemData.actualWidth));
+        expect(fixed(itemData.position.left)).to.eq(fixed(itemData.position.actualLeft));
+        expect(fixed(itemData.position.right)).to.eq(fixed(itemData.position.actualRight));
+      })
+      .move(itemClass, 50, 0)
+      .move(itemClass, 50, 0)
+      .then(() => {
+        const itemData = state.get('$data.chart.items.gstcid-15');
+        expect(itemData.time.startDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-28 00:00:00');
+        expect(itemData.time.endDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-02-04 23:59:59');
+      })
+      .get(itemClass)
+      .should('be.visible');
   });
 
   it('should show arrow on hidden dates when scroll is moved to the end of the view', () => {

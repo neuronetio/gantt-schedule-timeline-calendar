@@ -749,4 +749,9 @@
 - added `item` to snap time events (may be null when calculating pointer movement offset)
 - [**breaking***] ItemResizing snap to start time can pass item as `null` now when calculating pointer movement offset
 
+[3.19.1]
+
+- when the end time of an item is inside a missing date and we move this item by 1px it will change its width bugfix
+- in calculatedZoomMode + hide weekends when date was moved out of the scope wrong right date was calculated bugfix
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use
