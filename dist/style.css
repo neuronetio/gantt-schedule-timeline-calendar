@@ -503,6 +503,10 @@ body.gstc-scrolling * {
 .gstc__chart-timeline-dependency-lines-points {
   pointer-events: none;
   user-select: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: hidden;
 }
 .gstc__chart-timeline-dependency-lines-points-point {
   position: absolute;

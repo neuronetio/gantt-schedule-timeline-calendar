@@ -758,4 +758,8 @@
 
 - fixed with wrong width of the item if it was moved outside view with hidden weekends enabled and start of the next month was a weekend
 
+[3.19.3]
+
+- lines was visible outside view in dependencyLines plugin bugfix
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use
