@@ -762,4 +762,8 @@
 
 - lines was visible outside view in dependencyLines plugin bugfix
 
+[3.19.4]
+
+- in some circumstances items from hidden rows was visible #317 bugfix
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use
