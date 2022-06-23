@@ -24,11 +24,9 @@ export declare class Time {
     private state;
     private api;
     dayjs: any;
-    currentDate: CurrentDate;
     unsubs: (() => void)[];
     constructor(state: DeepState, api: Api);
     destroy(): void;
-    private resetCurrentDate;
     date(time?: number | string | Date | undefined): dayjs.Dayjs;
     recalculateFromTo(time: DataChartTime, force?: boolean): DataChartTime;
     getCenter(time: DataChartTime): number;
@@ -51,6 +49,7 @@ export declare class Time {
     getTimeFromOffsetPx(offsetPx: number, isViewOffset?: boolean, time?: DataChartTime, dates?: DataChartTimeLevelDate[]): number;
     getCurrentFormatForLevel(level: ChartCalendarLevel, time: DataChartTime): ChartCalendarLevelFormat;
     alignLevelToMain(levelIndex: number, currentLevelDates: DataChartTimeLevelDate[], time?: DataChartTime): DataChartTimeLevelDate[];
+    private isBeetween;
     private _generatePeriodDates;
     generatePeriodDates({ leftDate, rightDate, period, level, levelIndex, time, callOnDate, callOnLevelDates, expandIfMissing, }: {
         leftDate: Dayjs;

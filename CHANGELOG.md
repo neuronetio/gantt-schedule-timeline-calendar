@@ -770,4 +770,8 @@
 
 - calendar date width calculation bugfix when date was bigger than view
 
+[3.19.6]
+
+- current date highlight bugfix #338
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use
