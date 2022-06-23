@@ -766,4 +766,8 @@
 
 - in some circumstances items from hidden rows was visible #317 bugfix
 
+[3.19.5]
+
+- calendar date width calculation bugfix when date was bigger than view
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use
