@@ -792,4 +792,8 @@
 
 - current date highlight blinking bugfix
 
+[3.21.2]
+
+- changed `config.plugin.ItemMovement.autoScroll.edgeThreshold.horizontal` and `config.plugin.ItemResizing.autoScroll.edgeThreshold` default value to `0` because sometimes it may trigger unwanted auto scroll #339
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use

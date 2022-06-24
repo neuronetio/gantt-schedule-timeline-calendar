@@ -253,7 +253,6 @@ describe('Move items outside view', () => {
       .move(itemClass, 50, 0)
       .move(itemClass, 50, 0)
       .move(itemClass, 80, 0)
-      .move(itemClass, 80, 0)
       .scrollH(100)
       .get(itemClass)
       .should('be.visible')
