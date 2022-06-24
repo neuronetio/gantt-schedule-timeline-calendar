@@ -49,7 +49,10 @@ export declare class Time {
     getTimeFromOffsetPx(offsetPx: number, isViewOffset?: boolean, time?: DataChartTime, dates?: DataChartTimeLevelDate[]): number;
     getCurrentFormatForLevel(level: ChartCalendarLevel, time: DataChartTime): ChartCalendarLevelFormat;
     alignLevelToMain(levelIndex: number, currentLevelDates: DataChartTimeLevelDate[], time?: DataChartTime): DataChartTimeLevelDate[];
-    private isBeetween;
+    private currentDateLastCheck;
+    private checkCurrentDateTimeoutId;
+    stopCheckingCurrentDates(): void;
+    checkCurrentDates(runSetTimeout?: boolean, time?: DataChartTime): void;
     private _generatePeriodDates;
     generatePeriodDates({ leftDate, rightDate, period, level, levelIndex, time, callOnDate, callOnLevelDates, expandIfMissing, }: {
         leftDate: Dayjs;

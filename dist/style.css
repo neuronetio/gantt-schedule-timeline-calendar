@@ -339,7 +339,8 @@ body.gstc-scrolling * {
   white-space: nowrap;
 }
 .gstc__chart-calendar-date--day,
-.gstc__chart-calendar-date--week {
+.gstc__chart-calendar-date--week,
+.gstc__chart-calendar-date--minute {
   text-align: center;
 }
 .gstc__chart-calendar-date--main-date.gstc-current {

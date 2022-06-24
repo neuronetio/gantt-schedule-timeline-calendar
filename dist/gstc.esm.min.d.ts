@@ -340,6 +340,7 @@ export interface ChartTime {
     autoExpandTimeFromItems?: boolean;
     alignLevelsToMain?: boolean;
     readonly timePerPixel?: number;
+    checkCurrentDateInterval?: number;
 }
 export interface DataChartTimeLevelDateCurrentView {
     leftPx: number;

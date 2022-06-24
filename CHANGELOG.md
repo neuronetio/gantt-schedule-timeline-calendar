@@ -770,8 +770,14 @@
 
 - calendar date width calculation bugfix when date was bigger than view
 
-[3.19.6]
+[3.19.16]
 
 - current date highlight bugfix #338
+
+[3.20.0]
+
+- current dates are checked continuously `config.chart.time.checkCurrentDateInterval` default = 5minutes
+- added zoom levels down to 9 (minutes)
+- sometimes clicking of an item may trigger autoScroll feature in ItemMovement plugin #339 bugfix
 
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use
