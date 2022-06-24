@@ -167,6 +167,7 @@ globalThis.setNewItems = setNewItems;
 
 function addNewItem() {
   const item = generateNewItem();
+  console.log('new item', item);
   state.update(`config.chart.items.${item.id}`, item);
 }
 globalThis.addNewItem = addNewItem;

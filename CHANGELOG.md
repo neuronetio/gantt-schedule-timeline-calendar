@@ -788,4 +788,8 @@
 
 - added ability to specify item spacing on the left and on the right side `config.chart.spacing.left` and `config.chart.spacing.right` or just right `config.chart.spacing` = number of pixels
 
+[3.21.1]
+
+- current date highlight blinking bugfix
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use

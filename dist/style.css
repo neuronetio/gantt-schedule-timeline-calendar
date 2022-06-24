@@ -405,23 +405,27 @@ body.gstc-scrolling * {
   text-align: center;
 }
 .gstc__chart-calendar-date-content--day,
-.gstc__chart-calendar-date-content--week {
+.gstc__chart-calendar-date-content--week,
+.gstc__chart-calendar-date-content--minute {
   font-size: 18px;
   line-height: 1.6em;
   overflow: visible;
 }
 .gstc__chart-calendar-date-content--day.gstc-date-week-small,
-.gstc__chart-calendar-date-content--week.gstc-date-week-small {
+.gstc__chart-calendar-date-content--week.gstc-date-week-small,
+.gstc__chart-calendar-date-content--minute.gstc-date-week-small {
   line-height: 1.2em;
   height: calc(var(--calendar-height) - 20px);
   font-size: 14px;
 }
 .gstc__chart-calendar-date-content--day.current,
-.gstc__chart-calendar-date-content--week.current {
+.gstc__chart-calendar-date-content--week.current,
+.gstc__chart-calendar-date-content--minute.current {
   border-right: none;
 }
 .gstc__chart-calendar-date-content--day.previous,
-.gstc__chart-calendar-date-content--week.previous {
+.gstc__chart-calendar-date-content--week.previous,
+.gstc__chart-calendar-date-content--minute.previous {
   border-right: none;
 }
 .gstc__chart-timeline {
