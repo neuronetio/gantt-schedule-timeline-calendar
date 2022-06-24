@@ -10,7 +10,7 @@ describe('Items', () => {
         '.gstc__chart-timeline-items-row-item[data-gstcid="gstcid-3"] .gstc__chart-timeline-items-row-item-resizing-handle--right';
       let api: Api;
       let state: DeepState;
-      let spacing: number = 4;
+      let spacing = 4;
 
       cy.load(url)
         .window()
@@ -63,8 +63,7 @@ describe('Items', () => {
           const time: DataChartTime = state.get('$data.chart.time');
           const firstDate = time.levels[time.level][0];
           if (url === '/examples/complex-1/index.html') {
-            const spacing: number = state.get('config.chart.spacing');
-            expect(fixed(itemData.actualWidth + spacing)).to.eq(fixed(firstDate.currentView.width));
+            expect(fixed(itemData.actualWidth)).to.eq(fixed(firstDate.currentView.width));
           }
           if (url === '/examples/item-types-plugin/index.html') {
             const minWidth: number = state.get('config.chart.item.minWidth');

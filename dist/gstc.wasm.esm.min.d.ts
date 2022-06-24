@@ -454,13 +454,17 @@ export interface DefaultItem {
     cutIcons?: CutIcons;
     overlap?: boolean;
 }
+export interface ChartSpacing {
+    left?: number;
+    right?: number;
+}
 export interface Chart {
     time?: ChartTime;
     calendarLevels?: ChartCalendarLevel[];
     grid?: ChartGrid;
     items?: Items;
     item?: DefaultItem;
-    spacing?: number;
+    spacing?: number | ChartSpacing;
 }
 export interface ActionFunctionResult {
     update?: (element: HTMLElement, data: unknown) => void;
