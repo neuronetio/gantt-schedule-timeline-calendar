@@ -1914,9 +1914,9 @@
       }
     },
     "node_modules/flatted": {
-      "version": "3.2.5",
-      "resolved": "https://registry.npmjs.org/flatted/-/flatted-3.2.5.tgz",
-      "integrity": "sha512-WIWGi2L3DyTUvUrwRKgGi9TwxQMUEqPOPQBVi71R96jZXJdFskXEmf54BoZaS1kknGODoIGASGEzBUYdyMCBJg==",
+      "version": "3.2.6",
+      "resolved": "https://registry.npmjs.org/flatted/-/flatted-3.2.6.tgz",
+      "integrity": "sha512-0sQoMh9s0BYsm+12Huy/rkKxVu4R1+r96YX5cG44rHV0pQ6iC3Q+mkoMFaGWObMFYQxCVT+ssG1ksneA2MI9KQ==",
       "dev": true
     },
     "node_modules/forever-agent": {
@@ -5171,9 +5171,9 @@
       }
     },
     "flatted": {
-      "version": "3.2.5",
-      "resolved": "https://registry.npmjs.org/flatted/-/flatted-3.2.5.tgz",
-      "integrity": "sha512-WIWGi2L3DyTUvUrwRKgGi9TwxQMUEqPOPQBVi71R96jZXJdFskXEmf54BoZaS1kknGODoIGASGEzBUYdyMCBJg==",
+      "version": "3.2.6",
+      "resolved": "https://registry.npmjs.org/flatted/-/flatted-3.2.6.tgz",
+      "integrity": "sha512-0sQoMh9s0BYsm+12Huy/rkKxVu4R1+r96YX5cG44rHV0pQ6iC3Q+mkoMFaGWObMFYQxCVT+ssG1ksneA2MI9KQ==",
       "dev": true
     },
     "forever-agent": {

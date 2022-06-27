@@ -33,6 +33,11 @@ export declare class Time {
     isInCurrentView(date: Dayjs, time?: DataChartTime): boolean;
     recalculateDatesWidths(dates: DataChartTimeLevelDate[], time?: DataChartTime): DataChartTimeLevelDate[];
     recalculateDatesPositions(dates: DataChartTimeLevelDate[], time?: DataChartTime, relativeToTime?: boolean, cloneDates?: boolean): DataChartTimeLevelDate[];
+    setDatesCacheLevel(levelIndex: number, dates: DataChartTimeLevelDate[], time?: DataChartTime): void;
+    addDatesToCacheLevel(levelIndex: number, dates: DataChartTimeLevelDate[], time?: DataChartTime): DataChartTimeLevelDate[];
+    isLevelDateInCache(levelIndex: number, dateTime: number, time?: DataChartTime): boolean;
+    getLevelDatesFromCache(levelIndex: number, leftTime: number, rightTime: number, time?: DataChartTime): {};
+    getAllLevelDatesFromCache(levelIndex: number, time?: DataChartTime): DataChartTimeLevelDate[];
     addMissingDates(dates: DataChartTimeLevelDate[], date: Dayjs, time?: DataChartTime): DataChartTimeLevelDate[];
     /**
      * returns offset in pixels relative to time.from which is the first date in whole timeline

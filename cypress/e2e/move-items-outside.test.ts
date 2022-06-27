@@ -13,6 +13,9 @@ describe('Move items outside view', () => {
         gstc = win.gstc;
       })
       .scrollH(1000)
+      .get('#expand-time')
+      .click()
+      .wait(Cypress.env('wait'))
       .then(() => {
         state.update('config.chart.items.gstcid-2.time', (itemTime) => {
           itemTime.start = gstc.api.time.date('2020-03-25').valueOf();
@@ -167,6 +170,8 @@ describe('Move items outside view', () => {
       })
       .get('#hide-weekends')
       .click()
+      .get('#expand-time')
+      .click()
       .wait(Cypress.env('wait'))
       .then(() => {
         state.update('config.chart.items.gstcid-15', (item) => {
@@ -226,6 +231,8 @@ describe('Move items outside view', () => {
         gstc.api.scrollToTime(gstc.api.time.date('2020-03-13'), false);
       })
       .wait(Cypress.env('wait'))
+      .get('#expand-time')
+      .click()
       .get('#hide-weekends')
       .click()
       .wait(Cypress.env('wait'))

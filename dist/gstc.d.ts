@@ -341,6 +341,7 @@ export interface ChartTime {
     alignLevelsToMain?: boolean;
     readonly timePerPixel?: number;
     checkCurrentDateInterval?: number;
+    readonly datesCache?: DataChartTimeDatesCache;
 }
 export interface DataChartTimeLevelDateCurrentView {
     leftPx: number;
@@ -369,6 +370,16 @@ export interface DataChartTimeLevelDate {
 }
 export declare type DataChartTimeLevel = DataChartTimeLevelDate[];
 export declare type DataChartTimeLevels = DataChartTimeLevel[];
+export declare type DataChartTimeDatesCacheDate = DataChartTimeLevelDate;
+export interface DataChartTimeDatesCacheLevel {
+    leftTime: number;
+    rightTime: number;
+    dates: DataChartTimeDatesCacheDate[];
+}
+export interface DataChartTimeDatesCache {
+    timePerPixel: number;
+    levels: DataChartTimeDatesCacheLevel[];
+}
 export interface DataChartTime extends ChartTime {
     period: Period;
     leftGlobal: number;
@@ -398,6 +409,7 @@ export interface DataChartTime extends ChartTime {
     allDates?: ChartTimeDates[];
     forceUpdate?: boolean;
     recalculateTimesLastReason?: string;
+    datesCache: DataChartTimeDatesCache;
 }
 export interface ChartCalendarFormatArguments {
     timeStart: Dayjs;

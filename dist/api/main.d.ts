@@ -36,7 +36,7 @@ export default function main(vido: Vido, mergeDeep: any): {
     calculateRightGlobal(leftGlobalDate: Dayjs, chartWidth: number, allMainDates: DataChartTimeLevelDate[], offsetPx: any, offsetMs: any): number;
     updateVisibleItems(time?: DataChartTime, multi?: import("deep-state-observer").Multi): import("deep-state-observer").Multi;
     calculateLeftAndRightGlobalNormally(time: DataChartTime, horizontalScroll: DataScrollHorizontal): void;
-    calculateLeftAndRightGlobalFromCenter(time: DataChartTime, oldDataTime: DataChartTime, horizontalScroll: DataScrollHorizontal): DataChartTime;
+    calculateLeftAndRightGlobalFromCenter(time: DataChartTime, oldDataTime: DataChartTime, horizontalScroll: DataScrollHorizontal): void | DataChartTime;
     recalculateTimes(reasons: Reason[]): void;
     minimalReload(eventInfo: any): void;
     partialReload(fullReload: boolean, eventInfo: any): void;

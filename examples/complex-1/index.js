@@ -50,73 +50,69 @@ for (let i = 0; i < iterations; i++) {
   };
 }
 
-rows[GSTCID('3')].vacations = [
-  startDate.add(5, 'days').startOf('day').valueOf(),
-  startDate.add(6, 'days').startOf('day').valueOf(),
-];
-
 rows[GSTCID('11')].label = 'NESTED TREE HERE';
 rows[GSTCID('12')].parentId = GSTCID('11');
 rows[GSTCID('13')].parentId = GSTCID('12');
 rows[GSTCID('14')].parentId = GSTCID('13');
 
-rows[GSTCID('7')].birthday = startDate.add(3, 'day').startOf('day').valueOf();
+function generateItemsForDaysView() {
+  /**
+   * @type {import("../../dist/gstc").Items}
+   */
+  const items = {};
+  for (let i = 0; i < iterations; i++) {
+    let rowId = GSTCID(i.toString());
+    let id = GSTCID(i.toString());
+    let startDayjs = GSTC.api
+      .date(startTime)
+      .startOf('day')
+      .add(Math.floor(Math.random() * addDays), 'day');
+    let end = startDayjs
+      .clone()
+      .add(Math.floor(Math.random() * 20) + 4, 'day')
+      .endOf('day')
+      .valueOf();
+    if (end > endDate.valueOf()) end = endDate.valueOf();
+    items[id] = {
+      id,
+      label: `John Doe ${i}`,
+      progress: Math.round(Math.random() * 100),
+      style: { background: getRandomColor() },
+      time: {
+        start: startDayjs.startOf('day').valueOf(),
+        end,
+      },
+      rowId,
+      img: getRandomFaceImage(),
+      description: 'Lorem ipsum dolor sit amet',
+    };
+  }
 
-/**
- * @type {import("../../dist/gstc").Items}
- */
-const items = {};
-for (let i = 0; i < iterations; i++) {
-  let rowId = GSTCID(i.toString());
-  let id = GSTCID(i.toString());
-  let startDayjs = GSTC.api
-    .date(startTime)
-    .startOf('day')
-    .add(Math.floor(Math.random() * addDays), 'day');
-  let end = startDayjs
-    .clone()
-    .add(Math.floor(Math.random() * 20) + 4, 'day')
-    .endOf('day')
-    .valueOf();
-  if (end > endDate.valueOf()) end = endDate.valueOf();
-  items[id] = {
-    id,
-    label: `John Doe ${i}`,
-    progress: Math.round(Math.random() * 100),
-    style: { background: getRandomColor() },
-    time: {
-      start: startDayjs.startOf('day').valueOf(),
-      end,
-    },
-    rowId,
-    img: getRandomFaceImage(),
-    description: 'Lorem ipsum dolor sit amet',
-  };
+  items[GSTCID('0')].linkedWith = [GSTCID('1')];
+  items[GSTCID('0')].label = 'Task 0 linked with 1';
+  items[GSTCID('0')].type = 'task';
+  items[GSTCID('1')].label = 'Task 1 linked with 0';
+  items[GSTCID('1')].type = 'task';
+  items[GSTCID('1')].time = { ...items[GSTCID('0')].time };
+
+  items[GSTCID('0')].style = { background: colors[3] };
+  items[GSTCID('1')].style = { background: colors[3] };
+
+  items[GSTCID('3')].dependant = [GSTCID('5')];
+  items[GSTCID('3')].label = 'Grab and move me into vacation area';
+  items[GSTCID('3')].time.start = GSTC.api.date(startTime).add(4, 'day').startOf('day').add(5, 'day').valueOf();
+  items[GSTCID('3')].time.end = GSTC.api.date(items[GSTCID('3')].time.start).endOf('day').add(5, 'day').valueOf();
+
+  items[GSTCID('5')].time.start = GSTC.api.date(items[GSTCID('3')].time.end).startOf('day').add(5, 'day').valueOf();
+  items[GSTCID('5')].time.end = GSTC.api.date(items[GSTCID('5')].time.start).endOf('day').add(2, 'day').valueOf();
+  items[GSTCID('5')].dependant = [GSTCID('7'), GSTCID('9')];
+
+  items[GSTCID('7')].time.start = GSTC.api.date(items[GSTCID('5')].time.end).startOf('day').add(3, 'day').valueOf();
+  items[GSTCID('7')].time.end = GSTC.api.date(items[GSTCID('7')].time.start).endOf('day').add(2, 'day').valueOf();
+  items[GSTCID('9')].time.start = GSTC.api.date(items[GSTCID('5')].time.end).startOf('day').add(2, 'day').valueOf();
+  items[GSTCID('9')].time.end = GSTC.api.date(items[GSTCID('9')].time.start).endOf('day').add(3, 'day').valueOf();
+  return items;
 }
-
-items[GSTCID('0')].linkedWith = [GSTCID('1')];
-items[GSTCID('0')].label = 'Task 0 linked with 1';
-items[GSTCID('0')].type = 'task';
-items[GSTCID('1')].label = 'Task 1 linked with 0';
-items[GSTCID('1')].type = 'task';
-items[GSTCID('1')].time = { ...items[GSTCID('0')].time };
-
-items[GSTCID('0')].style = { background: colors[3] };
-items[GSTCID('1')].style = { background: colors[3] };
-
-items[GSTCID('3')].dependant = [GSTCID('5')];
-items[GSTCID('3')].label = 'Grab and move me into vacation area';
-items[GSTCID('3')].time.start = GSTC.api.date(startTime).add(4, 'day').startOf('day').add(5, 'day').valueOf();
-items[GSTCID('3')].time.end = GSTC.api.date(items[GSTCID('3')].time.start).endOf('day').add(5, 'day').valueOf();
-
-items[GSTCID('5')].time.start = GSTC.api.date(items[GSTCID('3')].time.end).startOf('day').add(5, 'day').valueOf();
-items[GSTCID('5')].time.end = GSTC.api.date(items[GSTCID('5')].time.start).endOf('day').add(2, 'day').valueOf();
-items[GSTCID('5')].dependant = [GSTCID('7'), GSTCID('9')];
-
-items[GSTCID('7')].time.start = GSTC.api.date(items[GSTCID('5')].time.end).startOf('day').add(3, 'day').valueOf();
-items[GSTCID('7')].time.end = GSTC.api.date(items[GSTCID('7')].time.start).endOf('day').add(2, 'day').valueOf();
-items[GSTCID('9')].time.start = GSTC.api.date(items[GSTCID('5')].time.end).startOf('day').add(2, 'day').valueOf();
-items[GSTCID('9')].time.end = GSTC.api.date(items[GSTCID('9')].time.start).endOf('day').add(3, 'day').valueOf();
 
 const columns = {
   data: {
@@ -228,27 +224,15 @@ function rowSlot(vido, props) {
   };
 }
 
-function onCellCreateVacation({ time, row, vido, content }) {
-  if (row.vacations.includes(time.leftGlobal)) {
-    return vido.html`<div title="🏖️ VACATION" style="height:100%"><div style="font-size:11px;background:#A0A0A0;color:white;">Vacation</div></div>${content}`;
-  }
-  return content;
-}
-
-function onCellCreateBirthday({ time, row, vido, content }) {
-  if (row.birthday === time.leftGlobal) {
-    return vido.html`${content}<div title="🎁 BIRTHDAY" style="height:100%;font-size:18px;"><div style="height:14px;white-space: nowrap;text-overflow:ellipsis;overflow:hidden;font-size:11px;background:#F9B32F;color:white;margin-bottom:10px;">🎁 Birthday</div></div>`;
-  }
-  return content;
-}
-
 let snapTime = true;
-function snapStart({ startTime }) {
-  if (snapTime) return startTime.startOf('day');
+function snapStart({ startTime, vido }) {
+  const period = vido.state.get('config.chart.time.period');
+  if (snapTime) return startTime.startOf(period);
   return startTime;
 }
-function snapEnd({ endTime }) {
-  if (snapTime) return endTime.endOf('day');
+function snapEnd({ endTime, vido }) {
+  const period = vido.state.get('config.chart.time.period');
+  if (snapTime) return endTime.endOf(period);
   return endTime;
 }
 
@@ -256,8 +240,8 @@ function canMove(item) {
   const row = gstc.api.getRow(item.rowId);
   if (row.vacations) {
     for (const vacation of row.vacations) {
-      const vacationStart = gstc.api.time.date(vacation).startOf('day').valueOf();
-      const vacationEnd = gstc.api.time.date(vacation).endOf('day').valueOf();
+      const vacationStart = vacation.from;
+      const vacationEnd = vacation.to;
       // item start time inside vacation
       if (item.time.start >= vacationStart && item.time.start <= vacationEnd) {
         return false;
@@ -317,8 +301,8 @@ const itemResizeOptions = {
 };
 
 let hideWeekends = false;
-function onLevelDates({ dates, level, format }) {
-  if (format.period !== 'day') return dates;
+function onLevelDates({ dates, level, format, time }) {
+  if (format.period !== time.period) return dates;
   if (!hideWeekends) return dates;
   return dates.filter((date) => date.leftGlobalDate.day() !== 0 && date.leftGlobalDate.day() !== 6);
 }
@@ -390,6 +374,115 @@ function myItemSlot(vido, props) {
     vido.html`<div class="my-item-wrapper" @click=${onClick} style="width:100%;display:flex;overflow:hidden;pointer-events:none;">${content}</div>`;
 }
 
+rows[GSTCID('3')].vacations = [
+  { from: startDate.add(5, 'days').startOf('day').valueOf(), to: startDate.add(5, 'days').endOf('day').valueOf() },
+  { from: startDate.add(6, 'days').startOf('day').valueOf(), to: startDate.add(6, 'days').endOf('day').valueOf() },
+];
+rows[GSTCID('7')].birthday = [
+  {
+    from: startDate.add(3, 'day').startOf('day').valueOf(),
+    to: startDate.add(3, 'day').endOf('day').valueOf(),
+  },
+];
+
+function onCellCreateVacation({ time, row, vido, content }) {
+  if (!row.vacations) return content;
+  let isVacation = false;
+  for (const vacation of row.vacations) {
+    if (time.leftGlobal >= vacation.from && time.rightGlobal <= vacation.to) {
+      isVacation = true;
+      break;
+    }
+  }
+  if (isVacation) {
+    return vido.html`<div title="🏖️ VACATION" style="height:100%;width:100%;background:#A0A0A010;"></div>${content}`;
+  }
+  return content;
+}
+
+function myVacationRowSlot(vido, props) {
+  const { onChange, html, update, api, state } = vido;
+
+  let vacationContent = [];
+  onChange((changedProps) => {
+    props = changedProps;
+    if (!props || !props.row || !props.row.vacations) {
+      vacationContent = [];
+      return update();
+    }
+    const configTime = state.get('config.chart.time');
+    vacationContent = [];
+    for (const vacation of props.row.vacations) {
+      if (vacation.to < configTime.leftGlobal || vacation.from > configTime.rightGlobal) continue; // birthday date is out of the current view
+      const leftPx = api.time.getViewOffsetPxFromDates(api.time.date(vacation.from));
+      const rightPx = api.time.getViewOffsetPxFromDates(api.time.date(vacation.to));
+      const widthPx = rightPx - leftPx - 1;
+      if (widthPx < 0) continue;
+      let textAlign = 'left';
+      if (widthPx <= 100) textAlign = 'center';
+      vacationContent.push(
+        html`<div
+          style="position:absolute;left:${leftPx}px;width:${widthPx}px;height:14px;white-space: nowrap;text-overflow:ellipsis;overflow:hidden;font-size:11px;background:#A0A0A0;color:white;text-align:${textAlign};"
+        >
+          Vacation
+        </div>`
+      );
+    }
+    update();
+  });
+
+  return (content) => html`${vacationContent}${content}`;
+}
+
+function onCellCreateBirthday({ time, row, vido, content }) {
+  if (!row.birthday) return content;
+  let isBirthday = false;
+  for (const birthday of row.birthday) {
+    if (time.leftGlobal >= birthday.from && time.rightGlobal <= birthday.to) {
+      isBirthday = true;
+      break;
+    }
+  }
+  if (isBirthday) {
+    return vido.html`<div title="🎁 BIRTHDAY" style="height:100%;width:100%;font-size:18px;background:#F9B32F10;"></div>${content}`;
+  }
+  return content;
+}
+
+function myBirthdayRowSlot(vido, props) {
+  const { onChange, html, update, api, state } = vido;
+
+  let birthdayContent = [];
+  onChange((changedProps) => {
+    props = changedProps;
+    if (!props || !props.row || !props.row.birthday) {
+      birthdayContent = [];
+      return update();
+    }
+    const configTime = state.get('config.chart.time');
+    birthdayContent = [];
+    for (const birthday of props.row.birthday) {
+      if (birthday.to < configTime.leftGlobal || birthday.from > configTime.rightGlobal) continue; // birthday date is out of the current view
+      const leftPx = api.time.getViewOffsetPxFromDates(api.time.date(birthday.from));
+      const rightPx = api.time.getViewOffsetPxFromDates(api.time.date(birthday.to));
+      const widthPx = rightPx - leftPx - 1;
+      if (widthPx < 0) continue;
+      let textAlign = 'left';
+      if (widthPx <= 100) textAlign = 'center';
+      birthdayContent.push(
+        html`<div
+          style="position:absolute;left:${leftPx}px;width:${widthPx}px;height:14px;white-space: nowrap;text-overflow:ellipsis;overflow:hidden;font-size:11px;background:#F9B32F;color:white;text-align:${textAlign};"
+        >
+          🎁 Birthday
+        </div>`
+      );
+    }
+    update();
+  });
+
+  return (content) => html`${birthdayContent}${content}`;
+}
+
 /**
  * @type {import('../../dist/gstc').Config}
  */
@@ -447,7 +540,7 @@ const config = {
         //bottom: 0,
       },
     },
-    items,
+    items: generateItemsForDaysView(),
     grid: {
       cell: {
         onCreate: [onCellCreateVacation, onCellCreateBirthday],
@@ -461,6 +554,7 @@ const config = {
   slots: {
     'chart-timeline-items-row-item': { content: [itemSlot], inner: [myItemSlot] },
     'list-column-row': { content: [rowSlot] },
+    'chart-timeline-grid-row': { content: [myBirthdayRowSlot, myVacationRowSlot] },
   },
   templates: {
     'chart-timeline-items-row-item': chartTimelineItemsRowItemTemplate,
@@ -501,17 +595,6 @@ function scrollToFirstItem() {
   api.scrollToTime(firstItem.time.start, false);
 }
 
-function makeSelectedItemsDependent() {
-  const ITEM = 'chart-timeline-items-row-item';
-  const selectedItems = gstc.api.plugins.Selection.getSelected()[ITEM];
-  console.log('selected items', selectedItems);
-  selectedItems.forEach((item, index, all) => {
-    if (index + 1 < all.length) {
-      state.update(`config.chart.items.${item.id}.dependant`, [all[index + 1].id]);
-    }
-  });
-}
-
 globalThis.scrollToFirstItem = scrollToFirstItem;
 
 function downloadImage() {
@@ -549,15 +632,47 @@ function toggleExpandTime(ev) {
   state.update('config.chart.time.autoExpandTimeFromItems', expandTime);
 }
 
+function zoomChange(ev) {
+  const period = ev.target.value;
+  let zoom = 20;
+  let from = gstc.api.time.date('2020-02-1').startOf('day').valueOf();
+  let to = gstc.api.time.date('2020-03-01').endOf('month').valueOf();
+  switch (period) {
+    case 'hours':
+      zoom = 16;
+      from = gstc.api.time.date('2020-02-01').startOf('day').valueOf();
+      to = gstc.api.time.date('2020-02-05').endOf('day').valueOf();
+      break;
+    case 'days':
+      zoom = 20;
+      from = gstc.api.time.date('2020-02-01').startOf('day').valueOf();
+      to = gstc.api.time.date('2020-03-01').endOf('month').valueOf();
+      break;
+    case 'months':
+      zoom = 26;
+      from = gstc.api.time.date('2018-01-01').startOf('day').valueOf();
+      to = gstc.api.time.date('2021-01-10').endOf('year').valueOf();
+      break;
+  }
+
+  state.update('config.chart.time', (time) => {
+    time.zoom = zoom;
+    time.from = from;
+    time.to = to;
+    return time;
+  });
+}
+
 const lithtml = GSTC.lithtml;
 
-const toolboxButtons = lithtml.html`<button @click=${selectCells}>Select first cells</button>
-      <button @click=${scrollToFirstItem}>Scroll to first item</button>
-      <button @click=${downloadImage}>Download image</button>
-      <button @click=${downloadPdf}>Download PDF</button>
-      <input type="checkbox" id="dark-mode" @change=${toggleDarkMode} /> <label for="dark-mode">Dark mode</label>
-      <input type="checkbox" id="snap-time" @change=${toggleSnapTime} checked/> <label for="snap-time">Snap time (item movement)</label>
-      <input type="checkbox" id="hide-weekends" @change=${toggleHideWeekends} /> <label for="hide-weekends">Hide weekends</label>
-      <input type="checkbox" id="expand-time" @change=${toggleExpandTime} checked /> <label for="expand-time">Expand view when item is outside</label>`;
+const toolboxButtons = lithtml.html`<div class="toolbox-item"><button @click=${selectCells}>Select first cells</button></div>
+      <div class="toolbox-item"><button @click=${scrollToFirstItem}>Scroll to first item</button></div>
+      <div class="toolbox-item"><button @click=${downloadImage}>Download image</button></div>
+      <div class="toolbox-item"><button @click=${downloadPdf}>Download PDF</button></div>
+      <div class="toolbox-item"><input type="checkbox" id="dark-mode" @change=${toggleDarkMode} /> <label for="dark-mode">Dark mode</label></div>
+      <div class="toolbox-item"><input type="checkbox" id="snap-time" @change=${toggleSnapTime} checked/> <label for="snap-time">Snap time (item movement)</label></div>
+      <div class="toolbox-item"><input type="checkbox" id="hide-weekends" @change=${toggleHideWeekends} /> <label for="hide-weekends">Hide weekends</label></div>
+      <div class="toolbox-item"><input type="checkbox" id="expand-time" @change=${toggleExpandTime} /> <label for="expand-time">Expand view when item is outside</label></div>
+      <div class="toolbox-item">Zoom: <select @change="${zoomChange}"><option value="hours">Hours</option><option value="days" selected>Days</option><option value="months">Months</option></select></div>`;
 
 lithtml.render(toolboxButtons, document.getElementById('toolbox'));
