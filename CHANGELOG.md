@@ -801,4 +801,8 @@
 - performance optimization
 - new readonly dates cache added to `config.chart.time.datesCache`
 
+[3.22.1]
+
+- in some cases, the incorrect vertical position of the item was calculated #340 bugfix
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use
