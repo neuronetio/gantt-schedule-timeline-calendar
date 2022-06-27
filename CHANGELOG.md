@@ -805,4 +805,8 @@
 
 - in some cases, the incorrect vertical position of the item was calculated #340 bugfix
 
+[3.22.2]
+
+- The row items are now sorted in ascending order by start time
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use
