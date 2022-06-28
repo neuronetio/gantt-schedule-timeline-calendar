@@ -351,6 +351,11 @@ export interface DataChartTimeLevelDateCurrentView {
     rightGlobalDate: Dayjs;
     durationMs: number;
 }
+export interface DataChartTimeLevelDateDST {
+    diffMs: number;
+    afterDate: Dayjs;
+    afterTime: number;
+}
 export interface DataChartTimeLevelDate {
     id: string;
     leftGlobal: number;
@@ -367,7 +372,7 @@ export interface DataChartTimeLevelDate {
     previous: boolean;
     currentView?: DataChartTimeLevelDateCurrentView;
     periodIncrementedBy: number;
-    diffDST: number;
+    DST: DataChartTimeLevelDateDST;
 }
 export declare type DataChartTimeLevel = DataChartTimeLevelDate[];
 export declare type DataChartTimeLevels = DataChartTimeLevel[];

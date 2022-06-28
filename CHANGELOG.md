@@ -814,4 +814,10 @@
 - `DataChartTimeLevelDate` now includes `diffDST` which is a difference between standard period and period in DST daylight saving time - date may be shorter (negative value) or longer than the standard date
 - ItemMovement plugin now takes DST into account while moving
 
+[3.24.0]
+
+- [**breaking\*** - 3.23.0] `DataChartTimeLevelDate` now contains `DST` with `diffMs:number`, `afterTime:number` and `afterDate:Dayjs` object instead of `diffDST:number` only
+- ItemMovement dependant items initial values bugfix
+- ItemResizing plugin now takes DST into account while resizing
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use

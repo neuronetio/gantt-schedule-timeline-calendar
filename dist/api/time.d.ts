@@ -69,6 +69,7 @@ export declare class Time {
     private checkCurrentDateTimeoutId;
     stopCheckingCurrentDates(): void;
     checkCurrentDates(runSetTimeout?: boolean, time?: DataChartTime): void;
+    getDSTDiffForLevel(levelIndex: number, fromTime: number, toTime: number, time?: DataChartTime): number;
     private setDatesDST;
     private _generatePeriodDates;
     generatePeriodDates({ leftDate, rightDate, period, level, levelIndex, time, callOnDate, callOnLevelDates, expandIfMissing, }: {
