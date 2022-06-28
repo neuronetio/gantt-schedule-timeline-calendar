@@ -36,7 +36,18 @@ export declare class Time {
     setDatesCacheLevel(levelIndex: number, dates: DataChartTimeLevelDate[], time?: DataChartTime): void;
     addDatesToCacheLevel(levelIndex: number, dates: DataChartTimeLevelDate[], time?: DataChartTime): DataChartTimeLevelDate[];
     isLevelDateInCache(levelIndex: number, dateTime: number, time?: DataChartTime): boolean;
-    getLevelDatesFromCache(levelIndex: number, leftTime: number, rightTime: number, time?: DataChartTime): {};
+    getLevelDatesFromCache(levelIndex: number, leftTime: number, rightTime: number, time?: DataChartTime): any[] | {
+        [Symbol.iterator](): {
+            next(): {
+                value: DataChartTimeLevelDate;
+                done: boolean;
+            } | {
+                done: boolean;
+                value?: undefined;
+            };
+        };
+        length: number;
+    };
     getAllLevelDatesFromCache(levelIndex: number, time?: DataChartTime): DataChartTimeLevelDate[];
     addMissingDates(dates: DataChartTimeLevelDate[], date: Dayjs, time?: DataChartTime): DataChartTimeLevelDate[];
     /**
@@ -58,6 +69,7 @@ export declare class Time {
     private checkCurrentDateTimeoutId;
     stopCheckingCurrentDates(): void;
     checkCurrentDates(runSetTimeout?: boolean, time?: DataChartTime): void;
+    private setDatesDST;
     private _generatePeriodDates;
     generatePeriodDates({ leftDate, rightDate, period, level, levelIndex, time, callOnDate, callOnLevelDates, expandIfMissing, }: {
         leftDate: Dayjs;

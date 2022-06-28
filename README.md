@@ -44,6 +44,7 @@ Keywords: [ gantt, javascript gantt, typescript gantt, project manager, js gantt
 - you can easily add third party libraries
 - highly configurable
 - mobile ready
+- Daylight saving time (DST) support
 - plugins support
 - attractive visually
 - written in typescript

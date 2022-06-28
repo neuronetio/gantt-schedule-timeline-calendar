@@ -641,7 +641,7 @@ function zoomChange(ev) {
     case 'hours':
       zoom = 16;
       from = gstc.api.time.date('2020-02-01').startOf('day').valueOf();
-      to = gstc.api.time.date('2020-02-05').endOf('day').valueOf();
+      to = gstc.api.time.date('2020-03-01').endOf('month').valueOf();
       break;
     case 'days':
       zoom = 20;

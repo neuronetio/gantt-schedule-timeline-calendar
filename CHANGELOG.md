@@ -809,4 +809,9 @@
 
 - The row items are now sorted in ascending order by start time
 
+[3.23.0]
+
+- `DataChartTimeLevelDate` now includes `diffDST` which is a difference between standard period and period in DST daylight saving time - date may be shorter (negative value) or longer than the standard date
+- ItemMovement plugin now takes DST into account while moving
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use

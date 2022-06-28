@@ -367,6 +367,7 @@ export interface DataChartTimeLevelDate {
     previous: boolean;
     currentView?: DataChartTimeLevelDateCurrentView;
     periodIncrementedBy: number;
+    diffDST: number;
 }
 export declare type DataChartTimeLevel = DataChartTimeLevelDate[];
 export declare type DataChartTimeLevels = DataChartTimeLevel[];
