@@ -49,7 +49,7 @@ export declare class Time {
         length: number;
     };
     getAllLevelDatesFromCache(levelIndex: number, time?: DataChartTime): DataChartTimeLevelDate[];
-    addMissingDates(dates: DataChartTimeLevelDate[], date: Dayjs, time?: DataChartTime): DataChartTimeLevelDate[];
+    addMissingDates(dates: DataChartTimeLevelDate[], date: Dayjs, time?: DataChartTime, cloneDates?: boolean): DataChartTimeLevelDate[];
     /**
      * returns offset in pixels relative to time.from which is the first date in whole timeline
      */
@@ -60,6 +60,7 @@ export declare class Time {
     getViewOffsetPxFromDates(date: Dayjs, limitToView?: boolean, time?: DataChartTime, dates?: DataChartTimeLevelDate[], addMissingDates?: boolean): number;
     limitOffsetPxToView(x: number, time?: DataChartTime): number;
     findDateAtViewOffsetPx(offsetPx: number, allPeriodDates: ChartTimeDate[]): ChartTimeDate | undefined;
+    findDateIndex(time: number, dates: DataChartTimeLevelDate[]): number;
     findDateAtTime(milliseconds: number, allPeriodDates?: ChartTimeDate[]): ChartTimeDate | undefined;
     getMainDateFromRelativePosition(fromDate: ChartTimeDate, relativePosPx: number): ChartTimeDate | undefined;
     getTimeFromOffsetPx(offsetPx: number, isViewOffset?: boolean, time?: DataChartTime, dates?: DataChartTimeLevelDate[]): number;
@@ -84,6 +85,8 @@ export declare class Time {
         expandIfMissing?: boolean;
     }): DataChartTimeLevelDate[];
     getDatesDiffPx(fromTime: Dayjs, toTime: Dayjs, time: DataChartTime, accurate?: boolean, dates?: DataChartTimeLevelDate[]): number;
+    getDatesDiffMs(fromTime: Dayjs, toTime: Dayjs, time: DataChartTime, accurate?: boolean, dates?: DataChartTimeLevelDate[]): number;
+    addTimeFromDates(baseTime: number, addTime: number, time?: DataChartTime): number;
     getLeftViewDate(time?: DataChartTime): ChartTimeDate | null;
     getRightViewDate(time?: DataChartTime): ChartTimeDate | null;
     getLowerPeriod(period: Period): Period;

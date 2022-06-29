@@ -820,4 +820,8 @@
 - ItemMovement dependant items initial values bugfix
 - ItemResizing plugin now takes DST into account while resizing
 
+[3.25.0]
+
+- ItemMovement & ItemResizing dependant items movement algorithm updated
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use
