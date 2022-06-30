@@ -841,4 +841,8 @@
 
 - there was a bug when gstc wanted to save dates to cache but cache was not ready for that ¯\\\_(ツ)\_/¯
 
+[3.26.2]
+
+- dependency lines plugin stops draw lines when two connected items was detached bugfix
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use
