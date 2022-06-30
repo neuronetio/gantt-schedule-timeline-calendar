@@ -269,7 +269,9 @@ function canMove(item) {
 const itemMovementOptions = {
   snapToTime: {
     start: snapStart,
-    end: snapEnd,
+    end({ endTime }) {
+      return endTime;
+    },
   },
   events: {
     onMove({ items }) {
@@ -673,6 +675,6 @@ const toolboxButtons = lithtml.html`<div class="toolbox-item"><button @click=${s
       <div class="toolbox-item"><input type="checkbox" id="snap-time" @change=${toggleSnapTime} checked/> <label for="snap-time">Snap time (item movement)</label></div>
       <div class="toolbox-item"><input type="checkbox" id="hide-weekends" @change=${toggleHideWeekends} /> <label for="hide-weekends">Hide weekends</label></div>
       <div class="toolbox-item"><input type="checkbox" id="expand-time" @change=${toggleExpandTime} /> <label for="expand-time">Expand view when item is outside</label></div>
-      <div class="toolbox-item">Zoom: <select @change="${zoomChange}"><option value="hours">Hours</option><option value="days" selected>Days</option><option value="months">Months</option></select></div>`;
+      <div class="toolbox-item">Zoom: <select @change="${zoomChange}" id="zoom"><option value="hours">Hours</option><option value="days" selected>Days</option><option value="months">Months</option></select></div>`;
 
 lithtml.render(toolboxButtons, document.getElementById('toolbox'));
