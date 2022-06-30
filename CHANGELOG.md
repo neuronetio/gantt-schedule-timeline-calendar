@@ -837,4 +837,8 @@
 - added `percent` to `$data.scroll.horizontal` and `$data.scroll.vertical`
 - when horizontal scroll bar position is at the beginning or at the end position then don't calculate new position basing on center date
 
+[3.26.1]
+
+- there was a bug when gstc wanted to save dates to cache but cache was not ready for that ¯\\\_(ツ)\_/¯
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use
