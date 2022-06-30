@@ -613,6 +613,7 @@ describe('Daylight saving time (DST)', () => {
           item.time.end = gstc.api.time.date('2020-01-01').endOf('month').valueOf();
           return item;
         });
+        gstc.api.scrollToTime(gstc.api.time.date('2020-01-01').valueOf(), false);
       })
       .wait(Cypress.env('wait'))
       .then(() => {

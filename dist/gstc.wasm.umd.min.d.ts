@@ -286,6 +286,7 @@ export interface DataScrollValues {
     dataIndex: number;
     dataId: string;
     visible: boolean;
+    percent: number;
 }
 export interface DataScrollHorizontal extends DataScrollValues {
     data: ChartTimeDate;

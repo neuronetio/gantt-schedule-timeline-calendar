@@ -832,4 +832,9 @@
 
 - [**breaking***] ItemMovement and ItemResizing do not snap dependant items to time because it led to time slips
 
+[3.26.0]
+
+- added `percent` to `$data.scroll.horizontal` and `$data.scroll.vertical`
+- when horizontal scroll bar position is at the beginning or at the end position then don't calculate new position basing on center date
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use
