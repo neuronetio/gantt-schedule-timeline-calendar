@@ -828,4 +828,8 @@
 
 - [**breaking***] ItemMovement `snapToTime.end` no longer snaps as default behavior as it can change duration when zoom mode is set to display months (different months have different number of days)
 
+[3.25.2]
+
+- [**breaking***] ItemMovement and ItemResizing do not snap dependant items to time because it led to time slips
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use

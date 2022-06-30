@@ -304,6 +304,7 @@ const itemResizeOptions = {
 
 let hideWeekends = false;
 function onLevelDates({ dates, level, format, time }) {
+  if (time.period !== 'day') return dates;
   if (format.period !== time.period) return dates;
   if (!hideWeekends) return dates;
   return dates.filter((date) => date.leftGlobalDate.day() !== 0 && date.leftGlobalDate.day() !== 6);
