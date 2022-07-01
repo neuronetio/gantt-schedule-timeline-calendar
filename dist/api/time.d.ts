@@ -48,7 +48,15 @@ export declare class Time {
         };
         length: number;
     };
+    getLevelDateFromCache(levelIndex: number, dateTime: number, time?: DataChartTime): DataChartTimeLevelDate;
     getAllLevelDatesFromCache(levelIndex: number, time?: DataChartTime): DataChartTimeLevelDate[];
+    /**
+     * Find or create new main date in cache if not found
+     * @param dateTime number
+     * @param time DataChartTime
+     * @returns DataChartTimeLevelDate | null
+     */
+    findOrCreateMainDateAtTime(dateTime: number, time?: DataChartTime): any;
     addMissingDates(dates: DataChartTimeLevelDate[], date: Dayjs, time?: DataChartTime, cloneDates?: boolean): DataChartTimeLevelDate[];
     /**
      * returns offset in pixels relative to time.from which is the first date in whole timeline

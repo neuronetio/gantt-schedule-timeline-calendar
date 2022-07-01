@@ -106,9 +106,7 @@ function limitTime(item, oldItem) {
     item.time.end = item.resizableTo;
   }
   if (item.resizableLength && item.resizablePeriod) {
-    const actualDiff = GSTC.api
-      .date(item.time.end)
-      .diff(item.time.start, item.resizablePeriod, true);
+    const actualDiff = GSTC.api.date(item.time.end).diff(item.time.start, item.resizablePeriod, true);
     if (actualDiff > item.resizableLength) {
       const resizingFromStart = item.time.end === oldItem.time.end;
       if (resizingFromStart) {
@@ -117,29 +115,26 @@ function limitTime(item, oldItem) {
           .subtract(item.resizableLength, item.resizablePeriod) // -1 here because end of day - 3 days -> startOf day = almost 4 days
           .valueOf();
       } else {
-        item.time.end = GSTC.api
-          .date(item.time.start)
-          .add(item.resizableLength, item.resizablePeriod)
-          .valueOf();
+        item.time.end = GSTC.api.date(item.time.start).add(item.resizableLength, item.resizablePeriod).valueOf();
       }
     }
   }
   return item;
 }
 
-function snapToTimeSeparately(item) {
+function snapToTimeSeparately(item, vido) {
   if (!item.snap) return item;
-  const start = GSTC.api.date(item.time.start).startOf('day').add(10, 'hour');
-  const end = GSTC.api.date(item.time.end).startOf('day').add(18, 'hour');
+  const startDate = vido.api.time.findOrCreateMainDateAtTime(item.time.start);
+  const start = startDate.leftGlobalDate.startOf('day').add(10, 'hour');
+  const endDate = vido.api.time.findOrCreateMainDateAtTime(item.time.end);
+  const end = endDate.leftGlobalDate.startOf('day').add(18, 'hour');
   item.time.start = start.valueOf();
   item.time.end = end.valueOf();
   // to change other properties than time we need to update item
   // because resizing-items plugin only works on time property
   state.update(
     `config.chart.items.${item.id}.label`,
-    `From ${start.format('YYYY-MM-DD HH:mm')} to ${end.format(
-      'YYYY-MM-DD HH:mm'
-    )}`
+    `From ${start.format('YYYY-MM-DD HH:mm')} to ${end.format('YYYY-MM-DD HH:mm')}`
   );
   return item;
 }
@@ -161,7 +156,7 @@ const state = GSTC.api.stateFromConfig({
           console.log('Resizing start', items.after);
           return items.after;
         },
-        onResize({ items }) {
+        onResize({ items, vido }) {
           const filtered = items.after
             .map((item, index) => {
               if (!isItemResizable(item)) {
@@ -170,7 +165,7 @@ const state = GSTC.api.stateFromConfig({
               return item;
             })
             .map((item, index) => limitTime(item, items.before[index]))
-            .map((item) => snapToTimeSeparately(item));
+            .map((item) => snapToTimeSeparately(item, vido));
           return filtered;
         },
         onEnd({ items }) {

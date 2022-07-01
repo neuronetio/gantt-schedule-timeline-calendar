@@ -226,14 +226,14 @@ function rowSlot(vido, props) {
 
 let snapTime = true;
 function snapStart({ startTime, vido }) {
-  const period = vido.state.get('config.chart.time.period');
-  if (snapTime) return startTime.startOf(period);
-  return startTime;
+  if (!snapTime) return startTime;
+  const date = vido.api.time.findOrCreateMainDateAtTime(startTime.valueOf());
+  return date.leftGlobalDate;
 }
 function snapEnd({ endTime, vido }) {
-  const period = vido.state.get('config.chart.time.period');
-  if (snapTime) return endTime.endOf(period);
-  return endTime;
+  if (!snapTime) return endTime;
+  const date = vido.api.time.findOrCreateMainDateAtTime(endTime.valueOf());
+  return date.rightGlobalDate;
 }
 
 function canMove(item) {

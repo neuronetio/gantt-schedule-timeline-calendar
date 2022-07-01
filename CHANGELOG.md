@@ -845,4 +845,15 @@
 
 - dependency lines plugin stops draw lines when two connected items was detached bugfix
 
+[3.27.0]
+
+- ItemMovement & ItemResizing now snap to time from main dates by default (not startOf the current period because periodIncrement may be different than 1)
+- `config.chart.time.alignLevelsToMain` fixed dates positions calculation when main dates start and end values were in the middle of the other levels (weeks and months for example)
+- level dates calculations code refactoring
+- `GSTC.api.fromArray` fixes gstcid in dependant items now
+- [**breaking***] default `config.locale.weekStart` is set to 0 now (Sunday) (not 1=Monday)
+- dayjs locale is now used locally inside time api from `gstc.api.time.date` method
+- `GSTC.api.date` method now supports locale configuration as third parameter `GSTC.api.date(time, utcMode, localeConfig)`
+- `GSTC.api.GSTCID` will now check if given id is already in proper format
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use

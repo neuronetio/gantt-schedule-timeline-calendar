@@ -1,6 +1,12 @@
 import GSTC from '../../dist/gstc.esm.min.js';
 // or when you encounter problems with wasm loader
 // import GSTC from '../../dist/gstc.wasm.esm.min.js';
+import { Plugin as CalendarScroll } from '../../dist/plugins/calendar-scroll.esm.min.js';
+import { Plugin as DependencyLines } from '../../dist/plugins/dependency-lines.esm.min.js';
+import { Plugin as Selection } from '../../dist/plugins/selection.esm.min.js';
+import { Plugin as TimelinePointer } from '../../dist/plugins/timeline-pointer.esm.min.js';
+import { Plugin as ItemMovement } from '../../dist/plugins/item-movement.esm.min.js';
+import { Plugin as ItemResizing } from '../../dist/plugins/item-resizing.esm.min.js';
 
 // @ts-ignore
 GSTC.api.dayjs.extend(globalThis.dayjs_plugin_weekOfYear);
@@ -18,14 +24,56 @@ const rowsFromDB = [
   },
 ];
 
+const locale = {
+  name: 'en',
+  weekdays: 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split('_'),
+  weekdaysShort: 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_'),
+  weekdaysMin: 'Su_Mo_Tu_We_Th_Fr_Sa'.split('_'),
+  months: 'January_February_March_April_May_June_July_August_September_October_November_December'.split('_'),
+  monthsShort: 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_'),
+  weekStart: 1,
+  relativeTime: {
+    future: 'in %s',
+    past: '%s ago',
+    s: 'a few seconds',
+    m: 'a minute',
+    mm: '%d minutes',
+    h: 'an hour',
+    hh: '%d hours',
+    d: 'a day',
+    dd: '%d days',
+    M: 'a month',
+    MM: '%d months',
+    y: 'a year',
+    yy: '%d years',
+  },
+  formats: {
+    LT: 'HH:mm',
+    LTS: 'HH:mm:ss',
+    L: 'DD/MM/YYYY',
+    LL: 'D MMMM YYYY',
+    LLL: 'D MMMM YYYY HH:mm',
+    LLLL: 'dddd, D MMMM YYYY HH:mm',
+  },
+  ordinal: (n) => {
+    const s = ['th', 'st', 'nd', 'rd'];
+    const v = n % 100;
+    return `[${n}${s[(v - 20) % 10] || s[v] || s[0]}]`;
+  },
+};
+
+function date(time) {
+  return GSTC.api.date(time, false, locale);
+}
+
 const itemsFromDB = [
   {
     id: '1',
-    label: 'Item 1',
+    label: 'Item 1 (2020-02-01)',
     rowId: '1',
     time: {
-      start: GSTC.api.date('2020-02-01').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-02-06').endOf('day').valueOf(),
+      start: date('2020-01-12').startOf('week').valueOf(),
+      end: date('2020-01-12').startOf('week').add(1, 'week').endOf('week').valueOf(),
     },
   },
   {
@@ -33,8 +81,8 @@ const itemsFromDB = [
     label: 'Item 2',
     rowId: '1',
     time: {
-      start: GSTC.api.date('2020-03-01').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-03-15').endOf('day').valueOf(),
+      start: date('2020-03-05').startOf('week').valueOf(),
+      end: date('2020-03-05').startOf('week').add(1, 'week').endOf('week').valueOf(),
     },
   },
   {
@@ -42,8 +90,8 @@ const itemsFromDB = [
     label: 'Item 3',
     rowId: '2',
     time: {
-      start: GSTC.api.date('2020-02-15').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-02-20').endOf('day').valueOf(),
+      start: date('2020-02-06').startOf('week').valueOf(),
+      end: date('2020-02-06').startOf('week').add(1, 'week').endOf('week').valueOf(),
     },
   },
   {
@@ -51,8 +99,8 @@ const itemsFromDB = [
     label: 'Item 4',
     rowId: '2',
     time: {
-      start: GSTC.api.date('2020-04-15').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-04-20').endOf('day').valueOf(),
+      start: date('2020-03-18').startOf('week').valueOf(),
+      end: date('2020-03-18').startOf('week').add(1, 'week').endOf('week').valueOf(),
     },
   },
 ];
@@ -132,6 +180,8 @@ const config = {
       zoom: 22,
     },
   },
+  plugins: [TimelinePointer(), Selection(), ItemResizing(), ItemMovement(), CalendarScroll(), DependencyLines()],
+  locale,
 };
 
 // Generate GSTC state from configuration object
@@ -148,3 +198,4 @@ const app = GSTC({
 
 //for testing
 globalThis.gstc = app;
+globalThis.GSTC = GSTC;

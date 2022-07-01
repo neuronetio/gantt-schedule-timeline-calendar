@@ -1,6 +1,10 @@
 import GSTC from '../../dist/gstc.esm.min.js';
 // or when you encounter problems with wasm loader
 // import GSTC from '../../dist/gstc.wasm.esm.min.js';
+import { Plugin as Selection } from '../../dist/plugins/selection.esm.min.js';
+import { Plugin as TimelinePointer } from '../../dist/plugins/timeline-pointer.esm.min.js';
+import { Plugin as ItemMovement } from '../../dist/plugins/item-movement.esm.min.js';
+import { Plugin as ItemResizing } from '../../dist/plugins/item-resizing.esm.min.js';
 
 // @ts-ignore
 GSTC.api.dayjs.extend(globalThis.dayjs_plugin_weekOfYear);
@@ -144,6 +148,7 @@ const config = {
       to: GSTC.api.date('2020-01-01').endOf('year').valueOf(),
     },
   },
+  plugins: [TimelinePointer(), Selection(), ItemResizing(), ItemMovement()],
 };
 
 // Generate GSTC state from configuration object

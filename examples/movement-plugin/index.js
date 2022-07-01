@@ -30,6 +30,19 @@ function isCollision(item) {
   return false;
 }
 
+const resizingPluginConfig = {
+  snapToTime: {
+    start({ startTime, vido }) {
+      const date = vido.api.time.findOrCreateMainDateAtTime(startTime.valueOf());
+      return date.leftGlobalDate.startOf('day').add(12, 'hour');
+    },
+    end({ endTime, vido }) {
+      const date = vido.api.time.findOrCreateMainDateAtTime(endTime.valueOf());
+      return date.leftGlobalDate.startOf('day').add(12, 'hour');
+    },
+  },
+};
+
 const movementPluginConfig = {
   events: {
     onMove({ items }) {
@@ -49,11 +62,9 @@ const movementPluginConfig = {
     },
   },
   snapToTime: {
-    start({ startTime, time }) {
-      return startTime.startOf('day').add(12, 'hour');
-    },
-    end({ endTime, time }) {
-      return endTime.startOf('day').add(12, 'hour');
+    start({ startTime, vido }) {
+      const date = vido.api.time.findOrCreateMainDateAtTime(startTime.valueOf());
+      return date.leftGlobalDate.startOf('day').add(12, 'hour');
     },
   },
 };
@@ -133,7 +144,7 @@ const config = {
   plugins: [
     TimelinePointer({}), // timeline pointer must go first before selection, resizing and movement
     Selection(),
-    ItemResizing(), // resizing must go before movement
+    ItemResizing(resizingPluginConfig), // resizing must go before movement
     ItemMovement(movementPluginConfig),
   ],
   list: {

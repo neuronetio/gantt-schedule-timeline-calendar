@@ -332,36 +332,6 @@ function mainOuterSlot(vido, props) {
     </div>${content}<div class=${overlay}>${loading}</div>`;
 }
 
-/**
- * @type {import('../../dist/plugins/item-movement').Options}
- */
-const itemMovementOptions = {
-  // snapToTime: {
-  //   start({ startTime }) {
-  //     return startTime;
-  //   },
-  //   end({ endTime }) {
-  //     return endTime;
-  //   },
-  // },
-  // events: {
-  //   onEnd({ items }) {
-  //     return items.after.map((item) => {
-  //       const initialItem = items.initial.find((currentItem) => currentItem.id === item.id);
-  //       if (!initialItem) return item;
-  //       const initialDurationMs = initialItem.time.end - initialItem.time.start;
-  //       item.time.start = gstc.api.time.date(item.time.start).startOf('day').valueOf();
-  //       item.time.end = gstc.api.time
-  //         .date(item.time.start)
-  //         .add(initialDurationMs, 'millisecond')
-  //         .endOf('day')
-  //         .valueOf();
-  //       return item;
-  //     });
-  //   },
-  // },
-};
-
 let hideWeekends = false;
 function onLevelDates({ dates, level, format }) {
   if (format.period !== 'day') return dates;
@@ -378,7 +348,7 @@ const config = {
     TimelinePointer(), // timeline pointer must go first before selection, resizing and movement
     Selection(),
     ItemResizing(), // resizing must fo before movement
-    ItemMovement(itemMovementOptions),
+    ItemMovement(),
     CalendarScroll(),
     ProgressBar(),
     TimeBookmarks({
