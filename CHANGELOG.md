@@ -856,4 +856,8 @@
 - `GSTC.api.date` method now supports locale configuration as third parameter `GSTC.api.date(time, utcMode, localeConfig)`
 - `GSTC.api.GSTCID` will now check if given id is already in proper format
 
+[3.27.1]
+
+- npm dependencies updated
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use

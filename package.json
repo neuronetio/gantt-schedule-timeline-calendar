@@ -154,8 +154,8 @@
     "typescript": "^4.7.3"
   },
   "dependencies": {
-    "@neuronet.io/vido": "^4.1.12",
-    "dayjs": "^1.10.7",
+    "@neuronet.io/vido": "^4.2.0",
+    "dayjs": "^1.11.3",
     "deep-state-observer": "^5.5.9"
   }
 }
