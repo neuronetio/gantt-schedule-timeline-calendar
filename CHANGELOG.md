@@ -860,4 +860,8 @@
 
 - npm dependencies updated
 
+[3.27.2]
+
+- ItemResizing plugin - dependant option set to false caused call to undefined method #343 bugfix
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use
