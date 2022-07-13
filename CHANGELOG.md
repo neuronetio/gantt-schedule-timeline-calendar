@@ -869,4 +869,10 @@
 - ItemResizing plugin `onEnd` event was fired twice bugfix
 - ItemMovement & ItemResizing `onEnd` event was fired without dependant items bugfix
 
+[3.28.0]
+
+- added `outOfView` with `left`, `right` and `whole` boolean properties to `ItemData` to know when the item is outside a view from item props only
+- all rows expander was missing bugfix
+- row `visible` property added to determine whether the row should be visible on the list (usable for searching and filtering)
+
 <br /><br /> \***breaking** in some situations - depends on user configuration - but must be changed due to bug fixing or make it much easier to use

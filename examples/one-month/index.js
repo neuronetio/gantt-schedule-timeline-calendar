@@ -120,7 +120,7 @@ const columns = {
       sortable: 'label',
       expander: true,
       isHTML: false,
-      width: 335,
+      width: 315,
       header: {
         content: 'Label',
       },
@@ -130,7 +130,7 @@ const columns = {
       data({ row, vido }) {
         return vido.html`<div style="text-align:center">${row.progress}</div>`;
       },
-      width: 80,
+      width: 100,
       sortable: 'progress',
       header: {
         content: 'Progress',

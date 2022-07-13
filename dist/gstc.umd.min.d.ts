@@ -64,12 +64,18 @@ export interface ItemDataPosition {
     actualRowTop: number;
     viewTop: number;
 }
+export interface ItemDataIutOfView {
+    left: boolean;
+    right: boolean;
+    whole: boolean;
+}
 export interface ItemData {
     id: string;
     time: ItemDataTime;
     actualHeight: number;
     outerHeight: number;
     position: ItemDataPosition;
+    outOfView: ItemDataIutOfView;
     width: number;
     actualWidth: number;
     timeWidth: number;

@@ -131,7 +131,7 @@ const columns = {
       sortable: 'label',
       expander: true,
       isHTML: false,
-      width: 335,
+      width: 315,
       header: {
         content: 'Label',
       },
@@ -141,7 +141,7 @@ const columns = {
       data({ row, vido }) {
         return vido.html`<div style="text-align:center">${row.progress}</div>`;
       },
-      width: 80,
+      width: 100,
       sortable: 'progress',
       header: {
         content: 'Progress',
@@ -679,3 +679,38 @@ const toolboxButtons = lithtml.html`<div class="toolbox-item"><button @click=${s
       <div class="toolbox-item">Zoom: <select @change="${zoomChange}" id="zoom"><option value="hours">Hours</option><option value="days" selected>Days</option><option value="months">Months</option></select></div>`;
 
 lithtml.render(toolboxButtons, document.getElementById('toolbox'));
+
+function searchRows(event) {
+  const search = String(event.target.value).trim();
+  console.log('search', search);
+  const regex = new RegExp(`[\s\S]?${search}[\s\S]?`, 'gi');
+  const rowsToKeep = [];
+  for (const rowId in rows) {
+    const row = rows[rowId];
+    const rowData = gstc.api.getRowData(rowId);
+    if (regex.test(row.label)) {
+      rowsToKeep.push(rowId);
+      for (const childRowId of rowData.allChildren) {
+        rowsToKeep.push(childRowId);
+      }
+      for (const parentRowId of rowData.parents) {
+        rowsToKeep.push(parentRowId);
+      }
+    }
+    regex.lastIndex = 0;
+  }
+  const uniqueRowsToKeep = [...new Set(rowsToKeep)]; // js way to get only unique row id's- we don't want duplicates here
+  for (const rowId in rows) {
+    if (uniqueRowsToKeep.includes(rowId)) {
+      rows[rowId].visible = true;
+    } else {
+      rows[rowId].visible = false;
+    }
+  }
+  state.update('config.list.rows', (currentRows) => {
+    return rows;
+  });
+}
+
+const searchBox = lithtml.html`<input type="text" @input=${searchRows} placeholder="Search">`;
+lithtml.render(searchBox, document.getElementById('search'));

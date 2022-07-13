@@ -76,6 +76,7 @@ export declare class Api {
     collectAllLinkedItems(items: Items, itemsData: DataItems): void;
     getChildrenDependantItemsIds(item: Item, items: Items, allDependant?: string[]): string[];
     calculateItemVerticalPosition(itemId: string, itemData?: ItemData, rowData?: RowData, item?: Item): ItemDataPosition;
+    setItemDataOutOfView(itemData: ItemData, time?: DataChartTime): ItemData;
     calculateItemHorizontalPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, item?: Item): ItemDataPosition;
     calculateItemPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, item?: Item): ItemDataPosition;
     getItemPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, item?: Item): ItemDataPosition;
@@ -132,6 +133,7 @@ export declare class Api {
     private generateRowsPositionsMap;
     getRowPositionMapNode(topPosition: number, node?: rowsPositionsMapNode): rowsPositionsMapNode;
     measureRows(): number | any[];
+    isRowVisible(rowId: string, rows?: Rows, rowsData?: RowsData): boolean;
     getVisibleRows(): string[];
     normalizeMouseWheelEvent(event: WheelEvent): WheelResult;
     resetHorizontalScroll(): void;

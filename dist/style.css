@@ -211,6 +211,7 @@ body.gstc-scrolling * {
 }
 .gstc__list-column-header-resizer {
   display: flex;
+  justify-content: space-between;
   flex-grow: 1;
   background: transparent;
   vertical-align: middle;
@@ -221,14 +222,13 @@ body.gstc-scrolling * {
 .gstc__list-column-header-resizer-container {
   overflow: hidden;
   text-overflow: ellipsis;
+  padding-left: 6px;
+  flex-shrink: 1;
+  cursor: pointer;
 }
 .gstc__list-column-header-resizer-container,
 .gstc__list-column-header-resizer-dots {
   display: block;
-}
-.gstc__list-column-header-resizer-container {
-  flex-grow: 1;
-  padding-left: 6px;
 }
 .gstc__list-column-header-resizer-line {
   position: absolute;
@@ -243,17 +243,24 @@ body.gstc-scrolling * {
 .gstc__list-column-header-resizer-dots {
   cursor: ew-resize;
   background: transparent;
-  padding-top: 12px;
-  padding-left: 6px;
-  padding-right: 2px;
+  width: 10px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-content: space-around;
+  justify-content: center;
+  align-items: flex-end;
 }
 .gstc__list-column-header-resizer-dots-dot {
-  background: #e0eff2;
+  background: #f4f4f4;
   width: 3px;
   height: 3px;
   border-radius: 100%;
   margin-bottom: 6px;
   box-shadow: inset 1px 1px 0px rgba(0,0,0,0.05);
+}
+.gstc__list-column-header-resizer-dots-dot:last-child {
+  margin-bottom: 0;
 }
 .gstc__list-column-header-resizer-sort-icon {
   margin-left: 4px;
