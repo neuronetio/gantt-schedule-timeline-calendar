@@ -695,6 +695,7 @@ function searchRows(event) {
       }
       for (const parentRowId of rowData.parents) {
         rowsToKeep.push(parentRowId);
+        if (search) rows[parentRowId].expanded = true;
       }
     }
     regex.lastIndex = 0;
