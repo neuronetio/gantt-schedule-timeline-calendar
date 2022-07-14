@@ -3,6 +3,7 @@
  *
  * @header  --gstc--header--
  */
+import Vido from '@neuronet.io/vido';
 import type { vido } from '@neuronet.io/vido';
 import { StyleInfo, ComponentInstance, lithtml } from '@neuronet.io/vido';
 import { Api } from './api/api';
@@ -673,6 +674,7 @@ export interface GSTCResult {
     destroy: () => void;
     reload: () => void;
     lithtml: typeof lithtml;
+    Vido: typeof Vido;
 }
 declare function GSTC(options: GSTCOptions): GSTCResult;
 declare namespace GSTC {
@@ -693,6 +695,7 @@ declare namespace GSTC {
         dayjs: typeof import("dayjs");
     };
     var lithtml: typeof import("lit-html");
+    var Vido: typeof import("@neuronet.io/vido").default;
 }
 export default GSTC;
 //# sourceMappingURL=gstc.d.ts.map

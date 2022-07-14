@@ -87,6 +87,7 @@ describe('Locale', () => {
         expect($el.text()).to.eq('Saturday');
         state.update('config.locale', locale);
       })
+      .wait(Cypress.env('wait'))
       .then(() => {
         expect(state.get('config.locale.weekdays.6')).to.eq('sobota');
       })
