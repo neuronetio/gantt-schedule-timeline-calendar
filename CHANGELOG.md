@@ -1,3 +1,7 @@
+## [3.30.0]
+
+- support for iframe usage: domains with `>` symbol like `one.com>two.com>three.com` (available only with SaaS license)
+
 ## [3.29.0]
 
 - examples updated
