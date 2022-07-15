@@ -1,3 +1,8 @@
+## [3.31.0]
+
+- when `periodIncrement` is a function and the item is moved to the left side past the visible area we don't know which date to start generating dates from so we just return `time.from` which blocks the movement of the item
+- added `allowItemsToGoOutsideTheArea` `boolean` (default:`true`) value to ItemMovement and ItemResizing options
+
 ## [3.30.0]
 
 - support for iframe usage: domains with `>` symbol like `one.com>two.com>three.com` (available only with SaaS license)

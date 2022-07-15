@@ -20,6 +20,11 @@
       #search {
         margin: 20px;
       }
+      .toolbox-row {
+        width: 100%;
+        display: flex;
+        margin: 10px 0;
+      }
       #toolbox button {
         border-radius: 3px;
         padding: 8px;
@@ -34,7 +39,7 @@
         user-select: none;
       }
       #toolbox {
-        display: flex;
+        display: grid;
         align-items: center;
       }
       .toolbox-item {
@@ -45,7 +50,6 @@
       }
     </style>
     <div id="toolbox"></div>
-    <div id="search"></div>
     <div id="gstc"></div>
     <script type="module" src="index.js"></script>
     <!-- replace this path  -->

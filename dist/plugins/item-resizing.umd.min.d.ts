@@ -80,6 +80,7 @@ export interface Options {
     outsideWidthThreshold?: number;
     autoScroll?: AutoScroll;
     ignoreMissingDates?: boolean;
+    allowItemsToGoOutsideTheArea?: boolean;
 }
 export declare type State = 'start' | 'resize' | 'end' | '';
 export interface PluginData extends Options {

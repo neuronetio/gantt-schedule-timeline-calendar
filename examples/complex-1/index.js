@@ -632,7 +632,23 @@ function toggleSnapTime(ev) {
 
 function toggleExpandTime(ev) {
   const expandTime = ev.target.checked;
+  const moveOutEl = document.getElementById('move-out');
+  if (moveOutEl && expandTime) {
+    moveOutEl.checked = expandTime;
+    toggleMoveOut({ target: moveOutEl });
+  }
   state.update('config.chart.time.autoExpandTimeFromItems', expandTime);
+}
+
+function toggleMoveOut(ev) {
+  const moveOut = ev.target.checked;
+  const expandTimeEl = document.getElementById('expand-time');
+  if (expandTimeEl && !moveOut) {
+    expandTimeEl.checked = moveOut;
+    toggleExpandTime({ target: expandTimeEl });
+  }
+  state.update('config.plugin.ItemMovement.allowItemsToGoOutsideTheArea', moveOut);
+  state.update('config.plugin.ItemResizing.allowItemsToGoOutsideTheArea', moveOut);
 }
 
 function zoomChange(ev) {
@@ -665,20 +681,6 @@ function zoomChange(ev) {
     return time;
   });
 }
-
-const lithtml = GSTC.lithtml;
-
-const toolboxButtons = lithtml.html`<div class="toolbox-item"><button @click=${selectCells}>Select first cells</button></div>
-      <div class="toolbox-item"><button @click=${scrollToFirstItem}>Scroll to first item</button></div>
-      <div class="toolbox-item"><button @click=${downloadImage}>Download image</button></div>
-      <div class="toolbox-item"><button @click=${downloadPdf}>Download PDF</button></div>
-      <div class="toolbox-item"><input type="checkbox" id="dark-mode" @change=${toggleDarkMode} /> <label for="dark-mode">Dark mode</label></div>
-      <div class="toolbox-item"><input type="checkbox" id="snap-time" @change=${toggleSnapTime} checked/> <label for="snap-time">Snap time (item movement)</label></div>
-      <div class="toolbox-item"><input type="checkbox" id="hide-weekends" @change=${toggleHideWeekends} /> <label for="hide-weekends">Hide weekends</label></div>
-      <div class="toolbox-item"><input type="checkbox" id="expand-time" @change=${toggleExpandTime} /> <label for="expand-time">Expand view when item is outside</label></div>
-      <div class="toolbox-item">Zoom: <select @change="${zoomChange}" id="zoom"><option value="hours">Hours</option><option value="days" selected>Days</option><option value="months">Months</option></select></div>`;
-
-lithtml.render(toolboxButtons, document.getElementById('toolbox'));
 
 function searchRows(event) {
   const search = String(event.target.value).trim();
@@ -713,5 +715,24 @@ function searchRows(event) {
   });
 }
 
+const lithtml = GSTC.lithtml;
+
 const searchBox = lithtml.html`<input type="text" @input=${searchRows} placeholder="Search">`;
-lithtml.render(searchBox, document.getElementById('search'));
+
+const toolboxButtons = lithtml.html`
+  <div class="toolbox-row">
+      <div class="toolbox-item"><button @click=${selectCells}>Select first cells</button></div>
+      <div class="toolbox-item"><button @click=${scrollToFirstItem}>Scroll to first item</button></div>
+      <div class="toolbox-item"><button @click=${downloadImage}>Download image</button></div>
+      <div class="toolbox-item"><button @click=${downloadPdf}>Download PDF</button></div>
+      <div class="toolbox-item">Zoom: <select @change="${zoomChange}" id="zoom"><option value="hours">Hours</option><option value="days" selected>Days</option><option value="months">Months</option></select></div>
+  </div><div class="toolbox-row">
+      <div class="toolbox-item">${searchBox}</div>
+      <div class="toolbox-item"><input type="checkbox" id="dark-mode" @change=${toggleDarkMode} /> <label for="dark-mode">Dark mode</label></div>
+      <div class="toolbox-item"><input type="checkbox" id="snap-time" @change=${toggleSnapTime} checked/> <label for="snap-time">Snap time (item movement)</label></div>
+      <div class="toolbox-item"><input type="checkbox" id="hide-weekends" @change=${toggleHideWeekends} /> <label for="hide-weekends">Hide weekends</label></div>
+      <div class="toolbox-item"><input type="checkbox" id="expand-time" @change=${toggleExpandTime} /> <label for="expand-time">Expand view when item is outside</label></div>
+      <div class="toolbox-item"><input type="checkbox" id="move-out" @change=${toggleMoveOut} checked /> <label for="move-out">Alow items to move outside area</label></div>
+  </div>`;
+
+lithtml.render(toolboxButtons, document.getElementById('toolbox'));
