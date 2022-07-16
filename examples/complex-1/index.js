@@ -723,9 +723,8 @@ const historyStates = [];
 globalThis.historyStates = historyStates;
 let currentStateName = '';
 function saveCurrentState(stateName) {
-  const rows = GSTC.api.merge({}, state.get('config.list.rows'));
   const items = GSTC.api.merge({}, state.get('config.chart.items'));
-  historyStates.push({ name: stateName, state: { rows, items } });
+  historyStates.push({ name: stateName, state: items });
   currentStateName = stateName;
   updateToolBox();
 }
@@ -734,11 +733,7 @@ function restoreState(stateName) {
   const historyState = historyStates.find((s) => s.name == stateName);
   currentStateName = stateName;
   const clonedState = GSTC.api.merge({}, historyState.state);
-  state.update('config', (config) => {
-    config.list.rows = clonedState.rows;
-    config.chart.items = clonedState.items;
-    return config;
-  });
+  state.update('config.chart.items', clonedState);
   updateToolBox();
 }
 
@@ -756,7 +751,7 @@ const html = GSTC.lithtml.html;
 
 function updateToolBox() {
   const searchBoxHTML = html`<input type="text" @input=${searchRows} placeholder="Search" />`;
-  const historyStateHTML = html`<button @click="${openSaveCurrentStateDialog}">Save current state</button>
+  const historyStateHTML = html`<button @click="${openSaveCurrentStateDialog}">Save current items state</button>
     <label>Restore state:</label>
     <select @change=${onRestoreStateChange}>
       ${historyStates.map(

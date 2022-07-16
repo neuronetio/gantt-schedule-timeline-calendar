@@ -282,7 +282,7 @@ const config = {
     items: GSTC.api.fromArray(itemsFromDB),
     calendarLevels,
     time: {
-      from: GSTC.api.date('2015-01-01').valueOf(),
+      from: GSTC.api.date('2020-01-01').valueOf(),
       to: GSTC.api.date('2025-01-01').endOf('year').valueOf(),
     },
   },

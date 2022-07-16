@@ -1,3 +1,10 @@
+## [3.33.0]
+
+- array merging bugfix
+- merging objects performance optimization
+- removed non documented not needed `config.chart.time.allDates` and `config.chart.time.datesCache` (huge time calculation performance optimization)
+- grid cell generation little performance optimization
+
 ## [3.32.0]
 
 - `deep-state-observer` updated (update whole state bugfix)
