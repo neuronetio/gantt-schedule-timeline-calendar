@@ -751,8 +751,8 @@ const html = GSTC.lithtml.html;
 
 function updateToolBox() {
   const searchBoxHTML = html`<input type="text" @input=${searchRows} placeholder="Search" />`;
-  const historyStateHTML = html`<button @click="${openSaveCurrentStateDialog}">Save current items state</button>
-    <label>Restore state:</label>
+  const historyStateHTML = html`<button @click="${openSaveCurrentStateDialog}">Save items</button>
+    <label>Restore items:</label>
     <select @change=${onRestoreStateChange}>
       ${historyStates.map(
         (historyState) =>
