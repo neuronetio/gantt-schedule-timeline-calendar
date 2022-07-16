@@ -1195,9 +1195,9 @@
       "dev": true
     },
     "node_modules/deep-state-observer": {
-      "version": "5.5.9",
-      "resolved": "https://registry.npmjs.org/deep-state-observer/-/deep-state-observer-5.5.9.tgz",
-      "integrity": "sha512-PAE6Cas8j+LS6LNuVNyGPYHJomPKKsdlYyzNfviPS7Cqx5JlQ19K7IF53a2XBzYWg+3hzu+HWnLjg+dnQ9jXvA==",
+      "version": "5.5.12",
+      "resolved": "https://registry.npmjs.org/deep-state-observer/-/deep-state-observer-5.5.12.tgz",
+      "integrity": "sha512-6mJZT3FdNO3iKnYM7VPWQdkHrQ0a9XeEnE5hmbFDTVs0MkyE0wakSXHOs/Sav3A9Ai2f+ROpYpo4qY0SL10KKw==",
       "dev": true
     },
     "node_modules/delayed-stream": {
@@ -4490,9 +4490,9 @@
       "dev": true
     },
     "deep-state-observer": {
-      "version": "5.5.9",
-      "resolved": "https://registry.npmjs.org/deep-state-observer/-/deep-state-observer-5.5.9.tgz",
-      "integrity": "sha512-PAE6Cas8j+LS6LNuVNyGPYHJomPKKsdlYyzNfviPS7Cqx5JlQ19K7IF53a2XBzYWg+3hzu+HWnLjg+dnQ9jXvA==",
+      "version": "5.5.12",
+      "resolved": "https://registry.npmjs.org/deep-state-observer/-/deep-state-observer-5.5.12.tgz",
+      "integrity": "sha512-6mJZT3FdNO3iKnYM7VPWQdkHrQ0a9XeEnE5hmbFDTVs0MkyE0wakSXHOs/Sav3A9Ai2f+ROpYpo4qY0SL10KKw==",
       "dev": true
     },
     "delayed-stream": {

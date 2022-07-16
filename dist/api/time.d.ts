@@ -28,6 +28,7 @@ export declare class Time {
     constructor(state: DeepState, api: Api);
     destroy(): void;
     date(time?: number | string | Date | undefined): dayjs.Dayjs;
+    recalculateTime(): void;
     recalculateFromTo(time: DataChartTime, force?: boolean): DataChartTime;
     getCenter(time: DataChartTime): number;
     isInCurrentView(date: Dayjs, time?: DataChartTime): boolean;

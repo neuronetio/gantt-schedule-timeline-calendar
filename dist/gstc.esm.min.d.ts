@@ -649,6 +649,7 @@ export interface Data {
     chart: DataChart;
     scroll: DataScroll;
     elements: DataElements;
+    initializedPlugins: Set<string>;
 }
 export interface GSTCState {
     config: Config;

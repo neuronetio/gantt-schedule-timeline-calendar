@@ -3,7 +3,7 @@
  *
  * @header  --gstc--header--
  */
-import { ITEM, ITEM_TYPE, CELL, CELL_TYPE, Point, PointerState } from './timeline-pointer';
+import { ITEM, ITEM_TYPE, CELL, CELL_TYPE, TimelinePointerPoint, TimelinePointerState } from './timeline-pointer';
 import type { Item, GridCell, Vido } from '../gstc';
 export declare type ModKey = 'shift' | 'ctrl' | 'alt' | '';
 export interface SelectionItems {
@@ -75,9 +75,9 @@ export interface PluginData extends Options {
     enabled: boolean;
     isSelecting: boolean;
     showOverlay: boolean;
-    pointerState: PointerState;
-    initialPosition: Point;
-    currentPosition: Point;
+    pointerState: TimelinePointerState;
+    initialPosition: TimelinePointerPoint;
+    currentPosition: TimelinePointerPoint;
     selectionAreaLocal: Area;
     selectionAreaGlobal: Area;
     selected: Selection;

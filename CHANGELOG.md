@@ -1,3 +1,14 @@
+## [3.32.0]
+
+- `deep-state-observer` updated (update whole state bugfix)
+- added `$data.initializedPlugins` `Set`
+- plugins are now destroyed only when whole gstc instance is destroyed or plugin was removed from config
+- `recalculateTime` method added to the time api (`gstc.api.time.recalculateTime()`) to regenerate calendar dates or recalculate `$data.chart.time` values - for example if some logic in `onLevelDates` was changed then you might need this to generate new dates and trigger `onLevelDates` again
+- `ItemMovement`, `ItemResizing`, `TimelinePointer` and `Selection` plugins refactored
+- `gstc-loaded` event is triggered a little bit later now when all time calculations are complete
+- `complex-1` example updated - added history state management demo
+- `one-month` example updated - `gstc.api.time.recalculateTime()` added instead of full reload
+
 ## [3.31.0]
 
 - when `periodIncrement` is a function and the item is moved to the left side past the visible area we don't know which date to start generating dates from so we just return `time.from` which blocks the movement of the item

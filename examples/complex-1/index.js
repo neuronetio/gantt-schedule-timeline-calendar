@@ -47,6 +47,7 @@ for (let i = 0; i < iterations; i++) {
     vacations: [],
     img: getRandomFaceImage(),
     progress: Math.floor(Math.random() * 100),
+    visible: true,
   };
 }
 
@@ -492,7 +493,7 @@ function myBirthdayRowSlot(vido, props) {
 const config = {
   licenseKey:
     '====BEGIN LICENSE KEY====\nXOfH/lnVASM6et4Co473t9jPIvhmQ/l0X3Ewog30VudX6GVkOB0n3oDx42NtADJ8HjYrhfXKSNu5EMRb5KzCLvMt/pu7xugjbvpyI1glE7Ha6E5VZwRpb4AC8T1KBF67FKAgaI7YFeOtPFROSCKrW5la38jbE5fo+q2N6wAfEti8la2ie6/7U2V+SdJPqkm/mLY/JBHdvDHoUduwe4zgqBUYLTNUgX6aKdlhpZPuHfj2SMeB/tcTJfH48rN1mgGkNkAT9ovROwI7ReLrdlHrHmJ1UwZZnAfxAC3ftIjgTEHsd/f+JrjW6t+kL6Ef1tT1eQ2DPFLJlhluTD91AsZMUg==||U2FsdGVkX1/SWWqU9YmxtM0T6Nm5mClKwqTaoF9wgZd9rNw2xs4hnY8Ilv8DZtFyNt92xym3eB6WA605N5llLm0D68EQtU9ci1rTEDopZ1ODzcqtTVSoFEloNPFSfW6LTIC9+2LSVBeeHXoLEQiLYHWihHu10Xll3KsH9iBObDACDm1PT7IV4uWvNpNeuKJc\npY3C5SG+3sHRX1aeMnHlKLhaIsOdw2IexjvMqocVpfRpX4wnsabNA0VJ3k95zUPS3vTtSegeDhwbl6j+/FZcGk9i+gAy6LuetlKuARjPYn2LH5Be3Ah+ggSBPlxf3JW9rtWNdUoFByHTcFlhzlU9HnpnBUrgcVMhCQ7SAjN9h2NMGmCr10Rn4OE0WtelNqYVig7KmENaPvFT+k2I0cYZ4KWwxxsQNKbjEAxJxrzK4HkaczCvyQbzj4Ppxx/0q+Cns44OeyWcwYD/vSaJm4Kptwpr+L4y5BoSO/WeqhSUQQ85nvOhtE0pSH/ZXYo3pqjPdQRfNm6NFeBl2lwTmZUEuw==\n====END LICENSE KEY====',
-  innerHeight: 800,
+  innerHeight: 700,
   //autoInnerHeight: true,
   plugins: [
     HighlightWeekends(),
@@ -566,20 +567,23 @@ const config = {
 };
 
 let gstc;
-let state = GSTC.api.stateFromConfig(config);
-(async function mountGSTC() {
-  const element = document.getElementById('gstc');
-
+let state;
+function mountGSTC() {
+  state = GSTC.api.stateFromConfig(config);
+  const element = document.createElement('div');
+  element.id = 'gstc';
+  document.querySelector('#toolbox')?.after(element);
   gstc = GSTC({
     element,
     state,
   });
-
   //@ts-ignore
   globalThis.state = state;
   //@ts-ignore
   globalThis.gstc = gstc;
-})();
+}
+
+mountGSTC();
 
 // TOOLBOX BUTTONS
 
@@ -623,7 +627,7 @@ function toggleDarkMode(ev) {
 
 function toggleHideWeekends(ev) {
   hideWeekends = ev.target.checked;
-  gstc.reload();
+  gstc.api.time.recalculateTime();
 }
 
 function toggleSnapTime(ev) {
@@ -715,24 +719,97 @@ function searchRows(event) {
   });
 }
 
-const lithtml = GSTC.lithtml;
+const historyStates = [];
+globalThis.historyStates = historyStates;
+let currentStateName = '';
+function saveCurrentState(stateName) {
+  const rows = GSTC.api.merge({}, state.get('config.list.rows'));
+  const items = GSTC.api.merge({}, state.get('config.chart.items'));
+  historyStates.push({ name: stateName, state: { rows, items } });
+  currentStateName = stateName;
+  updateToolBox();
+}
 
-const searchBox = lithtml.html`<input type="text" @input=${searchRows} placeholder="Search">`;
+function restoreState(stateName) {
+  const historyState = historyStates.find((s) => s.name == stateName);
+  currentStateName = stateName;
+  const clonedState = GSTC.api.merge({}, historyState.state);
+  state.update('config', (config) => {
+    config.list.rows = clonedState.rows;
+    config.chart.items = clonedState.items;
+    return config;
+  });
+  updateToolBox();
+}
 
-const toolboxButtons = lithtml.html`
-  <div class="toolbox-row">
+function onRestoreStateChange(ev) {
+  const name = ev.target.value;
+  restoreState(name);
+}
+
+function openSaveCurrentStateDialog() {
+  const stateName = prompt('Enter current state name');
+  saveCurrentState(stateName);
+}
+
+const html = GSTC.lithtml.html;
+
+function updateToolBox() {
+  const searchBoxHTML = html`<input type="text" @input=${searchRows} placeholder="Search" />`;
+  const historyStateHTML = html`<button @click="${openSaveCurrentStateDialog}">Save current state</button>
+    <label>Restore state:</label>
+    <select @change=${onRestoreStateChange}>
+      ${historyStates.map(
+        (historyState) =>
+          html`<option value=${historyState.name} ?selected=${historyState.name === currentStateName}>
+            ${historyState.name}
+          </option>`
+      )}
+    </select>`;
+
+  const toolboxButtons = html` <div class="toolbox-row">
       <div class="toolbox-item"><button @click=${selectCells}>Select first cells</button></div>
       <div class="toolbox-item"><button @click=${scrollToFirstItem}>Scroll to first item</button></div>
       <div class="toolbox-item"><button @click=${downloadImage}>Download image</button></div>
       <div class="toolbox-item"><button @click=${downloadPdf}>Download PDF</button></div>
-      <div class="toolbox-item">Zoom: <select @change="${zoomChange}" id="zoom"><option value="hours">Hours</option><option value="days" selected>Days</option><option value="months">Months</option></select></div>
-  </div><div class="toolbox-row">
-      <div class="toolbox-item">${searchBox}</div>
-      <div class="toolbox-item"><input type="checkbox" id="dark-mode" @change=${toggleDarkMode} /> <label for="dark-mode">Dark mode</label></div>
-      <div class="toolbox-item"><input type="checkbox" id="snap-time" @change=${toggleSnapTime} checked/> <label for="snap-time">Snap time (item movement)</label></div>
-      <div class="toolbox-item"><input type="checkbox" id="hide-weekends" @change=${toggleHideWeekends} /> <label for="hide-weekends">Hide weekends</label></div>
-      <div class="toolbox-item"><input type="checkbox" id="expand-time" @change=${toggleExpandTime} /> <label for="expand-time">Expand view when item is outside</label></div>
-      <div class="toolbox-item"><input type="checkbox" id="move-out" @change=${toggleMoveOut} checked /> <label for="move-out">Alow items to move outside area</label></div>
-  </div>`;
+      <div class="toolbox-item">${historyStateHTML}</div>
+      <div class="toolbox-item">
+        <label>Zoom:</label>
+        <select @change="${zoomChange}" id="zoom">
+          <option value="hours">Hours</option>
+          <option value="days" selected>Days</option>
+          <option value="months">Months</option>
+        </select>
+      </div>
+    </div>
+    <div class="toolbox-row">
+      <div class="toolbox-item">${searchBoxHTML}</div>
+      <div class="toolbox-item">
+        <input type="checkbox" id="dark-mode" @change=${toggleDarkMode} /> <label for="dark-mode">Dark mode</label>
+      </div>
+      <div class="toolbox-item">
+        <input type="checkbox" id="snap-time" @change=${toggleSnapTime} checked />
+        <label for="snap-time">Snap time (item movement)</label>
+      </div>
+      <div class="toolbox-item">
+        <input type="checkbox" id="hide-weekends" @change=${toggleHideWeekends} />
+        <label for="hide-weekends">Hide weekends</label>
+      </div>
+      <div class="toolbox-item">
+        <input type="checkbox" id="expand-time" @change=${toggleExpandTime} />
+        <label for="expand-time">Expand view when item is outside</label>
+      </div>
+      <div class="toolbox-item">
+        <input type="checkbox" id="move-out" @change=${toggleMoveOut} checked />
+        <label for="move-out">Alow items to move outside area</label>
+      </div>
+    </div>`;
+  GSTC.lithtml.render(toolboxButtons, document.getElementById('toolbox'));
+}
+updateToolBox();
 
-lithtml.render(toolboxButtons, document.getElementById('toolbox'));
+const gstcEl = document.getElementById('gstc');
+gstcEl?.addEventListener('gstc-loaded', () => {
+  console.log('GSTC loaded!');
+  saveCurrentState('Initial');
+});

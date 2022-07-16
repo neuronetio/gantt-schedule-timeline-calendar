@@ -316,7 +316,7 @@ function mainOuterSlot(vido, props) {
 
   function toggleHideWeekends(ev) {
     hideWeekends = ev.target.checked;
-    gstc.reload();
+    gstc.api.time.recalculateTime();
   }
 
   // return render function

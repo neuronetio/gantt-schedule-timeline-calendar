@@ -44,7 +44,6 @@ export declare class Api {
     time: Time;
     vido: Vido;
     plugins: any;
-    pluginsPositions: Set<string>;
     iconsCache: IconsCache;
     unsubscribes: Unsubscribes;
     private mutedMethods;
@@ -63,6 +62,7 @@ export declare class Api {
     setVido(Vido: Vido): void;
     setMergeDeep(mergeDeep: any): void;
     log(...args: any[]): void;
+    getInitializedPlugins(): Set<string>;
     pluginInitialized(pluginName: string): void;
     pluginDestroyed(pluginName: string): void;
     clearPluginsPositions(): void;
@@ -136,7 +136,8 @@ export declare class Api {
     isRowVisible(rowId: string, rows?: Rows, rowsData?: RowsData): boolean;
     getVisibleRows(): string[];
     normalizeMouseWheelEvent(event: WheelEvent): WheelResult;
-    resetHorizontalScroll(): void;
+    resetHorizontalScroll(horizontalScroll?: DataScrollHorizontal): DataScrollHorizontal;
+    resetVerticalScroll(verticalScroll?: DataScrollVertical): DataScrollVertical;
     limitHorizontalScrollToView(time?: DataChartTime): void;
     private calculateHorizontalScrollPosPxFromDates;
     setScrollLeft(dataIndexOrDateId: number | string | undefined, offset?: number, time?: DataChartTime): number;
