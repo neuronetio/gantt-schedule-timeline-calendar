@@ -1,3 +1,8 @@
+## [3.33.1]
+
+- fixed bug with `location.ancestorOrigins` [on firefox](https://bugzilla.mozilla.org/show_bug.cgi?id=1085214)
+- added origins property to the state `state.get('origins')`
+
 ## [3.33.0]
 
 - array merging bugfix

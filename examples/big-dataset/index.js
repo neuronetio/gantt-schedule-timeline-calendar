@@ -112,6 +112,14 @@ const config = {
       zoom: 19.4,
     },
   },
+  // scroll: {
+  //   horizontal: {
+  //     precise: true,
+  //   },
+  //   vertical: {
+  //     precise: true,
+  //   },
+  // },
 };
 
 state = GSTC.api.stateFromConfig(config);
