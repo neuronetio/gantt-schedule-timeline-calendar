@@ -83,6 +83,7 @@ export interface ItemData {
     detached: boolean;
     linkedWith?: string[];
     dependant?: string[];
+    dependsOn?: string[];
     visible?: boolean;
     inView?: boolean;
     selected?: boolean;

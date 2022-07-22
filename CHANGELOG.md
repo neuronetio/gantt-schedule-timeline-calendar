@@ -1,3 +1,10 @@
+## [3.33.2]
+
+- time bookmarks sometimes disappear without a reason bugfix
+- fixed `api.time.getGlobalOffsetPxFromDates`
+- performance optimization when all of the items are out of the view (on the left side or on the right side)
+- `time.leftGlobal` was calculated based on centerDate, which was no longer available due to a change in dates bugfix
+
 ## [3.33.1]
 
 - fixed bug with `location.ancestorOrigins` [on firefox](https://bugzilla.mozilla.org/show_bug.cgi?id=1085214)
@@ -76,7 +83,7 @@
 
 ## [3.26.1]
 
-- there was a bug when gstc wanted to save dates to cache but cache was not ready for that ¯\\\_(ツ)\_/¯
+- there was a bug when gstc wanted to save dates to cache but cache was not ready for that
 
 ## [3.26.0]
 

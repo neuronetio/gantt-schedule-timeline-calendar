@@ -77,6 +77,7 @@ export declare class Api {
     getChildrenDependantItemsIds(item: Item, items: Items, allDependant?: string[]): string[];
     calculateItemVerticalPosition(itemId: string, itemData?: ItemData, rowData?: RowData, item?: Item): ItemDataPosition;
     setItemDataOutOfView(itemData: ItemData, time?: DataChartTime): ItemData;
+    areAllItemsOutOfView(items?: Items, time?: DataChartTime): boolean;
     calculateItemHorizontalPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, item?: Item): ItemDataPosition;
     calculateItemPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, item?: Item): ItemDataPosition;
     getItemPosition(itemId: string, itemData?: ItemData, rowData?: RowData, time?: DataChartTime, item?: Item): ItemDataPosition;
