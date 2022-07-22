@@ -1,12 +1,12 @@
 {
   "name": "gantt-schedule-timeline-calendar",
-  "version": "3.33.1",
+  "version": "3.33.2",
   "lockfileVersion": 2,
   "requires": true,
   "packages": {
     "": {
       "name": "gantt-schedule-timeline-calendar",
-      "version": "3.33.1",
+      "version": "3.33.2",
       "license": "SEE LICENSE IN LICENSE",
       "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^5.27.0",
