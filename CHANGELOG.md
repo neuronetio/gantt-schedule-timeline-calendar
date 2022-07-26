@@ -1,3 +1,9 @@
+## [3.33.3]
+
+- performance optimization
+- throws an error when `item.time.start` or `item.time.end` is not a number
+- throws an error when `config.chart.time.from` or `config.chart.time.to` is not a number and is defined
+
 ## [3.33.2]
 
 - time bookmarks sometimes disappear without a reason bugfix

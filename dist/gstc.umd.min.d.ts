@@ -635,6 +635,7 @@ export interface DataChart {
     dimensions: DataChartDimensions;
     visibleItems: string[];
     time: DataChartTime;
+    allItemsOnTheLeftOrRight: boolean;
 }
 export interface DataElements {
     [key: string]: HTMLElement;
