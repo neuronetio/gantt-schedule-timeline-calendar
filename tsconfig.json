@@ -1,6 +1,6 @@
 {
-  "include": ["./*.ts", "./cypress/**/*.ts", "cypress/plugins/index.js", "cypress.config.*"],
-  "exclude": ["node_modules/**", "dist/**"],
+  "include": ["./*.ts", "./cypress/**/*.ts"],
+  "exclude": ["node_modules/**", "dist/**", "cypress.config.js"],
   "compilerOptions": {
     "moduleResolution": "node",
     "esModuleInterop": true,
