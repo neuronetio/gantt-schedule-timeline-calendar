@@ -1,3 +1,7 @@
+## [3.33.6]
+
+- updated and added dependent libraries to `package.json` due to missing type errors
+
 ## [3.33.5]
 
 - complex example updated (missing bookmarks)

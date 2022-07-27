@@ -8,6 +8,11 @@
       "name": "gantt-schedule-timeline-calendar",
       "version": "3.33.5",
       "license": "SEE LICENSE IN LICENSE",
+      "dependencies": {
+        "@neuronet.io/vido": "^4.2.15",
+        "dayjs": "^1.11.4",
+        "lit-html": "^2.2.7"
+      },
       "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^5.27.0",
         "@typescript-eslint/parser": "^5.27.0",
@@ -248,6 +253,14 @@
         "node": ">=6"
       }
     },
+    "node_modules/@neuronet.io/vido": {
+      "version": "4.2.15",
+      "resolved": "https://registry.npmjs.org/@neuronet.io/vido/-/vido-4.2.15.tgz",
+      "integrity": "sha512-Ye3PSvsfU0e/uxhQC5XC5DwI/RS2/h84zV/S6MbdhyQoQBrBleIFf63TWW8L83ntM1J0z6UN8dZ9ENinCB5CcQ==",
+      "dependencies": {
+        "lit-html": "^2.2.6"
+      }
+    },
     "node_modules/@nodelib/fs.scandir": {
       "version": "2.1.5",
       "resolved": "https://registry.npmjs.org/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz",
@@ -322,6 +335,11 @@
       "resolved": "https://registry.npmjs.org/@types/sizzle/-/sizzle-2.3.3.tgz",
       "integrity": "sha512-JYM8x9EGF163bEyhdJBpR2QX1R5naCJHC8ucJylJ3w9/CVBaskdQ8WqBf8MmQrd1kRvp/a4TS8HJ+bxzR7ZJYQ==",
       "dev": true
+    },
+    "node_modules/@types/trusted-types": {
+      "version": "2.0.2",
+      "resolved": "https://registry.npmjs.org/@types/trusted-types/-/trusted-types-2.0.2.tgz",
+      "integrity": "sha512-F5DIZ36YVLE+PN+Zwws4kJogq47hNgX3Nx6WyDJ3kcplxyke3XIzB8uK5n/Lpm1HBsbGzd6nmGehL8cPekP+Tg=="
     },
     "node_modules/@types/yauzl": {
       "version": "2.10.0",
@@ -1168,8 +1186,7 @@
     "node_modules/dayjs": {
       "version": "1.11.4",
       "resolved": "https://registry.npmjs.org/dayjs/-/dayjs-1.11.4.tgz",
-      "integrity": "sha512-Zj/lPM5hOvQ1Bf7uAvewDaUcsJoI6JmNqmHhHl3nyumwe0XHwt8sWdOVAPACJzCebL8gQCi+K49w7iKWnGwX9g==",
-      "dev": true
+      "integrity": "sha512-Zj/lPM5hOvQ1Bf7uAvewDaUcsJoI6JmNqmHhHl3nyumwe0XHwt8sWdOVAPACJzCebL8gQCi+K49w7iKWnGwX9g=="
     },
     "node_modules/debug": {
       "version": "4.3.4",
@@ -2399,6 +2416,14 @@
         "enquirer": {
           "optional": true
         }
+      }
+    },
+    "node_modules/lit-html": {
+      "version": "2.2.7",
+      "resolved": "https://registry.npmjs.org/lit-html/-/lit-html-2.2.7.tgz",
+      "integrity": "sha512-JhqiAwO1l03kRe68uBZ0i2x4ef2S5szY9vvP411nlrFZIpKK4/hwnhA/15bqbvxe1lV3ipBdhaOzHmyOk7QIRg==",
+      "dependencies": {
+        "@types/trusted-types": "^2.0.2"
       }
     },
     "node_modules/lodash": {
@@ -3821,6 +3846,14 @@
         "regexparam": "^1.3.0"
       }
     },
+    "@neuronet.io/vido": {
+      "version": "4.2.15",
+      "resolved": "https://registry.npmjs.org/@neuronet.io/vido/-/vido-4.2.15.tgz",
+      "integrity": "sha512-Ye3PSvsfU0e/uxhQC5XC5DwI/RS2/h84zV/S6MbdhyQoQBrBleIFf63TWW8L83ntM1J0z6UN8dZ9ENinCB5CcQ==",
+      "requires": {
+        "lit-html": "^2.2.6"
+      }
+    },
     "@nodelib/fs.scandir": {
       "version": "2.1.5",
       "resolved": "https://registry.npmjs.org/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz",
@@ -3882,6 +3915,11 @@
       "resolved": "https://registry.npmjs.org/@types/sizzle/-/sizzle-2.3.3.tgz",
       "integrity": "sha512-JYM8x9EGF163bEyhdJBpR2QX1R5naCJHC8ucJylJ3w9/CVBaskdQ8WqBf8MmQrd1kRvp/a4TS8HJ+bxzR7ZJYQ==",
       "dev": true
+    },
+    "@types/trusted-types": {
+      "version": "2.0.2",
+      "resolved": "https://registry.npmjs.org/@types/trusted-types/-/trusted-types-2.0.2.tgz",
+      "integrity": "sha512-F5DIZ36YVLE+PN+Zwws4kJogq47hNgX3Nx6WyDJ3kcplxyke3XIzB8uK5n/Lpm1HBsbGzd6nmGehL8cPekP+Tg=="
     },
     "@types/yauzl": {
       "version": "2.10.0",
@@ -4471,8 +4509,7 @@
     "dayjs": {
       "version": "1.11.4",
       "resolved": "https://registry.npmjs.org/dayjs/-/dayjs-1.11.4.tgz",
-      "integrity": "sha512-Zj/lPM5hOvQ1Bf7uAvewDaUcsJoI6JmNqmHhHl3nyumwe0XHwt8sWdOVAPACJzCebL8gQCi+K49w7iKWnGwX9g==",
-      "dev": true
+      "integrity": "sha512-Zj/lPM5hOvQ1Bf7uAvewDaUcsJoI6JmNqmHhHl3nyumwe0XHwt8sWdOVAPACJzCebL8gQCi+K49w7iKWnGwX9g=="
     },
     "debug": {
       "version": "4.3.4",
@@ -5388,6 +5425,14 @@
         "rxjs": "^7.5.1",
         "through": "^2.3.8",
         "wrap-ansi": "^7.0.0"
+      }
+    },
+    "lit-html": {
+      "version": "2.2.7",
+      "resolved": "https://registry.npmjs.org/lit-html/-/lit-html-2.2.7.tgz",
+      "integrity": "sha512-JhqiAwO1l03kRe68uBZ0i2x4ef2S5szY9vvP411nlrFZIpKK4/hwnhA/15bqbvxe1lV3ipBdhaOzHmyOk7QIRg==",
+      "requires": {
+        "@types/trusted-types": "^2.0.2"
       }
     },
     "lodash": {
