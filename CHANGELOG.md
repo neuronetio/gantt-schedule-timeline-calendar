@@ -1,3 +1,7 @@
+## [3.33.5]
+
+- complex example updated (missing bookmarks)
+
 ## [3.33.4]
 
 - garbage removed

@@ -151,26 +151,18 @@ const columns = {
   },
 };
 
-const bookmarks = {
-  now: {
-    time: GSTC.api.date().valueOf(),
-    label: 'Now',
-    style: {
-      background: '#3498DB',
-      fontWeight: 'bold',
-    },
-  },
-};
-
-for (let i = 0; i < 5; i++) {
+const bookmarks = {};
+for (let i = 0; i < 3; i++) {
   const id = `Bookmark ${i}`;
   bookmarks[id] = {
-    time: GSTC.api
-      .date()
+    time: startDate
       .add(Math.round(Math.random() * addDays), 'day')
       .startOf('day')
       .valueOf(),
     label: id,
+    style: {
+      background: getRandomColor(),
+    },
   };
 }
 
