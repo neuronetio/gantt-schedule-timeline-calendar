@@ -81,6 +81,7 @@ export interface Options {
     autoScroll?: AutoScroll;
     ignoreMissingDates?: boolean;
     allowItemsToGoOutsideTheArea?: boolean;
+    threshold?: number;
 }
 export declare type State = 'start' | 'resize' | 'end' | '';
 export interface PluginData extends Options {
@@ -93,6 +94,7 @@ export interface PluginData extends Options {
     initialHorizontalScroll: DataScrollHorizontal;
     state: State;
     movement: Movement;
+    thresholdReached: boolean;
 }
 export declare function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 //# sourceMappingURL=item-resizing.d.ts.map

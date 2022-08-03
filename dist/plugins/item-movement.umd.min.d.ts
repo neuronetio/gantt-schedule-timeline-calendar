@@ -73,6 +73,10 @@ export interface Options {
     allowItemsToGoOutsideTheArea?: boolean;
 }
 export declare type State = 'start' | 'move' | 'end' | '';
+export interface ThresholdReached {
+    horizontal: boolean;
+    vertical: boolean;
+}
 export interface PluginData extends Options {
     isMoving: boolean;
     initialItems: Item[];
@@ -84,6 +88,7 @@ export interface PluginData extends Options {
     initialVerticalScroll: DataScrollVertical;
     initialHorizontalScroll: DataScrollHorizontal;
     initialPointerTime: Dayjs | null;
+    thresholdReached: ThresholdReached;
     state: State;
     movement: Movement;
 }

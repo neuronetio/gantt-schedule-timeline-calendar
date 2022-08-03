@@ -1,3 +1,9 @@
+## [3.33.7]
+
+- `ItemMovement` `threshold` options ignored bugfix
+- added `ItemResizing` `threshold` option
+- updated `complex-1` and `one-month` examples
+
 ## [3.33.6]
 
 - updated and added dependent libraries to `package.json` due to missing type errors

@@ -32,29 +32,42 @@ const startDate = GSTC.api.date('2020-02-01');
 const startTime = startDate.valueOf();
 const endDate = GSTC.api.date('2020-03-31').endOf('day');
 
-/**
- * @type {import("../../dist/gstc").Rows}
- */
-const rows = {};
-for (let i = 0; i < iterations; i++) {
-  const withParent = i > 0 && i % 2 === 0;
-  const id = GSTCID(String(i));
-  rows[id] = {
-    id,
-    label: `John Doe ${i}`,
-    parentId: withParent ? GSTCID(String(i - 1)) : undefined,
-    expanded: false,
-    vacations: [],
-    img: getRandomFaceImage(),
-    progress: Math.floor(Math.random() * 100),
-    visible: true,
-  };
-}
+function getInitialRows() {
+  /**
+   * @type {import("../../dist/gstc").Rows}
+   */
+  const rows = {};
+  for (let i = 0; i < iterations; i++) {
+    const withParent = i > 0 && i % 2 === 0;
+    const id = GSTCID(String(i));
+    rows[id] = {
+      id,
+      label: `John Doe ${i}`,
+      parentId: withParent ? GSTCID(String(i - 1)) : undefined,
+      expanded: false,
+      vacations: [],
+      img: getRandomFaceImage(),
+      progress: Math.floor(Math.random() * 100),
+      visible: true,
+    };
+  }
 
-rows[GSTCID('11')].label = 'NESTED TREE HERE';
-rows[GSTCID('12')].parentId = GSTCID('11');
-rows[GSTCID('13')].parentId = GSTCID('12');
-rows[GSTCID('14')].parentId = GSTCID('13');
+  rows[GSTCID('11')].label = 'NESTED TREE HERE';
+  rows[GSTCID('12')].parentId = GSTCID('11');
+  rows[GSTCID('13')].parentId = GSTCID('12');
+  rows[GSTCID('14')].parentId = GSTCID('13');
+  rows[GSTCID('3')].vacations = [
+    { from: startDate.add(5, 'days').startOf('day').valueOf(), to: startDate.add(5, 'days').endOf('day').valueOf() },
+    { from: startDate.add(6, 'days').startOf('day').valueOf(), to: startDate.add(6, 'days').endOf('day').valueOf() },
+  ];
+  rows[GSTCID('7')].birthday = [
+    {
+      from: startDate.add(3, 'day').startOf('day').valueOf(),
+      to: startDate.add(3, 'day').endOf('day').valueOf(),
+    },
+  ];
+  return rows;
+}
 
 function generateItemsForDaysView() {
   /**
@@ -151,6 +164,9 @@ const columns = {
   },
 };
 
+/**
+ * @type {import("../../dist/plugins/time-bookmarks").Bookmarks}
+ */
 const bookmarks = {};
 for (let i = 0; i < 3; i++) {
   const id = `Bookmark ${i}`;
@@ -260,6 +276,10 @@ function canMove(item) {
  * @type {import('../../dist/plugins/item-movement').Options}
  */
 const itemMovementOptions = {
+  threshold: {
+    horizontal: 25,
+    vertical: 25,
+  },
   snapToTime: {
     start: snapStart,
     end({ endTime }) {
@@ -281,6 +301,7 @@ const itemMovementOptions = {
  * @type {import('../../dist/plugins/item-resizing').Options}
  */
 const itemResizeOptions = {
+  threshold: 25,
   snapToTime: {
     start: snapStart,
     end: snapEnd,
@@ -310,6 +331,9 @@ function onItemClick(ev) {
   console.log('Item click from template', item);
 }
 
+/**
+ * @type {import('../../dist/gstc').Template}
+ */
 function chartTimelineItemsRowItemTemplate({
   className,
   labelClassName,
@@ -369,17 +393,6 @@ function myItemSlot(vido, props) {
   return (content) =>
     vido.html`<div class="my-item-wrapper" @click=${onClick} style="width:100%;display:flex;overflow:hidden;pointer-events:none;">${content}</div>`;
 }
-
-rows[GSTCID('3')].vacations = [
-  { from: startDate.add(5, 'days').startOf('day').valueOf(), to: startDate.add(5, 'days').endOf('day').valueOf() },
-  { from: startDate.add(6, 'days').startOf('day').valueOf(), to: startDate.add(6, 'days').endOf('day').valueOf() },
-];
-rows[GSTCID('7')].birthday = [
-  {
-    from: startDate.add(3, 'day').startOf('day').valueOf(),
-    to: startDate.add(3, 'day').endOf('day').valueOf(),
-  },
-];
 
 function onCellCreateVacation({ time, row, vido, content }) {
   if (!row.vacations) return content;
@@ -520,7 +533,7 @@ const config = {
     row: {
       height: 68,
     },
-    rows,
+    rows: getInitialRows(),
     columns,
   },
   chart: {
@@ -609,10 +622,10 @@ function toggleDarkMode(ev) {
   darkModeEnabled = ev.target.checked;
   const el = document.getElementById('gstc');
   if (darkModeEnabled) {
-    el.classList.add('gstc--dark');
+    el?.classList.add('gstc--dark');
     document.body.classList.add('gstc--dark');
   } else {
-    el.classList.remove('gstc--dark');
+    el?.classList.remove('gstc--dark');
     document.body.classList.remove('gstc--dark');
   }
 }
@@ -630,6 +643,7 @@ function toggleExpandTime(ev) {
   const expandTime = ev.target.checked;
   const moveOutEl = document.getElementById('move-out');
   if (moveOutEl && expandTime) {
+    // @ts-ignore
     moveOutEl.checked = expandTime;
     toggleMoveOut({ target: moveOutEl });
   }
@@ -640,6 +654,7 @@ function toggleMoveOut(ev) {
   const moveOut = ev.target.checked;
   const expandTimeEl = document.getElementById('expand-time');
   if (expandTimeEl && !moveOut) {
+    // @ts-ignore
     expandTimeEl.checked = moveOut;
     toggleExpandTime({ target: expandTimeEl });
   }
@@ -679,12 +694,13 @@ function zoomChange(ev) {
 }
 
 function searchRows(event) {
+  const copiedRows = getInitialRows();
   const search = String(event.target.value).trim();
   console.log('search', search);
   const regex = new RegExp(`[\s\S]?${search}[\s\S]?`, 'gi');
   const rowsToKeep = [];
-  for (const rowId in rows) {
-    const row = rows[rowId];
+  for (const rowId in copiedRows) {
+    const row = copiedRows[rowId];
     const rowData = gstc.api.getRowData(rowId);
     if (regex.test(row.label)) {
       rowsToKeep.push(rowId);
@@ -693,21 +709,21 @@ function searchRows(event) {
       }
       for (const parentRowId of rowData.parents) {
         rowsToKeep.push(parentRowId);
-        if (search) rows[parentRowId].expanded = true;
+        if (search) copiedRows[parentRowId].expanded = true;
       }
     }
     regex.lastIndex = 0;
   }
   const uniqueRowsToKeep = [...new Set(rowsToKeep)]; // js way to get only unique row id's- we don't want duplicates here
-  for (const rowId in rows) {
+  for (const rowId in copiedRows) {
     if (uniqueRowsToKeep.includes(rowId)) {
-      rows[rowId].visible = true;
+      copiedRows[rowId].visible = true;
     } else {
-      rows[rowId].visible = false;
+      copiedRows[rowId].visible = false;
     }
   }
   state.update('config.list.rows', (currentRows) => {
-    return rows;
+    return copiedRows;
   });
 }
 
@@ -791,6 +807,7 @@ function updateToolBox() {
         <label for="move-out">Alow items to move outside area</label>
       </div>
     </div>`;
+  // @ts-ignore
   GSTC.lithtml.render(toolboxButtons, document.getElementById('toolbox'));
 }
 updateToolBox();

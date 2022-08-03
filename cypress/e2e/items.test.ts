@@ -438,7 +438,7 @@ describe('Items', () => {
         expect(itemData.width).to.eq(cellWidth);
         expect(itemData.position.right).to.eq(cellWidth * 5);
       })
-      .move(itemClass, 2, 0)
+      .move(itemClass, 25, 0)
       .then(() => {
         const itemData: ItemData = state.get(`$data.chart.items.${itemId}`);
         expect(itemData.time.startDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-02-07 00:00:00');

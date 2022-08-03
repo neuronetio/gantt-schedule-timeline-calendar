@@ -398,6 +398,7 @@ let state = GSTC.api.stateFromConfig(config);
   const element = document.getElementById('gstc');
 
   gstc = GSTC({
+    // @ts-ignore
     element,
     state,
   });
