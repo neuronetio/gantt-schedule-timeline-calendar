@@ -1,3 +1,8 @@
+## [3.33.9]
+
+- Added `rowId` check for items. The component will throw an error when a row is not found or when the id has an invalid type.
+- Added checking that all items exist and that, for example, they have not been modified via references from `state.get`.
+
 ## [3.33.8]
 
 - origin with wildcard bugfix

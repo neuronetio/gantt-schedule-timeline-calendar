@@ -98,7 +98,7 @@ export declare class Api {
     setItemData(itemId: string, data: ItemDataUpdate): void;
     setItemsData(data: DataItems): void;
     prepareDependantItems(item: Item, items: Items): string[];
-    prepareItem(item: Item, defaultItemHeight?: number, itemsData?: DataItems, items?: Items): void;
+    prepareItem(item: Item, defaultItemHeight?: number, itemsData?: DataItems, items?: Items, rows?: Rows): void;
     prepareItems(items: Items): Items;
     sortRowsByChildren(rowsIds: string[], sortedRows?: {}, rows?: Rows, rowsData?: RowsData): Rows;
     private getSortableValue;
