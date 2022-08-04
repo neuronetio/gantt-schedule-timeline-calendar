@@ -9,6 +9,7 @@ export declare function prepareState(userConfig: Config): {
 };
 export declare function stateFromConfig(userConfig: Config): DeepState;
 export declare function wasmStateFromConfig(userConfig: Config, wasmFile?: string): Promise<any>;
+declare function clone(object: object): unknown;
 export declare const publicApi: {
     name: string;
     GSTCID: (originalId: string) => string;
@@ -18,6 +19,8 @@ export declare const publicApi: {
     stateFromConfig: typeof stateFromConfig;
     wasmStateFromConfig: typeof wasmStateFromConfig;
     merge: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
+    mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
+    clone: typeof clone;
     lithtml: typeof lithtml;
     html: typeof lithtml;
     vido: typeof vido;
@@ -25,4 +28,5 @@ export declare const publicApi: {
     setPeriod(period: Period): number;
     dayjs: typeof dayjs;
 };
+export {};
 //# sourceMappingURL=public.d.ts.map

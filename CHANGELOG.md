@@ -1,3 +1,7 @@
+## [3.33.11]
+
+- added `GSTC.api.mergeDeep` and `GSTC.api.clone` methods
+
 ## [3.33.10]
 
 - `fromArray` will now check `linkedWith` also

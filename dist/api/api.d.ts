@@ -60,6 +60,7 @@ export declare class Api {
     render(): Promise<unknown>;
     getListenerPosition(callback: any): string | number;
     setVido(Vido: Vido): void;
+    clone(object: object): any;
     setMergeDeep(mergeDeep: any): void;
     log(...args: any[]): void;
     getInitializedPlugins(): Set<string>;
