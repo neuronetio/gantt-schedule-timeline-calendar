@@ -1,3 +1,7 @@
+## [3.33.10]
+
+- `fromArray` will now check `linkedWith` also
+
 ## [3.33.9]
 
 - Added `rowId` check for items. The component will throw an error when a row is not found or when the id has an invalid type.
