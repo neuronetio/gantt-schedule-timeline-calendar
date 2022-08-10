@@ -1,3 +1,8 @@
+## [3.33.13]
+
+- multiple components on one page bugfix
+- added example for multiple components
+
 ## [3.33.12]
 
 - origin check mechanism updated
