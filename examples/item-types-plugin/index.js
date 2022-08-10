@@ -73,6 +73,7 @@ for (let i = 0; i < iterations; i++) {
         .endOf('day')
         .valueOf(),
     },
+    classNames: ['my-custom-item-class'],
     rowId,
   };
 }

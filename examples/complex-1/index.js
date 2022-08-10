@@ -98,6 +98,7 @@ function generateItemsForDaysView() {
       },
       rowId,
       img: getRandomFaceImage(),
+      classNames: ['additional-custom-class'],
       description: 'Lorem ipsum dolor sit amet',
     };
   }

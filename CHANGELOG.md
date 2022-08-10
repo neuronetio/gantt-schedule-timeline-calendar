@@ -1,3 +1,7 @@
+## [3.33.12]
+
+- origin check mechanism updated
+
 ## [3.33.11]
 
 - added `GSTC.api.mergeDeep` and `GSTC.api.clone` methods
