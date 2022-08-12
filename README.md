@@ -70,9 +70,10 @@ You can control almost everything. You can change html structure, stylize every 
 
 You can checkout [examples folder](https://github.com/neuronetio/gantt-schedule-timeline-calendar/tree/master/examples) too.
 
-<h2 align="center">REACT, ANGULAR, SVELTE AND VUE EXAMPLES</h2>
+<h2 align="center">REACT, NEXTJS, ANGULAR, SVELTE AND VUE EXAMPLES</h2>
 
 - [react gantt-schedule-timeline-calendar usage example](https://github.com/neuronetio/react-gantt-schedule-timeline-calendar-example)
+- [nextjs/react gantt-schedule-timeline-calendar usage example](https://github.com/neuronetio/nextjs-gantt-schedule-timeline-calendar-example)
 - [angular gantt-schedule-timeline-calendar usage example](https://github.com/neuronetio/angular-gantt-schedule-timeline-calendar-example)
 - [vue gantt-schedule-timeline-calendar usage example](https://github.com/neuronetio/vue-gantt-schedule-timeline-calendar-example)
 - [vue3 composition api with vite gantt-schedule-timeline-calendar example](https://github.com/neuronetio/vue3-vite-gantt-schedule-timeline-calendar-example)
