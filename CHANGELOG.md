@@ -1,3 +1,8 @@
+## [3.33.14]
+
+- delete selected item bugfix (#348)
+- fixed bug with clip-path attached to foreignObject which caused ItemTypes plugin to not respond to pointer events (like resize)
+
 ## [3.33.13]
 
 - multiple components on one page bugfix

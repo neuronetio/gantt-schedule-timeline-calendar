@@ -139,7 +139,7 @@
     "@typescript-eslint/eslint-plugin": "^5.27.0",
     "@typescript-eslint/parser": "^5.27.0",
     "compression": "^1.7.4",
-    "cypress": "^10.4.0",
+    "cypress": "^12.14.0",
     "deep-state-observer": "^5.5.9",
     "eslint": "^7.15.0",
     "eslint-config-prettier": "^6.15.0",

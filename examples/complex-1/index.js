@@ -756,6 +756,18 @@ function openSaveCurrentStateDialog() {
   saveCurrentState(stateName);
 }
 
+function deleteSelectedItems() {
+  const selectedItems = gstc.api.plugins.Selection.getSelected()['chart-timeline-items-row-item']; // cloned items
+  gstc.api.plugins.Selection.selectItems([]); // clear selection
+  state.update('config.plugin.Selection.lastSelecting.chart-timeline-items-row-item', []);
+  state.update('config.chart.items', (items) => {
+    for (const item of selectedItems) {
+      delete items[item.id];
+    }
+    return items;
+  });
+}
+
 const html = GSTC.lithtml.html;
 
 function updateToolBox() {
@@ -784,6 +796,9 @@ function updateToolBox() {
           <option value="days" selected>Days</option>
           <option value="months">Months</option>
         </select>
+      </div>
+      <div class="toolbox-item">
+        <button @click=${deleteSelectedItems}>Delete selected items</button>
       </div>
     </div>
     <div class="toolbox-row">
