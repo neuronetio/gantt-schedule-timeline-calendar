@@ -4,7 +4,7 @@
  * @header  --gstc--header--
  */
 import type { htmlResult, Item, ItemData, RowData, Vido } from '../gstc';
-export declare type LineType = 'straight' | 'square' | 'square-alt' | 'smooth';
+export type LineType = 'straight' | 'square' | 'square-alt' | 'smooth';
 export interface DefaultPoint {
     content: htmlResult;
     width: number;

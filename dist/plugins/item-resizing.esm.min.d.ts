@@ -61,11 +61,12 @@ export interface HandleContentObject {
     left: htmlResult;
     right: htmlResult;
 }
-export declare type HandleContentFunction = ({ item: Item, vido: Vido }: {
-    item: any;
-    vido: any;
-}) => HandleContentObject;
-export declare type HandleContent = HandleContentObject | HandleContentFunction | htmlResult;
+export type HandleContentFunctionArgument = {
+    item: Item;
+    vido: Vido;
+};
+export type HandleContentFunction = (arg: HandleContentFunctionArgument) => HandleContentObject;
+export type HandleContent = HandleContentObject | HandleContentFunction | htmlResult;
 export interface Options {
     enabled?: boolean;
     dependant?: boolean;
@@ -83,7 +84,7 @@ export interface Options {
     allowItemsToGoOutsideTheArea?: boolean;
     threshold?: number;
 }
-export declare type State = 'start' | 'resize' | 'end' | '';
+export type State = 'start' | 'resize' | 'end' | '';
 export interface PluginData extends Options {
     leftIsMoving: boolean;
     rightIsMoving: boolean;

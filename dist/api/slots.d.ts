@@ -5,7 +5,7 @@
  */
 import { Vido } from '../gstc';
 import { Slots as VidoSlots, ComponentInstance, Component } from '@neuronet.io/vido';
-export declare type SlotInstances = {
+export type SlotInstances = {
     [key: string]: ComponentInstance[];
 };
 export interface SlotStorage {

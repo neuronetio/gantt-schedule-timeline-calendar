@@ -72,7 +72,7 @@ export interface Options {
     ignoreMissingDates?: boolean;
     allowItemsToGoOutsideTheArea?: boolean;
 }
-export declare type State = 'start' | 'move' | 'end' | '';
+export type State = 'start' | 'move' | 'end' | '';
 export interface ThresholdReached {
     horizontal: boolean;
     vertical: boolean;

@@ -9,7 +9,7 @@ import { StyleInfo, ComponentInstance, lithtml } from '@neuronet.io/vido';
 import { Api } from './api/api';
 import { Dayjs } from 'dayjs';
 import DeepState from 'deep-state-observer';
-export declare type Vido = vido<DeepState, Api>;
+export type Vido = vido<DeepState, Api>;
 export interface RowDataPosition {
     top: number;
     bottom: number;
@@ -40,7 +40,7 @@ export interface Row {
     classNames?: string[] | classNamesFn;
     [key: string]: any;
 }
-export declare type classNamesFn = ({ row, vido }: {
+export type classNamesFn = ({ row, vido }: {
     row: Row;
     vido: Vido;
 }) => string[];
@@ -101,7 +101,7 @@ export interface ItemDataUpdate {
     linkedWith?: string[];
     dependant?: string[];
 }
-export declare type ItemLabelFunction = ({ item, vido }: {
+export type ItemLabelFunction = ({ item, vido }: {
     item: Item;
     vido: Vido;
 }) => lithtml.TemplateResult | string;
@@ -149,21 +149,21 @@ export interface GridRow {
 export interface GridRows {
     [rowId: string]: GridRow;
 }
-export declare type VoidFunction = () => void;
-export declare type PluginInitialization = (vido: Vido) => void | VoidFunction;
-export declare type Plugin = <T>(options: T) => PluginInitialization;
-export declare type htmlResult = lithtml.TemplateResult | lithtml.TemplateResult[] | lithtml.SVGTemplateResult | lithtml.SVGTemplateResult[] | string | Element | undefined | null;
-export declare type RenderFunction = (templateProps: unknown) => htmlResult;
-export declare type Component = (vido: unknown, props: unknown) => RenderFunction;
+export type VoidFunction = () => void;
+export type PluginInitialization = (vido: Vido) => void | VoidFunction;
+export type Plugin = <T>(options: T) => PluginInitialization;
+export type htmlResult = lithtml.TemplateResult | lithtml.TemplateResult[] | lithtml.SVGTemplateResult | lithtml.SVGTemplateResult[] | string | Element | undefined | null;
+export type RenderFunction = (templateProps: unknown) => htmlResult;
+export type Component = (vido: unknown, props: unknown) => RenderFunction;
 export interface Components {
     [name: string]: Component;
 }
-export declare type SlotName = 'main' | 'scroll-bar' | 'list' | 'list-column' | 'list-column-headers' | 'list-column-header' | 'list-column-header-resizer' | 'list-column-rows' | 'list-column-row' | 'list-column-row-expander' | 'list-column-row-expander-toggle' | 'list-toggle' | 'chart' | 'chart-calendar' | 'chart-calendar-date' | 'chart-timeline' | 'chart-timeline-grid' | 'chart-timeline-grid-row' | 'chart-timeline-grid-row-cell' | 'chart-timeline-items' | 'chart-timeline-items-row' | 'chart-timeline-items-row-item';
-export declare type SlotPlacement = 'outer' | 'inner' | 'container-outer' | 'container-inner' | 'content';
-export declare type Slot = {
+export type SlotName = 'main' | 'scroll-bar' | 'list' | 'list-column' | 'list-column-headers' | 'list-column-header' | 'list-column-header-resizer' | 'list-column-rows' | 'list-column-row' | 'list-column-row-expander' | 'list-column-row-expander-toggle' | 'list-toggle' | 'chart' | 'chart-calendar' | 'chart-calendar-date' | 'chart-timeline' | 'chart-timeline-grid' | 'chart-timeline-grid-row' | 'chart-timeline-grid-row-cell' | 'chart-timeline-items' | 'chart-timeline-items-row' | 'chart-timeline-items-row-item';
+export type SlotPlacement = 'outer' | 'inner' | 'container-outer' | 'container-inner' | 'content';
+export type Slot = {
     [placement in SlotPlacement]?: Component[];
 };
-export declare type Slots = {
+export type Slots = {
     [name in SlotName]?: Slot;
 };
 export interface ColumnResizer {
@@ -171,19 +171,19 @@ export interface ColumnResizer {
     inRealTime?: boolean;
     dots?: number;
 }
-export declare type ColumnDataFunction = ({ row, vido }: {
+export type ColumnDataFunction = ({ row, vido }: {
     row: Row;
     vido: Vido;
 }) => string | number;
-export declare type ColumnDataFunctionString = ({ row, vido }: {
+export type ColumnDataFunctionString = ({ row, vido }: {
     row: Row;
     vido: Vido;
 }) => string;
-export declare type ColumnDataFunctionTemplate = ({ row, vido }: {
+export type ColumnDataFunctionTemplate = ({ row, vido }: {
     row: Row;
     vido: Vido;
 }) => htmlResult;
-export declare type ColumnDataHeaderContent = string | (({ column, vido }: {
+export type ColumnDataHeaderContent = string | (({ column, vido }: {
     column: ColumnData;
     vido: Vido;
 }) => htmlResult);
@@ -191,7 +191,7 @@ export interface ColumnDataHeader {
     html?: htmlResult;
     content?: ColumnDataHeaderContent;
 }
-export declare type Sortable = string | ColumnDataFunction;
+export type Sortable = string | ColumnDataFunction;
 export interface ColumnData {
     id: string;
     data: string | ColumnDataFunctionString | ColumnDataFunctionTemplate;
@@ -308,23 +308,23 @@ export interface DataScroll {
 }
 export interface ChartTimeDate extends DataChartTimeLevelDate {
 }
-export declare type ChartTimeDates = ChartTimeDate[];
-export declare type ChartTimeOnLevelDatesArg = {
+export type ChartTimeDates = ChartTimeDate[];
+export type ChartTimeOnLevelDatesArg = {
     dates: DataChartTimeLevel;
     time: DataChartTime;
     format: ChartCalendarLevelFormat;
     level: ChartCalendarLevel;
     levelIndex: number;
 };
-export declare type ChartTimeOnLevelDates = (arg: ChartTimeOnLevelDatesArg) => DataChartTimeLevel;
-export declare type ChartTimeOnDateArg = {
+export type ChartTimeOnLevelDates = (arg: ChartTimeOnLevelDatesArg) => DataChartTimeLevel;
+export type ChartTimeOnDateArg = {
     date: ChartTimeDate;
     time: DataChartTime;
     format: ChartCalendarLevelFormat;
     level: ChartCalendarLevel;
     levelIndex: number;
 };
-export declare type ChartTimeOnDate = (arg: ChartTimeOnDateArg) => ChartTimeDate | null;
+export type ChartTimeOnDate = (arg: ChartTimeOnDateArg) => ChartTimeDate | null;
 export interface ChartTime {
     period?: Period;
     from?: number;
@@ -383,9 +383,9 @@ export interface DataChartTimeLevelDate {
     periodIncrementedBy: number;
     DST: DataChartTimeLevelDateDST;
 }
-export declare type DataChartTimeLevel = DataChartTimeLevelDate[];
-export declare type DataChartTimeLevels = DataChartTimeLevel[];
-export declare type DataChartTimeDatesCacheDate = DataChartTimeLevelDate;
+export type DataChartTimeLevel = DataChartTimeLevelDate[];
+export type DataChartTimeLevels = DataChartTimeLevel[];
+export type DataChartTimeDatesCacheDate = DataChartTimeLevelDate;
 export interface DataChartTimeDatesCacheLevel {
     leftTime: number;
     rightTime: number;
@@ -433,8 +433,8 @@ export interface ChartCalendarFormatArguments {
     props: any;
     vido: any;
 }
-export declare type Period = 'year' | 'month' | 'week' | 'day' | 'hour' | 'minute' | 'second' | 'millisecond';
-export declare type CharCalendarLevelFormatFunction = ({ currentDates, date, leftDate, rightDate, period, level, levelIndex, time, vido, api, }: {
+export type Period = 'year' | 'month' | 'week' | 'day' | 'hour' | 'minute' | 'second' | 'millisecond';
+export type CharCalendarLevelFormatFunction = ({ currentDates, date, leftDate, rightDate, period, level, levelIndex, time, vido, api, }: {
     currentDates: DataChartTimeLevelDate[];
     date: Dayjs;
     leftDate: Dayjs;
@@ -454,11 +454,11 @@ export interface ChartCalendarLevelFormat {
     classNames?: string[];
     format: (args: ChartCalendarFormatArguments) => string | htmlResult;
 }
-export declare type ChartCalendarLevel = ChartCalendarLevelFormat[];
+export type ChartCalendarLevel = ChartCalendarLevelFormat[];
 export interface GridCellOnCreateArgument extends GridCell {
     vido: Vido;
 }
-export declare type GridCellOnCreate = (cell: GridCellOnCreateArgument) => string | htmlResult;
+export type GridCellOnCreate = (cell: GridCellOnCreateArgument) => string | htmlResult;
 export interface ChartGridCell {
     onCreate: GridCellOnCreate[];
 }
@@ -501,8 +501,8 @@ export interface ActionData {
     componentName: SlotName;
     [key: string]: any;
 }
-export declare type Action = (element: HTMLElement, data: ActionData) => ActionFunctionResult | void;
-export declare type Actions = {
+export type Action = (element: HTMLElement, data: ActionData) => ActionFunctionResult | void;
+export type Actions = {
     [name in SlotName]?: Action[];
 };
 export interface Locale {
@@ -541,8 +541,8 @@ export interface Locale {
 export interface TemplateVariables {
     [key: string]: any;
 }
-export declare type Template = (variables: TemplateVariables) => htmlResult;
-export declare type Templates = {
+export type Template = (variables: TemplateVariables) => htmlResult;
+export type Templates = {
     [name in SlotName]?: Template;
 };
 export interface LicenseType {

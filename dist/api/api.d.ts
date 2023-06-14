@@ -23,7 +23,7 @@ export interface rowsPositionsMapNode {
     keys: number[];
     [height: number]: rowsPositionsMapNode;
 }
-export declare type Unsubscribes = (() => void)[];
+export type Unsubscribes = (() => void)[];
 export interface Cache {
     rowsWithParentsExpanded: Row[];
     rowsDataWithParentsExpanded: RowData[];

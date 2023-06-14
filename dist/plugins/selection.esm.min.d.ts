@@ -5,7 +5,7 @@
  */
 import { ITEM, ITEM_TYPE, CELL, CELL_TYPE, TimelinePointerPoint, TimelinePointerState } from './timeline-pointer';
 import type { Item, GridCell, Vido } from '../gstc';
-export declare type ModKey = 'shift' | 'ctrl' | 'alt' | '';
+export type ModKey = 'shift' | 'ctrl' | 'alt' | '';
 export interface SelectionItems {
     [key: string]: Item[];
 }
@@ -56,8 +56,8 @@ export interface Selection {
     [CELL]: string[];
     [ITEM]: string[];
 }
-export declare type GridCellOrId = GridCell | string;
-export declare type ItemOrId = Item | string;
+export type GridCellOrId = GridCell | string;
+export type ItemOrId = Item | string;
 export interface EventSelection {
     [CELL]: GridCellOrId[];
     [ITEM]: ItemOrId[];

@@ -1,3 +1,7 @@
+## [3.33.15]
+
+- license key check mechanism bug fix
+
 ## [3.33.14]
 
 - delete selected item bugfix (#348)
