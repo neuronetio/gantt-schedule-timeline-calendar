@@ -1,3 +1,7 @@
+## [3.33.16]
+
+- The mechanism for stacking items that overlap has been improved. They now appear in the order they were added when their timing is the same.
+
 ## [3.33.15]
 
 - license key check mechanism bug fix
