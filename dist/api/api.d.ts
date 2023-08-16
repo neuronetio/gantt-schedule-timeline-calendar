@@ -106,7 +106,7 @@ export declare class Api {
     sortRowsByColumn(column: ColumnData, asc?: boolean): Rows;
     fillEmptyRowValues(rows: Rows): Rows;
     itemsOnTheSameLevel(item1: Item, item2: Item): boolean;
-    itemsOverlaps(item1: Item, item2: Item): boolean;
+    itemsTimeOverlaps(item1: Item, item2: Item): boolean;
     itemOverlapsWithOthers(item: Item, items: Item[]): Item;
     fixOverlappedItems(rowItems: Item[]): void;
     private makeChildren;

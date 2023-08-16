@@ -1,6 +1,10 @@
+## [3.33.17]
+
+- #380 bugfix (bug where item stayed on a lower level even when it was no longer overlapped by others)
+
 ## [3.33.16]
 
-- The mechanism for stacking items that overlap has been improved. They now appear in the order they were added when their timing is the same.
+- #373 bugfix - The mechanism for stacking items that overlap has been improved. They now appear in the order they were added when their timing is the same.
 
 ## [3.33.15]
 

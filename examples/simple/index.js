@@ -131,6 +131,7 @@ const state = GSTC.api.stateFromConfig(config);
 globalThis.state = state;
 
 const element = document.getElementById('gstc');
+//@ts-ignore
 element.addEventListener('gstc-loaded', (ev) => {
   // @ts-ignore
   globalThis.dispatchEvent(new Event('gstc-loaded', ev.target));
@@ -138,6 +139,7 @@ element.addEventListener('gstc-loaded', (ev) => {
 
 // Mount the component
 const app = (globalThis.gstc = GSTC({
+  // @ts-ignore
   element,
   state,
 }));
