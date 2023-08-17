@@ -268,6 +268,7 @@ export interface ScrollType {
     minInnerSize?: number;
     precise?: boolean;
     multiplier?: number;
+    byPixels?: boolean;
 }
 export interface ScrollTypeHorizontal extends ScrollType {
     data?: ChartTimeDate;

@@ -141,6 +141,7 @@ export declare class Api {
     resetVerticalScroll(verticalScroll?: DataScrollVertical): DataScrollVertical;
     limitHorizontalScrollToView(time?: DataChartTime): void;
     private calculateHorizontalScrollPosPxFromDates;
+    setScrollLeftByPixels(offsetLeft: number): number;
     setScrollLeft(dataIndexOrDateId: number | string | undefined, offset?: number, time?: DataChartTime): number;
     scrollToTime(toTime: number, centered?: boolean): number;
     getScrollLeft(): DataScrollHorizontal;
@@ -157,6 +158,7 @@ export declare class Api {
         lastPageCount: number;
     };
     calculateVerticalScrollSize(): void;
+    setScrollTopByPixels(offsetTop: number): number;
     setScrollTop(dataIndexOrRowId?: string | number, offset?: number): number;
     getScrollTop(): DataScrollVertical;
     getCurrentCalendarLevels(): DataChartTimeLevels;
