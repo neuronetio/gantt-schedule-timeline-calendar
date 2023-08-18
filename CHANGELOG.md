@@ -1,3 +1,7 @@
+## [3.34.1]
+
+- fixed bug with items overlapping
+
 ## [3.34.0]
 
 - (#381) added new scrolling behavior (pixel based scrolling instead of row based) `config.scroll.vertical.byPixels` and `config.scroll.horizontal.byPixels` (boolean values)

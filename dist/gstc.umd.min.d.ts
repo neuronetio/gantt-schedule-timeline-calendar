@@ -24,6 +24,7 @@ export interface RowData {
     children: string[];
     allChildren: string[];
     items: string[];
+    itemsOrder: string[];
     inView: boolean;
     parentsExpanded: boolean;
 }
