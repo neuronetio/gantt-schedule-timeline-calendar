@@ -1,3 +1,7 @@
+## [3.34.2]
+
+- overlapped items order improvement
+
 ## [3.34.1]
 
 - fixed bug with items overlapping
