@@ -1,3 +1,7 @@
+## [3.34.3]
+
+- Fixed a bug that occurred when the row was higher than innerHeight of the chart - the rows were not displayed.
+
 ## [3.34.2]
 
 - overlapped items order improvement
