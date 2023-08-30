@@ -1,3 +1,9 @@
+# CHANGELOG
+
+## [3.34.5]
+
+- Progress bar shows up even when the item has no time (0ms) (#383)
+
 ## [3.34.4]
 
 - Fixed a bug with dynamic locale update - the calendar was not updated when the locale was changed (#368).
