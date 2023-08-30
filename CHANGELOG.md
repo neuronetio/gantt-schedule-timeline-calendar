@@ -1,3 +1,7 @@
+## [3.34.4]
+
+- Fixed a bug with dynamic locale update - the calendar was not updated when the locale was changed (#368).
+
 ## [3.34.3]
 
 - Fixed a bug that occurred when the row was higher than innerHeight of the chart - the rows were not displayed.
