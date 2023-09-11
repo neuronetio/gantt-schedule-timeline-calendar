@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.34.8] [2023-09-11]
+
+- DependencyLines plugin - fixed a bug where the lines were cut off when the row was higher than the chart area
+
 ## [3.34.7] [2023-09-11]
 
 - Fixed a bug where after clicking on an item, the chart area moved slightly (part 2)
