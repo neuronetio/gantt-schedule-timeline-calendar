@@ -1,12 +1,12 @@
 {
   "name": "gantt-schedule-timeline-calendar",
-  "version": "3.34.5",
+  "version": "3.34.6",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "gantt-schedule-timeline-calendar",
-      "version": "3.34.5",
+      "version": "3.34.6",
       "license": "SEE LICENSE IN LICENSE",
       "dependencies": {
         "@neuronet.io/vido": "^4.2.15",
