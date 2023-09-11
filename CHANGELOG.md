@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.34.6] [2023-09-11]
+
+- Fixed a bug where after clicking on an item, the chart area moved slightly
+
 ## [3.34.5]
 
 - Progress bar shows up even when the item has no time (0ms) (#383)
