@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.34.9] [2023-09-11]
+
+- npm libraries updated
+
 ## [3.34.8] [2023-09-11]
 
 - DependencyLines plugin - fixed a bug where the lines were cut off when the row was higher than the chart area
