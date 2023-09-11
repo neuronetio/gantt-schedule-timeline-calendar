@@ -1,8 +1,12 @@
 # CHANGELOG
 
+## [3.34.7] [2023-09-11]
+
+- Fixed a bug where after clicking on an item, the chart area moved slightly (part 2)
+
 ## [3.34.6] [2023-09-11]
 
-- Fixed a bug where after clicking on an item, the chart area moved slightly
+- Fixed a bug where after clicking on an item, the chart area moved slightly (part 1)
 
 ## [3.34.5]
 
