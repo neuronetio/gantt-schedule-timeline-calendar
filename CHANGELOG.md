@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.34.11] [2023-09-20]
+
+- scroll bar not showing when chart contains only one day bugfix
+
 ## [3.34.10] [2023-09-20]
 
 - ItemMovement plugin - movement outside area could cause item to change its width with `config.scroll.horizontal.byPixels` enabled bugfix
