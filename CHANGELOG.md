@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.34.10] [2023-09-20]
+
+- ItemMovement plugin - movement outside area could cause item to change its width with `config.scroll.horizontal.byPixels` enabled bugfix
+
 ## [3.34.9] [2023-09-11]
 
 - npm libraries updated

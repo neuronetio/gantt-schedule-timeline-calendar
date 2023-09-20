@@ -1,6 +1,6 @@
 import DeepState from 'deep-state-observer';
 import { Data, DataChartDimensions, DataChartTime, DataScrollHorizontal } from '../../dist/gstc';
-import { fixed } from '../helpers';
+import { round } from '../helpers';
 
 describe('Scroll bar', () => {
   it('Movement (not precise)', () => {
@@ -70,12 +70,12 @@ describe('Scroll bar', () => {
         const h = merge({}, state.get('$data.scroll.horizontal'));
         cy.log('vertical', v);
         cy.log('horizontal', h);
-        expect(fixed(v.handlePosPx)).to.eq(fixed($vertical.css('top')));
-        expect(fixed(h.handlePosPx)).to.eq(fixed($horizontal.css('left')));
-        expect(fixed(v.innerHandleSize)).to.eq(fixed($vertical.height()));
-        expect(fixed(h.innerHandleSize)).to.eq(fixed($horizontal.width()));
-        expect(fixed(state.get('$data.chart.dimensions.widthWithoutScrollBar'))).to.eq(fixed(h.scrollSize));
-        expect(fixed(state.get('$data.chart.dimensions.heightWithoutScrollBar'))).to.eq(fixed(v.scrollSize));
+        expect(round(v.handlePosPx)).to.eq(round($vertical.css('top')));
+        expect(round(h.handlePosPx)).to.eq(round($horizontal.css('left')));
+        expect(round(v.innerHandleSize)).to.eq(round($vertical.height()));
+        expect(round(h.innerHandleSize)).to.eq(round($horizontal.width()));
+        expect(round(state.get('$data.chart.dimensions.widthWithoutScrollBar'))).to.eq(round(h.scrollSize));
+        expect(round(state.get('$data.chart.dimensions.heightWithoutScrollBar'))).to.eq(round(v.scrollSize));
         expect(h.preciseOffset).to.eq(0);
         expect(v.preciseOffset).to.eq(0);
       });
@@ -149,12 +149,12 @@ describe('Scroll bar', () => {
         const h = scroll.horizontal;
         cy.log('vertical', v);
         cy.log('horizontal', h);
-        expect(fixed(v.handlePosPx)).to.eq(fixed($vertical.css('top')));
-        expect(fixed(h.handlePosPx)).to.eq(fixed($horizontal.css('left')));
-        expect(fixed(v.innerHandleSize)).to.eq(fixed($vertical.height()));
-        expect(fixed(h.innerHandleSize)).to.eq(fixed($horizontal.width()));
-        expect(fixed(state.get('$data.chart.dimensions.widthWithoutScrollBar'))).to.eq(fixed(h.scrollSize));
-        expect(fixed(state.get('$data.chart.dimensions.heightWithoutScrollBar'))).to.eq(fixed(v.scrollSize));
+        expect(round(v.handlePosPx)).to.eq(round($vertical.css('top')));
+        expect(round(h.handlePosPx)).to.eq(round($horizontal.css('left')));
+        expect(round(v.innerHandleSize)).to.eq(round($vertical.height()));
+        expect(round(h.innerHandleSize)).to.eq(round($horizontal.width()));
+        expect(round(state.get('$data.chart.dimensions.widthWithoutScrollBar'))).to.eq(round(h.scrollSize));
+        expect(round(state.get('$data.chart.dimensions.heightWithoutScrollBar'))).to.eq(round(v.scrollSize));
         expect(h.preciseOffset).to.eq(0);
         expect(v.preciseOffset).to.eq(0);
       })
@@ -165,18 +165,18 @@ describe('Scroll bar', () => {
       .then(() => {
         const $scroll = Cypress.$(horizontalScrollBarSelector);
         const scrollData = state.get('$data.scroll.horizontal');
-        expect(fixed(scrollData.handlePosPx)).to.eq(fixed($scroll.css('left')));
-        expect(fixed(scrollData.innerHandleSize)).to.eq(fixed($scroll.width()));
-        expect(fixed(state.get('$data.chart.dimensions.widthWithoutScrollBar'))).to.eq(fixed(scrollData.scrollSize));
+        expect(round(scrollData.handlePosPx)).to.eq(round($scroll.css('left')));
+        expect(round(scrollData.innerHandleSize)).to.eq(round($scroll.width()));
+        expect(round(state.get('$data.chart.dimensions.widthWithoutScrollBar'))).to.eq(round(scrollData.scrollSize));
         expect(scrollData.preciseOffset).to.be.lessThan(0);
       })
       .scrollV(-20)
       .then(() => {
         const $scroll = Cypress.$(verticalScrollBarSelector);
         const scrollData = state.get('$data.scroll.vertical');
-        expect(fixed(scrollData.handlePosPx)).to.eq(fixed($scroll.css('top')));
-        expect(fixed(scrollData.innerHandleSize)).to.eq(fixed($scroll.height()));
-        expect(fixed(state.get('$data.chart.dimensions.heightWithoutScrollBar'))).to.eq(fixed(scrollData.scrollSize));
+        expect(round(scrollData.handlePosPx)).to.eq(round($scroll.css('top')));
+        expect(round(scrollData.innerHandleSize)).to.eq(round($scroll.height()));
+        expect(round(state.get('$data.chart.dimensions.heightWithoutScrollBar'))).to.eq(round(scrollData.scrollSize));
         expect(scrollData.preciseOffset).to.be.lessThan(0);
       });
   });
@@ -196,7 +196,7 @@ describe('Scroll bar', () => {
       .should('be.visible')
       .then(($el) => {
         const date = gstc.api.time.findDateAtTime(scrollTo.valueOf());
-        expect(fixed($el.position().left)).to.eq(fixed(date.currentView.leftPx));
+        expect(round($el.position().left)).to.eq(round(date.currentView.leftPx));
       })
       .then(() => {
         gstc.api.scrollToTime(scrollTo.valueOf(), false);
@@ -206,7 +206,7 @@ describe('Scroll bar', () => {
       .should('be.visible')
       .then(($el) => {
         const date = gstc.api.time.findDateAtTime(scrollTo.valueOf());
-        expect(fixed($el.position().left)).to.eq(fixed(date.currentView.leftPx));
+        expect(round($el.position().left)).to.eq(round(date.currentView.leftPx));
       });
   });
 
@@ -234,8 +234,8 @@ describe('Scroll bar', () => {
       .then(($scrollBarInner) => {
         const horizontal = state.get('$data.scroll.horizontal') as DataScrollHorizontal;
         const actualSize = horizontal.innerHandleSize;
-        expect(fixed(actualSize)).not.to.eq(fixed(innerSize));
-        expect(fixed(horizontal.handlePosPx)).not.to.eq(fixed(handlePosPx));
+        expect(round(actualSize)).not.to.eq(round(innerSize));
+        expect(round(horizontal.handlePosPx)).not.to.eq(round(handlePosPx));
         expect($scrollBarInner.get(0).offsetLeft).to.eq(Math.round(horizontal.handlePosPx));
       });
   });
@@ -337,7 +337,7 @@ describe('Scroll bar', () => {
       .wait(Cypress.env('wait'))
       .then(() => {
         const dataTime: DataChartTime = state.get('$data.chart.time');
-        expect(fixed(dataTime.rightPx)).to.eq(fixed(dataTime.width));
+        expect(round(dataTime.rightPx)).to.eq(round(dataTime.width));
       });
   });
 

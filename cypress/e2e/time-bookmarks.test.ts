@@ -1,6 +1,6 @@
 import { Time } from '../../dist/api/time';
 import { DataChartTime } from '../../dist/gstc';
-import { fixed } from '../helpers';
+import { round } from '../helpers';
 
 describe('Time bookmarks', () => {
   it('should display the bookmarks at the right positions', () => {
@@ -15,7 +15,7 @@ describe('Time bookmarks', () => {
       })
       .then(() => {
         const chartTime: DataChartTime = state.get('$data.chart.time');
-        const thirdDateLeft = fixed(chartTime.levels[1][2].currentView.leftPx);
+        const thirdDateLeft = round(chartTime.levels[1][2].currentView.leftPx);
         let thirdDateFromAll;
         for (const currentDate of chartTime.allDates[1]) {
           if (currentDate.leftGlobalDate.format('YYYY-MM-DD') === '2020-01-03') {
@@ -23,20 +23,20 @@ describe('Time bookmarks', () => {
             continue;
           }
         }
-        const fromAllDates = fixed(thirdDateFromAll.currentView.leftPx);
+        const fromAllDates = round(thirdDateFromAll.currentView.leftPx);
         cy.log('thirdDateFromAll', fromAllDates);
         cy.log('thirdDateLeft width', thirdDateLeft);
         expect(fromAllDates).to.eq(thirdDateLeft);
       })
       .get('.gstc__chart-time-bookmark-label-content--1-st')
       .then(($el) => {
-        const left = fixed($el.parent().css('left'));
+        const left = round($el.parent().css('left'));
         const time: Time = gstc.api.time;
         const chartTime: DataChartTime = state.get('$data.chart.time');
-        const thirdDateLeft = fixed(chartTime.levels[1][2].currentView.leftPx);
+        const thirdDateLeft = round(chartTime.levels[1][2].currentView.leftPx);
         const added2Days = chartTime.leftGlobalDate.startOf('day').add(2, 'day').startOf('day');
         expect(added2Days.format('YYYY-MM-DD')).to.eq('2020-01-03');
-        const shouldLeft = fixed(time.getViewOffsetPxFromDates(added2Days, false, chartTime));
+        const shouldLeft = round(time.getViewOffsetPxFromDates(added2Days, false, chartTime));
         expect(added2Days.format('YYYY-MM-DD')).to.eq('2020-01-03');
         expect(thirdDateLeft).to.eq(shouldLeft);
         expect(chartTime.leftGlobalDate.format('YYYY-MM-DD')).to.eq('2020-01-01');
@@ -45,12 +45,12 @@ describe('Time bookmarks', () => {
       })
       .get('.gstc__chart-time-bookmark-label-content--bookmark-1')
       .then(($el) => {
-        const left = fixed($el.parent().css('left'));
+        const left = round($el.parent().css('left'));
         const time: Time = gstc.api.time;
         const chartTime: DataChartTime = state.get('$data.chart.time');
         const added4Days = chartTime.leftGlobalDate.startOf('day').add(4, 'day').startOf('day');
         expect(added4Days.format('YYYY-MM-DD')).to.eq('2020-01-05');
-        const shouldLeft = fixed(time.getViewOffsetPxFromDates(added4Days, false, chartTime));
+        const shouldLeft = round(time.getViewOffsetPxFromDates(added4Days, false, chartTime));
         expect(added4Days.format('YYYY-MM-DD')).to.eq('2020-01-05');
         expect(chartTime.leftGlobalDate.format('YYYY-MM-DD')).to.eq('2020-01-01');
         expect(left).to.eq(shouldLeft);
@@ -71,12 +71,12 @@ describe('Time bookmarks', () => {
       })
       .get('.gstc__chart-time-bookmark-label-content--bookmark-8')
       .then(($el) => {
-        const left = fixed($el.parent().css('left'));
+        const left = round($el.parent().css('left'));
         const time: Time = gstc.api.time;
         const chartTime: DataChartTime = state.get('$data.chart.time');
         const added1Day = chartTime.leftGlobalDate.startOf('day').add(1, 'day').startOf('day');
         expect(added1Day.format('YYYY-MM-DD')).to.eq('2020-02-02');
-        const shouldLeft = fixed(time.getViewOffsetPxFromDates(added1Day, false, chartTime));
+        const shouldLeft = round(time.getViewOffsetPxFromDates(added1Day, false, chartTime));
         expect(added1Day.format('YYYY-MM-DD')).to.eq('2020-02-02');
         expect(chartTime.leftGlobalDate.format('YYYY-MM-DD')).to.eq('2020-02-01');
         expect(left).to.eq(shouldLeft);
