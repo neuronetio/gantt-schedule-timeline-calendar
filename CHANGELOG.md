@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.35.2] [2023-09-21]
+
+- ItemMovement & ItemResizing default horizontal edge threshold changed to `60`
+
 ## [3.35.1] [2023-09-21]
 
 - ItemMovement with `config.scroll.horizontal.byPixels` enabled bugfix
