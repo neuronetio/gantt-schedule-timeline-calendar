@@ -177,6 +177,7 @@ describe('Move items outside view', () => {
       .wait(Cypress.env('wait'))
       .then(() => {
         state.update('config.scroll.horizontal.multiplier', 3);
+        state.update('config.plugin.ItemMovement.autoScroll.edgeThreshold.horizontal', 0);
         state.update('config.chart.items.gstcid-15', (item) => {
           item.time.start = gstc.api.time.date('2020-02-04').valueOf();
           item.time.end = gstc.api.time.date('2020-02-10').endOf('day').valueOf();
