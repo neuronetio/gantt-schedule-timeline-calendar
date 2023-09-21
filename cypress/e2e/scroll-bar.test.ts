@@ -76,8 +76,6 @@ describe('Scroll bar', () => {
         expect(round(h.innerHandleSize)).to.eq(round($horizontal.width()));
         expect(round(state.get('$data.chart.dimensions.widthWithoutScrollBar'))).to.eq(round(h.scrollSize));
         expect(round(state.get('$data.chart.dimensions.heightWithoutScrollBar'))).to.eq(round(v.scrollSize));
-        expect(h.preciseOffset).to.eq(0);
-        expect(v.preciseOffset).to.eq(0);
       });
   });
 
@@ -155,8 +153,6 @@ describe('Scroll bar', () => {
         expect(round(h.innerHandleSize)).to.eq(round($horizontal.width()));
         expect(round(state.get('$data.chart.dimensions.widthWithoutScrollBar'))).to.eq(round(h.scrollSize));
         expect(round(state.get('$data.chart.dimensions.heightWithoutScrollBar'))).to.eq(round(v.scrollSize));
-        expect(h.preciseOffset).to.eq(0);
-        expect(v.preciseOffset).to.eq(0);
       })
       //
       // preciseOffset

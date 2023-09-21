@@ -153,8 +153,9 @@ export declare class Api {
     };
     calculateInitialChartWidth(withoutScrollBar?: boolean): number;
     getChartWidth(withoutScrollBar?: boolean): any;
+    private isHorizontalScrollVisible;
     calculateHorizontalScrollSizeAndPosFromDates(totalViewDurationPx: number, time?: DataChartTime, scrollHorizontal?: DataScrollHorizontal, shouldUpdate?: boolean): DataScrollHorizontal;
-    getLastPageRowsHeight(heightWithoutScrollBar: number, rowsWithParentsExpanded: string[]): {
+    getLastPageRowsHeight(height: number, rowsWithParentsExpanded: string[]): {
         lastPageSize: number;
         lastPageCount: number;
     };

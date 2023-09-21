@@ -558,8 +558,8 @@ const config = {
     },
   },
   scroll: {
-    vertical: { precise: true },
-    horizontal: { precise: true },
+    vertical: { precise: true, byPixels: true },
+    horizontal: { precise: true, byPixels: true },
   },
   slots: {
     'chart-timeline-items-row-item': { content: [itemSlot], inner: [myItemSlot] },

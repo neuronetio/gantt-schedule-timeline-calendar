@@ -156,7 +156,6 @@ body.gstc-scrolling * {
   position: relative;
 }
 .gstc__list-column-rows {
-  height: var(--height);
   width: var(--width);
   overflow: hidden;
   position: absolute;

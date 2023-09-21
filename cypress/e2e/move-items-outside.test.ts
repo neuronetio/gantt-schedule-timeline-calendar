@@ -17,6 +17,7 @@ describe('Move items outside view', () => {
       .click()
       .wait(Cypress.env('wait'))
       .then(() => {
+        state.update('config.scroll.horizontal.multiplier', 3);
         state.update('config.chart.items.gstcid-2.time', (itemTime) => {
           itemTime.start = gstc.api.time.date('2020-03-25').valueOf();
           itemTime.end = gstc.api.time.date('2020-03-30').endOf('day').valueOf();
@@ -37,7 +38,7 @@ describe('Move items outside view', () => {
         const horizontalScroll: DataScrollHorizontal = state.get('$data.scroll.horizontal');
         const time: DataChartTime = state.get('$data.chart.time');
         expect(time.toDate.format('YYYY-MM-DD')).to.eq('2020-04-02');
-        expect(horizontalScroll.data.leftGlobalDate.format('YYYY-MM-DD')).to.eq('2020-03-19');
+        expect(horizontalScroll.data.leftGlobalDate.format('YYYY-MM-DD')).to.eq('2020-03-18');
         const itemsData = state.get('$data.chart.items');
         expect(itemsData['gstcid-2'].time.endDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-04-02 23:59:59');
       });
@@ -59,6 +60,7 @@ describe('Move items outside view', () => {
       })
       .wait(Cypress.env('wait'))
       .then(() => {
+        state.update('config.scroll.horizontal.multiplier', 3);
         state.update('config.chart.items.gstcid-15', (item) => {
           item.time.start = gstc.api.time.date('2020-02-20').valueOf();
           item.time.end = gstc.api.time.date('2020-02-24').endOf('day').valueOf();
@@ -174,6 +176,7 @@ describe('Move items outside view', () => {
       .click()
       .wait(Cypress.env('wait'))
       .then(() => {
+        state.update('config.scroll.horizontal.multiplier', 3);
         state.update('config.chart.items.gstcid-15', (item) => {
           item.time.start = gstc.api.time.date('2020-02-04').valueOf();
           item.time.end = gstc.api.time.date('2020-02-10').endOf('day').valueOf();
@@ -237,6 +240,7 @@ describe('Move items outside view', () => {
       .click()
       .wait(Cypress.env('wait'))
       .then(() => {
+        state.update('config.scroll.horizontal.multiplier', 3);
         state.update('config.chart.items.gstcid-15', (item) => {
           item.time.start = gstc.api.time.date('2020-03-20').valueOf();
           item.time.end = gstc.api.time.date('2020-03-26').endOf('day').valueOf();
@@ -291,6 +295,7 @@ describe('Move items outside view', () => {
         gstc = win.gstc;
       })
       .then(() => {
+        state.update('config.scroll.horizontal.multiplier', 3);
         state.update('config.chart.items.gstcid-15', (item) => {
           item.time.start = gstc.api.time.date('2020-01-20').valueOf();
           item.time.end = gstc.api.time.date('2020-01-24').endOf('day').valueOf();
@@ -314,8 +319,8 @@ describe('Move items outside view', () => {
       .wait(Cypress.env('wait'))
       .then(() => {
         const itemData = state.get('$data.chart.items.gstcid-15');
-        expect(itemData.time.startDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-28 00:00:00');
-        expect(itemData.time.endDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-02-01 23:59:59');
+        expect(itemData.time.startDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-29 00:00:00');
+        expect(itemData.time.endDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-02-02 23:59:59');
 
         expect(fixed(itemData.position.left)).to.be.greaterThan(fixed(secondaryItemData.position.left));
         expect(fixed(itemData.position.right)).to.be.greaterThan(fixed(secondaryItemData.position.right));
@@ -345,6 +350,7 @@ describe('Move items outside view', () => {
       .click()
       .wait(Cypress.env('wait'))
       .then(() => {
+        state.update('config.scroll.horizontal.multiplier', 3);
         state.update('config.chart.items.gstcid-15', (item) => {
           item.time.start = gstc.api.time.date('2020-01-24').valueOf();
           item.time.end = gstc.api.time.date('2020-01-31').endOf('day').valueOf();
@@ -364,12 +370,12 @@ describe('Move items outside view', () => {
       .move(itemClass, 50, 0)
       .then(() => {
         const itemData: ItemData = state.get('$data.chart.items.gstcid-15');
-        expect(itemData.time.startDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-28 00:00:00');
-        expect(itemData.time.endDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-02-04 23:59:59');
+        expect(itemData.time.startDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-30 00:00:00');
+        expect(itemData.time.endDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-02-06 23:59:59');
         const time: DataChartTime = state.get('$data.chart.time');
         const cellWidth = time.allDates[time.level][0].width;
         expect(fixed(itemData.width)).to.eq(fixed(6 * cellWidth));
-        expect(fixed(itemData.actualWidth)).to.eq(fixed(4 * cellWidth));
+        expect(fixed(itemData.actualWidth)).to.eq(fixed(2 * cellWidth));
       })
       .get(itemClass)
       .should('be.visible')
@@ -378,12 +384,12 @@ describe('Move items outside view', () => {
       .wait(300)
       .then(() => {
         const itemData = state.get('$data.chart.items.gstcid-15');
-        expect(itemData.time.startDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-28 00:00:00');
-        expect(itemData.time.endDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-02-04 23:59:59');
+        expect(itemData.time.startDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-01-30 00:00:00');
+        expect(itemData.time.endDate.format('YYYY-MM-DD HH:mm:ss')).to.eq('2020-02-06 23:59:59');
         const time: DataChartTime = state.get('$data.chart.time');
         const cellWidth = time.allDates[time.level][0].width;
         expect(fixed(itemData.width)).to.eq(fixed(6 * cellWidth));
-        expect(fixed(itemData.actualWidth)).to.eq(fixed(2 * cellWidth));
+        expect(fixed(itemData.actualWidth)).to.eq(fixed(4 * cellWidth));
       });
   });
 
@@ -405,6 +411,7 @@ describe('Move items outside view', () => {
       .click()
       .wait(Cypress.env('wait'))
       .then(() => {
+        state.update('config.scroll.horizontal.multiplier', 3);
         state.update('config.chart.items.gstcid-15', (item) => {
           item.time.start = gstc.api.time.date('2020-03-10').valueOf();
           item.time.end = gstc.api.time.date('2020-04-01').endOf('day').valueOf();

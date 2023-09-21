@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [3.35.0] [2023-09-21]
+
+- scroll bar improvements
+- [**breaking***] `config.scroll.horizontal.byPixels` and `config.scroll.vertical.byPixels` are enabled by default now
+
 ## [3.34.11] [2023-09-20]
 
 - scroll bar not showing when chart contains only one day bugfix
