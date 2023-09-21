@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [3.35.1] [2023-09-21]
+
+- ItemMovement with `config.scroll.horizontal.byPixels` enabled bugfix
+- ItemResizing autoScroll right bugfix
+
 ## [3.35.0] [2023-09-21]
 
 - scroll bar improvements
