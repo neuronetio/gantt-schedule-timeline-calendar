@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [3.35.3] [2024-04-26]
+
+- Wildcard domain names now support regex (*.test domain will work)
+- Debug info in the console when license check mechanism is not working
+- `item.label` and row data must be a string or function otherwise it will return null
+- examples updated - import wasm file by default
+
 ## [3.35.2] [2023-09-21]
 
 - ItemMovement & ItemResizing default horizontal edge threshold changed to `60`
