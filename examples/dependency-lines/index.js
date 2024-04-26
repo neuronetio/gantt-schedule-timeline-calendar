@@ -1,6 +1,4 @@
 import GSTC from '../../dist/gstc.wasm.esm.min.js';
-// or when you encounter problems with wasm loader
-// import GSTC from '../../dist/gstc.wasm.esm.min.js';
 import { Plugin as CalendarScroll } from '../../dist/plugins/calendar-scroll.esm.min.js';
 import { Plugin as DependencyLines } from '../../dist/plugins/dependency-lines.esm.min.js';
 import { Plugin as Selection } from '../../dist/plugins/selection.esm.min.js';

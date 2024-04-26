@@ -1,6 +1,4 @@
 import GSTC from '../../dist/gstc.wasm.esm.min.js';
-// or when you encounter problems with wasm loader
-// import GSTC from '../../dist/gstc.wasm.esm.min.js';
 import { Plugin as ItemImage } from './item-image.js';
 
 const rowsFromDB = [

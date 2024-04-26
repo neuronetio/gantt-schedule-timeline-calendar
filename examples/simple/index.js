@@ -1,6 +1,4 @@
 import GSTC from '../../dist/gstc.wasm.esm.min.js';
-// or when you encounter problems with wasm loader
-// import GSTC from '../../dist/gstc.wasm.esm.min.js';
 
 const rowsFromDB = [
   {
