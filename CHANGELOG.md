@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [3.35.4] [2024-04-26]
+
+- `wasm-unsafe-eval` source directive message provided if there is an problem with loading wasm file
+- updated license check mechanism libraries
+
 ## [3.35.3] [2024-04-26]
 
 - Wildcard domain names now support regex (*.test domain will work)
