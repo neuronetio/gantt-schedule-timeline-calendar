@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.35.5] [2024-05-06]
+
+- #393 bugfix (plugins were not initialized when multiple instances of gstc were created)
+
 ## [3.35.4] [2024-04-26]
 
 - `wasm-unsafe-eval` source directive message provided if there is an problem with loading wasm file
