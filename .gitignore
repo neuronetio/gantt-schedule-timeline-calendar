@@ -2,3 +2,4 @@ node_modules
 .history
 cypress/screenshots
 cypress/videos
+npm-shrinkwrap.json

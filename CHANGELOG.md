@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.35.6] [2024-05-10]
+
+- `npm-shrinkwrap.json` ignored in the package
+
 ## [3.35.5] [2024-05-06]
 
 - #393 bugfix (plugins were not initialized when multiple instances of gstc were created)
