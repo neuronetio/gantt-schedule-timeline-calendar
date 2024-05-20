@@ -661,10 +661,10 @@ function toggleMoveOut(ev) {
   state.update('config.plugin.ItemResizing.allowItemsToGoOutsideTheArea', moveOut);
 }
 
-function zoomChange(ev) {
+function zoomChangeSelect(ev) {
   const period = ev.target.value;
   let zoom = 20;
-  let from = gstc.api.time.date('2020-02-1').startOf('day').valueOf();
+  let from = gstc.api.time.date('2020-02-01').startOf('day').valueOf();
   let to = gstc.api.time.date('2020-03-01').endOf('month').valueOf();
   switch (period) {
     case 'hours':
@@ -677,10 +677,15 @@ function zoomChange(ev) {
       from = gstc.api.time.date('2020-02-01').startOf('day').valueOf();
       to = gstc.api.time.date('2020-03-01').endOf('month').valueOf();
       break;
+    case 'weeks':
+      zoom = 23;
+      from = gstc.api.time.date('2020-02-01').startOf('day').valueOf();
+      to = gstc.api.time.date('2020-08-01').endOf('month').valueOf();
+      break;
     case 'months':
       zoom = 26;
-      from = gstc.api.time.date('2018-01-01').startOf('day').valueOf();
-      to = gstc.api.time.date('2021-01-10').endOf('year').valueOf();
+      from = gstc.api.time.date('2020-01-01').startOf('day').valueOf();
+      to = gstc.api.time.date('2024-01-10').endOf('year').valueOf();
       break;
   }
 
@@ -690,6 +695,47 @@ function zoomChange(ev) {
     time.to = to;
     return time;
   });
+  const zoomRange = document.getElementById('zoom-range');
+  //@ts-ignore
+  if (zoomRange) zoomRange.value = zoom;
+}
+
+function zoomChangeRange(ev) {
+  const zoom = Number(ev.target.value);
+  let period = 'days';
+  let from = gstc.api.time.date('2020-02-01').startOf('day');
+  let to = gstc.api.time.date('2020-03-01').endOf('month');
+
+  if (zoom >= 16) {
+    period = 'hours';
+    from = gstc.api.time.date('2020-02-01').startOf('day');
+    to = gstc.api.time.date('2020-03-01').endOf('month');
+  }
+  if (zoom >= 20) {
+    period = 'days';
+    from = gstc.api.time.date('2020-02-01').startOf('day');
+    to = gstc.api.time.date('2020-03-01').endOf('month');
+  }
+  if (zoom >= 20) {
+    period = 'weeks';
+    from = gstc.api.time.date('2020-02-01').startOf('day');
+    to = gstc.api.time.date('2020-08-01').endOf('month');
+  }
+  if (zoom >= 23) {
+    period = 'months';
+    from = gstc.api.time.date('2020-01-01').startOf('day');
+    to = gstc.api.time.date('2024-01-10').endOf('year');
+  }
+
+  gstc.state.update('config.chart.time', (time) => {
+    time.zoom = zoom;
+    time.from = from.valueOf();
+    time.to = to.valueOf();
+    return time;
+  });
+  const zoomSelect = document.getElementById('zoom');
+  // @ts-ignore
+  if (zoomSelect) zoomSelect.value = period;
 }
 
 function searchRows(event) {
@@ -789,9 +835,10 @@ function updateToolBox() {
       <div class="toolbox-item">${historyStateHTML}</div>
       <div class="toolbox-item">
         <label>Zoom:</label>
-        <select @change="${zoomChange}" id="zoom">
+        <select @change="${zoomChangeSelect}" id="zoom">
           <option value="hours">Hours</option>
           <option value="days" selected>Days</option>
+          <option value="weeks">Weeks</option>
           <option value="months">Months</option>
         </select>
       </div>
@@ -819,6 +866,19 @@ function updateToolBox() {
       <div class="toolbox-item">
         <input type="checkbox" id="move-out" @change=${toggleMoveOut} checked />
         <label for="move-out">Alow items to move outside area</label>
+      </div>
+      <div class="toolbox-item">
+        <label for="zoom">Zoom:</label>
+        <input
+          id="zoom-range"
+          type="range"
+          min="16"
+          max="26"
+          value="20"
+          step="0.1"
+          @change=${zoomChangeRange}
+          style="width:200px"
+        />
       </div>
     </div>`;
   // @ts-ignore
