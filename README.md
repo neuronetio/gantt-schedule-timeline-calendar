@@ -69,6 +69,13 @@ You can control almost everything. You can change html structure, stylize every 
 <a href="https://gantt-schedule-timeline-calendar.neuronet.io/examples" target="_blank">Online examples</a>
 
 You can checkout [examples folder](https://github.com/neuronetio/gantt-schedule-timeline-calendar/tree/master/examples) too.
+To run examples locally, clone this repository and run `npm run examples` in the root folder.
+```bash
+git clone https://github.com/neuronetio/gantt-schedule-timeline-calendar.git
+cd gantt-schedule-timeline-calendar
+npm i
+npm run examples
+```
 
 <h2 align="center">REACT, NEXTJS, ANGULAR, SVELTE AND VUE EXAMPLES</h2>
 
