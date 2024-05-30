@@ -93,7 +93,9 @@ function setTippyContent(element, data) {
   if (!element._tippy) return;
   const startDate = itemData.time.startDate;
   const endDate = itemData.time.endDate;
-  const tooltipContent = `${data.item.label} from ${startDate.format('YYYY-MM-DD')} to ${endDate.format('YYYY-MM-DD')}`;
+  const tooltipContent = `${data.item.label}\nfrom ${startDate.format('YYYY-MM-DD')}\nto ${endDate.format(
+    'YYYY-MM-DD'
+  )}`;
   element._tippy.setContent(tooltipContent);
 }
 
