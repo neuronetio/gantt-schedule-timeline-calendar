@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.36.0] [2024-06-07]
+
+- ExportPDF plugin can now take the full content of a chart (not just the visible part) (`gstc.api.plugins.ExportPDF.downloadFull(filename)`)
+
 ## [3.35.6] [2024-05-10]
 
 - `npm-shrinkwrap.json` ignored in the package

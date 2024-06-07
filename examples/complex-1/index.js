@@ -616,6 +616,10 @@ function downloadPdf() {
   gstc.api.plugins.ExportPDF.download('timeline.pdf');
 }
 
+function downloadPdfFull() {
+  gstc.api.plugins.ExportPDF.downloadFull('timeline.pdf');
+}
+
 let darkModeEnabled = false;
 function toggleDarkMode(ev) {
   darkModeEnabled = ev.target.checked;
@@ -831,7 +835,8 @@ function updateToolBox() {
       <div class="toolbox-item"><button @click=${selectCells}>Select first cells</button></div>
       <div class="toolbox-item"><button @click=${scrollToFirstItem}>Scroll to first item</button></div>
       <div class="toolbox-item"><button @click=${downloadImage}>Download image</button></div>
-      <div class="toolbox-item"><button @click=${downloadPdf}>Download PDF</button></div>
+      <div class="toolbox-item"><button @click=${downloadPdf}>Download PDF (current view only)</button></div>
+      <div class="toolbox-item"><button @click=${downloadPdfFull}>Download PDF (full)</button></div>
       <div class="toolbox-item">${historyStateHTML}</div>
       <div class="toolbox-item">
         <label>Zoom:</label>
