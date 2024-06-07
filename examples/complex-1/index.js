@@ -612,8 +612,23 @@ function downloadImage() {
   gstc.api.plugins.ExportImage.download();
 }
 
-function downloadPdf() {
-  gstc.api.plugins.ExportPDF.download('timeline.pdf');
+async function downloadPdf() {
+  await gstc.api.plugins.ExportPDF.download('timeline.pdf');
+  console.log('PDF downloaded');
+}
+
+async function takeShotPdf() {
+  const img = await gstc.api.plugins.ExportPDF.takeShot();
+  console.log('PDF shot taken', img);
+  alert(
+    `\nScreenshot taken\n\nYou can add more screenshots and then download them all together with "Get screenshots" button.`
+  );
+}
+
+async function getPdf() {
+  await gstc.api.plugins.ExportPDF.getPDF('timeline.pdf');
+  await gstc.api.plugins.ExportPDF.clearPDF(); // don't forget to clear pdf after you are done with it
+  console.log('PDF downloaded');
 }
 
 function downloadPdfFull() {
@@ -832,11 +847,14 @@ function updateToolBox() {
     </select>`;
 
   const toolboxButtons = html` <div class="toolbox-row">
-      <div class="toolbox-item"><button @click=${selectCells}>Select first cells</button></div>
-      <div class="toolbox-item"><button @click=${scrollToFirstItem}>Scroll to first item</button></div>
-      <div class="toolbox-item"><button @click=${downloadImage}>Download image</button></div>
-      <div class="toolbox-item"><button @click=${downloadPdf}>Download PDF (current view only)</button></div>
-      <div class="toolbox-item"><button @click=${downloadPdfFull}>Download PDF (full)</button></div>
+    <div class="toolbox-item"><button @click=${selectCells}>Select first cells</button></div>
+    <div class="toolbox-item"><button @click=${scrollToFirstItem}>Scroll to first item</button></div>
+    <div class="toolbox-item"><button @click=${downloadImage}>Download image</button></div>
+    <div class="toolbox-item"><button @click=${downloadPdf}>PDF (current view)</button></div>
+    <div class="toolbox-item"><button @click=${downloadPdfFull}>PDF (full)</button></div>
+    <div class="toolbox-item"><button @click=${takeShotPdf}>Take screenshot</button></div>
+    <div class="toolbox-item">-></div>
+      <div class="toolbox-item"><button @click=${getPdf}>Get screenshots</button></div>
       <div class="toolbox-item">${historyStateHTML}</div>
       <div class="toolbox-item">
         <label>Zoom:</label>
@@ -885,7 +903,8 @@ function updateToolBox() {
           style="width:200px"
         />
       </div>
-    </div>`;
+    </div>
+  </div>`;
   // @ts-ignore
   GSTC.lithtml.render(toolboxButtons, document.getElementById('toolbox'));
 }

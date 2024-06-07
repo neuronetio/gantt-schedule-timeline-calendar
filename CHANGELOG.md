@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.37.0] [2024-06-07]
+
+- ExportPDF plugin can now create PDF from user's screenshots (`gstc.api.plugins.ExportPDF`:`takeShot()`, `getPDF(filename)` and `clearPDF()` methods added).
+
 ## [3.36.0] [2024-06-07]
 
 - ExportPDF plugin can now take the full content of a chart (not just the visible part) (`gstc.api.plugins.ExportPDF.downloadFull(filename)`)
