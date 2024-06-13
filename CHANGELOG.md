@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.37.1] [2024-06-07]
+
+- Fixed a bug with the `Selection` plugin - the plugin tried to modify grid cells when they were not in the current view (they did not exist).
+
 ## [3.37.0] [2024-06-07]
 
 - ExportPDF plugin can now create PDF from user's screenshots (`gstc.api.plugins.ExportPDF`:`takeShot()`, `getPDF(filename)` and `clearPDF()` methods added).
