@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.37.2] [2024-06-18]
+
+- `GSTC.api.fromArray` result type modified
+
 ## [3.37.1] [2024-06-07]
 
 - Fixed a bug with the `Selection` plugin - the plugin tried to modify grid cells when they were not in the current view (they did not exist).
