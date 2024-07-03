@@ -330,8 +330,11 @@ function onItemClick(ev) {
   console.log('Item click from template', item);
 }
 
+// Typescript usage:
+// import { Template } from 'gantt-schedule-timeline-calendar';
+// const chartTimelineItemsRowItemTemplate: Template = function chartTimelineItemsRowItemTemplate(...);
 /**
- * @type {import('../../dist/gstc').Template}
+ * @type {import("../../dist/gstc").Template} // or {import("gantt-schedule-timeline-calendar").Template}
  */
 function chartTimelineItemsRowItemTemplate({
   className,
@@ -491,8 +494,11 @@ function myBirthdayRowSlot(vido, props) {
   return (content) => html`${birthdayContent}${content}`;
 }
 
+// Typescript usage:
+// import { Config } from 'gantt-schedule-timeline-calendar';
+// const config: Config = {...};
 /**
- * @type {import('../../dist/gstc').Config}
+ * @type {import("../../dist/gstc").Config} // or {import("gantt-schedule-timeline-calendar").Config}
  */
 const config = {
   licenseKey:

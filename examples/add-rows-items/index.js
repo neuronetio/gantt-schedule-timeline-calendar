@@ -125,8 +125,11 @@ const columns = {
   },
 };
 
+// Typescript usage:
+// import { Config } from 'gantt-schedule-timeline-calendar';
+// const config: Config = {...};
 /**
- * @type {import("../../dist/gstc").Config}
+ * @type {import("../../dist/gstc").Config} // or {import("gantt-schedule-timeline-calendar").Config}
  */
 const config = {
   licenseKey:
@@ -146,15 +149,16 @@ const config = {
 
 state = GSTC.api.stateFromConfig(config);
 const element = document.getElementById('gstc');
+if (element) {
+  element.addEventListener('gstc-loaded', () => {
+    gstc.api.scrollToTime(gstc.api.time.date().valueOf()); // eslint-disable-line
+  });
 
-element.addEventListener('gstc-loaded', () => {
-  gstc.api.scrollToTime(gstc.api.time.date().valueOf()); // eslint-disable-line
-});
-
-gstc = GSTC({
-  element,
-  state,
-});
+  gstc = GSTC({
+    element,
+    state,
+  });
+}
 
 function setNewItems() {
   state.update('config.chart.items', () => {
@@ -189,10 +193,10 @@ function addNewRow() {
 
 globalThis.addNewRow = addNewRow;
 
-document.getElementById('add-items').addEventListener('click', setNewItems);
-document.getElementById('add-item').addEventListener('click', addNewItem);
-document.getElementById('add-rows').addEventListener('click', setNewRows);
-document.getElementById('add-row').addEventListener('click', addNewRow);
+document.getElementById('add-items')?.addEventListener('click', setNewItems);
+document.getElementById('add-item')?.addEventListener('click', addNewItem);
+document.getElementById('add-rows')?.addEventListener('click', setNewRows);
+document.getElementById('add-row')?.addEventListener('click', addNewRow);
 
 //@ts-ignore
 globalThis.state = state;

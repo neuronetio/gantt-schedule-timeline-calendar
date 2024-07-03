@@ -28,7 +28,7 @@ function getRandomItemType() {
 const rows = {};
 for (let i = 0; i < iterations; i++) {
   const withParent = i > 0 && i % 2 === 0;
-  const id = GSTCID(i);
+  const id = GSTCID(String(i));
   rows[id] = {
     id,
     label: `Row ${i}`,
@@ -127,8 +127,33 @@ const columns = {
   },
 };
 
+function itemSlot(vido, props) {
+  const { onChange, html } = vido;
+  let letter = props.item.label.charAt(0).toUpperCase();
+  onChange((newProps) => {
+    if (newProps && newProps.item) {
+      props = newProps;
+      letter = props.item.label.charAt(0).toUpperCase();
+    }
+  });
+  return (content) => {
+    if (!props || !props.item) return content;
+    return html`<div
+        class="item-img"
+        style="width:24px;height:24px;background:${props.item
+          .imgColor};border-radius:100%;text-align:center;line-height:24px;font-weight:bold;margin-right:10px;"
+      >
+        ${letter}
+      </div>
+      ${content}`;
+  };
+}
+
+// Typescript usage:
+// import { Config } from 'gantt-schedule-timeline-calendar';
+// const config: Config = {...};
 /**
- * @type {import("../../dist/gstc").Config}
+ * @type {import('../../dist/gstc').Config}  // or {import('gantt-schedule-timeline-calendar').Config}
  */
 const config = {
   licenseKey:
@@ -188,29 +213,7 @@ const config = {
   slots: {
     // item content slot that will show circle with letter next to item label
     'chart-timeline-items-row-item': {
-      content: [
-        (vido, props) => {
-          const { onChange, html } = vido;
-          let letter = props.item.label.charAt(0).toUpperCase();
-          onChange((newProps) => {
-            if (newProps && newProps.item) {
-              props = newProps;
-              letter = props.item.label.charAt(0).toUpperCase();
-            }
-          });
-          return (content) => {
-            if (!props || !props.item) return content;
-            return html`<div
-                class="item-img"
-                style="width:24px;height:24px;background:${props.item
-                  .imgColor};border-radius:100%;text-align:center;line-height:24px;font-weight:bold;margin-right:10px;"
-              >
-                ${letter}
-              </div>
-              ${content}`;
-          };
-        },
-      ],
+      content: [itemSlot],
     },
   },
 };
@@ -221,9 +224,11 @@ const state = GSTC.api.stateFromConfig(config);
 // for testing
 globalThis.state = state;
 
+const element = document.getElementById('gstc');
+if (!element) throw new Error('Element not found');
 // Mount the component
 const app = GSTC({
-  element: document.getElementById('gstc'),
+  element,
   state,
 });
 

@@ -8,6 +8,9 @@ const GSTCID = GSTC.api.GSTCID;
 const iterations = 50;
 const addDays = 30;
 
+/**
+ * @type {import("../../dist/gstc").Rows}
+ */
 const rows = {};
 for (let i = 0; i < iterations; i++) {
   const id = GSTCID(String(i));
@@ -28,10 +31,13 @@ const startDate = GSTC.api.date('2020-02-01');
 const startTime = startDate.valueOf();
 const endDate = GSTC.api.date('2020-03-31').endOf('day');
 
+/**
+ * @type {import("../../dist/gstc").Items}
+ */
 const items = {};
 for (let i = 0; i < iterations; i++) {
-  let rowId = GSTCID(i);
-  let id = GSTCID(i);
+  let rowId = GSTCID(String(i));
+  let id = GSTCID(String(i));
   let startDayjs = GSTC.api
     .date(startTime)
     .startOf('day')
@@ -99,25 +105,36 @@ const columnsFromDB = [
   },
 ];
 
-document.getElementById('id').addEventListener('change', (ev) => {
+document.getElementById('id')?.addEventListener('change', (ev) => {
+  // @ts-ignore
   state.update(`config.list.columns.data.gstcid-id.hidden`, !ev.target.checked);
 });
 
-document.getElementById('name').addEventListener('change', (ev) => {
+document.getElementById('name')?.addEventListener('change', (ev) => {
+  // @ts-ignore
   state.update(`config.list.columns.data.gstcid-name.hidden`, !ev.target.checked);
 });
 
-document.getElementById('surname').addEventListener('change', (ev) => {
+document.getElementById('surname')?.addEventListener('change', (ev) => {
+  // @ts-ignore
   state.update(`config.list.columns.data.gstcid-surname.hidden`, !ev.target.checked);
 });
 
-document.getElementById('progress').addEventListener('change', (ev) => {
+document.getElementById('progress')?.addEventListener('change', (ev) => {
+  // @ts-ignore
   state.update(`config.list.columns.data.gstcid-progress.hidden`, !ev.target.checked);
 });
 
 // Configuration object
+
+// Typescript usage:
+// import { Config } from 'gantt-schedule-timeline-calendar';
+// const config: Config = {...};
+/**
+ * @type {import('../../dist/gstc').Config}  // or {import('gantt-schedule-timeline-calendar').Config}
+ */
 const config = {
-  // for free key for your domain please visit https://gstc.neuronet.io/free-key
+  // for trial key for your domain please visit https://gstc.neuronet.io/free-key
   // if you need commercial license please visit https://gantt-schedule-timeline-calendar.neuronet.io/pricing
 
   licenseKey:
@@ -157,9 +174,12 @@ const state = GSTC.api.stateFromConfig(config);
 // for testing
 globalThis.state = state;
 
+const element = document.getElementById('gstc');
+if (!element) throw new Error('Element not found');
+
 // Mount the component
 const app = GSTC({
-  element: document.getElementById('gstc'),
+  element,
   state,
 });
 

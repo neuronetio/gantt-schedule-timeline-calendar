@@ -78,7 +78,6 @@ const itemsFromDB = [
   {
     id: 'T1',
     rowId: 'R01_01_01_1549',
-    // label: 'ALP_IN_60_pST_安定性_箱詰め・仕込み_一時保管',
     label: 'T1',
     time: {
       start: GSTC.api.date('2022-06-23 08:30:00').valueOf(),
@@ -303,8 +302,15 @@ const columnsFromDB = [
 ];
 
 // Configuration object
+
+// Typescript usage:
+// import { Config } from 'gantt-schedule-timeline-calendar';
+// const config: Config = {...};
+/**
+ * @type {import('../../dist/gstc').Config}  // or {import('gantt-schedule-timeline-calendar').Config}
+ */
 const config = {
-  // for free key for your domain please visit https://gstc.neuronet.io/free-key
+  // for trial key for your domain please visit https://gstc.neuronet.io/free-key
   // if you need commercial license please visit https://gantt-schedule-timeline-calendar.neuronet.io/pricing
 
   licenseKey:
@@ -332,6 +338,8 @@ const state = GSTC.api.stateFromConfig(config);
 globalThis.state = state;
 
 const element = document.getElementById('gstc');
+if (!element) throw new Error('Element not found');
+
 element.addEventListener('gstc-loaded', (ev) => {
   // @ts-ignore
   globalThis.dispatchEvent(new Event('gstc-loaded', ev.target));

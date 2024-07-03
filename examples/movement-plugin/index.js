@@ -6,15 +6,17 @@ import { Plugin as ItemResizing } from '../../dist/plugins/item-resizing.esm.min
 
 let canChangeRow = true;
 let canCollide = true;
-document.getElementById('can-change-row').addEventListener('change', function (el) {
+document.getElementById('can-change-row')?.addEventListener('change', function (el) {
+  // @ts-ignore
   canChangeRow = el.target.checked;
 });
-document.getElementById('can-collide').addEventListener('change', function (el) {
+document.getElementById('can-collide')?.addEventListener('change', function (el) {
+  // @ts-ignore
   canCollide = el.target.checked;
 });
 
 function isCollision(item) {
-  const allItems = gstc.api.getAllItems();
+  const allItems = gstc?.api.getAllItems();
   for (const itemId in allItems) {
     if (itemId === item.id) continue;
     const currentItem = allItems[itemId];
@@ -132,6 +134,13 @@ const columnsFromDB = [
 ];
 
 // Configuration object
+
+// Typescript usage:
+// import { Config } from 'gantt-schedule-timeline-calendar';
+// const config: Config = {...};
+/**
+ * @type {import('../../dist/gstc').Config}  // or {import('gantt-schedule-timeline-calendar').Config}
+ */
 const config = {
   // for free key for your domain please visit https://gstc.neuronet.io/free-key
   // if you need commercial license please visit https://gantt-schedule-timeline-calendar.neuronet.io/pricing
@@ -162,9 +171,12 @@ const state = GSTC.api.stateFromConfig(config);
 // for testing
 globalThis.state = state;
 
+const element = document.getElementById('gstc');
+if (!element) throw new Error('Element not found');
+
 // Mount the component
 const app = GSTC({
-  element: document.getElementById('gstc'),
+  element,
   state,
 });
 

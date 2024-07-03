@@ -15,6 +15,9 @@ function getRandomColor() {
 const startDate = GSTC.api.date().subtract(15, 'day');
 const startTime = startDate.valueOf();
 
+/**
+ * @type {import("../../dist/gstc").Rows}
+ */
 const rows = {};
 for (let i = 0; i < iterations; i++) {
   const withParent = i > 0 && i % 2 === 0;
@@ -30,10 +33,13 @@ for (let i = 0; i < iterations; i++) {
   };
 }
 
+/**
+ * @type {import("../../dist/gstc").Items}
+ */
 const items = {};
 for (let i = 0; i < iterations; i++) {
-  let rowId = GSTCID(i);
-  let id = GSTCID(i);
+  let rowId = GSTCID(String(i));
+  let id = GSTCID(String(i));
   let startDayjs = GSTC.api
     .date(startTime)
     .startOf('day')
@@ -116,6 +122,13 @@ function dateSlot(vido, props) {
 }
 
 // Configuration object
+
+// Typescript usage:
+// import { Config } from 'gantt-schedule-timeline-calendar';
+// const config: Config = {...};
+/**
+ * @type {import('../../dist/gstc').Config}  // or {import('gantt-schedule-timeline-calendar').Config}
+ */
 const config = {
   // for free key for your domain please visit https://gstc.neuronet.io/free-key
   // if you need commercial license please visit https://gantt-schedule-timeline-calendar.neuronet.io/pricing
@@ -144,9 +157,12 @@ const state = GSTC.api.stateFromConfig(config);
 // for testing
 globalThis.state = state;
 
+const element = document.getElementById('gstc');
+if (!element) throw new Error('Element not found');
+
 // Mount the component
 const app = GSTC({
-  element: document.getElementById('gstc'),
+  element,
   state,
 });
 

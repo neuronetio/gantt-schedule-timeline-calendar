@@ -9,7 +9,8 @@ detectAdBlock().then((enabled) => {
   if (globalThis.gstc && enabled) {
     const lithtml = globalThis.gstc.lithtml;
     const warning = lithtml.html`<div style="color:red;font-weight:bold;margin:10px;">You should disable the ad-blocking extension on this page as it can significantly slow down the DOM updates.</div>`;
-    lithtml.render(warning, document.getElementById('warning'));
+    const warningEl = document.getElementById('warning');
+    if (warningEl) lithtml.render(warning, warningEl);
   }
 });
 
@@ -38,8 +39,11 @@ function generateNewRows() {
 
 let dateIncrement = 0;
 
+// Typescript usage:
+// import { Items } from 'gantt-schedule-timeline-calendar';
+// let items: Items = {};
 /**
- * @type {import("../../dist/gstc").Items}
+ * @type {import("../../dist/gstc").Items} // or {import("gantt-schedule-timeline-calendar").Items}
  */
 let items = {};
 function generateNewItems() {
@@ -91,8 +95,11 @@ const columns = {
   },
 };
 
+// Typescript usage:
+// import { Config } from 'gantt-schedule-timeline-calendar';
+// const config: Config = {...};
 /**
- * @type {import("../../dist/gstc").Config}
+ * @type {import("../../dist/gstc").Config} // or {import("gantt-schedule-timeline-calendar").Config}
  */
 const config = {
   licenseKey:
@@ -125,13 +132,15 @@ const config = {
 
 state = GSTC.api.stateFromConfig(config);
 const element = document.getElementById('gstc');
-
+if (!element) throw new Error('Element not found');
 gstc = GSTC({
   element,
   state,
 });
 
-const genScreenStyle = document.getElementById('gen').style;
+const genEl = document.getElementById('gen');
+if (!genEl) throw new Error('Element not found');
+const genScreenStyle = genEl.style;
 
 function showLoadingScreen() {
   genScreenStyle.display = 'block';
@@ -168,27 +177,27 @@ function update(count) {
   }, 0);
 }
 
-document.getElementById('1k').addEventListener('click', () => {
+document.getElementById('1k')?.addEventListener('click', () => {
   update(1000);
 });
 
-document.getElementById('5k').addEventListener('click', () => {
+document.getElementById('5k')?.addEventListener('click', () => {
   update(5000);
 });
 
-document.getElementById('10k').addEventListener('click', () => {
+document.getElementById('10k')?.addEventListener('click', () => {
   update(10000);
 });
 
-document.getElementById('20k').addEventListener('click', () => {
+document.getElementById('20k')?.addEventListener('click', () => {
   update(20000);
 });
 
-document.getElementById('30k').addEventListener('click', () => {
+document.getElementById('30k')?.addEventListener('click', () => {
   update(30000);
 });
 
-document.getElementById('50k').addEventListener('click', () => {
+document.getElementById('50k')?.addEventListener('click', () => {
   update(50000);
 });
 /*

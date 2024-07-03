@@ -124,8 +124,13 @@ function itemSlot(vido, props) {
     );
 }
 
+// Configuration object
+
+// Typescript usage:
+// import { Config } from 'gantt-schedule-timeline-calendar';
+// const config: Config = {...};
 /**
- * @type {import("../../dist/gstc").Config}
+ * @type {import('../../dist/gstc').Config}  // or {import('gantt-schedule-timeline-calendar').Config}
  */
 const config = {
   licenseKey:
@@ -150,13 +155,17 @@ const config = {
 
 state = GSTC.api.stateFromConfig(config);
 const element = document.getElementById('gstc');
+if (!element) throw new Error('Element not found');
 
 gstc = GSTC({
   element,
   state,
 });
 
-const genScreenStyle = document.getElementById('gen').style;
+const gen = document.getElementById('gen');
+if (!gen) throw new Error('Element not found');
+
+const genScreenStyle = gen.style;
 
 function showLoadingScreen() {
   genScreenStyle.display = 'block';

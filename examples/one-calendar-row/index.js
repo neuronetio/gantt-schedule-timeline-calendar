@@ -104,6 +104,9 @@ const columnsFromDB = [
   },
 ];
 
+/**
+ * @type {import("../../dist/gstc").ChartCalendarLevel}
+ */
 const calendarLevel0 = [
   {
     zoomTo: 16,
@@ -263,6 +266,13 @@ const calendarLevel0 = [
 const calendarLevels = [calendarLevel0];
 
 // Configuration object
+
+// Typescript usage:
+// import { Config } from 'gantt-schedule-timeline-calendar';
+// const config: Config = {...};
+/**
+ * @type {import('../../dist/gstc').Config}  // or {import('gantt-schedule-timeline-calendar').Config}
+ */
 const config = {
   // for free key for your domain please visit https://gstc.neuronet.io/free-key
   // if you need commercial license please visit https://gantt-schedule-timeline-calendar.neuronet.io/pricing
@@ -293,7 +303,10 @@ const state = GSTC.api.stateFromConfig(config);
 globalThis.state = state;
 
 const element = document.getElementById('gstc');
+if (!element) throw new Error('Element not found');
+
 element.addEventListener('gstc-loaded', (ev) => {
+  // @ts-ignore
   globalThis.dispatchEvent(new Event('gstc-loaded', ev.target));
 });
 
@@ -303,7 +316,8 @@ const app = (globalThis.gstc = GSTC({
   state,
 }));
 
-document.getElementById('zoom').addEventListener('change', (ev) => {
+document.getElementById('zoom')?.addEventListener('change', (ev) => {
+  // @ts-ignore
   const value = ev.target.value;
   console.log(value);
   state.update('config.chart.time.zoom', value);

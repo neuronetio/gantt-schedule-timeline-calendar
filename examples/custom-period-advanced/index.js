@@ -121,11 +121,15 @@ const days = [
 ];
 
 // Configuration object
+
+// Typescript usage:
+// import { Config } from 'gantt-schedule-timeline-calendar';
+// const config: Config = {...};
 /**
- * @type {import("../../dist/gstc").Config}
+ * @type {import('../../dist/gstc').Config}  // or {import('gantt-schedule-timeline-calendar').Config}
  */
 const config = {
-  // for free key for your domain please visit https://gstc.neuronet.io/free-key
+  // for trial key for your domain please visit https://gstc.neuronet.io/free-key
   // if you need commercial license please visit https://gantt-schedule-timeline-calendar.neuronet.io/pricing
 
   licenseKey:
@@ -156,6 +160,8 @@ const state = GSTC.api.stateFromConfig(config);
 globalThis.state = state;
 
 const element = document.getElementById('gstc');
+if (!element) throw new Error('Element not found');
+
 element.addEventListener('gstc-loaded', () => {
   console.log('loaded');
 });

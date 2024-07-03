@@ -75,6 +75,9 @@ const columns = {
 };
 
 let secondLevel = null;
+/**
+ * @type {import('../../dist/gstc').Template}
+ */
 function chartCalendarTemplate({ className, styleMap, components, actions, slots, html, vido, props }) {
   return slots.html(
     'outer',
@@ -114,6 +117,10 @@ const topContentStyle = new GSTC.api.vido.StyleMap({
   background: '#f9fafb',
   height: '50px',
 });
+
+/**
+ * @type {import('../../dist/gstc').Template}
+ */
 function chartTemplate({
   className,
   onWheel,
@@ -163,6 +170,9 @@ function chartTemplate({
   );
 }
 
+/**
+ * @type {import('../../dist/gstc').Template}
+ */
 function listTemplate({ className, styleMap, list, listColumns, actions, slots, html, cache, vido, props }) {
   const headerHeight = vido.state.get('config.headerHeight');
   return slots.html(
@@ -194,6 +204,12 @@ function listTemplate({ className, styleMap, list, listColumns, actions, slots, 
   );
 }
 
+// Typescript usage:
+// import { Config } from 'gantt-schedule-timeline-calendar';
+// const config: Config = {...};
+/**
+ * @type {import('../../dist/gstc').Config}  // or {import('gantt-schedule-timeline-calendar').Config}
+ */
 const config = {
   licenseKey:
     '====BEGIN LICENSE KEY====\nXOfH/lnVASM6et4Co473t9jPIvhmQ/l0X3Ewog30VudX6GVkOB0n3oDx42NtADJ8HjYrhfXKSNu5EMRb5KzCLvMt/pu7xugjbvpyI1glE7Ha6E5VZwRpb4AC8T1KBF67FKAgaI7YFeOtPFROSCKrW5la38jbE5fo+q2N6wAfEti8la2ie6/7U2V+SdJPqkm/mLY/JBHdvDHoUduwe4zgqBUYLTNUgX6aKdlhpZPuHfj2SMeB/tcTJfH48rN1mgGkNkAT9ovROwI7ReLrdlHrHmJ1UwZZnAfxAC3ftIjgTEHsd/f+JrjW6t+kL6Ef1tT1eQ2DPFLJlhluTD91AsZMUg==||U2FsdGVkX1/SWWqU9YmxtM0T6Nm5mClKwqTaoF9wgZd9rNw2xs4hnY8Ilv8DZtFyNt92xym3eB6WA605N5llLm0D68EQtU9ci1rTEDopZ1ODzcqtTVSoFEloNPFSfW6LTIC9+2LSVBeeHXoLEQiLYHWihHu10Xll3KsH9iBObDACDm1PT7IV4uWvNpNeuKJc\npY3C5SG+3sHRX1aeMnHlKLhaIsOdw2IexjvMqocVpfRpX4wnsabNA0VJ3k95zUPS3vTtSegeDhwbl6j+/FZcGk9i+gAy6LuetlKuARjPYn2LH5Be3Ah+ggSBPlxf3JW9rtWNdUoFByHTcFlhzlU9HnpnBUrgcVMhCQ7SAjN9h2NMGmCr10Rn4OE0WtelNqYVig7KmENaPvFT+k2I0cYZ4KWwxxsQNKbjEAxJxrzK4HkaczCvyQbzj4Ppxx/0q+Cns44OeyWcwYD/vSaJm4Kptwpr+L4y5BoSO/WeqhSUQQ85nvOhtE0pSH/ZXYo3pqjPdQRfNm6NFeBl2lwTmZUEuw==\n====END LICENSE KEY====',
@@ -223,13 +239,16 @@ const config = {
 
 state = GSTC.api.stateFromConfig(config);
 const element = document.getElementById('gstc');
+if (!element) throw new Error('Element not found');
 
 gstc = GSTC({
   element,
   state,
 });
 
-const genScreenStyle = document.getElementById('gen').style;
+const gen = document.getElementById('gen');
+if (!gen) throw new Error('Element not found');
+const genScreenStyle = gen.style;
 
 function showLoadingScreen() {
   genScreenStyle.display = 'block';

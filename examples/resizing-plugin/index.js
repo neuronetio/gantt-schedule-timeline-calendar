@@ -200,9 +200,12 @@ const state = GSTC.api.stateFromConfig({
 // for testing
 globalThis.state = state;
 
+const element = document.getElementById('gstc');
+if (!element) throw new Error('Element not found');
+
 // Mount the component
 const app = GSTC({
-  element: document.getElementById('gstc'),
+  element,
   state,
 });
 
