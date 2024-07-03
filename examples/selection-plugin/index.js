@@ -200,22 +200,22 @@ const app = GSTC({
 });
 
 document.getElementById('select-items')?.addEventListener('click', function (el) {
-  app.api.plugins.selection.selectItems([GSTC.api.GSTCID('3')]);
+  app.api.plugins.Selection.selectItems([GSTC.api.GSTCID('3')]);
 });
 document.getElementById('select-cells')?.addEventListener('click', function (el) {
   const allCells = app.api.getGridCells();
   const cellsForSelect = allCells
     .filter((cell) => cell.time.leftGlobalDate.format('YYYY-MM-DD') === '2020-01-09')
     .map((cell) => cell.id);
-  app.api.plugins.selection.selectCells(cellsForSelect);
+  app.api.plugins.Selection.selectCells(cellsForSelect);
 });
 document.getElementById('get-selected')?.addEventListener('click', function (el) {
-  const selected = app.api.plugins.selection.getSelected();
+  const selected = app.api.plugins.Selection.getSelected();
   console.log('selected', selected);
 });
 document.getElementById('clear')?.addEventListener('click', function (el) {
-  app.api.plugins.selection.selectCells([]);
-  app.api.plugins.selection.selectItems([]);
+  app.api.plugins.Selection.selectCells([]);
+  app.api.plugins.Selection.selectItems([]);
 });
 
 function scrollToCell() {
