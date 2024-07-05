@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.37.3] [2024-07-05]
+
+- Fixed component not refreshing after changing default item values ​​(`config.chart.item`)
+
 ## [3.37.2] [2024-06-18]
 
 - `GSTC.api.fromArray` result type modified
