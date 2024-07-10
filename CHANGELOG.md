@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.37.4] [2024-07-10]
+
+- Added `shouldMuteNotNeededMethods` option to ItemMovement & ItemResizing plugins
+
 ## [3.37.3] [2024-07-05]
 
 - Fixed component not refreshing after changing default item values ​​(`config.chart.item`)

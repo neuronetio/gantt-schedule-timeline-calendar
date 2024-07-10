@@ -83,6 +83,7 @@ export interface Options {
     ignoreMissingDates?: boolean;
     allowItemsToGoOutsideTheArea?: boolean;
     threshold?: number;
+    shouldMuteNotNeededMethods?: boolean;
 }
 export type State = 'start' | 'resize' | 'end' | '';
 export interface PluginData extends Options {

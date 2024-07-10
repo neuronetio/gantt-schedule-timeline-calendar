@@ -71,6 +71,7 @@ export interface Options {
     autoScroll?: AutoScroll;
     ignoreMissingDates?: boolean;
     allowItemsToGoOutsideTheArea?: boolean;
+    shouldMuteNotNeededMethods?: boolean;
 }
 export type State = 'start' | 'move' | 'end' | '';
 export interface ThresholdReached {
