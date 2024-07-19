@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.37.5] [2024-07-19]
+
+- Fixed `shouldMuteNotNeededMethods` option to ItemMovement & ItemResizing plugins (#402)
+
 ## [3.37.4] [2024-07-10]
 
 - Added `shouldMuteNotNeededMethods` option to ItemMovement & ItemResizing plugins
