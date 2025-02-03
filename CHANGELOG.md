@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.37.6] [2025-02-03]
+
+- Data loading is now twice as fast
+
 ## [3.37.5] [2024-07-19]
 
 - Fixed `shouldMuteNotNeededMethods` option to ItemMovement & ItemResizing plugins (#402)
