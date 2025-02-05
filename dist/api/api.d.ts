@@ -107,14 +107,16 @@ export declare class Api {
     fillEmptyRowValues(rows: Rows): Rows;
     itemsOnTheSameLevel(item1: Item, item2: Item): boolean;
     itemsTimeOverlaps(item1: Item, item2: Item): boolean;
-    itemOverlapsWithOthers(item: Item, items: Item[]): Item;
+    itemOverlapsWithOthers(item: Item, rowItems: Item[]): Item;
     fixOverlappedItems(rowItems: Item[]): void;
     private makeChildren;
     private keysToKeep;
     private clearNested;
     private fastTree;
     updateItemRowMapForItem(itemId: string, newRowId: string, itemRowMap?: ItemRowMap, rowsData?: RowsData): void;
-    sortRowItemsInAddOrder(itemsId: string[], rowData: RowData): void;
+    sortRowItemsInAddOrder(itemIndexes: {
+        [id: string]: number;
+    }, rowData: RowData): void;
     sortRowItemsByTime(rowData: RowData): void;
     makeTreeMap(rowsData: RowsData, items: Items, onlyItems?: boolean): RowsData;
     private _updateRowsWithParentsExpandedCache;

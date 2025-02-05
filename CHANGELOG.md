@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.37.7] [2025-02-05]
+
+- improved performance when there are a lot of items in the chart
+
 ## [3.37.6] [2025-02-03]
 
 - Data loading is now twice as fast
