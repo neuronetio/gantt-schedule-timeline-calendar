@@ -69,6 +69,33 @@ function generateNewItems() {
   return items;
 }
 
+function generateNewItemsMulti() {
+  let rowsIds = Object.keys(rows);
+  const days = 180;
+  items = {};
+  for (let i = 0, len = rowsIds.length; i < len; i++) {
+    let rowId = rowsIds[i /* % 2 === 0 ? i : i + 1*/];
+    let id = GSTC.api.GSTCID(String(i));
+    let dateIncrement = 0;
+    for (let j = 0; j < days; j++) {
+      const startTime = fromDate.add(dateIncrement, 'day').startOf('day').valueOf();
+      const endTime = fromDate.add(dateIncrement, 'day').endOf('day').valueOf();
+      const localId = GSTC.api.GSTCID(String(i) + '-' + String(j));
+      items[localId] = {
+        id: localId,
+        rowId,
+        label: `Item ${i + 1} - ${j + 1}`,
+        time: {
+          start: startTime,
+          end: endTime,
+        },
+      };
+      dateIncrement++;
+    }
+  }
+  return items;
+}
+
 const columns = {
   data: {
     [GSTC.api.GSTCID('id')]: {
@@ -112,6 +139,9 @@ const config = {
     columns,
   },
   chart: {
+    item: {
+      // overlap: true, // speed improvement - no overlap check
+    },
     items: {},
     time: {
       zoom: 19.4,
@@ -150,9 +180,13 @@ function hideLoadingScreen() {
   genScreenStyle.display = 'none';
 }
 
-function generate() {
+function generate(multiRow = false) {
   generateNewRows();
-  generateNewItems();
+  if (!multiRow) {
+    generateNewItems();
+  } else {
+    generateNewItemsMulti();
+  }
 }
 
 // state.update('config', (config) => {
@@ -161,11 +195,11 @@ function generate() {
 //   return config;
 // });
 
-function update(count) {
+function update(count, multiRow = false) {
   showLoadingScreen();
   setTimeout(() => {
     iterations = count;
-    generate();
+    generate(multiRow);
     state.update('config', (config) => {
       config.list.rows = rows;
       config.chart.items = items;
@@ -176,6 +210,10 @@ function update(count) {
     hideLoadingScreen();
   }, 0);
 }
+
+document.getElementById('100')?.addEventListener('click', () => {
+  update(1000, true);
+});
 
 document.getElementById('1k')?.addEventListener('click', () => {
   update(1000);
