@@ -4,7 +4,7 @@
  * @header  --gstc--header--
  */
 import { Dayjs } from 'dayjs';
-import { DataChartTime, DataChartTimeLevel, DataChartTimeLevelDate, ChartCalendarLevel, ChartTimeDate, ChartTimeDates, ChartCalendarLevelFormat, Vido, Reason, Items, DataScrollHorizontal } from '../gstc';
+import { DataChartTime, DataChartTimeLevel, DataChartTimeLevelDate, ChartCalendarLevel, ChartTimeDate, ChartTimeDates, ChartCalendarLevelFormat, Item, Vido, Reason, DataScrollHorizontal } from '../gstc';
 export default function main(vido: Vido, mergeDeep: any): {
     className: string;
     styleMap: import("@neuronet.io/vido").StyleMap;
@@ -15,7 +15,7 @@ export default function main(vido: Vido, mergeDeep: any): {
     generateTree(fullReload?: boolean): void;
     prepareExpanded(): void;
     generateVisibleRowsAndItems(): void;
-    updateItemsVerticalPositions(): void;
+    updateItemsVerticalPositionsOfVisibleRows(): void;
     getMutedListeners(): any[];
     triggerLoadedEvent(): void;
     getLastPageDatesWidth(chartWidth: number, allDates: DataChartTimeLevelDate[]): number;
@@ -34,8 +34,8 @@ export default function main(vido: Vido, mergeDeep: any): {
     updateLocale(): void;
     calculateTotalViewDurationFromDates(time: DataChartTime): void;
     calculateRightGlobal(leftGlobalDate: Dayjs, chartWidth: number, allMainDates: DataChartTimeLevelDate[], offsetPx: any, offsetMs: any): number;
-    allItemsOnTheLeftOrRight(items?: Items, time?: DataChartTime): boolean;
-    updateVisibleItems(time?: DataChartTime, multi?: import("deep-state-observer").Multi): import("deep-state-observer").Multi;
+    updateViewPortVisibleItems(justSetWithoutNotify?: boolean, time?: DataChartTime): Item[];
+    updateViewPortVisibleItemsPositions(time?: DataChartTime, multi?: import("deep-state-observer").Multi): import("deep-state-observer").Multi;
     calculateLeftAndRightGlobalNormally(time: DataChartTime, horizontalScroll: DataScrollHorizontal): void;
     calculateLeftAndRightGlobalFromCenter(time: DataChartTime, oldDataTime: DataChartTime, horizontalScroll: DataScrollHorizontal): void | DataChartTime;
     updateFromToBasedOnDates(time: DataChartTime): void;

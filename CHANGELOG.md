@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.37.8] [2025-02-06]
+
+- further performance optimizations
+
 ## [3.37.7] [2025-02-05]
 
 - improved performance when there are a lot of items in the chart

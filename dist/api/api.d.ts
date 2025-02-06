@@ -72,7 +72,7 @@ export declare class Api {
     getPluginsPositions(): {};
     isPluginInitializedBefore(pluginName: string, beforePluginName: string): boolean;
     getActions(name: string): any;
-    isItemInViewport(item: Item, leftGlobal?: number, rightGlobal?: number): boolean;
+    isItemHorizontallyInViewport(item: Item, leftGlobal?: number, rightGlobal?: number): boolean;
     private getChildrenLinkedItemsIds;
     collectAllLinkedItems(items: Items, itemsData: DataItems): void;
     getChildrenDependantItemsIds(item: Item, items: Items, allDependant?: string[]): string[];
@@ -87,7 +87,7 @@ export declare class Api {
     getVisibleRowsId(): string[];
     getRowsData(): RowsData;
     setRowsData(data: RowsData): void;
-    getRowData(rowId: string): RowData;
+    getRowData(rowId: string): any;
     setRowData(rowId: string, data: RowData): void;
     getItem(itemId: string): Item;
     getItems(itemsId?: string[]): Item[];
@@ -105,15 +105,15 @@ export declare class Api {
     private getSortableValue;
     sortRowsByColumn(column: ColumnData, asc?: boolean): Rows;
     fillEmptyRowValues(rows: Rows): Rows;
-    itemsOnTheSameLevel(item1: Item, item2: Item): boolean;
+    itemsOnTheSameLevel(item1Data: ItemData, item2Data: ItemData): boolean;
     itemsTimeOverlaps(item1: Item, item2: Item): boolean;
-    itemOverlapsWithOthers(item: Item, rowItems: Item[]): Item;
-    fixOverlappedItems(rowItems: Item[]): void;
+    itemsOverlaps(item1: Item, item2: Item, item1Data: ItemData, item2Data: ItemData): boolean;
+    itemOverlapsWithOthers(item: Item, rowItems: Item[], fromIndex?: number): Item;
     private makeChildren;
     private keysToKeep;
     private clearNested;
     private fastTree;
-    updateItemRowMapForItem(itemId: string, newRowId: string, itemRowMap?: ItemRowMap, rowsData?: RowsData): void;
+    updateRowItemsAndItemRowMapForItem(itemId: string, newRowId: string, itemRowMap?: ItemRowMap, rowsData?: RowsData, items?: Items): void;
     sortRowItemsInAddOrder(itemIndexes: {
         [id: string]: number;
     }, rowData: RowData): void;
@@ -129,6 +129,8 @@ export declare class Api {
     getRowViewTop(rowId: string, rowsData?: RowsData, scrollVertical?: DataScrollVertical): number;
     parentsExpanded(rowId: string): boolean;
     setAllRowsIdsCache(rowsIds: string[]): void;
+    resetRowsOverlappingCalculated(rowsData?: RowsData): void;
+    fixOverlappedItems(rowItems: Item[], rowData: RowData): void;
     recalculateRowHeight(row: Row, rowData: RowData): number;
     calculateVisibleRowsHeights(): void;
     getRealChartHeight(withScrollBar?: boolean): number;

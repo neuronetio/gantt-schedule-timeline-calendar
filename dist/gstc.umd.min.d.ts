@@ -27,6 +27,7 @@ export interface RowData {
     itemsOrder: string[];
     inView: boolean;
     parentsExpanded: boolean;
+    overlappingCalculated: boolean;
 }
 export interface RowsData {
     [key: string]: RowData;
@@ -635,9 +636,8 @@ export interface DataChart {
     grid: DataGrid;
     items: DataItems;
     dimensions: DataChartDimensions;
-    visibleItems: string[];
+    verticallyVisibleItems: string[];
     time: DataChartTime;
-    allItemsOnTheLeftOrRight: boolean;
 }
 export interface DataElements {
     [key: string]: HTMLElement;
