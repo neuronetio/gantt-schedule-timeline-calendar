@@ -140,7 +140,7 @@ const config = {
   },
   chart: {
     item: {
-      // overlap: true, // speed improvement - no overlap check
+      //overlap: true, // speed improvement - no overlap check
     },
     items: {},
     time: {
@@ -150,12 +150,12 @@ const config = {
   scroll: {
     // speed improvement
     horizontal: {
-      precise: false,
-      byPixels: false,
+      //precise: false,
+      //byPixels: false,
     },
     vertical: {
-      precise: false,
-      byPixels: false,
+      //precise: false,
+      //byPixels: false,
     },
   },
 };
@@ -200,18 +200,20 @@ function update(count, multiRow = false) {
   setTimeout(() => {
     iterations = count;
     generate(multiRow);
-    state.update('config', (config) => {
-      config.list.rows = rows;
-      config.chart.items = items;
-      // config.chart.time.from = fromDate.valueOf();
-      // config.chart.time.to = toDate.valueOf();
-      return config;
-    });
-    hideLoadingScreen();
+    setTimeout(() => {
+      state.update('config', (config) => {
+        config.list.rows = rows;
+        config.chart.items = items;
+        // config.chart.time.from = fromDate.valueOf();
+        // config.chart.time.to = toDate.valueOf();
+        return config;
+      });
+      hideLoadingScreen();
+    }, 0);
   }, 0);
 }
 
-document.getElementById('100')?.addEventListener('click', () => {
+document.getElementById('1k180')?.addEventListener('click', () => {
   update(1000, true);
 });
 
