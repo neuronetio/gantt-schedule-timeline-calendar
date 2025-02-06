@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.37.9] [2025-02-06]
+
+- ItemMovement autoScroll bugfix (#408)
+
 ## [3.37.8] [2025-02-06]
 
 - further performance optimizations

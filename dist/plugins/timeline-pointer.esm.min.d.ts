@@ -65,6 +65,7 @@ export interface TimelinePointerEvent {
     targetData: any;
     targetType: TargetType;
     initialScrollPosPx: ScrollPosPx;
+    initialScrollOffset: TimelinePointerOffset;
     initialPosition: TimelinePointerPoint;
     currentPosition: TimelinePointerPoint;
     movement: Movement;
