@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.38.0] [2025-02-06]
+
+- ItemMovement & ItemResizing autoScroll is now time based (`ItemMovement.autoScroll.speed.timeout` & `ItemResizing.autoScroll.timeout` option - 30 by default)
+
 ## [3.37.9] [2025-02-06]
 
 - ItemMovement autoScroll bugfix (#408)

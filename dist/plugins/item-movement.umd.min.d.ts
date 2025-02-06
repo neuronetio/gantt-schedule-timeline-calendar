@@ -53,6 +53,7 @@ export interface Threshold {
 export interface ScrollSpeed {
     horizontal?: number;
     vertical?: number;
+    timeout?: number;
 }
 export interface AutoScroll {
     speed?: ScrollSpeed;

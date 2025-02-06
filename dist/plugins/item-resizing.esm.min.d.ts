@@ -55,6 +55,7 @@ export interface Events {
 }
 export interface AutoScroll {
     speed?: number;
+    timeout?: number;
     edgeThreshold?: number;
 }
 export interface HandleContentObject {
