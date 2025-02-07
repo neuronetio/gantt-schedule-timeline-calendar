@@ -18,7 +18,7 @@ let iterations = 1000;
 
 let gstc, state;
 
-const fromDate = GSTC.api.date().startOf('month');
+const fromDate = GSTC.api.date().startOf('year');
 let toDate = fromDate.add(30, 'day');
 
 /**
@@ -49,10 +49,12 @@ let items = {};
 function generateNewItems() {
   let rowsIds = Object.keys(rows);
   items = {};
+  const days = 30;
+  toDate = fromDate.add(days - 1, 'day').endOf('day');
   for (let i = 0, len = rowsIds.length; i < len; i++) {
     let rowId = rowsIds[i /* % 2 === 0 ? i : i + 1*/];
     let id = GSTC.api.GSTCID(String(i));
-    if (dateIncrement >= 30) dateIncrement = 0;
+    if (dateIncrement >= days) dateIncrement = 0;
     const startTime = fromDate.add(dateIncrement, 'day').startOf('day').valueOf();
     const endTime = fromDate.add(dateIncrement, 'day').endOf('day').valueOf();
     items[id] = {
@@ -69,10 +71,10 @@ function generateNewItems() {
   return items;
 }
 
-function generateNewItemsMulti() {
+function generateNewItemsMulti(days = 0) {
   let rowsIds = Object.keys(rows);
-  const days = 180;
   items = {};
+  toDate = fromDate.add(days - 1, 'day').endOf('day');
   for (let i = 0, len = rowsIds.length; i < len; i++) {
     let rowId = rowsIds[i /* % 2 === 0 ? i : i + 1*/];
     let id = GSTC.api.GSTCID(String(i));
@@ -149,14 +151,14 @@ const config = {
   },
   scroll: {
     // speed improvement
-    horizontal: {
-      //precise: false,
-      //byPixels: false,
-    },
-    vertical: {
-      //precise: false,
-      //byPixels: false,
-    },
+    // horizontal: {
+    //   precise: false,
+    //   byPixels: false,
+    // },
+    // vertical: {
+    //   precise: false,
+    //   byPixels: false,
+    // },
   },
 };
 
@@ -180,12 +182,12 @@ function hideLoadingScreen() {
   genScreenStyle.display = 'none';
 }
 
-function generate(multiRow = false) {
+function generate(days = 0) {
   generateNewRows();
-  if (!multiRow) {
+  if (!days) {
     generateNewItems();
   } else {
-    generateNewItemsMulti();
+    generateNewItemsMulti(days);
   }
 }
 
@@ -195,27 +197,23 @@ function generate(multiRow = false) {
 //   return config;
 // });
 
-function update(count, multiRow = false) {
+function update(count, days = 0) {
   showLoadingScreen();
   setTimeout(() => {
     iterations = count;
-    generate(multiRow);
+    generate(days);
     setTimeout(() => {
       state.update('config', (config) => {
         config.list.rows = rows;
         config.chart.items = items;
-        // config.chart.time.from = fromDate.valueOf();
-        // config.chart.time.to = toDate.valueOf();
+        config.chart.time.from = fromDate.valueOf();
+        config.chart.time.to = toDate.valueOf();
         return config;
       });
       hideLoadingScreen();
     }, 0);
   }, 0);
 }
-
-document.getElementById('1k180')?.addEventListener('click', () => {
-  update(1000, true);
-});
 
 document.getElementById('1k')?.addEventListener('click', () => {
   update(1000);
@@ -240,11 +238,19 @@ document.getElementById('30k')?.addEventListener('click', () => {
 document.getElementById('50k')?.addEventListener('click', () => {
   update(50000);
 });
-/*
-document.getElementById('100k').addEventListener('click', () => {
+
+document.getElementById('100k')?.addEventListener('click', () => {
   update(100000);
 });
-*/
+
+document.getElementById('1k180k')?.addEventListener('click', () => {
+  update(1000, 180);
+});
+
+document.getElementById('1k365k')?.addEventListener('click', () => {
+  update(1000, 365);
+});
+
 //@ts-ignore
 globalThis.state = state;
 //@ts-ignore
