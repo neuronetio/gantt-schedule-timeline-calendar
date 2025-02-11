@@ -40,8 +40,8 @@ export default function main(vido: Vido, mergeDeep: any): {
     calculateLeftAndRightGlobalFromCenter(time: DataChartTime, oldDataTime: DataChartTime, horizontalScroll: DataScrollHorizontal): void | DataChartTime;
     updateFromToBasedOnDates(time: DataChartTime): void;
     recalculateTimes(reasons: Reason[]): void;
-    minimalReload(eventInfo: any): void;
-    partialReload(fullReload: boolean, eventInfo: any): void;
-    fullReload(eventInfo: any): void;
+    minimalReload(eventInfo: any, bulk: any): void;
+    partialReload(fullReload: boolean, eventInfo: any, bulk: any): void;
+    fullReload(eventInfo: any, bulk: any): void;
 };
 //# sourceMappingURL=main.d.ts.map

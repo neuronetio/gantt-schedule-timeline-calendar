@@ -5,7 +5,7 @@
  */
 import { Time } from './time';
 import type DeepState from 'deep-state-observer';
-import type { DataChartTime, Row, Item, Vido, Items, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, DataScrollVertical, DataScrollHorizontal, ItemRowMap, ChartTimeDates } from '../gstc';
+import type { DataChartTime, Row, Item, Vido, Items, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, DataScrollVertical, DataScrollHorizontal, ItemRowMap, ChartTimeDates, TimeSectors, TimeSector } from '../gstc';
 import { generateSlots } from './slots';
 import { getClass, getId } from './helpers';
 export interface WheelResult {
@@ -57,6 +57,7 @@ export declare class Api {
     allActions: any[];
     main: any;
     constructor(state: DeepState);
+    schedule(fn: any): (...args: any[]) => void;
     render(): Promise<unknown>;
     getListenerPosition(callback: any): string | number;
     setVido(Vido: Vido): void;
@@ -87,10 +88,10 @@ export declare class Api {
     getVisibleRowsId(): string[];
     getRowsData(): RowsData;
     setRowsData(data: RowsData): void;
-    getRowData(rowId: string): any;
+    getRowData(rowId: string): RowData;
     setRowData(rowId: string, data: RowData): void;
     getItem(itemId: string): Item;
-    getItems(itemsId?: string[]): Item[];
+    getItems(itemsId?: string[], configItems?: Items): Item[];
     getAllItemsAsArray(): Item[];
     getAllItemsDataAsArray(): ItemData[];
     getAllItems(): Items;
@@ -108,7 +109,7 @@ export declare class Api {
     itemsOnTheSameLevel(item1Data: ItemData, item2Data: ItemData): boolean;
     itemsTimeOverlaps(item1: Item, item2: Item): boolean;
     itemsOverlaps(item1: Item, item2: Item, item1Data: ItemData, item2Data: ItemData): boolean;
-    itemOverlapsWithOthers(item: Item, rowItems: Item[], fromIndex?: number): Item;
+    itemOverlapsWithOthers(item: Item, otherItems: Item[], fromIndex?: number): Item;
     private makeChildren;
     private keysToKeep;
     private clearNested;
@@ -118,7 +119,7 @@ export declare class Api {
         [id: string]: number;
     }, rowData: RowData): void;
     sortRowItemsByTime(rowData: RowData): void;
-    makeTreeMap(rowsData: RowsData, items: Items, onlyItems?: boolean): RowsData;
+    makeTreeMap(rowsData: RowsData, itemsIds: string[], onlyItems?: boolean): RowsData;
     private _updateRowsWithParentsExpandedCache;
     generateRowsWithParentsExpanded(rows: Rows): any[];
     getRowInfoFromTop(wantedAbsolutePosition: number): {
@@ -130,15 +131,20 @@ export declare class Api {
     parentsExpanded(rowId: string): boolean;
     setAllRowsIdsCache(rowsIds: string[]): void;
     resetRowsOverlappingCalculated(rowsData?: RowsData): void;
-    fixOverlappedItems(rowItems: Item[], rowData: RowData): void;
+    timeSectorItemFits(item: Item, sector: TimeSector): boolean;
+    timeSectorsGenerate(items: Item[], time?: DataChartTime, sectorsCount?: number): TimeSectors;
+    timeSectorsItemsAddOrUpdate(items: Item[], sectors: TimeSectors): TimeSectors;
+    timeSectorsDeleteItems(itemsIds: string[], sectors: TimeSectors): TimeSectors;
+    timeSectorsGenerateForRows(force?: boolean, rowsData?: RowsData, time?: DataChartTime, sectorsCount?: number): RowsData;
+    fixOverlappedItemsByTimeSectors(rowData: RowData): void;
     recalculateRowHeight(row: Row, rowData: RowData): number;
-    calculateVisibleRowsHeights(): void;
+    calculateVisibleRowsHeights(): boolean;
     getRealChartHeight(withScrollBar?: boolean): number;
     getLastRowId(rowsWithParentsExpanded?: string[], verticalScroll?: DataScrollVertical): string;
     getLastRowIndex(rowsWithParentsExpanded?: string[], verticalScroll?: DataScrollVertical): number;
     private generateRowsPositionsMap;
     getRowPositionMapNode(topPosition: number, node?: rowsPositionsMapNode): rowsPositionsMapNode;
-    measureRows(): number | any[];
+    measureRows(forceOverlapping?: boolean): number | any[];
     isRowVisible(rowId: string, rows?: Rows, rowsData?: RowsData): boolean;
     getVisibleRows(): string[];
     normalizeMouseWheelEvent(event: WheelEvent): WheelResult;

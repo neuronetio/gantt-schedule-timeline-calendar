@@ -215,6 +215,8 @@ function update(count, days = 0) {
   }, 0);
 }
 
+globalThis.update = update;
+
 document.getElementById('1k')?.addEventListener('click', () => {
   update(1000);
 });

@@ -25,6 +25,7 @@ export interface RowData {
     allChildren: string[];
     items: string[];
     itemsOrder: string[];
+    itemsTimeSectors: TimeSectors;
     inView: boolean;
     parentsExpanded: boolean;
     overlappingCalculated: boolean;
@@ -655,6 +656,14 @@ export interface Data {
     elements: DataElements;
     initializedPlugins: Set<string>;
 }
+export interface TimeSector {
+    from: number;
+    to: number;
+    items: string[];
+    readonly fromDate: Dayjs;
+    readonly toDate: Dayjs;
+}
+export type TimeSectors = TimeSector[];
 export interface GSTCState {
     config: Config;
     $data: Data;

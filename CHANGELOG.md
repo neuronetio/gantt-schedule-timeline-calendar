@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [3.39.0] [2025-02-11]
+
+- performance improvements
+- Item `rowId` change bugfix
+- fixed pointer events on mobile devices
+
 ## [3.38.0] [2025-02-06]
 
 - ItemMovement & ItemResizing autoScroll is now time based (`ItemMovement.autoScroll.speed.timeout` & `ItemResizing.autoScroll.timeout` option - 30 by default)
