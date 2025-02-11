@@ -75,7 +75,7 @@ export declare class Api {
     getActions(name: string): any;
     isItemHorizontallyInViewport(item: Item, leftGlobal?: number, rightGlobal?: number): boolean;
     private getChildrenLinkedItemsIds;
-    collectAllLinkedItems(items: Items, itemsData: DataItems): void;
+    collectAllLinkedItems(): void;
     getChildrenDependantItemsIds(item: Item, items: Items, allDependant?: string[]): string[];
     calculateItemVerticalPosition(itemId: string, itemData?: ItemData, rowData?: RowData, item?: Item): ItemDataPosition;
     setItemDataOutOfView(itemData: ItemData, time?: DataChartTime): ItemData;
