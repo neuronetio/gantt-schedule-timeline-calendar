@@ -66,20 +66,20 @@ Cypress.Commands.add('load', (url: string) => {
 });
 
 Cypress.Commands.add('scrollH', (movementX) => {
-  const coordinates = { screenX: 0, screenY: 0 };
+  const coordinates = { pageX: 0, pageY: 0 };
   return cy
     .get(horizontalScrollBarSelector)
     .then(($el) => {
       const offset = $el.offset();
       const width = $el.width();
       const height = $el.height();
-      coordinates.screenX += Math.floor(offset.left + width / 2);
-      coordinates.screenY += Math.floor(offset.top + height / 2);
+      coordinates.pageX += Math.floor(offset.left + width / 2);
+      coordinates.pageY += Math.floor(offset.top + height / 2);
     })
     .get(horizontalScrollBarSelector)
     .trigger('pointerdown', coordinates)
     .then(() => {
-      coordinates.screenX += +movementX;
+      coordinates.pageX += +movementX;
     })
     .trigger('pointermove', coordinates)
     .trigger('pointerup', coordinates)
@@ -91,8 +91,8 @@ Cypress.Commands.add('scrollH', (movementX) => {
 
 Cypress.Commands.add('scrollV', (movementY) => {
   const coordinates = {
-    screenX: 10,
-    screenY: 10,
+    pageX: 10,
+    pageY: 10,
   };
   return cy
     .get(verticalScrollBarSelector)
@@ -100,13 +100,13 @@ Cypress.Commands.add('scrollV', (movementY) => {
       const offset = $el.offset();
       const width = $el.width();
       const height = $el.height();
-      coordinates.screenX += Math.floor(offset.left + width / 2);
-      coordinates.screenY += Math.floor(offset.top + height / 2);
+      coordinates.pageX += Math.floor(offset.left + width / 2);
+      coordinates.pageY += Math.floor(offset.top + height / 2);
     })
     .get(verticalScrollBarSelector)
     .trigger('pointerdown', coordinates)
     .then(() => {
-      coordinates.screenY += movementY;
+      coordinates.pageY += movementY;
     })
     .trigger('pointermove', coordinates)
     .trigger('pointerup', coordinates)
