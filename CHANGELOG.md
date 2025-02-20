@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [3.40.0] [2025-02-20]
+
+- vido & lit-html (v3) & dayjs libs updated
+- removed unused dependencies
+- ignored cypress and examples directories for npm package - they are not required
+
 ## [3.39.1] [2025-02-11]
 
 - performance improvements

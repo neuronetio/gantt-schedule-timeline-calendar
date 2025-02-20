@@ -700,8 +700,8 @@ declare namespace GSTC {
         fromArray(array: any): Record<string, any>;
         stateFromConfig: typeof import("./api/public").stateFromConfig;
         wasmStateFromConfig: typeof import("./api/public").wasmStateFromConfig;
-        merge: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
-        mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
+        merge: typeof import("@neuronet.io/vido/dist/types/helpers").mergeDeep;
+        mergeDeep: typeof import("@neuronet.io/vido/dist/types/helpers").mergeDeep;
         clone: (object: object) => unknown;
         lithtml: typeof import("lit-html");
         html: typeof import("lit-html");

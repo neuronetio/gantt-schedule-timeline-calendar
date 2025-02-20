@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import type { Config, Locale, Period } from '../gstc';
 import { lithtml } from '@neuronet.io/vido';
 import * as vido from '@neuronet.io/vido';
-export declare const mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
+export declare const mergeDeep: typeof import("@neuronet.io/vido/dist/types/helpers").mergeDeep;
 export declare function prepareState(userConfig: Config): {
     config: unknown;
 };
@@ -18,8 +18,8 @@ export declare const publicApi: {
     fromArray(array: any): Record<string, any>;
     stateFromConfig: typeof stateFromConfig;
     wasmStateFromConfig: typeof wasmStateFromConfig;
-    merge: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
-    mergeDeep: typeof import("@neuronet.io/vido/types/helpers").mergeDeep;
+    merge: typeof import("@neuronet.io/vido/dist/types/helpers").mergeDeep;
+    mergeDeep: typeof import("@neuronet.io/vido/dist/types/helpers").mergeDeep;
     clone: typeof clone;
     lithtml: typeof lithtml;
     html: typeof lithtml;
