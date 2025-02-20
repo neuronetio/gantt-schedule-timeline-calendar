@@ -3,4 +3,5 @@
 .travis.yml
 npm-shrinkwrap.json
 cypress
+cypress.config.js
 examples
