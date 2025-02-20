@@ -2,3 +2,5 @@
 .github
 .travis.yml
 npm-shrinkwrap.json
+cypress
+examples
