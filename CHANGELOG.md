@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.40.1] [2025-02-24]
+
+- slots props not updating in certain scenarios bugfix
+
 ## [3.40.0] [2025-02-20]
 
 - vido & lit-html (v3) & dayjs libs updated
