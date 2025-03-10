@@ -764,36 +764,35 @@ function zoomChangeRange(ev) {
 }
 
 function searchRows(event) {
-  const copiedRows = getInitialRows();
+  const currentRows = state.get('config.list.rows');
   const search = String(event.target.value).trim();
   console.log('search', search);
   const regex = new RegExp(`[\s\S]?${search}[\s\S]?`, 'gi');
-  const rowsToKeep = [];
-  for (const rowId in copiedRows) {
-    const row = copiedRows[rowId];
+  const rowsToKeep = new Set();
+  for (const rowId in currentRows) {
+    const row = currentRows[rowId];
     const rowData = gstc.api.getRowData(rowId);
     if (regex.test(row.label)) {
-      rowsToKeep.push(rowId);
+      rowsToKeep.add(rowId);
       for (const childRowId of rowData.allChildren) {
-        rowsToKeep.push(childRowId);
+        rowsToKeep.add(childRowId);
       }
       for (const parentRowId of rowData.parents) {
-        rowsToKeep.push(parentRowId);
-        if (search) copiedRows[parentRowId].expanded = true;
+        rowsToKeep.add(parentRowId);
+        if (search) currentRows[parentRowId].expanded = true;
       }
     }
     regex.lastIndex = 0;
   }
-  const uniqueRowsToKeep = [...new Set(rowsToKeep)]; // js way to get only unique row id's- we don't want duplicates here
-  for (const rowId in copiedRows) {
-    if (uniqueRowsToKeep.includes(rowId)) {
-      copiedRows[rowId].visible = true;
+  for (const rowId in currentRows) {
+    if (rowsToKeep.has(rowId)) {
+      currentRows[rowId].visible = true;
     } else {
-      copiedRows[rowId].visible = false;
+      currentRows[rowId].visible = false;
     }
   }
   state.update('config.list.rows', (currentRows) => {
-    return copiedRows;
+    return currentRows;
   });
 }
 
