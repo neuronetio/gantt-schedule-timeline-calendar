@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.40.3] [2025-03-02]
+
+- added missing required libraries for types
+
 ## [3.40.2] [2025-02-25]
 
 - npmignore updated
