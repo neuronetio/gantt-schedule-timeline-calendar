@@ -8,6 +8,11 @@
       "name": "gantt-schedule-timeline-calendar",
       "version": "3.40.2",
       "license": "SEE LICENSE IN LICENSE",
+      "dependencies": {
+        "@neuronet.io/vido": "^4.3.1",
+        "dayjs": "^1.11.13",
+        "deep-state-observer": "^5.5.14"
+      },
       "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^5.27.0",
         "@typescript-eslint/parser": "^5.27.0",
@@ -298,6 +303,15 @@
         "node": ">=6"
       }
     },
+    "node_modules/@neuronet.io/vido": {
+      "version": "4.3.1",
+      "resolved": "https://registry.npmjs.org/@neuronet.io/vido/-/vido-4.3.1.tgz",
+      "integrity": "sha512-9JKg1235ugUnqPARyvHQWlAejNoMFYogw9UW43gf1madiHXlslq9JBOjvPXdUWbSMLZOr3vvi4tkHRxftvyz1Q==",
+      "license": "MIT",
+      "dependencies": {
+        "lit-html": "^3.2.1"
+      }
+    },
     "node_modules/@nodelib/fs.scandir": {
       "version": "2.1.5",
       "resolved": "https://registry.npmjs.org/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz",
@@ -391,6 +405,12 @@
       "resolved": "https://registry.npmjs.org/@types/sizzle/-/sizzle-2.3.9.tgz",
       "integrity": "sha512-xzLEyKB50yqCUPUJkIsrVvoWNfFUbIZI+RspLWt8u+tIW/BetMBZtgV2LY/2o+tYH8dRvQ+eoPf3NdhQCcLE2w==",
       "dev": true,
+      "license": "MIT"
+    },
+    "node_modules/@types/trusted-types": {
+      "version": "2.0.7",
+      "resolved": "https://registry.npmjs.org/@types/trusted-types/-/trusted-types-2.0.7.tgz",
+      "integrity": "sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==",
       "license": "MIT"
     },
     "node_modules/@types/yauzl": {
@@ -1336,7 +1356,6 @@
       "version": "1.11.13",
       "resolved": "https://registry.npmjs.org/dayjs/-/dayjs-1.11.13.tgz",
       "integrity": "sha512-oaMBel6gjolK862uaPQOVTA7q3TZhuSvuMQAAglQDOWYO9A91IrAOUJEyKVlqJlHE0vq5p5UXxzdPfMH/x6xNg==",
-      "dev": true,
       "license": "MIT"
     },
     "node_modules/debug": {
@@ -1362,6 +1381,12 @@
       "resolved": "https://registry.npmjs.org/deep-is/-/deep-is-0.1.4.tgz",
       "integrity": "sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==",
       "dev": true,
+      "license": "MIT"
+    },
+    "node_modules/deep-state-observer": {
+      "version": "5.5.14",
+      "resolved": "https://registry.npmjs.org/deep-state-observer/-/deep-state-observer-5.5.14.tgz",
+      "integrity": "sha512-rb4XCVPMvC9VDPLITJO7SS2e0tBnjPcyoFG+nD1qa+gVJm5o4JsZjxpE0j4Z/jDiTbuTKPaNhGZUZWxLs3CzAw==",
       "license": "MIT"
     },
     "node_modules/delayed-stream": {
@@ -2836,6 +2861,15 @@
         "enquirer": {
           "optional": true
         }
+      }
+    },
+    "node_modules/lit-html": {
+      "version": "3.2.1",
+      "resolved": "https://registry.npmjs.org/lit-html/-/lit-html-3.2.1.tgz",
+      "integrity": "sha512-qI/3lziaPMSKsrwlxH/xMgikhQ0EGOX2ICU73Bi/YHFvz2j/yMCIrw4+puF2IpQ4+upd3EWbvnHM9+PnJn48YA==",
+      "license": "BSD-3-Clause",
+      "dependencies": {
+        "@types/trusted-types": "^2.0.2"
       }
     },
     "node_modules/lodash": {

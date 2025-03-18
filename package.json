@@ -135,6 +135,11 @@
     "component multimedia editor",
     "component timeline editor"
   ],
+  "dependencies": {
+    "@neuronet.io/vido": "^4.3.1",
+    "dayjs": "^1.11.13",
+    "deep-state-observer": "^5.5.14"
+  },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.27.0",
     "@typescript-eslint/parser": "^5.27.0",
