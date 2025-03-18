@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## [3.40.3] [2025-03-02]
+## [3.40.3] [2025-03-18]
 
 - added missing required libraries for types
 
