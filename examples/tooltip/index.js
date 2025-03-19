@@ -298,11 +298,24 @@ const config = {
   plugins: [
     TimelinePointer(), // timeline pointer must go first before selection, resizing and movement
     Selection(),
-    ItemResizing(), // resizing must fo before movement
+    ItemResizing({
+      events: {
+        onStart({ items }) {
+          disableTooltip = true;
+          hideTooltip();
+          return items.after;
+        },
+        onEnd({ items }) {
+          disableTooltip = false;
+          return items.after;
+        },
+      },
+    }), // resizing must fo before movement
     ItemMovement({
       events: {
         onStart({ items }) {
           disableTooltip = true;
+          hideTooltip();
           return items.after;
         },
         onEnd({ items }) {
