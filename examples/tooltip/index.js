@@ -1,4 +1,9 @@
 import GSTC from '../../dist/gstc.wasm.esm.min.js';
+import { Plugin as TimelinePointer } from '../../dist/plugins/timeline-pointer.esm.min.js';
+import { Plugin as Selection } from '../../dist/plugins/selection.esm.min.js';
+import { Plugin as ItemMovement } from '../../dist/plugins/item-movement.esm.min.js';
+import { Plugin as ItemResizing } from '../../dist/plugins/item-resizing.esm.min.js';
+
 //import { computePosition, flip, shift, offset, arrow } from '@floating-ui/dom';
 // in your project you should use import statements above
 // but for this example we will use globalThis (imppor from CDN inside html file)
@@ -87,6 +92,7 @@ const columns = [
 
 let gstc, state;
 
+let disableTooltip = false;
 /**
  * @type {import('../../dist/gstc').htmlResult | string}
  */
@@ -134,6 +140,10 @@ function mainSlotWithTooltip(vido) {
  */
 async function showTooltip(element, content) {
   tooltipContent = content;
+  if (disableTooltip) {
+    hideTooltip();
+    return;
+  }
   // we need to refresh component to trigger slot update with our new content
   await gstc.component.update();
 
@@ -189,12 +199,15 @@ function itemAction(element, data) {
   let itemTooltipContent = () =>
     GSTC.lithtml.html`<div>ID: ${GSTC.api.sourceID(data.item.id)}</div><div>Item: ${data.item.label}</div><div>Row: ${
       data.row.label
-    }</div>`;
+    }</div><div>From: ${data.itemData.time.startDate.format(
+      'YYYY-MM-DD'
+    )}</div><div>To: ${data.itemData.time.endDate.format('YYYY-MM-DD')}</div>`;
 
   const showTooltipEventListener = () => showTooltip(element, itemTooltipContent());
   const hideTooltipEventListener = () => hideTooltip();
 
   element.addEventListener('mouseenter', showTooltipEventListener);
+  element.addEventListener('mousemove', showTooltipEventListener);
   element.addEventListener('mouseleave', hideTooltipEventListener);
   element.addEventListener('click', showTooltipEventListener);
 
@@ -205,6 +218,7 @@ function itemAction(element, data) {
     destroy(element, data) {
       hideTooltip();
       element.removeEventListener('mouseenter', showTooltipEventListener);
+      element.removeEventListener('mousemove', showTooltipEventListener);
       element.removeEventListener('mouseleave', hideTooltipEventListener);
       element.removeEventListener('click', showTooltipEventListener);
     },
@@ -281,6 +295,23 @@ const config = {
   licenseKey:
     '====BEGIN LICENSE KEY====\nXOfH/lnVASM6et4Co473t9jPIvhmQ/l0X3Ewog30VudX6GVkOB0n3oDx42NtADJ8HjYrhfXKSNu5EMRb5KzCLvMt/pu7xugjbvpyI1glE7Ha6E5VZwRpb4AC8T1KBF67FKAgaI7YFeOtPFROSCKrW5la38jbE5fo+q2N6wAfEti8la2ie6/7U2V+SdJPqkm/mLY/JBHdvDHoUduwe4zgqBUYLTNUgX6aKdlhpZPuHfj2SMeB/tcTJfH48rN1mgGkNkAT9ovROwI7ReLrdlHrHmJ1UwZZnAfxAC3ftIjgTEHsd/f+JrjW6t+kL6Ef1tT1eQ2DPFLJlhluTD91AsZMUg==||U2FsdGVkX1/SWWqU9YmxtM0T6Nm5mClKwqTaoF9wgZd9rNw2xs4hnY8Ilv8DZtFyNt92xym3eB6WA605N5llLm0D68EQtU9ci1rTEDopZ1ODzcqtTVSoFEloNPFSfW6LTIC9+2LSVBeeHXoLEQiLYHWihHu10Xll3KsH9iBObDACDm1PT7IV4uWvNpNeuKJc\npY3C5SG+3sHRX1aeMnHlKLhaIsOdw2IexjvMqocVpfRpX4wnsabNA0VJ3k95zUPS3vTtSegeDhwbl6j+/FZcGk9i+gAy6LuetlKuARjPYn2LH5Be3Ah+ggSBPlxf3JW9rtWNdUoFByHTcFlhzlU9HnpnBUrgcVMhCQ7SAjN9h2NMGmCr10Rn4OE0WtelNqYVig7KmENaPvFT+k2I0cYZ4KWwxxsQNKbjEAxJxrzK4HkaczCvyQbzj4Ppxx/0q+Cns44OeyWcwYD/vSaJm4Kptwpr+L4y5BoSO/WeqhSUQQ85nvOhtE0pSH/ZXYo3pqjPdQRfNm6NFeBl2lwTmZUEuw==\n====END LICENSE KEY====',
   innerHeight: 100,
+  plugins: [
+    TimelinePointer(), // timeline pointer must go first before selection, resizing and movement
+    Selection(),
+    ItemResizing(), // resizing must fo before movement
+    ItemMovement({
+      events: {
+        onStart({ items }) {
+          disableTooltip = true;
+          return items.after;
+        },
+        onEnd({ items }) {
+          disableTooltip = false;
+          return items.after;
+        },
+      },
+    }),
+  ],
   list: {
     columns: {
       data: GSTC.api.fromArray(columns),
