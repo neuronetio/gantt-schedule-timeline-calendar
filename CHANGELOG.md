@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [3.40.4] [2025-03-19]
+
+- `Component` type changed
+- `RenderFunction` type changed
+- `ActionFunctionResult` type changed
+
 ## [3.40.3] [2025-03-18]
 
 - added missing required libraries for types

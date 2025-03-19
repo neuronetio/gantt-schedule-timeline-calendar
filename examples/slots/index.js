@@ -86,6 +86,10 @@ const columnsFromDB = [
   },
 ];
 
+// import { Component } from 'gantt-schedule-timeline-calendar';
+/**
+ * @type {import("../../dist/gstc").Component}
+ */
 function itemsSlot(vido) {
   return (content) =>
     vido.html`<div
@@ -97,6 +101,10 @@ function itemsSlot(vido) {
       ${content}`;
 }
 
+// import { Component } from 'gantt-schedule-timeline-calendar';
+/**
+ * @type {import("../../dist/gstc").Component}
+ */
 function dateSlot(vido, props) {
   const { onChange, update, html } = vido;
 

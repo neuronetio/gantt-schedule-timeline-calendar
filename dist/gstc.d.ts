@@ -156,8 +156,8 @@ export type VoidFunction = () => void;
 export type PluginInitialization = (vido: Vido) => void | VoidFunction;
 export type Plugin = <T>(options: T) => PluginInitialization;
 export type htmlResult = lithtml.TemplateResult | lithtml.TemplateResult[] | lithtml.SVGTemplateResult | lithtml.SVGTemplateResult[] | string | Element | undefined | null;
-export type RenderFunction = (templateProps: unknown) => htmlResult;
-export type Component = (vido: unknown, props: unknown) => RenderFunction;
+export type RenderFunction = (templateProps: any) => htmlResult;
+export type Component = (vido: Vido, props: any) => RenderFunction;
 export interface Components {
     [name: string]: Component;
 }
@@ -498,8 +498,8 @@ export interface Chart {
     spacing?: number | ChartSpacing;
 }
 export interface ActionFunctionResult {
-    update?: (element: HTMLElement, data: unknown) => void;
-    destroy?: (element: HTMLElement, data: unknown) => void;
+    update?: (element: HTMLElement, data: ActionData) => void;
+    destroy?: (element: HTMLElement, data: ActionData) => void;
 }
 export interface ActionData {
     componentName: SlotName;

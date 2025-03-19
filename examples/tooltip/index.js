@@ -1,4 +1,9 @@
 import GSTC from '../../dist/gstc.wasm.esm.min.js';
+//import { computePosition, flip, shift, offset, arrow } from '@floating-ui/dom';
+// in your project you should use import statements above
+// but for this example we will use globalThis (imppor from CDN inside html file)
+// @ts-ignore
+const floatingUI = window.FloatingUIDOM;
 
 const rows = [
   {
@@ -82,32 +87,181 @@ const columns = [
 
 let gstc, state;
 
-function setTippyContent(element, data) {
-  if (!gstc) return;
-  if ((!data || !data.item) && element._tippy) return element._tippy.destroy();
-  const itemData = gstc.api.getItemData(data.item.id);
-  if (!itemData) return element._tippy.destroy();
-  if (itemData.detached && element._tippy) return element._tippy.destroy();
-  // @ts-ignore
-  if (!itemData.detached && !element._tippy) tippy(element, { trigger: 'mouseenter click' });
-  if (!element._tippy) return;
-  const startDate = itemData.time.startDate;
-  const endDate = itemData.time.endDate;
-  const tooltipContent = `${data.item.label}\nfrom ${startDate.format('YYYY-MM-DD')}\nto ${endDate.format(
-    'YYYY-MM-DD'
-  )}`;
-  element._tippy.setContent(tooltipContent);
+/**
+ * @type {import('../../dist/gstc').htmlResult | string}
+ */
+let tooltipContent = '';
+
+// import { Component } from 'gantt-schedule-timeline-calendar';
+/**
+ * @type {import("../../dist/gstc").Component}
+ */
+function mainSlotWithTooltip(vido) {
+  const { html } = vido;
+  return (content) =>
+    html`${content}
+      <div id="tooltip" role="tooltip">
+        ${tooltipContent}
+        <div id="tooltip-arrow"></div>
+      </div>
+      <style>
+        #tooltip {
+          display: none;
+          width: max-content;
+          position: absolute;
+          top: 0;
+          left: 0;
+          background: #222;
+          color: white;
+          font-weight: bold;
+          padding: 5px;
+          border-radius: 4px;
+          font-size: 90%;
+        }
+        #tooltip-arrow {
+          position: absolute;
+          background: #222;
+          width: 8px;
+          height: 8px;
+          transform: rotate(45deg);
+        }
+      </style>`;
 }
 
-function itemTippy(element, data) {
-  setTippyContent(element, data);
+/**
+ * Show tooltip with content
+ * @param {import('../../dist/gstc').htmlResult | string} content to display
+ */
+async function showTooltip(element, content) {
+  tooltipContent = content;
+  // we need to refresh component to trigger slot update with our new content
+  await gstc.component.update();
+
+  const tooltip = document.getElementById('tooltip');
+  const arrowElement = document.getElementById('tooltip-arrow');
+  if (!tooltip || !arrowElement) return;
+  tooltip.style.display = 'block';
+
+  const { x, y, placement, middlewareData } = await floatingUI.computePosition(element, tooltip, {
+    placement: 'top',
+    middleware: [
+      floatingUI.flip(),
+      floatingUI.shift(),
+      floatingUI.offset(6),
+      floatingUI.arrow({ element: arrowElement }),
+    ],
+  });
+
+  Object.assign(tooltip.style, {
+    left: `${x}px`,
+    top: `${y}px`,
+    display: 'block',
+  });
+
+  const { x: arrowX, y: arrowY } = middlewareData.arrow;
+  const staticSide = {
+    top: 'bottom',
+    right: 'left',
+    bottom: 'top',
+    left: 'right',
+  }[placement.split('-')[0]];
+
+  Object.assign(arrowElement.style, {
+    left: arrowX != null ? `${arrowX}px` : '',
+    top: arrowY != null ? `${arrowY}px` : '',
+    right: '',
+    bottom: '',
+    [staticSide]: '-4px',
+  });
+  await gstc.component.update();
+}
+
+function hideTooltip() {
+  const tooltip = document.getElementById('tooltip');
+  if (tooltip) tooltip.style.display = 'none';
+}
+
+// import { Action } from 'gantt-schedule-timeline-calendar';
+/**
+ * @type {import('../../dist/gstc').Action}
+ */
+function itemAction(element, data) {
+  let itemTooltipContent = () =>
+    GSTC.lithtml.html`<div>ID: ${GSTC.api.sourceID(data.item.id)}</div><div>Item: ${data.item.label}</div><div>Row: ${
+      data.row.label
+    }</div>`;
+
+  const showTooltipEventListener = () => showTooltip(element, itemTooltipContent());
+  const hideTooltipEventListener = () => hideTooltip();
+
+  element.addEventListener('mouseenter', showTooltipEventListener);
+  element.addEventListener('mouseleave', hideTooltipEventListener);
+  element.addEventListener('click', showTooltipEventListener);
+
   return {
-    update(element, data) {
-      if (element._tippy) element._tippy.destroy();
-      setTippyContent(element, data);
+    update(element, updatedData) {
+      data = updatedData;
     },
     destroy(element, data) {
-      if (element._tippy) element._tippy.destroy();
+      hideTooltip();
+      element.removeEventListener('mouseenter', showTooltipEventListener);
+      element.removeEventListener('mouseleave', hideTooltipEventListener);
+      element.removeEventListener('click', showTooltipEventListener);
+    },
+  };
+}
+
+// import { Action } from 'gantt-schedule-timeline-calendar';
+/**
+ * @type {import('../../dist/gstc').Action}
+ */
+function rowAction(element, data) {
+  let itemTooltipContent = () =>
+    GSTC.lithtml.html`<div>ID: ${GSTC.api.sourceID(data.row.id)}</div><div>Row: ${data.row.label}</div>`;
+
+  const showTooltipEventListener = () => showTooltip(element, itemTooltipContent());
+  const hideTooltipEventListener = () => hideTooltip();
+
+  element.addEventListener('mouseenter', showTooltipEventListener);
+  element.addEventListener('mouseleave', hideTooltipEventListener);
+  element.addEventListener('click', showTooltipEventListener);
+
+  return {
+    update(element, updatedData) {
+      data = updatedData;
+    },
+    destroy(element, data) {
+      hideTooltip();
+      element.removeEventListener('mouseenter', showTooltipEventListener);
+      element.removeEventListener('mouseleave', hideTooltipEventListener);
+      element.removeEventListener('click', showTooltipEventListener);
+    },
+  };
+}
+
+// import { Action } from 'gantt-schedule-timeline-calendar';
+/**
+ * @type {import('../../dist/gstc').Action}
+ */
+function dateAction(element, data) {
+  let itemTooltipContent = () => GSTC.lithtml.html`<div>Date: ${data.date.leftGlobalDate.format('YYYY-MM-DD')}</div>`;
+
+  const showTooltipEventListener = () => showTooltip(element, itemTooltipContent());
+  const hideTooltipEventListener = () => hideTooltip();
+
+  element.addEventListener('mouseenter', showTooltipEventListener);
+  element.addEventListener('mouseleave', hideTooltipEventListener);
+  element.addEventListener('click', showTooltipEventListener);
+
+  return {
+    update(element, updatedData) {
+      data = updatedData;
+    },
+    destroy(element, data) {
+      hideTooltip();
+      element.removeEventListener('mouseenter', showTooltipEventListener);
+      element.removeEventListener('mouseleave', hideTooltipEventListener);
+      element.removeEventListener('click', showTooltipEventListener);
     },
   };
 }
@@ -137,7 +291,12 @@ const config = {
     items: GSTC.api.fromArray(items),
   },
   actions: {
-    'chart-timeline-items-row-item': [itemTippy],
+    'chart-timeline-items-row-item': [itemAction],
+    'list-column-row': [rowAction],
+    'chart-calendar-date': [dateAction],
+  },
+  slots: {
+    main: { outer: [mainSlotWithTooltip] },
   },
 };
 
