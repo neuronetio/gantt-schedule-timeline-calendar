@@ -183,7 +183,6 @@ async function showTooltip(element, content) {
     bottom: '',
     [staticSide]: '-4px',
   });
-  await gstc.component.update();
 }
 
 function hideTooltip() {
@@ -237,6 +236,7 @@ function rowAction(element, data) {
   const hideTooltipEventListener = () => hideTooltip();
 
   element.addEventListener('mouseenter', showTooltipEventListener);
+  element.addEventListener('mousemove', showTooltipEventListener);
   element.addEventListener('mouseleave', hideTooltipEventListener);
   element.addEventListener('click', showTooltipEventListener);
 
@@ -247,6 +247,7 @@ function rowAction(element, data) {
     destroy(element, data) {
       hideTooltip();
       element.removeEventListener('mouseenter', showTooltipEventListener);
+      element.removeEventListener('mousemove', showTooltipEventListener);
       element.removeEventListener('mouseleave', hideTooltipEventListener);
       element.removeEventListener('click', showTooltipEventListener);
     },
@@ -264,6 +265,7 @@ function dateAction(element, data) {
   const hideTooltipEventListener = () => hideTooltip();
 
   element.addEventListener('mouseenter', showTooltipEventListener);
+  element.addEventListener('mousemove', showTooltipEventListener);
   element.addEventListener('mouseleave', hideTooltipEventListener);
   element.addEventListener('click', showTooltipEventListener);
 
@@ -274,6 +276,7 @@ function dateAction(element, data) {
     destroy(element, data) {
       hideTooltip();
       element.removeEventListener('mouseenter', showTooltipEventListener);
+      element.removeEventListener('mousemove', showTooltipEventListener);
       element.removeEventListener('mouseleave', hideTooltipEventListener);
       element.removeEventListener('click', showTooltipEventListener);
     },
