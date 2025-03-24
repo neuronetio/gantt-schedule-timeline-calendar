@@ -395,9 +395,9 @@
       "license": "MIT"
     },
     "node_modules/@types/node": {
-      "version": "22.13.10",
-      "resolved": "https://registry.npmjs.org/@types/node/-/node-22.13.10.tgz",
-      "integrity": "sha512-I6LPUvlRH+O6VRUqYOcMudhaIdUVWfsjnZavnsraHvpBwaEyMN29ry+0UVJhImYL16xsscu0aske3yA+uPOWfw==",
+      "version": "22.13.13",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-22.13.13.tgz",
+      "integrity": "sha512-ClsL5nMwKaBRwPcCvH8E7+nU4GxHVx1axNvMZTFHMEfNI7oahimt26P5zjVCRrjiIWj6YFXfE1v3dEp94wLcGQ==",
       "dev": true,
       "license": "MIT",
       "optional": true,
@@ -6748,22 +6748,22 @@
       "license": "MIT"
     },
     "node_modules/tldts": {
-      "version": "6.1.84",
-      "resolved": "https://registry.npmjs.org/tldts/-/tldts-6.1.84.tgz",
-      "integrity": "sha512-aRGIbCIF3teodtUFAYSdQONVmDRy21REM3o6JnqWn5ZkQBJJ4gHxhw6OfwQ+WkSAi3ASamrS4N4nyazWx6uTYg==",
+      "version": "6.1.85",
+      "resolved": "https://registry.npmjs.org/tldts/-/tldts-6.1.85.tgz",
+      "integrity": "sha512-gBdZ1RjCSevRPFix/hpaUWeak2/RNUZB4/8frF1r5uYMHjFptkiT0JXIebWvgI/0ZHXvxaUDDJshiA0j6GdL3w==",
       "dev": true,
       "license": "MIT",
       "dependencies": {
-        "tldts-core": "^6.1.84"
+        "tldts-core": "^6.1.85"
       },
       "bin": {
         "tldts": "bin/cli.js"
       }
     },
     "node_modules/tldts-core": {
-      "version": "6.1.84",
-      "resolved": "https://registry.npmjs.org/tldts-core/-/tldts-core-6.1.84.tgz",
-      "integrity": "sha512-NaQa1W76W2aCGjXybvnMYzGSM4x8fvG2AN/pla7qxcg0ZHbooOPhA8kctmOZUDfZyhDL27OGNbwAeig8P4p1vg==",
+      "version": "6.1.85",
+      "resolved": "https://registry.npmjs.org/tldts-core/-/tldts-core-6.1.85.tgz",
+      "integrity": "sha512-DTjUVvxckL1fIoPSb3KE7ISNtkWSawZdpfxGxwiIrZoO6EbHVDXXUIlIuWympPaeS+BLGyggozX/HTMsRAdsoA==",
       "dev": true,
       "license": "MIT"
     },

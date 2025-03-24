@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.40.5] [2025-03-24]
+
+- error messages improved
+
 ## [3.40.4] [2025-03-19]
 
 - `Component` type changed
