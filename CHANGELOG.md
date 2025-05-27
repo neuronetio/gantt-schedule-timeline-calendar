@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [3.40.6] [2025-05-27]
+
+- wrong vertical scroll height calculation bugfix
+- when `config.scroll.vertical.byPixels` was set to `false` the excess position was reset to 0 instead of the last possible position bugfix
+
 ## [3.40.5] [2025-03-24]
 
 - error messages improved
