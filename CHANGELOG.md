@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.40.7] [2025-05-27]
+
+- visible rows height calculation bugfix
+
 ## [3.40.6] [2025-05-27]
 
 - wrong vertical scroll height calculation bugfix
