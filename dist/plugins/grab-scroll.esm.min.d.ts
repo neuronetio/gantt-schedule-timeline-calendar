@@ -5,7 +5,7 @@
  */
 import type { Vido } from '../gstc';
 export declare const pluginName = "GrabScroll";
-export declare const pluginPath: string;
+export declare const pluginPath = "config.plugin.GrabScroll";
 export declare const templatePath = "config.templates.chart-timeline-items-row-item";
 export interface Options {
     enabled?: boolean;

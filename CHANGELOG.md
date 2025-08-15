@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.40.8] [2025-08-15]
+
+- fixed an issue with scrolling the entire page using a trackpad/mouse wheel
+
 ## [3.40.7] [2025-05-27]
 
 - visible rows height calculation bugfix
