@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.40.10] [2025-08-16]
+
+- updated wasm loader code
+
 ## [3.40.9] [2025-08-15]
 
 - fixed an issue where the component would block scrolling when it reached the end or when there was no scrolling.
