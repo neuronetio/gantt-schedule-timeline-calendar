@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf8" />
+    <title>GSTC grab-scroll example</title>
+    <link rel="stylesheet" href="../../dist/style.css" />
+    <!-- replace this path  -->
+    <link rel="stylesheet" href="../reset.css" />
+  </head>
+  <body>
+    <style>
+      #pointer-mode {
+        margin: 20px;
+      }
+      #pointer-mode div {
+        margin: 10px 0px;
+      }
+    </style>
+    <fieldset id="pointer-mode">
+      <legend>Select mode:</legend>
+
+      <div>
+        <input type="radio" id="grab-scroll" name="pointer-mode" value="grab-scroll" checked />
+        <label for="grab-scroll">Grab Scroll</label>
+      </div>
+
+      <div>
+        <input type="radio" id="selection" name="pointer-mode" value="selection" />
+        <label for="selection">Selection</label>
+      </div>
+
+      <div>
+        <input type="number" id="multiplier" value="2" min="1" max="4" />
+        <label for="multiplier">Speed multiplier</label>
+      </div>
+    </fieldset>
+    <div id="gstc"></div>
+    <script type="module" src="index.js"></script>
+    <!-- replace this path  -->
+  </body>
+</html>
