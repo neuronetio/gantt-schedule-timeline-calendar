@@ -92,30 +92,42 @@ function generateItems() {
   return items;
 }
 
-let selectionEnabled = false;
+let grabScrollEnabled = true;
 let speedMultiplier = 2;
-const selectionRadio = document.getElementById('selection');
+const grabScrollRadio = document.getElementById('grab-scroll');
 const multiplierInput = document.getElementById('multiplier');
 const pointerModeFieldset = document.getElementById('pointer-mode');
 
-function updateOptions() {
-  // @ts-ignore
-  selectionEnabled = selectionRadio.checked;
-  // @ts-ignore
-  speedMultiplier = Number(multiplierInput.value);
+function enableGrabScroll(enabled = true, multiplier = 1) {
+  const plugin = state.get('config.plugin');
+  if (!plugin.GrabScroll) {
+    return;
+  }
   state.update('config.plugin.GrabScroll', (options) => {
-    options.enabled = !selectionEnabled;
+    options.enabled = enabled;
     options.multiplier = {
-      x: speedMultiplier,
-      y: speedMultiplier,
+      x: multiplier,
+      y: multiplier,
     };
-    console.log('GrabScroll options updated:', options);
     return options;
   });
-  state.update('config.plugin.Selection.enabled', selectionEnabled);
-  state.update('config.plugin.ItemResizing.enabled', selectionEnabled);
-  state.update('config.plugin.ItemMovement.enabled', selectionEnabled);
-  console.log('Selection enabled:', selectionEnabled);
+  if (plugin.Selection) {
+    state.update('config.plugin.Selection.enabled', !enabled);
+  }
+  if (plugin.ItemResizing) {
+    state.update('config.plugin.ItemResizing.enabled', !enabled);
+  }
+  if (plugin.ItemMovement) {
+    state.update('config.plugin.ItemMovement.enabled', !enabled);
+  }
+}
+
+function updateOptions() {
+  // @ts-ignore
+  grabScrollEnabled = grabScrollRadio.checked;
+  // @ts-ignore
+  speedMultiplier = Number(multiplierInput.value);
+  enableGrabScroll(grabScrollEnabled, speedMultiplier);
 }
 
 if (pointerModeFieldset) {
@@ -146,16 +158,16 @@ const config = {
   plugins: [
     TimelinePointer(),
     Selection({
-      enabled: selectionEnabled,
+      enabled: !grabScrollEnabled,
     }),
     ItemResizing({
-      enabled: selectionEnabled,
+      enabled: !grabScrollEnabled,
     }),
     ItemMovement({
-      enabled: selectionEnabled,
+      enabled: !grabScrollEnabled,
     }),
     GrabScroll({
-      enabled: true,
+      enabled: grabScrollEnabled,
       multiplier: {
         x: 2,
         y: 2,
