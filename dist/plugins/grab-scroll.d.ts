@@ -9,6 +9,10 @@ export declare const pluginPath = "config.plugin.GrabScroll";
 export declare const templatePath = "config.templates.chart-timeline-items-row-item";
 export interface Options {
     enabled?: boolean;
+    multiplier?: {
+        x: number;
+        y: number;
+    };
 }
 export declare function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 //# sourceMappingURL=grab-scroll.d.ts.map

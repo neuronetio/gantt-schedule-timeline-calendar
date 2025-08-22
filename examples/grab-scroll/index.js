@@ -175,16 +175,16 @@ const config = {
       to: endDate.valueOf(),
     },
   },
-  // scroll: {
-  //   horizontal: {
-  //     byPixels: true,
-  //     precise: true,
-  //   },
-  //   vertical: {
-  //     byPixels: true,
-  //     precise: true,
-  //   },
-  // },
+  scroll: {
+    horizontal: {
+      byPixels: false,
+      precise: true,
+    },
+    vertical: {
+      byPixels: false,
+      precise: true,
+    },
+  },
 };
 
 // Generate GSTC state from configuration object

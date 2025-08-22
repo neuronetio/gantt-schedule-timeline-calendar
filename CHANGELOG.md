@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [3.41.0] [2025-08-19]
+
+- GrabScroll plugin added ([example](https://github.com/neuronetio/gantt-schedule-timeline-calendar/tree/master/examples/grab-scroll))
+- fixed some scrolling issues
+- scrollToTime returns time that was set instead of scroll handle position
+- added `currentPositionOrigin` to timeline pointer event which is not affected by scrolling precision
+- ItemResizing, ItemMovement `enabled` reactivity improved
+
 ## [3.40.10] [2025-08-16]
 
 - updated wasm loader code

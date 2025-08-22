@@ -52,6 +52,8 @@ export interface PluginData extends Options {
     events: TimelinePointerEvents;
     initialPosition: TimelinePointerPoint;
     currentPosition: TimelinePointerPoint;
+    initialPositionOrigin: TimelinePointerPoint;
+    currentPositionOrigin: TimelinePointerPoint;
     movement: Movement;
 }
 export interface ScrollPosPx {
@@ -66,6 +68,8 @@ export interface TimelinePointerEvent {
     targetType: TargetType;
     initialScrollPosPx: ScrollPosPx;
     initialScrollOffset: TimelinePointerOffset;
+    initialPositionOrigin: TimelinePointerPoint;
+    currentPositionOrigin: TimelinePointerPoint;
     initialPosition: TimelinePointerPoint;
     currentPosition: TimelinePointerPoint;
     movement: Movement;
