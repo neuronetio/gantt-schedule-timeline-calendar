@@ -9,7 +9,7 @@ export interface Point {
 }
 export interface Options {
     enabled: boolean;
-    bodyClassName: string;
+    bodyClassName: string | string[];
 }
 export declare function Plugin(options?: Options): (vidoInstance: any) => () => void;
 //# sourceMappingURL=calendar-scroll.d.ts.map

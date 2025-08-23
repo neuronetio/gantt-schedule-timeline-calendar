@@ -13,6 +13,8 @@ export interface Options {
         x: number;
         y: number;
     };
+    bodyClassName?: string | string[];
+    timelineClassName?: string | string[];
 }
 export declare function Plugin(options?: Options): (vidoInstance: Vido) => () => void;
 //# sourceMappingURL=grab-scroll.d.ts.map

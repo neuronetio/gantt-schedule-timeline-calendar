@@ -1,6 +1,14 @@
 # CHANGELOG
 
-## [3.41.0] [2025-08-19]
+## [3.41.1] [2025-08-23]
+
+- Calendar Scroll `bodyClassName` option now also accepts an array of class names
+- You can now pass empty body class name to CalendarScroll to not use any class
+- (CSS) CalendarScroll default body class name changed to `['gstc-scrolling', 'gstc-cursor-grabbing']`
+- (CSS) GrabScroll body class names option added
+- (CSS) ScrollBars cursors removed
+
+## [3.41.0] [2025-08-22]
 
 - GrabScroll plugin added ([example](https://github.com/neuronetio/gantt-schedule-timeline-calendar/tree/master/examples/grab-scroll))
 - fixed some scrolling issues

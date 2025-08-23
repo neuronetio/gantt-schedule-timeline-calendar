@@ -13,7 +13,10 @@ body.gstc-items-moving * {
 .gstc__timeline-chart-items-row-item--moving {
   z-index: 3 !important;
 }
-body.gstc-scrolling * {
+.gstc-cursor-grab * {
+  cursor: grab;
+}
+body.gstc-cursor-grabbing * {
   cursor: grabbing !important;
 }
 .gstc-error {
@@ -70,7 +73,6 @@ body.gstc-scrolling * {
   overflow: hidden;
   position: absolute;
   background: rgba(253,253,253,0.471);
-  cursor: grab;
 }
 .gstc__scroll-bar--vertical {
   flex-shrink: 0;
