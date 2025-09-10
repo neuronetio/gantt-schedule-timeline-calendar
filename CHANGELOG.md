@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [3.41.2] [2025-09-10]
+
+- when timeline pointer plugin is enabled/disabled it will takeover/restore default browser touch events (e.g. via `state.update('config.plugin.TimelinePointer.enabled', false);`)
+- (CSS) `touch-action` property removed from couple of elements
+
 ## [3.41.1] [2025-08-23]
 
 - Calendar Scroll `bodyClassName` option now also accepts an array of class names

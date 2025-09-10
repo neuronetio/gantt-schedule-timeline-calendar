@@ -19,6 +19,12 @@ body.gstc-items-moving * {
 body.gstc-cursor-grabbing * {
   cursor: grabbing !important;
 }
+.gstc-touch-action-none * {
+  touch-action: none !important;
+}
+.gstc-touch-action-auto * {
+  touch-action: auto !important;
+}
 .gstc-error {
   background: #d73c2c;
   color: #fff;
@@ -46,6 +52,7 @@ body.gstc-cursor-grabbing * {
   line-height: 1.2;
   box-sizing: border-box;
   position: relative;
+  touch-action: auto;
 }
 .gstc * {
   box-sizing: border-box;
@@ -85,7 +92,6 @@ body.gstc-cursor-grabbing * {
   background: rgba(0,0,0,0.16);
   border-radius: 4px;
   position: absolute;
-  touch-action: none;
 }
 .gstc__scroll-bar-inner:hover,
 .gstc__scroll-bar-inner--active {
@@ -99,9 +105,6 @@ body.gstc-cursor-grabbing * {
   flex-shrink: 0;
   user-select: none;
   position: relative;
-}
-.gstc__list > * {
-  touch-action: none;
 }
 .gstc__list-toggle {
   position: absolute;
@@ -465,7 +468,6 @@ body.gstc-cursor-grabbing * {
   overflow: hidden;
   border-right: 1px solid rgba(237,241,242,0.75);
   border-bottom: 1px solid rgba(237,241,242,0.75);
-  touch-action: none;
   height: 100%;
 }
 .gstc__chart-timeline-grid-row-cell--selecting {
@@ -555,7 +557,6 @@ body.gstc-cursor-grabbing * {
   height: 100%;
   pointer-events: none !important;
   overflow: hidden;
-  touch-action: none;
 }
 .gstc__chart-timeline-items * {
   user-select: none;
@@ -564,14 +565,11 @@ body.gstc-cursor-grabbing * {
   overflow: hidden;
   position: relative;
   pointer-events: none !important;
-  touch-action: none;
 }
 .gstc__chart-timeline-items-row * {
-  touch-action: none;
   pointer-events: all;
 }
 .gstc__chart-timeline-items-row-item {
-  touch-action: none;
   position: absolute;
   user-select: none;
   background: #e74c3c;
@@ -598,7 +596,6 @@ body.gstc-cursor-grabbing * {
   margin: auto;
 }
 .gstc__chart-timeline-items-row-item-label {
-  touch-action: none;
   display: flex;
   flex-grow: 1;
   overflow: hidden;
