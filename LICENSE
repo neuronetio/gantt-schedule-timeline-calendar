@@ -20,22 +20,36 @@ NEURONET Free / Trial License Terms
 
    IF THESE RESTRICTIONS ARE NOT ALLOWED BY YOUR RESPECTIVE LAW OR YOU WANT TO MODIFY THIS LICENSE IN SOME WAY THEN CONTACT NEURONET TO CHECK IF SOME RESTRICTIONS CAN BE WAIVED OR MODIFIED IN YOUR CASE. THE WAIVER OR MODIFICATION CAN ONLY BE GIVEN BY WRITTEN CONSENT
 
-3. DISCLAIMER OF WARRANTIES
+3. EXPORT CONTROL AND SANCTIONS COMPLIANCE
+
+  The Licensee acknowledges and agrees that the Software is subject to applicable export control and sanctions laws and regulations of the European Union, the United States, and other jurisdictions.
+
+  The Licensee shall not, directly or indirectly:
+
+  a. export, re-export, transfer, supply, sell, license, sublicense, or otherwise make the Software available to any person or entity located in, organized under the laws of, or ordinarily resident in Russia, Belarus, or any other country or territory subject to comprehensive sanctions;
+  b. use the Software for any purpose prohibited by applicable laws or regulations, including but not limited to military, nuclear, missile, chemical, or biological weapons-related activities;
+  c. provide the Software to any individual or entity that is listed on any applicable sanctions list (including but not limited to the EU Consolidated Sanctions List, the U.S. OFAC Specially Designated Nationals List, and the UN Sanctions List).
+
+  The Licensee further agrees to impose the restrictions set forth in this Section on any subsequent transferees, resellers, or end-users of the Software (flow-down obligation).
+
+  Any breach of this Section shall constitute a material violation of this Agreement and shall entitle the Licensor to immediately terminate this Agreement without liability, in addition to any other remedies available under law.
+
+4. DISCLAIMER OF WARRANTIES
 
    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-4. LIMITATION OF LIABILITY
+5. LIMITATION OF LIABILITY
 
    Under no circumstances and under no legal theory, whether tort (including negligence), contract, or otherwise, shall any Contributor, or anyone who distributes Covered Software as permitted above, be liable to You for any direct, indirect, special, incidental, or consequential damages of any character including, without limitation, damages for lost profits, loss of goodwill, work stoppage, computer failure or malfunction, or any and all other commercial damages or losses, even if such party shall have been informed of the possibility of such damages.
 
-5. LITIGATION
+6. LITIGATION
 
    Any litigation relating to this License may be brought only in the courts of a jurisdiction where the NEURONET maintains its principal place of business and such litigation shall be governed by laws of that jurisdiction, without reference to its conflict-of-law provisions.
 
-6. MISCELLANEOUS
+7. MISCELLANEOUS
 
    NEURONET reserves the right to change or extend the terms of this license by sending an e-mail to the licensee without the need to modify this document.
 
-7. TERMINATION
+8. TERMINATION
 
    The rights granted under this License will automatically terminate if you fail to comply with any of its terms. NEURONET reserves the right to terminate or suspend the provisions of this license at any time, even if the violation of its provisions is not proven in court. For this, the presumption of breach of the provisions is sufficient. By using this software, you agree that you do not have any right to claim any redress or hold NEURONET to any liability for the consequences of suspending or terminating the license terms. The Licensee has the right to send explanations regarding the situation by e-mail which may be taken into account and the license validity may be restored with the consent of NEURONET.
