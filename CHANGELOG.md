@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.41.3] [2026-01-08]
+
+- ItemMovement and ItemResizing plugins did not update the position of items outside the visible range bugfix [#414](https://github.com/neuronetio/gantt-schedule-timeline-calendar/issues/416), [#414](https://github.com/neuronetio/gantt-schedule-timeline-calendar/issues/416)
+
 ## [3.41.2] [2025-09-10]
 
 - when timeline pointer plugin is enabled/disabled it will takeover/restore default browser touch events (e.g. via `state.update('config.plugin.TimelinePointer.enabled', false);`)
