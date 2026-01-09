@@ -1,8 +1,12 @@
 # CHANGELOG
 
+## [3.41.4] [2026-01-09]
+
+- overlapped items bugfix [#415](https://github.com/neuronetio/gantt-schedule-timeline-calendar/issues/415)
+
 ## [3.41.3] [2026-01-08]
 
-- ItemMovement and ItemResizing plugins did not update the position of items outside the visible range bugfix [#414](https://github.com/neuronetio/gantt-schedule-timeline-calendar/issues/416), [#414](https://github.com/neuronetio/gantt-schedule-timeline-calendar/issues/416)
+- ItemMovement and ItemResizing plugins did not update the position of items outside the visible range bugfix [#414](https://github.com/neuronetio/gantt-schedule-timeline-calendar/issues/416), [#416](https://github.com/neuronetio/gantt-schedule-timeline-calendar/issues/416)
 
 ## [3.41.2] [2025-09-10]
 
