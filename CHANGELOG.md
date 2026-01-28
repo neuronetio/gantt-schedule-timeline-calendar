@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.41.6] [2026-01-28]
+
+- package.json updated
+
 ## [3.41.5] [2026-01-09]
 
 - (CSS) scroll issues on mobile devices fixed
