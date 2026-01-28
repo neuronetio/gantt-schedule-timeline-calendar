@@ -29,7 +29,7 @@ Keywords: [ gantt, javascript gantt, typescript gantt, project manager, js gantt
 
 - elastic - you can change almost everything from DOM tree to logic (without any compilation, without modifying original code - with config, state or plugin)
 - super fast! even with large dataset
-- multiple items in one row - suitable for various applications like booking, reservation, resource manager, multimedia editor etc.
+- multiple items/tasks in one row - suitable for various applications like booking, reservation, resource manager, multimedia editor etc.
 - tree like structures - collapsible / expandable groups
 - moveable / resizable items with ability to configure which items can move at the moment and how
 - secure html templates
@@ -63,6 +63,34 @@ You can even use it as a <strong>multimedia timeline editor</strong>!
 <strong>gantt-schedule-timeline-calendar</strong> is very extensible and elastic. You can make your own plugins or modify configuration in couple of ways to achieve your goals.
 You can control almost everything. You can change html structure, stylize every html element and even override original components without any compilation stage!
 </p>
+
+## When to choose gantt-schedule-timeline-calendar?
+
+Choose this component if:
+
+- you need a battle-tested component trusted by global enterprises
+- you need **high-performance Gantt charts with hundreds of thousands of items** (faster than competitors)
+- you want a fully customizable JavaScript/Typescript component with extensive control over appearance and behavior
+- you want **advanced scheduling or resource booking UI**
+- you want to define your own rules for moving tasks
+- your project is written in **TypeScript**
+- you want a **timeline** with ability to show **multiple tasks in one row**
+- you need a component that works **on mobile devices**
+- you need integration with React, Vue 3 (Composition API), Angular or Svelte
+- your use case includes **zoomable timelines** down to seconds
+- you need a background grid to place custom HTML content
+- you want to hide non working hours/days
+- you need Daylight Saving Time (DST) support
+
+<br />
+
+GSTC is a powerful, highly customizable JavaScript component that offers full control over both its visual presentation and behavior, allowing developers to tailor it precisely to their needs.
+Gantt Schedule Timeline Calendar is a **high-performance** TypeScript library designed to work on mobile devices also. Use it when traditional Gantt charts are too rigid. Perfect for project management applications,reservation systems, Enterprise Resource Planning (ERP, MES, APS) software, any resource management or booking apps.
+GSTC can handle large datasets (**hundreds of thousands of tasks**) with ease (using **virtual scroll**), making it suitable for complex scheduling and timeline visualization tasks.
+It is the **most extensible** tool on the market – you can override any DOM element on the fly - without recompiling the source.
+Most importantly, if you require custom constraints and flexible, dynamic rules for task updates, this tool is the perfect fit for your needs.
+Powering **global enterprises** with a proven track record of excellence and user satisfaction.
+From startups to global conglomerates, our component is the go-to solution for high-performance scheduling, backed by exceptional feedback from our users.
 
 <h2 align="center">EXAMPLES</h2>
 
