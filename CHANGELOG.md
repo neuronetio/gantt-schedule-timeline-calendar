@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.41.7] [2026-02-12]
+
+- overlapped items bugfix (time sectors merging) [#417](https://github.com/neuronetio/gantt-schedule-timeline-calendar/issues/417)
+
 ## [3.41.6] [2026-01-28]
 
 - package.json updated

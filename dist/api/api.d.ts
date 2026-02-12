@@ -91,7 +91,7 @@ export declare class Api {
     getRowData(rowId: string): RowData;
     setRowData(rowId: string, data: RowData): void;
     getItem(itemId: string): Item;
-    getItems(itemsId?: string[], configItems?: Items): Item[];
+    getItems(itemsId?: string[] | Set<string>, configItems?: Items): Item[];
     getAllItemsAsArray(): Item[];
     getAllItemsDataAsArray(): ItemData[];
     getAllItems(): Items;

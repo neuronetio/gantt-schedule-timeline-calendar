@@ -659,7 +659,8 @@ export interface Data {
 export interface TimeSector {
     from: number;
     to: number;
-    items: string[];
+    items: Set<string>;
+    remove: boolean;
     readonly fromDate: Dayjs;
     readonly toDate: Dayjs;
 }
