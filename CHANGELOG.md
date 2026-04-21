@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.41.9] [2026-04-21]
+
+- dependencies updated
+
 ## [3.41.8] [2026-04-21]
 
 - row style bugfix [#418](https://github.com/neuronetio/gantt-schedule-timeline-calendar/issues/418)

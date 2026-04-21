@@ -9,9 +9,9 @@
       "version": "3.41.8",
       "license": "SEE LICENSE IN LICENSE",
       "dependencies": {
-        "@neuronet.io/vido": "^4.3.1",
+        "@neuronet.io/vido": "^4.3.3",
         "dayjs": "^1.11.13",
-        "deep-state-observer": "^5.5.14"
+        "deep-state-observer": "^5.5.15"
       },
       "devDependencies": {
         "@floating-ui/dom": "^1.6.13",
@@ -323,9 +323,9 @@
       }
     },
     "node_modules/@neuronet.io/vido": {
-      "version": "4.3.2",
-      "resolved": "https://registry.npmjs.org/@neuronet.io/vido/-/vido-4.3.2.tgz",
-      "integrity": "sha512-M9wEUQqMd2mCipM+Vx/kOd94IEO/jY1nqBF2DzTMxEOEhSFfzcGi9Rh3ogh4y/siQN8P1aLXK7xA9rN6p5eA/Q==",
+      "version": "4.3.3",
+      "resolved": "https://registry.npmjs.org/@neuronet.io/vido/-/vido-4.3.3.tgz",
+      "integrity": "sha512-TA8z98nPmXe/K5Qdav4Q3/Gjd/k7z5kB585/4mm84Znf9yQwi17Q9CeKBsiCnS+3sN/ShunyPr98qUhM8sO/oA==",
       "license": "MIT",
       "dependencies": {
         "lit-html": "^3.2.1"
@@ -1404,9 +1404,9 @@
       "license": "MIT"
     },
     "node_modules/deep-state-observer": {
-      "version": "5.5.14",
-      "resolved": "https://registry.npmjs.org/deep-state-observer/-/deep-state-observer-5.5.14.tgz",
-      "integrity": "sha512-rb4XCVPMvC9VDPLITJO7SS2e0tBnjPcyoFG+nD1qa+gVJm5o4JsZjxpE0j4Z/jDiTbuTKPaNhGZUZWxLs3CzAw==",
+      "version": "5.5.15",
+      "resolved": "https://registry.npmjs.org/deep-state-observer/-/deep-state-observer-5.5.15.tgz",
+      "integrity": "sha512-cFhfv3oYQpIJ/Tp39vQ0mEaUVxB1SxczIjEZGsPMFqqzTjkRmMUp/J4N18DXwAeQxf64/ALFwFK79ys/55kOlg==",
       "license": "MIT"
     },
     "node_modules/delayed-stream": {
