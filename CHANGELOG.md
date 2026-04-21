@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.41.8] [2026-04-21]
+
+- row style bugfix [#418](https://github.com/neuronetio/gantt-schedule-timeline-calendar/issues/418)
+
 ## [3.41.7] [2026-02-12]
 
 - overlapped items bugfix (time sectors merging) [#417](https://github.com/neuronetio/gantt-schedule-timeline-calendar/issues/417)
