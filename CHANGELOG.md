@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.42.6] [2026-04-22]
+
+- better resize observer handling
+
 ## [3.42.5] [2026-04-22]
 
 - vido library updated
