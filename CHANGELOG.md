@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.42.1] [2026-04-22]
+
+- removed problematic `document` optimization
+
 ## [3.42.0] [2026-04-22]
 
 - IDeepState interface (imported directly from `gantt-schedule-timeline-calendar`) is used to define the state from now on
