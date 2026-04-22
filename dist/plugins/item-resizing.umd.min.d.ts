@@ -3,8 +3,7 @@
  *
  * @header  --gstc--header--
  */
-import type { Vido, htmlResult, Item, DataChartTime, DataItems, DataScrollHorizontal } from '../gstc';
-import type DeepState from 'deep-state-observer';
+import type { Vido, htmlResult, Item, DataChartTime, DataItems, DataScrollHorizontal, IDeepState } from '../gstc';
 import type { Dayjs } from 'dayjs';
 export interface Handle {
     width?: number;
@@ -45,7 +44,7 @@ export interface OnArg {
     addedDependantIds: string[];
     selectedIds: string[];
     vido: Vido;
-    state: DeepState;
+    state: IDeepState;
     time: DataChartTime;
 }
 export interface Events {

@@ -5,8 +5,7 @@
  */
 import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
-import type { DataChartTime, DataChartTimeLevelDate, ChartTimeDate, Period, ChartCalendarLevel, ChartCalendarLevelFormat } from '../gstc';
-import type DeepState from 'deep-state-observer';
+import type { DataChartTime, DataChartTimeLevelDate, ChartTimeDate, Period, ChartCalendarLevel, ChartCalendarLevelFormat, IDeepState } from '../gstc';
 import type { Api } from './api';
 export interface CurrentDate {
     timestamp: number;
@@ -25,7 +24,7 @@ export declare class Time {
     private api;
     dayjs: any;
     unsubs: (() => void)[];
-    constructor(state: DeepState, api: Api);
+    constructor(state: IDeepState, api: Api);
     destroy(): void;
     date(time?: number | string | Date | undefined): dayjs.Dayjs;
     recalculateTime(): void;

@@ -1,14 +1,13 @@
-import DeepState from 'deep-state-observer';
 import dayjs from 'dayjs';
-import type { Config, Locale, Period } from '../gstc';
+import type { Config, IDeepState, Locale, Period } from '../gstc';
 import { lithtml } from '@neuronet.io/vido';
 import * as vido from '@neuronet.io/vido';
 export declare const mergeDeep: typeof import("@neuronet.io/vido/dist/types/helpers").mergeDeep;
 export declare function prepareState(userConfig: Config): {
     config: unknown;
 };
-export declare function stateFromConfig(userConfig: Config): DeepState;
-export declare function wasmStateFromConfig(userConfig: Config, wasmFile?: string): Promise<any>;
+export declare function stateFromConfig(userConfig: Config): IDeepState;
+export declare function wasmStateFromConfig(userConfig: Config, wasmFile?: string): Promise<IDeepState>;
 declare function clone(object: object): unknown;
 export declare const publicApi: {
     name: string;

@@ -4,8 +4,7 @@
  * @header  --gstc--header--
  */
 import { Time } from './time';
-import type DeepState from 'deep-state-observer';
-import type { DataChartTime, Row, Item, Vido, Items, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, DataScrollVertical, DataScrollHorizontal, ItemRowMap, ChartTimeDates, TimeSectors, TimeSector } from '../gstc';
+import type { DataChartTime, Row, Item, Vido, Items, Rows, GridCell, GridRows, GridRow, GridCells, DataItems, ItemData, ItemDataUpdate, ColumnData, RowData, RowsData, ItemDataPosition, DataChartTimeLevels, DataScrollVertical, DataScrollHorizontal, ItemRowMap, ChartTimeDates, TimeSectors, TimeSector, IDeepState } from '../gstc';
 import { generateSlots } from './slots';
 import { getClass, getId } from './helpers';
 export interface WheelResult {
@@ -40,7 +39,7 @@ export declare class Api {
     apiId: number;
     name: string;
     debug: string | boolean;
-    state: DeepState;
+    state: IDeepState;
     time: Time;
     vido: Vido;
     plugins: any;
@@ -56,7 +55,7 @@ export declare class Api {
     sourceID: (id: string) => string;
     allActions: any[];
     main: any;
-    constructor(state: DeepState);
+    constructor(state: IDeepState);
     schedule(fn: any): (...args: any[]) => void;
     render(): Promise<unknown>;
     getListenerPosition(callback: any): string | number;

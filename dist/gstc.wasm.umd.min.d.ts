@@ -8,8 +8,9 @@ import type { vido } from '@neuronet.io/vido';
 import { StyleInfo, ComponentInstance, lithtml } from '@neuronet.io/vido';
 import { Api } from './api/api';
 import { Dayjs } from 'dayjs';
-import DeepState from 'deep-state-observer';
-export type Vido = vido<DeepState, Api>;
+import type { IDeepState } from 'deep-state-observer';
+export type { IDeepState } from 'deep-state-observer';
+export type Vido = vido<IDeepState, Api>;
 export interface RowDataPosition {
     top: number;
     bottom: number;
@@ -678,12 +679,12 @@ export interface Reason {
     to?: number;
 }
 export interface GSTCOptions {
-    state: DeepState;
+    state: IDeepState;
     element: HTMLElement;
     debug?: boolean;
 }
 export interface GSTCResult {
-    state: DeepState;
+    state: IDeepState;
     api: Api;
     component: ComponentInstance;
     destroy: () => void;

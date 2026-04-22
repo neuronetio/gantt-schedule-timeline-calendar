@@ -175,7 +175,7 @@
   "dependencies": {
     "@neuronet.io/vido": "^4.3.3",
     "dayjs": "^1.11.13",
-    "deep-state-observer": "^5.5.15"
+    "deep-state-observer": "^5.5.17"
   },
   "devDependencies": {
     "@floating-ui/dom": "^1.6.13",

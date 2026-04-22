@@ -11,7 +11,7 @@
       "dependencies": {
         "@neuronet.io/vido": "^4.3.3",
         "dayjs": "^1.11.13",
-        "deep-state-observer": "^5.5.15"
+        "deep-state-observer": "^5.5.17"
       },
       "devDependencies": {
         "@floating-ui/dom": "^1.6.13",
@@ -1404,9 +1404,9 @@
       "license": "MIT"
     },
     "node_modules/deep-state-observer": {
-      "version": "5.5.15",
-      "resolved": "https://registry.npmjs.org/deep-state-observer/-/deep-state-observer-5.5.15.tgz",
-      "integrity": "sha512-cFhfv3oYQpIJ/Tp39vQ0mEaUVxB1SxczIjEZGsPMFqqzTjkRmMUp/J4N18DXwAeQxf64/ALFwFK79ys/55kOlg==",
+      "version": "5.5.17",
+      "resolved": "https://registry.npmjs.org/deep-state-observer/-/deep-state-observer-5.5.17.tgz",
+      "integrity": "sha512-OTn+MnyFArzrE5v9g+8dQkU/3xMKsbhgbzlDEY/O8mi7AcJ6uszJUtXqA9mMk42m5R3jhlehLvLOyaQD0cw2DA==",
       "license": "MIT"
     },
     "node_modules/delayed-stream": {
