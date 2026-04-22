@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.42.2] [2026-04-22]
+
+- removed problematic `document` optimization from vido lib
+
 ## [3.42.1] [2026-04-22]
 
 - removed problematic `document` optimization
