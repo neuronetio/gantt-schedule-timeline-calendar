@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.42.4] [2026-04-22]
+
+- vido library updated
+
 ## [3.42.3] [2026-04-22]
 
 - no longer removes the element in which the component is mounted after destroy, the element can be reused
