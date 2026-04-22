@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.42.3] [2026-04-22]
+
+- no longer removes the element in which the component is mounted after destroy, the element can be reused
+
 ## [3.42.2] [2026-04-22]
 
 - removed problematic `document` optimization from vido lib

@@ -9,7 +9,7 @@
       "version": "3.42.2",
       "license": "SEE LICENSE IN LICENSE",
       "dependencies": {
-        "@neuronet.io/vido": "^4.3.4",
+        "@neuronet.io/vido": "^4.4.0",
         "dayjs": "^1.11.13",
         "deep-state-observer": "^5.5.17"
       },
@@ -322,9 +322,9 @@
       }
     },
     "node_modules/@neuronet.io/vido": {
-      "version": "4.3.4",
-      "resolved": "https://registry.npmjs.org/@neuronet.io/vido/-/vido-4.3.4.tgz",
-      "integrity": "sha512-LnshAtNyB0Pwmmt3MfhEvFwUS3677fhs81sd9gYIqIP+AaNVfcSlED2sV98FVlMy8YSwzUSIb/rLA1o4lE+3GA==",
+      "version": "4.4.0",
+      "resolved": "https://registry.npmjs.org/@neuronet.io/vido/-/vido-4.4.0.tgz",
+      "integrity": "sha512-bzj9t6A+myZV6wBTb4WjfMLrovBtSQXYJ62ZYl9klshRTbPGFStQ5ILBCAZv3vJA1TTiHZU1TIeM8xyJ8/buPw==",
       "license": "MIT",
       "dependencies": {
         "lit-html": "^3.2.1"
