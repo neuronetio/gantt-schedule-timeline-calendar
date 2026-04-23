@@ -694,25 +694,8 @@ export interface GSTCResult {
 }
 declare function GSTC(options: GSTCOptions): GSTCResult;
 declare namespace GSTC {
-    var api: {
-        name: string;
-        GSTCID: (originalId: string) => string;
-        isGSTCID: (id: string) => boolean;
-        sourceID: (id: string) => string;
-        fromArray(array: any): Record<string, any>;
-        stateFromConfig: typeof import("./api/public").stateFromConfig;
-        wasmStateFromConfig: typeof import("./api/public").wasmStateFromConfig;
-        merge: typeof import("@neuronet.io/vido/dist/types/helpers").mergeDeep;
-        mergeDeep: typeof import("@neuronet.io/vido/dist/types/helpers").mergeDeep;
-        clone: (object: object) => unknown;
-        lithtml: typeof import("lit-html");
-        html: typeof import("lit-html");
-        vido: typeof import("@neuronet.io/vido");
-        date(time?: any, utcMode?: boolean, localeConfig?: Locale): Dayjs;
-        setPeriod(period: Period): number;
-        dayjs: typeof import("dayjs");
-    };
-    var lithtml: typeof import("lit-html");
+    var api;
+    var lithtml;
     var Vido: typeof import("@neuronet.io/vido").default;
 }
 export default GSTC;

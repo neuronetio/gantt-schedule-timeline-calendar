@@ -10,62 +10,59 @@ import { Plugin as ItemResizing } from '../../dist/plugins/item-resizing.esm.min
 // @ts-ignore
 const floatingUI = window.FloatingUIDOM;
 
-const rows = [
-  {
-    id: '1',
-    label: 'Row 1',
-  },
-  {
-    id: '2',
-    label: 'Row 2',
-  },
-  {
-    id: '3',
-    label: 'Row 3',
-  },
-  {
-    id: '4',
-    label: 'Row 4',
-  },
-  {
-    id: '5',
-    label: 'Row 5',
-  },
-  {
-    id: '6',
-    label: 'Row 6',
-  },
-];
+const iterations = 100;
+const fromDate = GSTC.api.date().startOf('year');
+let toDate = fromDate.add(30, 'day');
 
-const items = [
-  {
-    id: '1',
-    label: 'Item 1',
-    rowId: '1',
-    time: {
-      start: GSTC.api.date('2020-01-01').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-01-06').endOf('day').valueOf(),
-    },
-  },
-  {
-    id: '2',
-    label: 'Item 2',
-    rowId: '1',
-    time: {
-      start: GSTC.api.date('2020-02-01').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-02-15').endOf('day').valueOf(),
-    },
-  },
-  {
-    id: '3',
-    label: 'Item 3',
-    rowId: '2',
-    time: {
-      start: GSTC.api.date('2020-01-15').startOf('day').valueOf(),
-      end: GSTC.api.date('2020-01-20').endOf('day').valueOf(),
-    },
-  },
-];
+/**
+ * @type {import("../../dist/gstc").Rows}
+ */
+let rows = {};
+function generateNewRows() {
+  rows = {};
+  for (let i = 0; i < iterations; i++) {
+    const id = GSTC.api.GSTCID(String(i + 1));
+    rows[id] = {
+      id,
+      label: `Row ${i + 1}`,
+    };
+  }
+  return rows;
+}
+
+let dateIncrement = 0;
+
+// Typescript usage:
+// import { Items } from 'gantt-schedule-timeline-calendar';
+// let items: Items = {};
+/**
+ * @type {import("../../dist/gstc").Items} // or {import("gantt-schedule-timeline-calendar").Items}
+ */
+let items = {};
+function generateNewItems() {
+  let rowsIds = Object.keys(rows);
+  items = {};
+  const days = 30;
+  toDate = fromDate.add(days - 1, 'day').endOf('day');
+  for (let i = 0, len = rowsIds.length; i < len; i++) {
+    let rowId = rowsIds[i /* % 2 === 0 ? i : i + 1*/];
+    let id = GSTC.api.GSTCID(String(i + 1));
+    if (dateIncrement >= days) dateIncrement = 0;
+    const startTime = fromDate.add(dateIncrement, 'day').startOf('day').valueOf();
+    const endTime = fromDate.add(dateIncrement, 'day').endOf('day').valueOf();
+    items[id] = {
+      id,
+      rowId,
+      label: `Item ${i + 1}`,
+      time: {
+        start: startTime,
+        end: endTime,
+      },
+    };
+    dateIncrement++;
+  }
+  return items;
+}
 
 const columns = [
   {
@@ -199,7 +196,7 @@ function itemAction(element, data) {
     GSTC.lithtml.html`<div>ID: ${GSTC.api.sourceID(data.item.id)}</div><div>Item: ${data.item.label}</div><div>Row: ${
       data.row.label
     }</div><div>From: ${data.itemData.time.startDate.format(
-      'YYYY-MM-DD'
+      'YYYY-MM-DD',
     )}</div><div>To: ${data.itemData.time.endDate.format('YYYY-MM-DD')}</div>`;
 
   const showTooltipEventListener = () => showTooltip(element, itemTooltipContent());
@@ -297,7 +294,7 @@ const config = {
 
   licenseKey:
     '====BEGIN LICENSE KEY====\nXOfH/lnVASM6et4Co473t9jPIvhmQ/l0X3Ewog30VudX6GVkOB0n3oDx42NtADJ8HjYrhfXKSNu5EMRb5KzCLvMt/pu7xugjbvpyI1glE7Ha6E5VZwRpb4AC8T1KBF67FKAgaI7YFeOtPFROSCKrW5la38jbE5fo+q2N6wAfEti8la2ie6/7U2V+SdJPqkm/mLY/JBHdvDHoUduwe4zgqBUYLTNUgX6aKdlhpZPuHfj2SMeB/tcTJfH48rN1mgGkNkAT9ovROwI7ReLrdlHrHmJ1UwZZnAfxAC3ftIjgTEHsd/f+JrjW6t+kL6Ef1tT1eQ2DPFLJlhluTD91AsZMUg==||U2FsdGVkX1/SWWqU9YmxtM0T6Nm5mClKwqTaoF9wgZd9rNw2xs4hnY8Ilv8DZtFyNt92xym3eB6WA605N5llLm0D68EQtU9ci1rTEDopZ1ODzcqtTVSoFEloNPFSfW6LTIC9+2LSVBeeHXoLEQiLYHWihHu10Xll3KsH9iBObDACDm1PT7IV4uWvNpNeuKJc\npY3C5SG+3sHRX1aeMnHlKLhaIsOdw2IexjvMqocVpfRpX4wnsabNA0VJ3k95zUPS3vTtSegeDhwbl6j+/FZcGk9i+gAy6LuetlKuARjPYn2LH5Be3Ah+ggSBPlxf3JW9rtWNdUoFByHTcFlhzlU9HnpnBUrgcVMhCQ7SAjN9h2NMGmCr10Rn4OE0WtelNqYVig7KmENaPvFT+k2I0cYZ4KWwxxsQNKbjEAxJxrzK4HkaczCvyQbzj4Ppxx/0q+Cns44OeyWcwYD/vSaJm4Kptwpr+L4y5BoSO/WeqhSUQQ85nvOhtE0pSH/ZXYo3pqjPdQRfNm6NFeBl2lwTmZUEuw==\n====END LICENSE KEY====',
-  innerHeight: 100,
+  innerHeight: 500,
   plugins: [
     TimelinePointer(), // timeline pointer must go first before selection, resizing and movement
     Selection(),
@@ -332,10 +329,10 @@ const config = {
     columns: {
       data: GSTC.api.fromArray(columns),
     },
-    rows: GSTC.api.fromArray(rows),
+    rows: generateNewRows(),
   },
   chart: {
-    items: GSTC.api.fromArray(items),
+    items: generateNewItems(),
   },
   actions: {
     'chart-timeline-items-row-item': [itemAction],

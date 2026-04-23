@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.42.10] [2026-04-23]
+
+- actions handling improvements and bugfixes (mainly for react)
+
 ## [3.42.9] [2026-04-23]
 
 - resize observer disconnecting bugfix
