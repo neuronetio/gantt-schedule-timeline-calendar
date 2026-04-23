@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.42.8] [2026-04-23]
+
+- vido library updated
+
 ## [3.42.7] [2026-04-23]
 
 - removed unnecessary libraries
