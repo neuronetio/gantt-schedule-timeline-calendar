@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [3.42.7] [2026-04-23]
+
+- removed unnecessary libraries
+- updated deps
+- removed unnecessary cache usage
+
 ## [3.42.6] [2026-04-22]
 
 - better resize observer handling
