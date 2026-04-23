@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.42.9] [2026-04-23]
+
+- resize observer disconnecting bugfix
+
 ## [3.42.8] [2026-04-23]
 
 - vido library updated
