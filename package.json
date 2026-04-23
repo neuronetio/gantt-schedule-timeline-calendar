@@ -173,25 +173,17 @@
     "flexible constraints reservation"
   ],
   "dependencies": {
-    "@neuronet.io/vido": "^4.4.2",
+    "@neuronet.io/vido": "^4.4.3",
     "dayjs": "^1.11.13",
     "deep-state-observer": "^5.5.17"
   },
   "devDependencies": {
     "@floating-ui/dom": "^1.6.13",
-    "@typescript-eslint/eslint-plugin": "^5.27.0",
-    "@typescript-eslint/parser": "^5.27.0",
     "compression": "^1.7.4",
-    "cypress": "^14.4.0",
-    "eslint": "^7.15.0",
-    "eslint-config-prettier": "^6.15.0",
-    "eslint-plugin-cypress": "^2.12.1",
-    "eslint-plugin-prettier": "^3.2.0",
-    "install": "^0.13.0",
+    "cypress": "^15.14.1",
     "polonez": "^1.1.1",
-    "prettier": "^2.2.1",
     "serve-static": "^1.14.1",
-    "tslib": "^2.4.0",
-    "typescript": "^4.7.4"
+    "tslib": "^2.8.1",
+    "typescript": "^6.0.3"
   }
 }
