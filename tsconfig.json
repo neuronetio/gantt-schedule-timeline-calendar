@@ -2,14 +2,13 @@
   "include": ["./*.ts", "./cypress/**/*.ts"],
   "exclude": ["node_modules/**", "dist/**", "cypress.config.js"],
   "compilerOptions": {
-    "moduleResolution": "node",
+    //"moduleResolution": "nodenext",
     "esModuleInterop": true,
     "strict": false,
-    "module": "ESNext",
-    "downlevelIteration": true,
+    "module": "es2022",
     "allowSyntheticDefaultImports": true,
     "allowJs": true,
-    "target": "ES2015",
+    "target": "es2022",
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "types": ["cypress"]
