@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [3.42.11] [2026-04-24]
+
+- chart width and height resize observer improvements
+- actions were destroyed and created again unnecessarily bugfix
+
 ## [3.42.10] [2026-04-23]
 
 - actions handling improvements and bugfixes (mainly for react)
