@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.42.12] [2026-05-13]
+
+- vido library updated (deps)
+
 ## [3.42.11] [2026-04-24]
 
 - chart width and height resize observer improvements
