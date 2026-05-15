@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## [3.42.13] [2026-05-14]
+## [3.43.13] [2026-05-14]
 
 - the `items` option in the Selected plugin set to `false` caused cells to not be fully selected bugfix [#420](https://github.com/neuronetio/gantt-schedule-timeline-calendar/issues/420)
 
