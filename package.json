@@ -178,12 +178,10 @@
     "deep-state-observer": "^5.5.17"
   },
   "devDependencies": {
-    "@floating-ui/dom": "^1.7.6",
     "compression": "^1.8.1",
     "cypress": "^15.17.0",
     "polonez": "^1.1.1",
     "serve-static": "^1.16.3",
-    "tslib": "^2.8.1",
     "typescript": "^6.0.3"
   }
 }
