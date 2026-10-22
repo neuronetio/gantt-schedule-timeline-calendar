@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [3.43.15] [2026-10-23]
+
+- fixed an issue with date calculations in the hourly view during a daylight saving time (DST) transition
+
 ## [3.43.14] [2026-06-11]
 
 - dependencies updated
