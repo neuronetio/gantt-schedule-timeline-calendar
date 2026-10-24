@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [3.43.17] [2026-10-24]
+
+- `periodIncrement` as a function was not executed when generating each of the dates (bugfix)
+
+## [3.43.16] [2026-10-24]
+
+- fixed an issue with date width in the hourly view during a daylight saving time (DST) transition
+
 ## [3.43.15] [2026-10-23]
 
 - fixed an issue with date calculations in the hourly view during a daylight saving time (DST) transition

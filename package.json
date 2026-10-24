@@ -183,5 +183,8 @@
     "polonez": "^1.1.1",
     "serve-static": "^1.16.3",
     "typescript": "^6.0.3"
+  },
+  "allowScripts": {
+    "cypress@15.21.1": true
   }
 }
